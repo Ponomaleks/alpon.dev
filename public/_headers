@@ -1,0 +1,30 @@
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  X-Frame-Options: SAMEORIGIN
+
+/
+  Content-Security-Policy: default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; font-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'self'; upgrade-insecure-requests
+  Cache-Control: public, max-age=0, must-revalidate
+
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+  Access-Control-Allow-Origin: *
+
+/img/*
+  Cache-Control: public, max-age=604800
+
+/cv/*
+  Cache-Control: public, max-age=3600, must-revalidate
+
+/cv/alexander-ponomarenko-cv-en.pdf
+  Content-Disposition: inline; filename="Alexander_Ponomarenko_CV_EN.pdf"
+
+/cv/alexander-ponomarenko-cv-no.pdf
+  Content-Disposition: inline; filename="Alexander_Ponomarenko_CV_NO.pdf"
+
+/alexander-ponomarenko.vcf
+  Content-Type: text/vcard; charset=utf-8
+  Content-Disposition: attachment; filename="Alexander Ponomarenko.vcf"
