@@ -96,7 +96,7 @@ git push -u origin main
 
 | Що змінити | Де | Потім |
 |---|---|---|
-| CV | замінити `public/cv/alexander-ponomarenko-cv-en.pdf` / `-no.pdf` (ті самі імена) | прев'ю: `pdftoppm -r 150 -png file.pdf cv-en` → webp 1240 px, або попросити Claude |
+| CV | замінити `public/cv/alexander-ponomarenko-cv-en.pdf` / `-no.pdf` (ті самі імена) | `python tools/cv-previews.py` (перший раз: `pip install pymupdf pillow`) |
 | Контакти | `public/index.html` (блок Contact + JSON-LD у `<head>`) і `public/alexander-ponomarenko.vcf` | |
 | Текст "under construction" | `public/index.html`, `.eyebrow` | |
 
