@@ -66,7 +66,9 @@ The site itself is a portfolio piece: code quality, accessibility and performanc
 
 ```
 design/            handoff bundle, brand pack, reference screenshots (read-only)
-public/            fonts, _headers, _redirects, static files
+docs/              SDD artifacts: idea brief, architecture map, ADRs, features/, stub-parity.md
+public/            fonts, cv/, qr/, vCard, _headers, _redirects, static files (copied into dist/)
+scripts/           build-time Node/TS checks (e.g. contrast check)
 src/
   data/            contact.ts and other typed data
   styles/          tokens.css, base.css, prose.css
@@ -76,9 +78,13 @@ src/
     brand/         Contours, QrTile
     prose/         Prose and its element mappings
   layouts/         BaseLayout.astro
-  pages/
+  pages/           index.astro, 404.astro, later cv/, projects/[slug], thoughts/
   content/         content collections (projects, later thoughts)
-tests/             visual/, a11y/, e2e/
+tests/
+  e2e/             smoke.spec.ts, parity.spec.ts (one test per docs/stub-parity.md id)
+  a11y/            axe checks (zero violations)
+  visual/          screenshots at 390 / 834 / 1440 x Dag / Natt (from the first UI spec)
+tools/             sources for the OG image, contours and CV previews (not deployed)
 ```
 
 ## Workflow
@@ -87,5 +93,7 @@ tests/             visual/, a11y/, e2e/
 - Small commits, one PR per spec (or per logical part of it). PR description: what changed, screenshots at 390 / 834 / 1440 in both themes, test results, conflicts with the design.
 - After each UI change, run the visual tests and compare with the design screenshots in `design/`.
 - Do not add dependencies without explaining why in the PR. Prefer platform features (CSS, View Transitions, native `<dialog>`, `popover`).
-- Commands: `npm run dev`, `npm run build`, `npm run preview`, `npm run test` (Playwright + axe), `npm run lhci`.
+- Commands: `npm run dev`, `npm run build`, `npm run preview` (`wrangler dev` on `dist/`, production routing), `npm run test` (Playwright e2e + axe against `wrangler dev`), `npm run lint` (`astro check` + ESLint + Prettier check), `npm run format`, `npm run lhci` (Lighthouse CI on `dist/`, run after a build).
+- Parity gate: `main` serves the stub until v2 reaches parity. `tests/e2e/parity.spec.ts` mirrors `docs/stub-parity.md`; the feature spec that builds an item flips its `test.fixme` to `test`. v2 goes to `main` only when no `test.fixme` is left.
+- No unit-test runner yet: add Vitest (with a PR explanation) when a feature has pure logic worth unit-testing.
 - Astro 6 and Cloudflare Workers features change fast. Before using an API or config option, check the Astro Docs MCP and Cloudflare Docs MCP instead of relying on memory.

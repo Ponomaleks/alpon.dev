@@ -4,7 +4,7 @@ mode: greenfield-bootstrap   # target foundation; scaffold materializes it
 updated_at: "2026-10-02"
 reflects_commit: "812f46f"
 # machine-readable keys: the decided toolchain. scaffold reconciles them with the commands that actually work.
-language: "typescript 5 (strict), node 24 LTS"
+language: "typescript 5.9 (strict), node 24 LTS"
 build_cmd: "npm run build"
 test_cmd: "npm run test"
 lint_cmd: "npm run lint"
@@ -113,12 +113,12 @@ None. See ADR-0003. Content: Astro content collections in the repo. The blog use
 
 ## Constraints & known tech-debt
 
-- **Workers Builds build command is shared across branches.** `main` (the stub) has no `package.json`, so a dashboard build command `npm run build` would break production. Scaffold resolves this branch-locally (preferred: `build.command` in `v2`'s `wrangler.jsonc`, if Workers Builds honours it for an assets-only Worker; otherwise a non-production-only setting) and verifies a `v2` preview deploy.
+- **Workers Builds build command is shared across branches.** `main` (the stub) has no `package.json`, so a dashboard build command `npm run build` would break production. Resolved at scaffold: Workers Builds ignores custom builds in `wrangler.jsonc` (Cloudflare docs, Workers Builds configuration), so the build command stays empty, production deploy stays `npx wrangler deploy`, and the **non-production branch deploy command** is `npm run build && npx wrangler preview` (dependencies install automatically when `package.json` exists). Node: the build image defaults to Node 24 and honours `.nvmrc`; confirm in the first `v2` build log. On the v2 → `main` merge the production deploy command becomes `npm run build && npx wrangler deploy` (README).
 - **`/cv` collision ahead:** with `build.format: 'file'`, a future `src/pages/cv/en.astro` competes with the `_redirects` rule for `/cv/en`. `_redirects` wins on Workers. The CV spec must pick one (see `docs/stub-parity.md` P-01..P-03).
 - **CSP vs inline theme script:** the no-flash theme bootstrap is inline. `_headers` must carry its `sha256-` hash, so the hash must be regenerated when the script changes (automate in the theme spec).
 - **Fonts incomplete:** `public/fonts/` has Schibsted 400/500/600 and JetBrains Mono 400/500. The 700 weights required by `CLAUDE.md` get converted from the TTFs in `design/brand/fonts/` in the tokens/fonts spec.
 - **Design refs incomplete:** `design/brand/qr/` (contact QR SVGs) and `design/screenshots/` are not committed yet. `public/qr/` doesn't exist, and Release 1 needs it (`docs/stub-parity.md`). Visual tests need the screenshots before the first UI spec.
-- **Stub assets in `public/`:** `index.html`, `styles.css`, `app.js`, `404.html` are deleted on `v2` by scaffold (they stay on `main` and in history). `sitemap.xml` is static until a sitemap integration is chosen.
+- **Stub assets in `public/`:** `index.html`, `styles.css`, `app.js`, `404.html` were deleted on `v2` by scaffold (they stay on `main` and in history). `sitemap.xml` is static until a sitemap integration is chosen.
 
 ## Reconciliation with the authored architecture doc
 

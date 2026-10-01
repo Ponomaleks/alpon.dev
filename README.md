@@ -1,23 +1,66 @@
-# alpon.dev · тимчасова сторінка
+# alpon.dev
 
-Статична сторінка-заглушка у стилі Fjord: контакти з візитки, CV (EN / NO) з переглядом прямо в браузері, vCard, OG-картинка для LinkedIn. Жодної збірки, жодних залежностей. Хостинг: Cloudflare Workers (static assets), безкоштовний тариф.
+Особистий сайт Alexander Ponomarenko. Дві лінії:
+
+- **`main`** — тимчасова статична сторінка-заглушка (контакти, CV EN / NO, vCard), без збірки, з `public/`. Вона лишається на продакшні, доки v2 не досягне паритету.
+- **`v2`** — новий сайт на Astro 6 (static) з дизайн-системою Fjord. Деплоїться як preview, не чіпаючи продакшн.
+
+## v2: розробка
+
+Потрібно: Node 24 (`.nvmrc`), npm.
+
+```powershell
+npm ci
+npx playwright install chromium   # один раз, для тестів і Lighthouse CI
+```
+
+| Команда | Що робить |
+|---|---|
+| `npm run dev` | `astro dev`, гаряче перезавантаження |
+| `npm run build` | `astro build` → `dist/` (`public/` копіюється всередину) |
+| `npm run preview` | `wrangler dev` на `dist/`: `_headers`, `_redirects` і 404 як на продакшні (http://localhost:8787) |
+| `npm run test` | Playwright (e2e + axe) проти `wrangler dev`; сам збирає `dist/` і піднімає сервер |
+| `npm run lint` | `astro check` + ESLint + Prettier `--check` |
+| `npm run format` | Prettier `--write` |
+| `npm run lhci` | Lighthouse CI на `dist/` (спершу `npm run build`), бюджет з `CLAUDE.md` |
+
+CI: `.github/workflows/ci.yml` на кожен PR і push у `main` / `v2` — lint, build, test, lhci.
 
 ```
 alpon.dev/
-├─ wrangler.jsonc          конфіг Cloudflare (ім'я Worker'а, папка public, домен)
-├─ public/                 все, що публікується
-│  ├─ index.html           сторінка
-│  ├─ styles.css, app.js
-│  ├─ 404.html
-│  ├─ cv/                  PDF + прев'ю сторінок (webp) для телефонів
-│  ├─ fonts/               Schibsted Grotesk, JetBrains Mono (woff2, OFL)
-│  ├─ img/contours.svg     горизонталі з brand-пакета
-│  ├─ og.png               картинка для прев'ю посилання (LinkedIn, Slack, месенджери)
-│  ├─ alexander-ponomarenko.vcf
-│  ├─ _headers             безпека + кешування
-│  └─ _redirects           короткі посилання: /cv, /cv/no, /linkedin, /github
-└─ tools/                  джерела OG-картинки й контурів (у деплой не йдуть)
+├─ astro.config.mjs        Astro: static, build.format 'file', trailingSlash 'never'
+├─ wrangler.jsonc          Worker: assets.directory ./dist, 404-page, auto-trailing-slash
+├─ src/                    сторінки, layout, компоненти, стилі, дані, content collections
+├─ public/                 статика: fonts, cv/, qr/, vCard, og.png, _headers, _redirects
+├─ tests/                  e2e/ (smoke, parity), a11y/ (axe), visual/
+├─ docs/                   SDD: idea brief, architecture map, ADR, stub-parity.md
+├─ design/                 handoff і brand pack (лише читання)
+└─ tools/                  джерела OG-картинки, контурів, прев'ю CV (у деплой не йдуть)
 ```
+
+### Паритет із заглушкою
+
+`docs/stub-parity.md` — все, що вміє заглушка. `tests/e2e/parity.spec.ts` має по тесту на кожен пункт: активні мають проходити вже зараз, решта — `test.fixme`, доки фіча-спека їх не реалізує. **v2 потрапляє в `main` лише тоді, коли в `parity.spec.ts` не лишилося жодного `test.fixme`.**
+
+### v2 на Cloudflare Workers Builds (preview)
+
+Workers Builds не читає custom build з `wrangler.jsonc`, а налаштування збірки одні на всі гілки. Тому:
+
+- **Build command:** порожньо (на `main` немає `package.json`; на `v2` залежності Workers Builds ставить сам, бо `package.json` є).
+- **Deploy command** (production, `main`): `npx wrangler deploy` — як і раніше, віддає `public/` заглушки.
+- **Non-production branch deploy command** (`v2` та інші гілки): `npm run build && npx wrangler preview`.
+
+Preview URL гілки `v2` видно у Worker `alpon-dev` → **Deployments** (або в статусі коміту на GitHub).
+
+Node: образ Workers Builds за замовчуванням має Node 24 і читає `.nvmrc`. Версію, яку реально використано, видно в лозі першої збірки `v2`; якщо там не 24, додати build variable `NODE_VERSION=24`.
+
+Під час злиття `v2` → `main` змінити production deploy command на `npm run build && npx wrangler deploy`.
+
+---
+
+## Заглушка (`main`)
+
+Статична сторінка у стилі Fjord: контакти з візитки, CV (EN / NO) з переглядом прямо в браузері, vCard, OG-картинка для LinkedIn. Жодної збірки, жодних залежностей. Хостинг: Cloudflare Workers (static assets), безкоштовний тариф. Файли сторінки (`public/index.html`, `styles.css`, `app.js`, `404.html`) є лише на `main`; на `v2` їх замінюють сторінки Astro.
 
 ## Як працює перегляд CV
 
@@ -97,8 +140,8 @@ git push -u origin main
 | Що змінити | Де | Потім |
 |---|---|---|
 | CV | замінити `public/cv/alexander-ponomarenko-cv-en.pdf` / `-no.pdf` (ті самі імена) | `python tools/cv-previews.py` (перший раз: `pip install pymupdf pillow`) |
-| Контакти | `public/index.html` (блок Contact + JSON-LD у `<head>`) і `public/alexander-ponomarenko.vcf` | |
-| Текст "under construction" | `public/index.html`, `.eyebrow` | |
+| Контакти | `main`: `public/index.html` (блок Contact + JSON-LD у `<head>`); `v2`: `src/data/contact.ts` (створює перша UI-фіча). В обох `public/alexander-ponomarenko.vcf` | |
+| Текст "under construction" (`main`) | `public/index.html`, `.eyebrow` | |
 
 Після змін: `git add . && git commit -m "..." && git push`. PDF кешується на годину, тож нова версія в усіх з'явиться протягом години (або одразу: **Caching → Configuration → Purge Everything**).
 
@@ -115,8 +158,12 @@ npx wrangler deploy
 
 ## Локальний перегляд
 
+На `main`:
+
 ```powershell
 npx wrangler dev
 ```
+
+На `v2` спершу збірка: `npm run build`, потім `npm run preview`.
 
 Відкрити http://localhost:8787. Працюють і `_headers`, і `_redirects`, і 404, як на продакшні.

@@ -1,0 +1,38 @@
+{
+  "name": "alpon-dev",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "alpon.dev: personal site of Alexander Ponomarenko",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "wrangler dev",
+    "test": "playwright test",
+    "lint": "astro check && eslint . && prettier --check .",
+    "format": "prettier --write .",
+    "lhci": "lhci autorun"
+  },
+  "dependencies": {
+    "astro": "6.4.8"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.10",
+    "@axe-core/playwright": "4.13.0",
+    "@eslint/js": "10.0.1",
+    "@lhci/cli": "0.15.1",
+    "@playwright/test": "1.63.0",
+    "@types/node": "24.19.1",
+    "eslint": "10.11.0",
+    "eslint-plugin-astro": "3.2.1",
+    "globals": "17.13.0",
+    "prettier": "3.9.9",
+    "prettier-plugin-astro": "1.1.0",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.71.0",
+    "wrangler": "4.146.0"
+  }
+}

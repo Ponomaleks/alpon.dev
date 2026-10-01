@@ -1,0 +1,15 @@
+dist/
+.astro/
+.wrangler/
+node_modules/
+public/
+design/
+tools/
+docs/
+test-results/
+playwright-report/
+.lighthouseci/
+package-lock.json
+CLAUDE.md
+README.md
+.claude/
