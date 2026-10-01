@@ -88,3 +88,4 @@ tests/             visual/, a11y/, e2e/
 - After each UI change, run the visual tests and compare with the design screenshots in `design/`.
 - Do not add dependencies without explaining why in the PR. Prefer platform features (CSS, View Transitions, native `<dialog>`, `popover`).
 - Commands: `npm run dev`, `npm run build`, `npm run preview`, `npm run test` (Playwright + axe), `npm run lhci`.
+- Astro 6 and Cloudflare Workers features change fast. Before using an API or config option, check the Astro Docs MCP and Cloudflare Docs MCP instead of relying on memory.

@@ -1,0 +1,61 @@
+{
+  "slug": "_scaffold",
+  "source": "docs/architecture-map.md (mode: greenfield-bootstrap, reflects 89d375b)",
+  "smoke_test": "npm run build produces dist/ with index.html + 404.html; `wrangler dev` boots and serves / (200) and an unknown path (404); `npm run test` runs green (parity fixme tests reported as skipped); `npm run lint` passes; migration tool: none (ADR-0003)",
+  "tasks": [
+    {
+      "id": "S1",
+      "title": "Create the Astro 6 project, folder structure and entry pages; retire the stub HTML",
+      "layer": "scaffold",
+      "deps": [],
+      "acs": [],
+      "dod": "package.json (npm, scripts dev/build/preview/test/lint/lhci, engines node>=24), .nvmrc 24, tsconfig extends astro/tsconfigs/strict, astro.config.mjs (output 'static', site 'https://alpon.dev', build.format 'file', trailingSlash 'never'); src/{pages,layouts,components/{ui,layout,brand,prose},styles,data,content} exist; src/layouts/BaseLayout.astro (lang, charset, viewport, title/description props, no design UI); src/pages/index.astro (placeholder, no Fjord UI) and src/pages/404.astro (plain text '404 · Ikke funnet', noindex, link to /); stub public/index.html, styles.css, app.js, 404.html deleted (assets kept: fonts, cv/, vcf, og.png, favicon.svg, apple-touch-icon.png, img/, _headers, _redirects, robots.txt, sitemap.xml); wrangler.jsonc assets.directory './dist' with 404-page + auto-trailing-slash kept; .gitignore adds dist/, .astro/, test-results/, playwright-report/, .lighthouseci/. Smoke: `npm run build` produces dist/index.html and dist/404.html, and `npx wrangler dev` serves them.",
+      "files_hint": ["package.json", ".nvmrc", "tsconfig.json", "astro.config.mjs", "src/layouts/BaseLayout.astro", "src/pages/index.astro", "src/pages/404.astro", "src/components/", "src/data/", "src/content/", "wrangler.jsonc", ".gitignore", "public/"]
+    },
+    {
+      "id": "S2",
+      "title": "Wire lint and format: ESLint flat config, Prettier, astro check",
+      "layer": "scaffold",
+      "deps": ["S1"],
+      "acs": [],
+      "dod": "eslint.config.js (typescript-eslint + eslint-plugin-astro), .prettierrc + .prettierignore (prettier-plugin-astro; ignores dist, public, design, docs/features/**/*.json as needed); `npm run lint` = `astro check && eslint . && prettier --check .` exits 0 on the skeleton.",
+      "files_hint": ["eslint.config.js", ".prettierrc", ".prettierignore", "package.json"]
+    },
+    {
+      "id": "S3",
+      "title": "Migration tooling: dropped",
+      "layer": "scaffold",
+      "deps": [],
+      "acs": [],
+      "dod": "Explicitly dropped: no datastore (ADR-0003, architecture-map migration_tool: none). Nothing to create; scaffold records the drop with this reason.",
+      "files_hint": []
+    },
+    {
+      "id": "S4",
+      "title": "Wire the Playwright harness against wrangler dev, with the smoke, axe and stub-parity suites",
+      "layer": "scaffold",
+      "deps": ["S1"],
+      "acs": [],
+      "dod": "playwright.config.ts (webServer: build + `wrangler dev` on dist, port 8787, reuseExistingServer locally; projects: chromium desktop + mobile viewport); tests/e2e/smoke.spec.ts (/ returns 200 with <html lang>, unknown path returns 404); tests/a11y/smoke.spec.ts (@axe-core/playwright: zero violations on / and the 404 page); tests/e2e/parity.spec.ts with one test per P-id from docs/stub-parity.md: 'active' ids are normal tests and pass, 'fixme' ids use test.fixme with the P-id in the title; tests/visual/ exists (empty, filled by the first UI spec). `npm run test` exits 0.",
+      "files_hint": ["playwright.config.ts", "tests/e2e/smoke.spec.ts", "tests/e2e/parity.spec.ts", "tests/a11y/smoke.spec.ts", "tests/visual/", "package.json"]
+    },
+    {
+      "id": "S5",
+      "title": "Add the CI workflow and Lighthouse CI config; make Workers Builds build v2 without breaking main. verify the Node version Workers Builds actually uses on v2 (check the build log). If it ignores .nvmrc, set NODE_VERSION=24 as a build variable for non-production branches only.",
+      "layer": "scaffold",
+      "deps": ["S2", "S4"],
+      "acs": [],
+      "dod": ".github/workflows/ci.yml on pull_request + push to v2/main: setup-node from .nvmrc, npm ci, npm run lint, npm run build, Playwright install chromium + npm run test (upload report on failure), npm run lhci; lighthouserc.cjs asserts the CLAUDE.md budget (perf/a11y/best-practices/seo >= 0.95, LCP <= 2000, CLS <= 0.02, TBT <= 100) on dist/; `npm run lhci` passes locally on the skeleton; the workflow YAML is valid (actionlint or a parse check). Workers Builds: the build runs `npm ci && npm run build` on v2 only (branch-local config preferred, e.g. wrangler.jsonc build.command, verified to apply to an assets-only Worker; otherwise document the dashboard setting); a v2 push produces a working preview URL, and production (main stub) is untouched.  Node version: confirm in the v2 build log which Node version Workers Builds uses; if .nvmrc is ignored, set NODE_VERSION=24 as a build variable for non-production branches only, and record the result in README. If build.command in wrangler.jsonc does not apply to an assets-only Worker, use the non-production branch deploy command instead: `npm ci && npm run build && npx wrangler preview`.",
+      "files_hint": [".github/workflows/ci.yml", "lighthouserc.cjs", "wrangler.jsonc", "package.json"]
+    },
+    {
+      "id": "S6",
+      "title": "Update CLAUDE.md and README to the materialized skeleton",
+      "layer": "scaffold",
+      "deps": ["S1", "S2", "S4", "S5"],
+      "acs": [],
+      "dod": "CLAUDE.md: commands list matches package.json scripts (incl. lint), project structure adds scripts/, tests/{e2e,a11y,visual}, docs/stub-parity.md + the parity gate rule; conventions agree with docs/architecture-map.md. README gains a v2 section (how to run, test, lint, lhci, where the v2 preview URL is, and that main stays the stub until docs/stub-parity.md is fully green); the existing stub deployment guide is kept, with stub-only file references updated. No conflict with architecture-map conventions.",
+      "files_hint": ["CLAUDE.md", "README.md"]
+    }
+  ]
+}
