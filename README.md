@@ -52,7 +52,7 @@ Workers Builds не читає custom build з `wrangler.jsonc`, а налашт
 
 Preview URL гілки `v2` видно у Worker `alpon-dev` → **Deployments** (або в статусі коміту на GitHub).
 
-Node: образ Workers Builds за замовчуванням має Node 24 і читає `.nvmrc`. Версію, яку реально використано, видно в лозі першої збірки `v2`; якщо там не 24, додати build variable `NODE_VERSION=24`.
+Node: Workers Builds читає `.nvmrc` — перша збірка `v2` (2026-10-02) встановила Node 24.21.0, тож build variable `NODE_VERSION` не потрібна. Якщо колись у лозі буде інша версія, додати `NODE_VERSION=24` для non-production гілок.
 
 Під час злиття `v2` → `main` змінити production deploy command на `npm run build && npx wrangler deploy`.
 
