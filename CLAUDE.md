@@ -18,7 +18,8 @@ The site itself is a portfolio piece: code quality, accessibility and performanc
 
 1. `design/handoff/` - bundle exported from Claude Design ("Fjord" design system + page designs). Read-only.
 2. `design/brand/BRAND.md` and `design/brand/tokens.json` - brand rules. If the handoff conflicts with BRAND.md, BRAND.md wins; report the conflict in the PR description.
-3. `specs/` - one spec per phase with acceptance criteria. Implement only what the current spec asks for.
+3. `docs/` - artifacts of the SDD workflow (idea brief, specs, plans, tasks). The current SDD spec defines scope; implement only what it asks for.
+4. `docs/reference/` - early drafts written before the SDD workflow (e.g. 01-foundations.md, phase 1 scaffold scope). Use them as input; if they differ from SDD artifacts, the SDD artifacts win.
 
 ## Design rules (non-negotiable)
 
@@ -65,7 +66,6 @@ The site itself is a portfolio piece: code quality, accessibility and performanc
 
 ```
 design/            handoff bundle, brand pack, reference screenshots (read-only)
-specs/             phase specs with acceptance criteria
 public/            fonts, _headers, _redirects, static files
 src/
   data/            contact.ts and other typed data
@@ -83,7 +83,7 @@ tests/             visual/, a11y/, e2e/
 
 ## Workflow
 
-- Work spec by spec. Before coding, restate the acceptance criteria from the current spec and list open questions.
+- Follow the SDD workflow. Before coding, restate the acceptance criteria from the current SDD spec and list open questions.
 - Small commits, one PR per spec (or per logical part of it). PR description: what changed, screenshots at 390 / 834 / 1440 in both themes, test results, conflicts with the design.
 - After each UI change, run the visual tests and compare with the design screenshots in `design/`.
 - Do not add dependencies without explaining why in the PR. Prefer platform features (CSS, View Transitions, native `<dialog>`, `popover`).
