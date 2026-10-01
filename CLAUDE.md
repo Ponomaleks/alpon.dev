@@ -1,0 +1,90 @@
+# alpon.dev
+
+Personal site of Alexander Ponomarenko, Software Engineer / Full Stack Developer, Oslo area, Norway.
+It is his professional home during a job search in Norway: landing page with contacts, CV (EN + NO), portfolio of live projects with case studies, and later a blog (/thoughts).
+The site itself is a portfolio piece: code quality, accessibility and performance are part of the product.
+
+## Stack
+
+- Astro 6, TypeScript (strict), static output (`output: 'static'`).
+- Plain CSS with custom properties. No Tailwind, no CSS-in-JS, no UI kits.
+- Interactive parts are small islands (vanilla TS or React only when it clearly pays off). Default is zero client JS.
+- Hosting: Cloudflare Workers with static assets (`wrangler.jsonc`, `assets.directory: ./dist`), deployed by Workers Builds from GitHub. Production branch: `main`. Other branches get preview URLs.
+- Package manager: npm. Node LTS.
+- Tests: Playwright (visual + e2e), @axe-core/playwright, Lighthouse CI. Run in GitHub Actions on every PR.
+- Running cost must stay at zero (only the domain is paid). Do not add paid services.
+
+## Sources of truth (read before changing UI)
+
+1. `design/handoff/` - bundle exported from Claude Design ("Fjord" design system + page designs). Read-only.
+2. `design/brand/BRAND.md` and `design/brand/tokens.json` - brand rules. If the handoff conflicts with BRAND.md, BRAND.md wins; report the conflict in the PR description.
+3. `specs/` - one spec per phase with acceptance criteria. Implement only what the current spec asks for.
+
+## Design rules (non-negotiable)
+
+- Use tokens only: every color, font, space, radius, duration and easing comes from `--fjord-*` custom properties in `src/styles/tokens.css`. No hardcoded hex values or magic numbers in components.
+- Two themes: `Dag` (light) and `Natt` (dark). Theme = `data-theme="dag|natt"` on `<html>`, default from `prefers-color-scheme`, user choice saved in localStorage. No flash of wrong theme.
+- One dark color per composition; accent only for text and interactive states, never large fills; one primary CTA per screen.
+- Fonts: Schibsted Grotesk (400/500/600/700) and JetBrains Mono (400/500/700), self-hosted woff2, Latin subset including æ ø å. Max two families. Every family and weight used by the design system or the page designs is required; ship it (convert the handoff TTFs to subset woff2).
+- 4px spacing grid, left-aligned asymmetric layouts, breakpoints 360 / 768 / 1024 / 1440.
+- Motion: only via motion tokens. Everything must work with `prefers-reduced-motion: reduce` (fades only, no loops, counters show final values).
+- View Transitions (page navigation, theme switch) are progressive enhancement: feature-detect (`document.startViewTransition` / `@view-transition`), and with `prefers-reduced-motion: reduce` disable them entirely (`@media (prefers-reduced-motion: reduce) { @view-transition { navigation: none; } }`, skip `startViewTransition` in JS and apply the change directly). The UI must work identically without them.
+- Icons: thin line icons (1.5px stroke). No emoji as icons. No tech logos, no skill bars or percentages.
+
+## Content rules
+
+- English for main content. Norwegian for small warm details: "Hei", "Ta kontakt", "Kopiert", "Nå", "Oslo, Norge", "Skann meg", "Ikke funnet", "Sist oppdatert".
+- Voice: modest and concrete. No "passionate", "rockstar", superlatives.
+- Dashes are allowed in user-facing text: the long dash (U+2014) and the en dash (U+2013) as used in the design copy (e.g. date ranges `Nov 2022 – Jan 2026`).
+- Never name the EPAM client or its events directly (NDA). Indirect descriptions are allowed and the design copy is the reference (e.g. "a global B2B software leader (Fortune Global 500)", "an international conference series", "28,000+ attendees").
+- Numbers on the site must be real and verified by Alexander. Unverified values stay as `[placeholder]`.
+- Language levels are self-assessed: show plain labels, no CEFR codes. EN: English "Upper-intermediate", Norwegian "Intermediate", Ukrainian "Native". NO: Engelsk "Øvre mellomnivå", Norsk "Mellomnivå", Ukrainsk "Morsmål".
+- Contacts live in one place: `src/data/contact.ts` (used by the contact block and footer). The vCard file (`public/alexander-ponomarenko.vcf`) is static and must match it. The QR SVGs are static too and intentionally encode a shortened subset of the vCard; do not regenerate them when the `.vcf` changes.
+- Location has two meanings, keep them apart: "Oslo, Norge" / Oslo area is the region of work (hero, contacts, vCard `ADR: Oslo, Norway`); "Nittedal" is the place of residence and appears in the CV (`1482 Nittedal, Norway`) and in the home quick facts ("Based in: Nittedal, Oslo area").
+- Contact title: vCard `TITLE` is the broad role "Software Engineer"; the specialisation goes to `NOTE` (Full Stack Developer, agentic engineering).
+- Downloads are real files, never placeholders: "Download CV" links to `public/cv/alexander-ponomarenko-cv-en.pdf` or `public/cv/alexander-ponomarenko-cv-no.pdf` by the current CV language (EN on pages without a language), and "Save contact" links to `public/alexander-ponomarenko.vcf`; both use the `download` attribute. The CV "View original PDF" preview uses the page images `public/cv/cv-{en,no}-{1,2}.webp`.
+
+## Quality bar
+
+- WCAG 2.2 AA: semantic HTML, logical headings, skip link, visible `:focus-visible`, 44px touch targets, no hover-only information, alt text.
+- Performance budget per page (Lighthouse mobile): Performance, Accessibility, Best Practices, SEO >= 95; LCP <= 2.0 s; CLS <= 0.02; TBT <= 100 ms; initial JS <= 50 KB gzip (islands loaded on interaction do not count).
+- No layout shift from fonts (preload the 2 critical files, `font-display: swap`, metric-matched fallbacks).
+- Security headers in `public/_headers` (CSP without `unsafe-inline` scripts where possible, HSTS, Referrer-Policy, Permissions-Policy).
+
+## Architecture decisions
+
+- Portfolio projects live in separate repositories and deploy separately on subdomains (`<name>.alpon.dev`) or external URLs. This repo only presents them (`/projects/[slug]`).
+- Project data: Astro content collection, one markdown file per project in `src/content/projects/`.
+- Live previews on case-study pages use the facade pattern: a static screenshot first, the live `<iframe>` loads only after a click and only on wide screens (>= 1024px). Phones get the screenshot plus "Open live app". Each embedded app must allow framing via `Content-Security-Policy: frame-ancestors https://alpon.dev`.
+- API "Try it" blocks call recorded sample responses (static JSON) by default, labelled "Sandbox · sample data". Real requests are optional and must fall back to the recorded response.
+- Contact QR on desktop is a static asset, not generated in code: `public/qr/qr-vcard-dag.svg` (transparent, for the light theme) and `public/qr/qr-vcard-natt.svg` (on a stone plate, for the dark theme). Both encode a shortened vCard (ECC M, version 9), not the full `.vcf`; keep them as they are. Show one or the other by `data-theme`. Do not add QR libraries.
+- Blog (/thoughts): content comes from an external source through an Astro content loader at build time; publishing triggers a rebuild through a Cloudflare Deploy Hook. The source is decided in a later spec (proposed: Notion database). Images from the source are downloaded and optimized at build time.
+- Keep existing short links and routes from the stub: `/cv`, `/cv/en`, `/cv/no`, `/linkedin`, `/github`, `#cv-no` deep link, vCard download, custom 404 "Ikke funnet".
+
+## Project structure
+
+```
+design/            handoff bundle, brand pack, reference screenshots (read-only)
+specs/             phase specs with acceptance criteria
+public/            fonts, _headers, _redirects, static files
+src/
+  data/            contact.ts and other typed data
+  styles/          tokens.css, base.css, prose.css
+  components/
+    ui/            Button, Link, Badge, Tag, Stat, SectionHeader, Callout, CodeBlock, ...
+    layout/        Header, Footer, ThemeToggle, SkipLink, MobileBar
+    brand/         Contours, QrTile
+    prose/         Prose and its element mappings
+  layouts/         BaseLayout.astro
+  pages/
+  content/         content collections (projects, later thoughts)
+tests/             visual/, a11y/, e2e/
+```
+
+## Workflow
+
+- Work spec by spec. Before coding, restate the acceptance criteria from the current spec and list open questions.
+- Small commits, one PR per spec (or per logical part of it). PR description: what changed, screenshots at 390 / 834 / 1440 in both themes, test results, conflicts with the design.
+- After each UI change, run the visual tests and compare with the design screenshots in `design/`.
+- Do not add dependencies without explaining why in the PR. Prefer platform features (CSS, View Transitions, native `<dialog>`, `popover`).
+- Commands: `npm run dev`, `npm run build`, `npm run preview`, `npm run test` (Playwright + axe), `npm run lhci`.
