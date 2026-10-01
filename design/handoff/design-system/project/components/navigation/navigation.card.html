@@ -1,0 +1,33 @@
+<!-- @dsCard group="Components" viewport="700x900" name="Navigation" subtitle="Header (desktop + compact), menu sheet, footer, segmented, crumbs, chips, pager, palette, trail, sticky bar" -->
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="../../styles.css">
+<style>body{margin:0;background:var(--fjord-color-bg)}.panes{display:grid;grid-template-columns:1fr 1fr;min-height:100vh}.pane{padding:20px;display:flex;flex-direction:column;gap:18px;background:var(--fjord-color-bg);color:var(--fjord-color-text);min-width:0;box-sizing:border-box}.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}.lbl{font:500 10.5px/1 var(--fjord-font-mono);color:var(--fjord-color-text-muted);letter-spacing:.04em;margin-bottom:-8px}.frame{position:relative;border:1px solid var(--fjord-color-border);border-radius:8px;overflow:hidden}.frame .fj-header{position:relative}</style>
+</head><body><div id="root"></div>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<script type="text/babel">
+const { Header, MobileMenu, Footer, SegmentedControl, ThemeToggle, Breadcrumbs, FilterChips, Pagination, CommandPalette, TrailNav, StickyActionBar, Button } = window.FjordDesignSystem_44c954;
+function App(){const [th,setTh]=React.useState('dag');const [sel,setSel]=React.useState(['live']);const [lang,setLang]=React.useState('EN');
+const items=[{group:'Go to',label:'Projects',icon:'layers',hint:'G P'},{group:'Go to',label:'CV',icon:'file-text',hint:'G C'},{group:'Actions',label:'Copy email',icon:'copy',hint:'ponomaleks@gmail.com'},{group:'Actions',label:'Open CV (NO)',icon:'file-down'},{group:'Actions',label:'Switch to dark theme',icon:'moon'}];
+return <div className="pane" data-theme="dag" style={{minHeight:'100vh'}}>
+<div className="lbl">HEADER · DESKTOP</div>
+<div className="frame" style={{width:1100,transform:'scale(.6)',transformOrigin:'0 0',marginBottom:-30}}><Header current="projects" theme={th} onThemeChange={setTh}/></div>
+<div style={{display:'grid',gridTemplateColumns:'320px 1fr',gap:20}}>
+<div style={{display:'flex',flexDirection:'column',gap:10}}><div className="lbl">HEADER · MOBILE + MENU SHEET</div>
+<div className="frame"><Header compact current="cv"/></div>
+<div className="frame" style={{height:430}}><MobileMenu inline current="cv"/></div></div>
+<div style={{display:'flex',flexDirection:'column',gap:16}}>
+<div className="lbl">SEGMENTED · THEME</div><div className="row"><SegmentedControl label="CV language" options={['EN','NO']} value={lang} onChange={setLang}/><ThemeToggle theme={th} onChange={setTh}/></div>
+<div className="lbl">BREADCRUMBS</div><Breadcrumbs items={[{label:'alpon.dev',href:'#'},{label:'Projects',href:'#'},{label:'Turplan'}]}/>
+<div className="lbl">FILTER CHIPS</div><FilterChips options={[{value:'all',label:'All',count:5},{value:'live',label:'Live',count:3},{value:'progress',label:'In progress',count:1},{value:'archived',label:'Archived',count:1}]} selected={sel} onChange={setSel}/>
+<div className="lbl">PAGINATION</div><Pagination prev={{href:'#',title:'Kvittering'}} next={{href:'#',title:'Bysykkel status'}}/>
+<div className="lbl">TRAIL</div><div className="row" style={{alignItems:'flex-start',gap:40}}><TrailNav sections={[{id:'a',label:'Problem'},{id:'b',label:'Approach'},{id:'c',label:'Architecture'},{id:'d',label:'Results'}]} active={2} progress={0.58}/>
+<div className="frame" style={{width:280,height:120,background:'var(--fjord-color-bg-sunken)'}}><StickyActionBar inline visible={true}><Button size="sm" variant="secondary">View CV</Button><Button size="sm">Get in touch</Button></StickyActionBar></div></div>
+</div></div>
+<div className="lbl">COMMAND PALETTE</div>
+<div className="frame" style={{height:390}}><CommandPalette inline open={true} hotkey={false} items={items} onClose={()=>{}}/></div>
+</div>}
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script></body></html>

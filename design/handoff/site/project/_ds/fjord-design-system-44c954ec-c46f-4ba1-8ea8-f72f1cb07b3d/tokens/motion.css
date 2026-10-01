@@ -1,0 +1,26 @@
+/* Fjord · motion. Motion explains structure; it never blocks reading or loops in the reading area. */
+:root {
+  --fjord-duration-120: 120ms; /* @kind other */   /* press, color */
+  --fjord-duration-200: 200ms; /* @kind other */   /* hover, underline, toggles */
+  --fjord-duration-320: 320ms; /* @kind other */   /* reveal, sheet, toast */
+  --fjord-duration-560: 560ms; /* @kind other */   /* page / shared-element transitions */
+  --fjord-duration-1200: 1200ms; /* @kind other */ /* stat count-up */
+  --fjord-duration-drift: 32s; /* @kind other */   /* ambient contour drift (20–40s) */
+  --fjord-duration-parallax: 600ms; /* @kind other */ /* contour pointer follow */
+  --fjord-duration-spin: 900ms; /* @kind other */   /* button spinner, one turn */
+  --fjord-duration-loop: 1.6s; /* @kind other */    /* skeleton shimmer cycle */
+  --fjord-duration-float: 6s; /* @kind other */     /* portrait float cycle */
+  --fjord-duration-copied: 1800ms; /* @kind other */ /* CopyButton "Kopiert" label */
+  --fjord-duration-toast: 4000ms; /* @kind other */ /* toast auto-dismiss (paused on hover / focus) */
+
+  --fjord-ease-out: cubic-bezier(0.2, 0.8, 0.2, 1); /* @kind other */     /* "fjord-out" */
+  --fjord-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1); /* @kind other */  /* "fjord-in-out" */
+  --fjord-ease-linear: linear; /* @kind other */
+
+  --fjord-reveal-rise: 10px; /* @kind spacing */
+  --fjord-reveal-stagger: 50ms; /* @kind other */
+  --fjord-parallax-max: 10px;
+}
+@media (prefers-reduced-motion: reduce) {
+  :root { --fjord-reveal-rise: 0px; --fjord-parallax-max: 0px; --fjord-duration-1200: 0ms; /* @kind other */ --fjord-duration-parallax: 0ms; /* @kind other */ }
+}

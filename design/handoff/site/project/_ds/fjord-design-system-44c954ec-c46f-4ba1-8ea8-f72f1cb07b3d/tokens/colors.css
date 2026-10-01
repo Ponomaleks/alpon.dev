@@ -1,0 +1,125 @@
+/* Fjord · color. Core palette is fixed by the brand pack; semantic tokens map it per theme. */
+:root {
+  --fjord-stone: #F3F4F0;   /* light ground */
+  --fjord-spruce: #24493D;  /* deep ground */
+  --fjord-accent: #2E5E4E;  /* accent text, links, focus — never large fills */
+  --fjord-ink: #1B2421;     /* primary text, QR */
+  --fjord-muted: #5E6B65;   /* secondary text */
+  --fjord-snow: #EEF2EE;    /* text on spruce */
+  --fjord-lichen: #BFD3C9;  /* secondary text on spruce */
+  --fjord-contour: #9CC3B2; /* contour lines: 28% on spruce, 13% on stone */
+  --fjord-spruce-deep: #1A362D;
+  --fjord-night: #111A17;
+  --fjord-print-bg: #FFFFFF;
+  --fjord-print-text: #000000;
+  /* contour line colours per ground; Contours.jsx and .fjord-on-spruce read these */
+  --fjord-contour-line-stone: rgba(46, 94, 78, .13);  /* accent @13% */
+  --fjord-contour-line-spruce: rgba(156, 195, 178, .28); /* contour @28% */
+  --fjord-contour-line-night: rgba(156, 195, 178, .18);  /* contour @18% on the Natt ground */
+  --fjord-opacity-faint: .45;  /* ping ring, decorative */
+  --fjord-opacity-muted: .6;   /* separators, grids */
+  --fjord-opacity-soft: .72;   /* secondary text inside inverse UI (toast meta, kbd in tooltip) */
+  --fjord-terrain-line-stone: rgba(46, 94, 78, .22);
+  --fjord-terrain-line-spruce: rgba(156, 195, 178, .42);
+}
+
+/* Dag (light): default on :root, and explicit [data-theme="dag"] resets a subtree */
+:root, [data-theme="dag"] {
+  --fjord-color-bg: var(--fjord-stone);             /* ground */
+  --fjord-color-bg-raised: #FFFFFF;                  /* cards, inputs, floating UI */
+  --fjord-color-bg-sunken: #E9ECE6;                  /* code blocks, skeletons */
+  --fjord-color-bg-inverse: var(--fjord-spruce);     /* CTA band, menu sheet */
+  --fjord-color-text: var(--fjord-ink);              /* 14.39:1 on bg */
+  --fjord-color-text-muted: var(--fjord-muted);      /* 5.05:1 on bg */
+  --fjord-color-text-inverse: var(--fjord-snow);     /* 8.86:1 on spruce */
+  --fjord-color-link: var(--fjord-accent);           /* 6.72:1 on bg */
+  --fjord-color-link-hover: var(--fjord-spruce);     /* 9.07:1 on bg */
+  --fjord-color-focus-ring: var(--fjord-accent);     /* 6.72:1, UI ≥3:1 */
+  --fjord-color-border: #D6DDD8;                     /* hairline, decorative */
+  --fjord-color-border-strong: #7E8C85;              /* inputs, 3.18:1 on bg */
+  --fjord-color-contour-line: var(--fjord-contour-line-stone);
+  --fjord-color-selection: #DCE8E2;
+  --fjord-color-accent-soft: #DCE8E2;                /* chip selected, subtle hover */
+  --fjord-color-cta-bg: var(--fjord-spruce);
+  --fjord-color-cta-text: var(--fjord-snow);         /* 8.86:1 */
+  --fjord-color-cta-hover: var(--fjord-accent);      /* snow on accent 6.57:1 */
+  --fjord-color-success: #2F6B4F;                    /* 5.70:1 */
+  --fjord-color-warning: #8A6420;                    /* 4.84:1 */
+  --fjord-color-danger: #9A3F35;                     /* 6.06:1 */
+  --fjord-color-success-soft: #DDEBE2;
+  --fjord-color-warning-soft: #F1E8D6;
+  --fjord-color-danger-soft: #F2E0DC;
+  --fjord-color-scrim: rgba(27, 36, 33, .32);
+  --fjord-color-tooltip-bg: var(--fjord-ink);        /* toast, tooltip */
+  --fjord-color-tooltip-text: var(--fjord-snow);     /* 14.39:1 */
+  --fjord-color-danger-on-inverse: #E0998F;          /* error icon on toast (ink): 7.9:1 */
+  --fjord-photo-filter: saturate(.72) contrast(.97) sepia(.06); /* @kind other */
+  color-scheme: light;
+}
+[data-theme="dag"] { color: var(--fjord-color-text); }
+
+/* Natt (dark, spruce night) — explicit */
+[data-theme="natt"] {
+  --fjord-color-bg: #111A17;                         /* spruce night: spruce × ink */
+  --fjord-color-bg-raised: #17231F;
+  --fjord-color-bg-sunken: #0C1311;
+  --fjord-color-bg-inverse: var(--fjord-spruce-deep);
+  --fjord-color-text: var(--fjord-snow);             /* 15.69:1 */
+  --fjord-color-text-muted: var(--fjord-lichen);     /* 11.30:1 */
+  --fjord-color-text-inverse: var(--fjord-snow);
+  --fjord-color-link: #86BFA9;                       /* 8.48:1 */
+  --fjord-color-link-hover: #B5D4C6;
+  --fjord-color-focus-ring: #9CC3B2;                 /* 9.17:1 */
+  --fjord-color-border: #2B3A34;
+  --fjord-color-border-strong: #6B7F77;              /* 4.16:1 */
+  --fjord-color-contour-line: var(--fjord-contour-line-night);
+  --fjord-color-selection: #2B4A3F;
+  --fjord-color-accent-soft: #1F3530;
+  --fjord-color-cta-bg: #9CC3B2;
+  --fjord-color-cta-text: #111A17;                   /* 9.17:1 */
+  --fjord-color-cta-hover: #B5D4C6;                  /* 11.15:1 */
+  --fjord-color-success: #8CC7A5;                    /* 9.15:1 */
+  --fjord-color-warning: #D9B26A;                    /* 8.89:1 */
+  --fjord-color-danger: #E0998F;                     /* 7.71:1 */
+  --fjord-color-success-soft: #173026;
+  --fjord-color-warning-soft: #2E2716;
+  --fjord-color-danger-soft: #33201D;
+  --fjord-color-scrim: rgba(6, 10, 9, .6);
+  --fjord-color-tooltip-bg: var(--fjord-snow);
+  --fjord-color-tooltip-text: var(--fjord-ink);
+  --fjord-color-danger-on-inverse: #9A3F35;          /* error icon on toast (snow) */
+  --fjord-photo-filter: saturate(.66) brightness(.9) contrast(.98); /* @kind other */
+  color-scheme: dark;
+  color: var(--fjord-color-text);
+}
+
+/* Natt: spruce blocks deepen so they read as a block on the night ground */
+[data-theme="natt"] .fjord-on-spruce {
+  --fjord-color-bg: var(--fjord-spruce-deep);
+  --fjord-color-bg-raised: #21433A;
+  --fjord-color-bg-sunken: rgba(191, 211, 201, .1);
+}
+
+/* Natt follows the OS via a one-line head script (see readme › Themes); no media-query token block. */
+
+/* Spruce ground (CTA band, menu sheet, OG image): re-maps tokens so components invert automatically */
+.fjord-on-spruce {
+  --fjord-color-bg: var(--fjord-spruce);
+  --fjord-color-bg-raised: #2B5446;
+  --fjord-color-bg-sunken: rgba(191, 211, 201, .12);  /* kbd, inline code on spruce: lichen text ≥ 5:1 */
+  --fjord-color-text: var(--fjord-snow);             /* 8.86:1 */
+  --fjord-color-text-muted: var(--fjord-lichen);     /* 6.38:1 */
+  --fjord-color-link: var(--fjord-snow);
+  --fjord-color-link-hover: #FFFFFF;
+  --fjord-color-focus-ring: var(--fjord-contour);    /* 5.18:1 */
+  --fjord-color-border: rgba(191, 211, 201, .22);
+  --fjord-color-border-strong: rgba(191, 211, 201, .6);
+  --fjord-color-contour-line: var(--fjord-contour-line-spruce);
+  --fjord-color-accent-soft: rgba(191, 211, 201, .12);
+  --fjord-color-cta-bg: var(--fjord-stone);
+  --fjord-color-cta-text: var(--fjord-spruce);       /* 9.07:1 */
+  --fjord-color-cta-hover: #FFFFFF;                  /* spruce on white 10.02:1 */
+  color-scheme: dark;
+  background-color: var(--fjord-color-bg);
+  color: var(--fjord-color-text);
+}

@@ -1,0 +1,58 @@
+/* alpon.dev - Fjord brand tokens (v1, 2026-09) */
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Schibsted+Grotesk:wght@400;500;600;700&display=swap");
+
+:root {
+  /* core palette */
+  --fjord-stone:   #F3F4F0;  /* light ground, card front */
+  --fjord-spruce:  #24493D;  /* deep ground, card back */
+  --fjord-accent:  #2E5E4E;  /* accent text, links, focus */
+  --fjord-ink:     #1B2421;  /* primary text, QR */
+  --fjord-muted:   #5E6B65;  /* secondary text */
+  --fjord-snow:    #EEF2EE;  /* text on spruce */
+  --fjord-lichen:  #BFD3C9;  /* secondary text on spruce */
+  --fjord-contour: #9CC3B2;  /* contour lines on spruce, use at 28% */
+
+  /* derived (web) */
+  --fjord-line:        #D6DDD8;
+  --fjord-accent-soft: #DCE8E2;
+  --fjord-spruce-deep: #1A362D;
+
+  /* type */
+  --font-sans: "Schibsted Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --weight-regular: 400; --weight-medium: 500; --weight-semibold: 600; --weight-bold: 700;
+  --tracking-display: -0.01em;
+
+  /* type scale (web, 1.25) */
+  --text-xs: 0.8rem; --text-sm: 0.9rem; --text-base: 1rem; --text-lg: 1.25rem;
+  --text-xl: 1.563rem; --text-2xl: 1.953rem; --text-3xl: 2.441rem; --text-4xl: 3.052rem;
+
+  /* spacing, 4px base */
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-6: 24px;
+  --space-8: 32px; --space-12: 48px; --space-16: 64px; --space-24: 96px;
+
+  --radius-sm: 4px; --radius-md: 8px;   /* QR tile uses ~6% of its width */
+
+  /* semantic, light */
+  --bg: var(--fjord-stone); --surface: #FFFFFF; --text: var(--fjord-ink);
+  --text-muted: var(--fjord-muted); --accent: var(--fjord-accent); --border: var(--fjord-line);
+}
+
+/* dark theme: spruce night */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111A17; --surface: var(--fjord-spruce-deep); --text: var(--fjord-snow);
+    --text-muted: var(--fjord-lichen); --accent: #86BFA9; --border: #2B3A34;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111A17; --surface: var(--fjord-spruce-deep); --text: var(--fjord-snow);
+  --text-muted: var(--fjord-lichen); --accent: #86BFA9; --border: #2B3A34;
+}
+
+/* contour pattern helpers */
+.fjord-contours-spruce { background: var(--fjord-spruce) url("patterns/pattern-contours-tile-spruce-transparent.svg") repeat; background-size: 900px; }
+.fjord-contours-stone  { background: var(--fjord-stone)  url("patterns/pattern-contours-tile-stone-transparent.svg")  repeat; background-size: 900px; }
+.fjord-contours-layer  { /* theme-aware overlay: put inside a positioned section */
+  position: absolute; inset: 0; pointer-events: none; opacity: .28; background: var(--fjord-contour);
+  -webkit-mask: url("patterns/pattern-contours-tile-mask.svg") repeat 0 0 / 900px; mask: url("patterns/pattern-contours-tile-mask.svg") repeat 0 0 / 900px; }

@@ -1,0 +1,55 @@
+/* Fjord · typography. Fluid scale: min at 360px viewport, max at 1440px. */
+:root {
+  --fjord-font-sans: "Schibsted Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --fjord-font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --fjord-weight-regular: 400;
+  --fjord-weight-medium: 500;
+  --fjord-weight-semibold: 600;
+  --fjord-weight-bold: 700;
+  --fjord-text-display: clamp(2.75rem, 1.8333rem + 4.0741vw, 5.5rem); /* @kind other */ /* 44→88px */
+  --fjord-text-h1: clamp(2.25rem, 1.7500rem + 2.2222vw, 3.75rem); /* @kind other */ /* 36→60px */
+  --fjord-text-h2: clamp(1.75rem, 1.4167rem + 1.4815vw, 2.75rem); /* @kind other */ /* 28→44px */
+  --fjord-text-h3: clamp(1.375rem, 1.2083rem + 0.7407vw, 1.875rem); /* @kind other */ /* 22→30px */
+  --fjord-text-h4: clamp(1.125rem, 1.0417rem + 0.3704vw, 1.375rem); /* @kind other */ /* 18→22px */
+  --fjord-text-lead: clamp(1.1875rem, 1.1042rem + 0.3704vw, 1.4375rem); /* @kind other */ /* 19→23px */
+  --fjord-text-body: clamp(1rem, 0.9583rem + 0.1852vw, 1.125rem); /* @kind other */ /* 16→18px */
+  --fjord-text-body-sm: clamp(0.875rem, 0.8542rem + 0.0926vw, 0.9375rem); /* @kind other */ /* 14→15px */
+  --fjord-text-caption: clamp(0.7813rem, 0.7708rem + 0.0463vw, 0.8125rem); /* @kind other */ /* 12.5→13px */
+  --fjord-text-stat: clamp(2.5rem, 2.0000rem + 2.2222vw, 4rem); /* @kind other */ /* 40→64px */
+  --fjord-text-mono-label: clamp(0.75rem, 0.7292rem + 0.0926vw, 0.8125rem); /* @kind other */ /* 12→13px */
+  --fjord-text-mono-inline: .9em; /* @kind other */ /* inline mono inside running text: code, paths, mono links */
+  --fjord-text-mono-sm: clamp(0.7188rem, 0.7083rem + 0.0463vw, 0.75rem); /* @kind other */ /* 11.5→12px */
+
+  /* Fixed UI sizes (px, not fluid): controls and dense UI keep one size on every viewport */
+  --fjord-text-ui-lg: 16px;   /* inputs (16px stops iOS zoom), palette search */
+  --fjord-text-ui: 15px;      /* buttons, nav links, palette items, form status */
+  --fjord-text-ui-sm: 14px;   /* small buttons, chips, field labels, toasts */
+  --fjord-text-ui-xs: 13px;   /* field messages, dense code */
+  --fjord-text-mono-xs: 11px; /* palette group labels, Esc hint, footer keys */
+  /* OG image: fixed 1200×630 canvas, never fluid */
+  --fjord-og-text-title: 76px;
+  --fjord-og-text-sub: 30px;
+  --fjord-og-text-meta: 26px;
+  --fjord-og-text-eyebrow: 22px;
+  --fjord-og-text-small: 20px;
+
+  --fjord-leading-none: 1;        /* single-line controls, badges, mono labels */
+  --fjord-leading-display: 1.02;
+  --fjord-leading-heading: 1.12;
+  --fjord-leading-tight: 1.2;      /* short multi-line UI: card titles, menu items */
+  --fjord-leading-snug: 1.35;
+  --fjord-leading-ui: 1.4;         /* dense UI text: inputs, contact rows, toasts */
+  --fjord-leading-normal: 1.5;     /* secondary text, captions */
+  --fjord-leading-body: 1.6;
+  --fjord-leading-mono: 1.5;
+
+  --fjord-tracking-display: -0.02em;
+  --fjord-tracking-heading: -0.01em;
+  --fjord-tracking-body: 0;
+  --fjord-tracking-mono: 0;
+  --fjord-tracking-label: 0.02em;
+
+  --fjord-measure: 66ch;          /* 60–72 characters */
+  --fjord-measure-narrow: 48ch;
+  --fjord-numeric: tabular-nums; /* @kind other */
+}
