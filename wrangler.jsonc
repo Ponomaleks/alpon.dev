@@ -10,8 +10,12 @@
     "html_handling": "auto-trailing-slash"
   },
   "routes": [
-    { "pattern": "alpon.dev", "custom_domain": true }
+    {
+      "pattern": "alpon.dev",
+      "custom_domain": true
+    }
   ],
   "workers_dev": true,
-  "preview_urls": true
+  "preview_urls": true,
+  "previews": {}
 }
