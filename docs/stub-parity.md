@@ -41,7 +41,7 @@ Note: CLAUDE.md plans `/cv`, `/cv/en`, `/cv/no` as CV pages later. The spec that
 | P-13 | `/favicon.svg`, `/apple-touch-icon.png`, `/robots.txt`, `/sitemap.xml` are served | active |
 | P-14 | Every response carries `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, `Strict-Transport-Security` | active |
 | P-15 | `/fonts/*` cached `immutable`; `/cv/*` cached 1 h `must-revalidate` | active |
-| P-16 | Home has a CSP with `script-src 'self'` and no `'unsafe-inline'`. On v2, the inline theme script is allowed through a **hash**, never `'unsafe-inline'` (review `_headers` when the Astro pages land) | fixme |
+| P-16 | Home has a CSP with `script-src 'self'` and no `'unsafe-inline'`. On v2, the inline theme script is allowed through a **hash**, never `'unsafe-inline'` (review `_headers` when the Astro pages land) | active |
 
 ## Home page (`/`)
 

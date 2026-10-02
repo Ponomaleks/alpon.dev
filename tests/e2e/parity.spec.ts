@@ -78,7 +78,12 @@ test.describe('static files and headers', () => {
     expect(cv.headers()['cache-control']).toContain('must-revalidate');
   });
 
-  test.fixme("P-16 home CSP: script-src 'self' plus a hash, no 'unsafe-inline'", async () => {});
+  test("P-16 home CSP: script-src 'self' plus a hash, no 'unsafe-inline'", async ({ request }) => {
+    const policy = (await request.get('/')).headers()['content-security-policy'] ?? '';
+    const scriptSrc = policy.split(';').find((d) => d.trim().startsWith('script-src'));
+    expect(scriptSrc?.trim()).toMatch(/^script-src 'self' 'sha256-[A-Za-z0-9+/]+={0,2}'$/);
+    expect(policy).not.toContain("'unsafe-inline'");
+  });
 });
 
 test.describe('home page', () => {
