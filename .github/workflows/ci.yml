@@ -29,6 +29,9 @@ jobs:
       - name: Lint (astro check, eslint, prettier)
         run: npm run lint
 
+      - name: Unit tests (Vitest)
+        run: npm run test:unit
+
       - name: Build
         run: npm run build
 

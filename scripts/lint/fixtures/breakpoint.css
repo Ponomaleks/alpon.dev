@@ -1,0 +1,5 @@
+@media (min-width: 800px) {
+  .a {
+    color: var(--fjord-color-text);
+  }
+}

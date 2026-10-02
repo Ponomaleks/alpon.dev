@@ -1,0 +1,10 @@
+import { defineConfig } from 'vitest/config';
+
+// Unit tests for build-time logic (scripts/, src/integrations/, tools/).
+// tests/** holds the Playwright suites; Vitest must never pick them up.
+export default defineConfig({
+  test: {
+    include: ['**/*.test.ts'],
+    exclude: ['tests/**', 'node_modules/**', 'dist/**', '.astro/**', 'design/**'],
+  },
+});
