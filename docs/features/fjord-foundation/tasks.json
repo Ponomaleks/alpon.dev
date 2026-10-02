@@ -1,0 +1,296 @@
+{
+  "slug": "fjord-foundation",
+  "tasks": [
+    {
+      "id": "T1",
+      "title": "Install the check toolchain: Vitest and Stylelint with the ADR-0003 rule set",
+      "layer": "wiring",
+      "deps": [],
+      "acs": [
+        "AC-11"
+      ],
+      "dod": "npm run lint runs stylelint over src/**/*.{css,astro} with the ADR-0003 rule set and exits 0 on the repo; npm run test:unit runs Vitest in CI; a Vitest fixture test shows every banned literal reported with file and line while token-only CSS passes.",
+      "files_hint": [
+        "package.json",
+        "package-lock.json",
+        "vitest.config.ts",
+        "stylelint.config.js",
+        "scripts/lint/",
+        ".github/workflows/ci.yml"
+      ]
+    },
+    {
+      "id": "T2",
+      "title": "Ship the seven brand faces and their metric-matched fallback faces",
+      "layer": "wiring",
+      "deps": [
+        "T1"
+      ],
+      "acs": [
+        "AC-05",
+        "AC-15"
+      ],
+      "dod": "public/fonts holds the 7 brand woff2 files, each ≤ 30 KB with æ ø å and the en/em dashes (Vitest reads their cmap); tools/fonts computes the Arial and Roboto fallback overrides, verified by Vitest against the TTF metrics; src/styles/fonts.css holds only the @font-face rules.",
+      "files_hint": [
+        "tools/fonts/",
+        "public/fonts/",
+        "src/styles/fonts.css"
+      ]
+    },
+    {
+      "id": "T3",
+      "title": "Generate tokens.css from the design sources with Dag, Natt and the no-JS Natt block",
+      "layer": "wiring",
+      "deps": [
+        "T1"
+      ],
+      "acs": [
+        "AC-01",
+        "AC-02",
+        "AC-04"
+      ],
+      "dod": "node scripts/tokens/build.ts writes src/styles/tokens.css with the ADR-0001 block layout; Vitest proves a brand/handoff palette conflict fails naming token and both values, both Natt lists are identical, and a Natt-only token from any handoff file reaches both Natt blocks.",
+      "files_hint": [
+        "scripts/tokens/",
+        "src/styles/tokens.css"
+      ]
+    },
+    {
+      "id": "T4",
+      "title": "Extend the generator with reduced-motion tokens, fallback font stacks and --check mode",
+      "layer": "wiring",
+      "deps": [
+        "T3"
+      ],
+      "acs": [
+        "AC-05",
+        "AC-14"
+      ],
+      "dod": "tokens.css carries the reduced-motion overrides and --fjord-duration-fade and the font stacks with the fallback faces; generator --check fails naming the file when tokens.css is stale and runs in npm run lint; Vitest covers stale and fresh cases.",
+      "files_hint": [
+        "scripts/tokens/",
+        "src/styles/tokens.css",
+        "package.json"
+      ]
+    },
+    {
+      "id": "T5",
+      "title": "Add the contrast check over the generated tokens",
+      "layer": "tests",
+      "deps": [
+        "T3"
+      ],
+      "acs": [
+        "AC-10"
+      ],
+      "dod": "scripts/check-contrast.ts computes every manifest pair in Dag, Natt and on-spruce and runs in npm run lint; a Vitest fixture with a lowered pair fails naming pair, theme and measured ratio; the real tokens pass and both Natt blocks are asserted identical.",
+      "files_hint": [
+        "scripts/check-contrast.ts",
+        "scripts/contrast-pairs.ts",
+        "package.json"
+      ]
+    },
+    {
+      "id": "T6",
+      "title": "Port the handoff base.css as token-only element styles",
+      "layer": "ui",
+      "deps": [
+        "T4"
+      ],
+      "acs": [
+        "AC-04",
+        "AC-14"
+      ],
+      "dod": "src/styles/base.css covers the element base (box sizing, page background and text, type, headings, links, :focus-visible, selection) using only --fjord-* tokens and allowlisted keywords; Stylelint reports zero findings; it declares no animation and only token-based transitions.",
+      "files_hint": [
+        "src/styles/base.css"
+      ]
+    },
+    {
+      "id": "T7",
+      "title": "Add the theme bootstrap and the BaseLayout head contract, with the home placeholder on it (SCR-01)",
+      "layer": "ui",
+      "deps": [
+        "T2",
+        "T4",
+        "T6"
+      ],
+      "acs": [
+        "AC-01",
+        "AC-02",
+        "AC-03",
+        "AC-06",
+        "AC-13"
+      ],
+      "dod": "BaseLayout renders the sad §8 head order with the ADR-0001 bootstrap inlined first and exactly two font preloads; index.astro passes only title and description and renders SCR-01; npm run build succeeds and the existing smoke and a11y suites stay green.",
+      "files_hint": [
+        "src/scripts/theme-bootstrap.js",
+        "src/layouts/BaseLayout.astro",
+        "src/pages/index.astro"
+      ]
+    },
+    {
+      "id": "T8",
+      "title": "Generate the bootstrap hash into a single /* CSP rule with a fail-closed build integration",
+      "layer": "wiring",
+      "deps": [
+        "T1",
+        "T7"
+      ],
+      "acs": [
+        "AC-09",
+        "AC-12"
+      ],
+      "dod": "npm run build writes dist/_headers with one CSP line under /* carrying the bootstrap sha256 and no 'unsafe-inline'; Vitest fixtures for all four ADR-0002 fail rules pass, including the ld+json allowance; editing the bootstrap and rebuilding updates the hash with no manual edit.",
+      "files_hint": [
+        "src/integrations/",
+        "public/_headers",
+        "astro.config.mjs"
+      ]
+    },
+    {
+      "id": "T9",
+      "title": "Build the Fjord Not-found page (SCR-02) with the page-local home-link and ridge contours",
+      "layer": "ui",
+      "deps": [
+        "T7"
+      ],
+      "acs": [
+        "AC-07",
+        "AC-08"
+      ],
+      "dod": "src/pages/404.astro renders every SCR-02 state from screens.md (code line 404 · Ikke funnet with lang=no, h1 Page not found, the body copy, the single primary Back to home link, static aria-hidden ridge), noindex, no See projects, no echoed path, no inline style; Stylelint is clean and home-link / ridge-contours are registered in docs/design-system.md.",
+      "files_hint": [
+        "src/pages/404.astro",
+        "docs/design-system.md"
+      ]
+    },
+    {
+      "id": "T10",
+      "title": "Add the budget check for bootstrap, JS and font sizes",
+      "layer": "tests",
+      "deps": [
+        "T2",
+        "T7"
+      ],
+      "acs": [
+        "AC-06"
+      ],
+      "dod": "scripts/check-budgets.ts runs after npm run build in CI and fails, naming file and size, when the bootstrap exceeds 1 KB, a page's initial JS exceeds 50 KB gzip, a page preloads other than exactly 2 fonts or more than 60 KB combined, or any shipped font exceeds 30 KB; a Vitest fixture proves each failure.",
+      "files_hint": [
+        "scripts/check-budgets.ts",
+        "package.json",
+        ".github/workflows/ci.yml"
+      ]
+    },
+    {
+      "id": "T11",
+      "title": "Cover the theme matrix end to end, including blocked storage and scripts off",
+      "layer": "tests",
+      "deps": [
+        "T7"
+      ],
+      "acs": [
+        "AC-01",
+        "AC-02",
+        "AC-03",
+        "AC-04"
+      ],
+      "dod": "tests/e2e/theme.spec.ts passes for the 6 stored-choice × device combinations plus unknown value and blocked storage (data-theme set once, dag or natt, equal at first rAF and at load, color-scheme matching) and for scripts off with device light and dark.",
+      "files_hint": [
+        "tests/e2e/theme.spec.ts"
+      ]
+    },
+    {
+      "id": "T12",
+      "title": "Verify the delivered security policy end to end and flip P-16",
+      "layer": "tests",
+      "deps": [
+        "T8"
+      ],
+      "acs": [
+        "AC-09",
+        "AC-12"
+      ],
+      "dod": "tests/e2e/headers.spec.ts asserts exactly one CSP header with the bootstrap hash and no 'unsafe-inline' on /, on a 404 response and on the EN CV PDF, and that an injected inline script is refused while the bootstrap runs; P-16 in parity.spec.ts is a passing test.",
+      "files_hint": [
+        "tests/e2e/headers.spec.ts",
+        "tests/e2e/parity.spec.ts"
+      ]
+    },
+    {
+      "id": "T13",
+      "title": "Verify font loading end to end and flip P-26",
+      "layer": "tests",
+      "deps": [
+        "T7"
+      ],
+      "acs": [
+        "AC-05",
+        "AC-06",
+        "AC-15"
+      ],
+      "dod": "tests/e2e/fonts.spec.ts proves only Schibsted 400 and 600 are requested before render, other weights load only when used, æ ø å render from the brand files at every design weight with no synthesized bold, and the Roboto fallback face renders while brand fonts are blocked; P-26 is a passing test.",
+      "files_hint": [
+        "tests/e2e/fonts.spec.ts",
+        "tests/e2e/parity.spec.ts"
+      ]
+    },
+    {
+      "id": "T14",
+      "title": "Verify the Not-found page and reduced motion end to end and flip P-41",
+      "layer": "tests",
+      "deps": [
+        "T9"
+      ],
+      "acs": [
+        "AC-07",
+        "AC-08",
+        "AC-14"
+      ],
+      "dod": "tests/e2e/not-found.spec.ts asserts a 404 status, the SCR-02 content, noindex, a single link to / that reaches home, no See projects and no echoed path (also for a crafted path with markup), and that under reduced motion neither page has running animations; P-41 is a passing test.",
+      "files_hint": [
+        "tests/e2e/not-found.spec.ts",
+        "tests/e2e/parity.spec.ts"
+      ]
+    },
+    {
+      "id": "T15",
+      "title": "Add axe checks in Dag and Natt and the Not-found visual baselines; capture the Natt references",
+      "layer": "tests",
+      "deps": [
+        "T9"
+      ],
+      "acs": [
+        "AC-01",
+        "AC-04",
+        "AC-07"
+      ],
+      "dod": "axe reports 0 violations on / and the Not-found page in Dag and Natt; tests/visual/not-found.spec.ts compares 390 / 834 / 1440 × Dag / Natt against Linux baselines at ≤ 0.1% differing pixels; the missing Natt reference screenshots are added to design/screenshots/ (roadmap D1).",
+      "files_hint": [
+        "tests/a11y/",
+        "tests/visual/",
+        "playwright.config.ts",
+        "design/screenshots/"
+      ]
+    },
+    {
+      "id": "T16",
+      "title": "Run Lighthouse on both pages with the Roboto-only runner and protect v2 and main",
+      "layer": "wiring",
+      "deps": [
+        "T9",
+        "T10"
+      ],
+      "acs": [
+        "AC-05",
+        "AC-06"
+      ],
+      "dod": "CI installs Roboto and no Arial before tests and Lighthouse; npm run lhci on / and 404.html meets every spec §6 Lighthouse budget; branch protection on v2 and main requires the CI job and main allows no direct push, applied by the Owner and recorded in the PR.",
+      "files_hint": [
+        ".github/workflows/ci.yml",
+        "lighthouserc.cjs"
+      ]
+    }
+  ]
+}
