@@ -41,12 +41,9 @@ const ridgePaths: string[] = contourData.ridge;
           Back to home
           <svg
             class="arrow"
-            width="16"
-            height="16"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            stroke-width="1.5"
             stroke-linecap="round"
             stroke-linejoin="round"
             aria-hidden="true"
@@ -70,9 +67,10 @@ const ridgePaths: string[] = contourData.ridge;
   }
 
   /* .fj-404: content stacked at the bottom of a min-height section, the ridge behind it. */
+  /* No overflow clipping here: the ridge clips itself, and the home-link focus ring sits flush
+     with the left edge (review F-08). */
   .not-found {
     position: relative;
-    overflow: hidden;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
@@ -164,6 +162,9 @@ const ridgePaths: string[] = contourData.ridge;
 
   .arrow {
     flex: none;
+    width: var(--fjord-icon-sm);
+    height: var(--fjord-icon-sm);
+    stroke-width: var(--fjord-icon-stroke);
   }
 
   /* Color only, and only for visitors who did not ask for reduced motion (AC-14). */

@@ -45,6 +45,55 @@ test.describe('Not-found page', () => {
   });
 });
 
+for (const width of [390, 1440]) {
+  test.describe(`"Back to home" at ${width}px (review F-08, F-20)`, () => {
+    test.use({ viewport: { width, height: 900 } });
+
+    test('is a target of at least 44 × 44 px', async ({ page }) => {
+      await page.goto('/does-not-exist');
+      const box = await page.getByRole('link', { name: 'Back to home' }).boundingBox();
+      expect(box?.height).toBeGreaterThanOrEqual(44);
+      expect(box?.width).toBeGreaterThanOrEqual(44);
+    });
+
+    test('shows its whole keyboard focus ring: no ancestor clips it', async ({ page }) => {
+      await page.goto('/does-not-exist');
+      await page.keyboard.press('Tab');
+      const link = page.getByRole('link', { name: 'Back to home' });
+      await expect(link).toBeFocused();
+      const clippedBy = await link.evaluate((element) => {
+        const style = getComputedStyle(element);
+        const reach = parseFloat(style.outlineWidth) + parseFloat(style.outlineOffset);
+        const rect = element.getBoundingClientRect();
+        const ring = {
+          left: rect.left - reach,
+          top: rect.top - reach,
+          right: rect.right + reach,
+          bottom: rect.bottom + reach,
+        };
+        const found: string[] = [];
+        if (style.outlineStyle === 'none' || reach <= 0) found.push('no visible outline');
+        if (ring.left < 0 || ring.right > document.documentElement.clientWidth)
+          found.push('the viewport');
+        for (let node = element.parentElement; node && node !== document.body;) {
+          const { overflowX, overflowY } = getComputedStyle(node);
+          const box = node.getBoundingClientRect();
+          const outside =
+            ring.left < box.left ||
+            ring.top < box.top ||
+            ring.right > box.right ||
+            ring.bottom > box.bottom;
+          if ((overflowX !== 'visible' || overflowY !== 'visible') && outside)
+            found.push(`${node.tagName.toLowerCase()}.${node.className}`);
+          node = node.parentElement;
+        }
+        return found;
+      });
+      expect(clippedBy).toEqual([]);
+    });
+  });
+}
+
 test.describe('reduced motion', () => {
   test.use({ reducedMotion: 'reduce' });
 

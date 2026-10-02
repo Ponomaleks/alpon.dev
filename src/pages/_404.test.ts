@@ -73,11 +73,16 @@ describe('built 404.html (SCR-02)', () => {
     expect(css()).not.toMatch(/@keyframes|animation(-name)?\s*:/);
   });
 
-  it('draws the arrow as a hidden 1.5px currentColor line icon', () => {
+  it('draws the arrow as a hidden currentColor line icon sized and stroked from icon tokens', () => {
     const arrow = body().match(/<a\b[\s\S]*?(<svg\b[^>]*>)/)?.[1] ?? '';
     expect(arrow).toContain('aria-hidden="true"');
     expect(arrow).toContain('stroke="currentColor"');
-    expect(arrow).toContain('stroke-width="1.5"');
+    // No literal size or stroke in the markup, where Stylelint cannot see it (review F-14).
+    expect(arrow).not.toMatch(/\s(width|height|stroke-width)=/);
+    const rule = css().match(/\.arrow\[[^\]]+\]\{([^}]*)\}/)?.[1] ?? '';
+    expect(rule).toContain('width:var(--fjord-icon-sm)');
+    expect(rule).toContain('height:var(--fjord-icon-sm)');
+    expect(rule).toContain('stroke-width:var(--fjord-icon-stroke)');
   });
 
   it('gives the home-link a 44px target that changes colour only on hover and focus', () => {
