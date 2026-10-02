@@ -72,18 +72,20 @@ function auditPage({ name, html: source }: BuiltPage, bootstrapHash: string): st
 
   for (const element of elements(document)) {
     const tag = `<${element.tagName}${element.attrs.map((a) => ` ${a.name}="${a.value}"`).join('')}>`;
+    // The script branch only decides whether the body is allowed; it never skips the style and
+    // handler checks below, which run for every element (review 2026-10-02-2 S2-02).
     if (element.tagName === 'script' && !isExternal(element)) {
       const type = attr(element, 'type');
-      if (type?.trim().toLowerCase() === 'application/ld+json') continue;
+      const isData = type?.trim().toLowerCase() === 'application/ld+json';
       const body = text(element);
-      if (sha256(body) === bootstrapHash && bootstrapCopies++ === 0) continue;
-      const kind =
-        sha256(body) === bootstrapHash
-          ? 'a second copy of the bootstrap'
-          : `"${body.trim().slice(0, 40)}"`;
-      problems.push(
-        `${name}: inline script (type ${type ?? 'none'}) that is not the bootstrap: ${kind}`,
-      );
+      const isBootstrap = sha256(body) === bootstrapHash;
+      const allowed = isData || (isBootstrap && bootstrapCopies++ === 0);
+      if (!allowed)
+        problems.push(
+          `${name}: inline script (type ${type ?? 'none'}) that is not the bootstrap: ${
+            isBootstrap ? 'a second copy of the bootstrap' : `"${body.trim().slice(0, 40)}"`
+          }`,
+        );
     }
     if (element.tagName === 'style') problems.push(`${name}: inline <style> element`);
     if (element.attrs.some((a) => a.name === 'style'))

@@ -99,10 +99,33 @@ describe('applyCsp', () => {
       '<template><b onmouseover="x()">x</b></template>',
       /onmouseover/,
     ],
-  ])('fails on %s, naming the page', (_, body, reason) => {
-    expect(() => run([page(body, '404.html')])).toThrow(/404\.html/);
-    expect(() => run([page(body, '404.html')])).toThrow(reason);
-  });
+    // Review 2026-10-02-2 S2-02: the script branch must not skip the handler and style checks.
+    [
+      'onload= on an ld+json data block',
+      '<script type="application/ld+json" onload="x()">{}</script>',
+      /onload handler/,
+    ],
+    [
+      'onerror= on the (only) bootstrap copy',
+      {
+        name: '404.html',
+        html: `<!doctype html><html lang="en"><head><script onerror="x()">${BOOTSTRAP}</script></head><body></body></html>`,
+      },
+      /onerror handler/,
+    ],
+    [
+      'style= on an ld+json data block',
+      '<script type="application/ld+json" style="color:red">{}</script>',
+      /style attribute/,
+    ],
+  ] as [string, string | BuiltPage, RegExp][])(
+    'fails on %s, naming the page',
+    (_, probe, reason) => {
+      const built = typeof probe === 'string' ? page(probe, '404.html') : probe;
+      expect(() => run([built])).toThrow(/404\.html/);
+      expect(() => run([built])).toThrow(reason);
+    },
+  );
 
   // Review 2026-10-02 F-17: browsers hash an inline script after turning CRLF into LF.
   it('hashes a CRLF bootstrap source as the LF text the browser hashes', () => {
