@@ -183,7 +183,7 @@ Traceability:
 |---|---|---|
 | Layout shift (CLS), mobile, cold cache | ≤ 0.02 on the not-found page and the home placeholder | Lighthouse CI (mobile) on the built site |
 | Largest Contentful Paint, mobile | ≤ 2.0 s | Lighthouse CI (mobile) |
-| Lighthouse categories | Performance, Accessibility, Best Practices, SEO each ≥ 95 | Lighthouse CI (mobile) |
+| Lighthouse categories | Performance, Accessibility, Best Practices, SEO each ≥ 95; SEO is not asserted on the noindex not-found page, because Lighthouse's crawlability audit fails a noindex page by design | Lighthouse CI (mobile) |
 | Total Blocking Time | ≤ 100 ms | Lighthouse CI (mobile) |
 | Initial JS per page | ≤ 50 KB gzip in total; the render-blocking theme bootstrap ≤ 1 KB unminified | build output size check in CI |
 | Critical font weight | exactly 2 preloaded font files, ≤ 60 KB combined; every shipped font file ≤ 30 KB | e2e head check (P-26) + file size check |
@@ -210,7 +210,7 @@ Traceability:
 - **Open stub-parity items (`test.fixme` in the parity suite)** — baseline: 14, target: 11 when this feature merges into `v2` (P-16, P-26, P-41 flipped and green).
 - **Visual values written outside Fjord tokens** — baseline: 0 (no styles exist yet), target: 0 on every PR from this feature on.
 - **Wrong-theme frames in the e2e theme matrix** — baseline: not measurable (no theme yet), target: 0 of 6 combinations on every PR.
-- **Lighthouse mobile, not-found page** — baseline: measured on the unstyled skeleton at the start of implementation, target: all four categories ≥ 95 when this feature merges.
+- **Lighthouse mobile, not-found page** — baseline: measured on the unstyled skeleton at the start of implementation, target: Performance, Accessibility and Best Practices ≥ 95 when this feature merges. SEO is not asserted on this page: it is noindex, and Lighthouse's crawlability audit fails a noindex page by design.
 
 ## 8. Open questions
 

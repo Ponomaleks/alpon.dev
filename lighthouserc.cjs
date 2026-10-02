@@ -35,7 +35,8 @@ module.exports = {
     assert: {
       assertMatrix: [
         { matchingUrlPattern: '^(?!.*/404$).*', assertions: budget },
-        // The 404 page is noindex on purpose, so the SEO category does not apply to it.
+        // The 404 page is noindex on purpose, so the SEO category does not apply to it: Lighthouse's
+        // crawlability audit (is-crawlable) fails a noindex page by design. Recorded in spec §6/§7.
         {
           matchingUrlPattern: '/404$',
           assertions: { ...budget, 'categories:seo': 'off' },
