@@ -12,3 +12,6 @@ playwright-report/
 # Visual baselines are Linux-only (fjord-foundation sad §11): never commit other platforms.
 tests/**/__screenshots__/win32/
 tests/**/__screenshots__/darwin/
+
+# Windows temp paths mangled by Git Bash (e.g. C:\Users\X\AppData\Local\Temp -> UsersXAppDataLocalTemp).
+/Users*AppDataLocal*/
