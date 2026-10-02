@@ -17,6 +17,7 @@
     "tokens:build": "node scripts/tokens/build.ts",
     "tokens:check": "node scripts/tokens/build.ts --check",
     "check:contrast": "node scripts/check-contrast.ts",
+    "check:budgets": "node scripts/check-budgets.ts",
     "format": "prettier --write .",
     "lhci": "lhci autorun"
   },
