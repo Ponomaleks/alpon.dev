@@ -13,7 +13,9 @@
     "preview": "wrangler dev",
     "test": "playwright test",
     "test:unit": "vitest run",
-    "lint": "astro check && eslint . && prettier --check . && stylelint \"src/**/*.{css,astro}\" --allow-empty-input",
+    "lint": "npm run tokens:check && astro check && eslint . && prettier --check . && stylelint \"src/**/*.{css,astro}\" --allow-empty-input",
+    "tokens:build": "node scripts/tokens/build.ts",
+    "tokens:check": "node scripts/tokens/build.ts --check",
     "format": "prettier --write .",
     "lhci": "lhci autorun"
   },

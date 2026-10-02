@@ -123,3 +123,72 @@ describe('generateTokens', () => {
     expect(committed.replace(/\r\n/g, '\n')).toBe(generateTokens(real()));
   });
 });
+
+describe('reduced motion (sad §8 Motion, AC-14)', () => {
+  const REDUCE = '@media (prefers-reduced-motion: reduce)';
+  const reduceBlock = (css: string) => block(block(css, REDUCE), ':root');
+
+  it('collapses every movement distance and the count-up duration to zero', () => {
+    const reduce = Object.fromEntries(declarations(reduceBlock(generateTokens(real()))));
+    expect(reduce).toMatchObject({
+      '--fjord-reveal-rise': '0px',
+      '--fjord-parallax-max': '0px',
+      '--fjord-duration-1200': '0ms',
+    });
+  });
+
+  it('collapses slide and scale distance tokens too, whichever handoff file adds them', () => {
+    const sources = real();
+    const spacing = `${sources.handoff.spacing}\n:root { --fjord-slide-x: 24px; --fjord-hover-scale: 0.02; }\n`;
+    const reduce = Object.fromEntries(
+      declarations(reduceBlock(generateTokens(withFile(sources, 'spacing', spacing)))),
+    );
+    expect(reduce).toMatchObject({ '--fjord-slide-x': '0px', '--fjord-hover-scale': '0' });
+  });
+
+  it('keeps a 200ms --fjord-duration-fade in both modes and leaves other durations intact', () => {
+    const css = generateTokens(real());
+    expect(value(block(css, ':root'), '--fjord-duration-fade')).toBe('200ms');
+    const reduce = declarations(reduceBlock(css)).map(([p]) => p);
+    expect(reduce).not.toContain('--fjord-duration-fade');
+    expect(reduce.filter((p) => p.startsWith('--fjord-duration-'))).toEqual([
+      '--fjord-duration-1200',
+    ]);
+  });
+
+  it('marks the deliberate deviation from the handoff motion.css', () => {
+    expect(block(generateTokens(real()), REDUCE)).toMatch(
+      /deviation from the handoff motion\.css/i,
+    );
+  });
+});
+
+describe('font stacks (sad §8 Fonts, AC-05)', () => {
+  const faceNames = () =>
+    [
+      ...readFileSync(`${root}src/styles/fonts.css`, 'utf8').matchAll(
+        /font-family:\s*['"]([^'"]+)['"]/g,
+      ),
+    ].map((m) => m[1]);
+  const stack = (property: string) =>
+    value(block(generateTokens(real()), ':root'), property)
+      ?.split(',')
+      .map((name) => name.trim().replace(/^['"]|['"]$/g, ''));
+
+  it.each([
+    ['--fjord-font-sans', 'Schibsted Grotesk', 'sans-serif'],
+    ['--fjord-font-mono', 'JetBrains Mono', 'monospace'],
+  ])(
+    '%s lists the brand face, its Arial and Roboto fallback faces, then the generic family',
+    (token, family, generic) => {
+      const names = stack(token);
+      expect(names).toEqual([
+        family,
+        `${family} Fallback Arial`,
+        `${family} Fallback Roboto`,
+        generic,
+      ]);
+      for (const name of names?.slice(0, 3) ?? []) expect(faceNames()).toContain(name);
+    },
+  );
+});

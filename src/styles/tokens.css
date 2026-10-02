@@ -77,8 +77,8 @@
   --fjord-icon-stroke: 1.5;
   --fjord-header-height: 64px;
   --fjord-tap-min: 44px;
-  --fjord-font-sans: "Schibsted Grotesk", "Helvetica Neue", Arial, sans-serif;
-  --fjord-font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --fjord-font-sans: "Schibsted Grotesk", "Schibsted Grotesk Fallback Arial", "Schibsted Grotesk Fallback Roboto", sans-serif;
+  --fjord-font-mono: "JetBrains Mono", "JetBrains Mono Fallback Arial", "JetBrains Mono Fallback Roboto", monospace;
   --fjord-weight-regular: 400;
   --fjord-weight-medium: 500;
   --fjord-weight-semibold: 600;
@@ -120,6 +120,7 @@
   --fjord-reveal-rise: 10px;
   --fjord-reveal-stagger: 50ms;
   --fjord-parallax-max: 10px;
+  --fjord-duration-fade: 200ms;
 }
 
 [data-theme="dag"] {
@@ -260,5 +261,16 @@
     --fjord-grid-gutter: 24px;
     --fjord-grid-margin: 48px;
     --fjord-header-height: 72px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Deliberate deviation from the handoff motion.css (fjord-foundation sad §8 Motion): every
+     movement distance and the count-up duration collapse to 0; --fjord-duration-fade keeps
+     opacity fades; other durations stay as they are. */
+  :root {
+    --fjord-reveal-rise: 0px;
+    --fjord-parallax-max: 0px;
+    --fjord-duration-1200: 0ms;
   }
 }
