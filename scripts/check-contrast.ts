@@ -5,7 +5,7 @@
 // Run from the repo root: node scripts/check-contrast.ts
 
 import { readFileSync } from 'node:fs';
-import { PAIRS, THRESHOLD, type Theme } from './contrast-pairs.ts';
+import { KNOWN_FAILURES, PAIRS, THRESHOLD, type Theme } from './contrast-pairs.ts';
 import { parseCss, type Declaration, type Stylesheet } from './tokens/parse.ts';
 
 type Rgba = [r: number, g: number, b: number, a: number];
@@ -21,6 +21,8 @@ export interface Measured {
 
 export interface ContrastResult {
   failures: string[];
+  /** Pairs in KNOWN_FAILURES that still fail: reported, not fatal. */
+  known: string[];
   measured: Measured[];
   checked: number;
 }
@@ -105,6 +107,7 @@ export function checkContrast(css: string): ContrastResult {
     'on-spruce': new Map([...dag, ...ruleDeclarations(sheet, '.fjord-on-spruce')]),
   };
 
+  const known: string[] = [];
   const measured: Measured[] = [];
   for (const pair of PAIRS) {
     for (const theme of pair.themes) {
@@ -113,22 +116,33 @@ export function checkContrast(css: string): ContrastResult {
       const ratio = contrastRatio(over(resolve(tokens, pair.fg), background), background);
       const threshold = THRESHOLD[pair.kind];
       measured.push({ fg: pair.fg, bg: pair.bg, theme, ratio, threshold });
-      if (ratio < threshold)
-        failures.push(
-          `${pair.fg} on ${pair.bg} · ${theme} · ${ratio.toFixed(2)}:1 (needs ${threshold}:1)`,
-        );
+      const name = `${pair.fg} on ${pair.bg} · ${theme}`;
+      const expected = KNOWN_FAILURES.find(
+        (k) => k.fg === pair.fg && k.bg === pair.bg && k.theme === theme,
+      );
+      const line = `${name} · ${ratio.toFixed(2)}:1 (needs ${threshold}:1)`;
+      if (ratio >= threshold) {
+        if (expected)
+          failures.push(`known failure ${name} now passes: move it out of KNOWN_FAILURES`);
+      } else if (expected) known.push(`${line} · ${expected.note}`);
+      else failures.push(line);
     }
   }
-  return { failures, measured, checked: measured.length };
+  return { failures, known, measured, checked: measured.length };
 }
 
 if (import.meta.main) {
-  const { failures, measured } = checkContrast(readFileSync('src/styles/tokens.css', 'utf8'));
+  const { failures, known, measured } = checkContrast(
+    readFileSync('src/styles/tokens.css', 'utf8'),
+  );
   for (const m of measured)
     console.log(`${m.fg} on ${m.bg} · ${m.theme} · ${m.ratio.toFixed(2)}:1 (≥ ${m.threshold}:1)`);
+  for (const k of known) console.log(k);
   if (failures.length > 0) {
     console.error(`contrast check failed:\n  ${failures.join('\n  ')}`);
     process.exit(1);
   }
-  console.log(`contrast: ${measured.length} pairs pass`);
+  console.log(
+    `contrast: ${measured.length - known.length} pairs pass, ${known.length} known failure(s)`,
+  );
 }

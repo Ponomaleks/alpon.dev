@@ -52,6 +52,44 @@ describe('checkContrast', () => {
     );
   });
 
+  it('measures both warning-soft pairs in Dag and Natt', () => {
+    const { measured } = checkContrast(tokens());
+    for (const fg of ['--fjord-color-warning', '--fjord-color-text'])
+      for (const theme of ['Dag', 'Natt'])
+        expect(
+          measured.find(
+            (m) => m.fg === fg && m.bg === '--fjord-color-warning-soft' && m.theme === theme,
+          ),
+          `${fg} on warning-soft · ${theme}`,
+        ).toBeDefined();
+  });
+
+  it('reports the Dag warning pair as a named known failure, not a failure (spec §8 OQ-01)', () => {
+    const { failures, known } = checkContrast(tokens());
+    expect(failures).toEqual([]);
+    expect(known).toEqual([
+      expect.stringMatching(
+        /^--fjord-color-warning on --fjord-color-warning-soft · Dag · 4\.40:1 \(needs 4\.5:1\) · known failure, fix before step 7 Callout$/,
+      ),
+    ]);
+  });
+
+  it('fails once a known failure passes, so the pair moves to the normal pairs', () => {
+    // The Owner darkens the Dag warning color in the design source.
+    const fixed = tokens().replaceAll(
+      '--fjord-color-warning: #8A6420;',
+      '--fjord-color-warning: #6F4F14;',
+    );
+    expect(fixed).not.toBe(tokens());
+    const { failures, known } = checkContrast(fixed);
+    expect(known).toEqual([]);
+    expect(failures).toContainEqual(
+      expect.stringMatching(
+        /known failure --fjord-color-warning on --fjord-color-warning-soft · Dag now passes/,
+      ),
+    );
+  });
+
   it('a UI pair (focus ring) uses the 3:1 threshold', () => {
     const ring = PAIRS.find(
       (p) => p.fg === '--fjord-color-focus-ring' && p.bg === '--fjord-color-bg',
@@ -69,5 +107,8 @@ describe('scripts/check-contrast.ts CLI', () => {
     expect(run.stderr).toBe('');
     expect(run.status).toBe(0);
     expect(run.stdout).toMatch(/--fjord-color-text on --fjord-color-bg · Dag · 14\.39:1/);
+    expect(run.stdout).toMatch(
+      /--fjord-color-warning on --fjord-color-warning-soft · Dag · 4\.40:1 \(needs 4\.5:1\) · known failure, fix before step 7 Callout/,
+    );
   });
 });

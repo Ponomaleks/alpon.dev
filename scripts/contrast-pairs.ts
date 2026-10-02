@@ -2,9 +2,9 @@
 // foreground/background pair the Fjord tokens are used in. Text needs 4.5:1; large text, UI
 // borders and the focus ring need 3:1 (WCAG 2.2 AA 1.4.3 / 1.4.11).
 //
-// Not in the manifest yet: --fjord-color-warning on --fjord-color-warning-soft (the handoff
-// Callout --warning label, 12–13px mono). It measures 4.40:1 in Dag; reported to the Owner in the
-// fjord-foundation PR. Add it when Callout is built, after the design source is fixed.
+// KNOWN_FAILURES lists pairs that are measured but expected to fail until the design source is
+// fixed. Each one is printed on every run, and the check fails once it passes, so it moves back
+// to the normal pairs instead of being forgotten.
 
 export type PairKind = 'text' | 'large' | 'ui';
 
@@ -56,11 +56,31 @@ export const PAIRS: Pair[] = [
   pair('danger', 'bg', 'text', PAGE),
   pair('text', 'success-soft', 'text', PAGE),
   pair('text', 'danger-soft', 'text', PAGE),
+  pair('text', 'warning-soft', 'text', PAGE),
   pair('success', 'success-soft', 'ui', PAGE),
   pair('danger', 'danger-soft', 'ui', PAGE),
+  // The Callout --warning label (12–13px mono) is text, not just a status mark.
+  pair('warning', 'warning-soft', 'text', PAGE),
   // Focus ring and input borders.
   pair('focus-ring', 'bg', 'ui', ALL),
   pair('focus-ring', 'bg-raised', 'ui', PAGE),
   pair('border-strong', 'bg', 'ui', ALL),
   pair('border-strong', 'bg-raised', 'ui', PAGE),
+];
+
+export interface KnownFailure {
+  fg: string;
+  bg: string;
+  theme: Theme;
+  note: string;
+}
+
+export const KNOWN_FAILURES: KnownFailure[] = [
+  // spec §8 OQ-01: the Owner darkens the Dag warning color in the design source.
+  {
+    fg: c('warning'),
+    bg: c('warning-soft'),
+    theme: 'Dag',
+    note: 'known failure, fix before step 7 Callout',
+  },
 ];
