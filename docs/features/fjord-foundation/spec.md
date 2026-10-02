@@ -214,7 +214,7 @@ Traceability:
 
 ## 8. Open questions
 
-<!-- N/A: no open questions — every decision was taken from CLAUDE.md, the roadmap and the design, and listed in the assumptions ledger for veto. -->
+- **OQ-01 — Dag warning pair under 4.5:1** (from review 2026-10-02). `--fjord-color-warning` on `--fjord-color-warning-soft` measures 4.40:1 in Dag. It stays in the contrast manifest as a named known failure, printed on every run of the contrast check, until the design source is fixed: the Owner darkens the Dag warning color in Claude Design and re-exports, then the pair moves to the normal passing pairs. Owner: Alexander Ponomarenko. Due: before roadmap step 7 (Callout) is built.
 
 ## Test plan
 
