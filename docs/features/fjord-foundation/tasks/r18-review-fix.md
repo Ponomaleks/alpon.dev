@@ -7,7 +7,7 @@ acs: ["AC-14"]
 files_hint: ["scripts/tokens/generate.ts", "scripts/tokens/build.test.ts"]
 owner: "Alexander Ponomarenko"
 estimate: "S"
-status: "todo"
+status: "done"
 ---
 
 # R18 — Classify scale tokens by handoff usage and reject movement tokens outside motion.css

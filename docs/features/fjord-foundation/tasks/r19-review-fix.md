@@ -7,7 +7,7 @@ acs: []
 files_hint: ["docs/features/fjord-foundation/spec.md", "lighthouserc.cjs"]
 owner: "Alexander Ponomarenko"
 estimate: "S"
-status: "todo"
+status: "done"
 ---
 
 # R19 — Record that SEO is not asserted on the noindex Not-found page

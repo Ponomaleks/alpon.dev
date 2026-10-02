@@ -7,7 +7,7 @@ acs: ["AC-01", "AC-07"]
 files_hint: ["docs/features/fjord-foundation/tasks/t16-ci-lighthouse-protection.md", ".github/workflows/ci.yml"]
 owner: "Alexander Ponomarenko"
 estimate: "S"
-status: "todo"
+status: "done"
 ---
 
 # R13 — Require both check and visual, and record the branch-protection commands

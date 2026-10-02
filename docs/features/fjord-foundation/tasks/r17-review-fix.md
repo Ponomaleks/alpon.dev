@@ -7,7 +7,7 @@ acs: ["AC-11"]
 files_hint: ["stylelint.config.js", "scripts/lint/fixtures/", "scripts/lint/stylelint.test.ts"]
 owner: "Alexander Ponomarenko"
 estimate: "S"
-status: "todo"
+status: "done"
 ---
 
 # R17 — Disallow container-query units and restrict viewport heights by value

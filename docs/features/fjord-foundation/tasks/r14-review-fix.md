@@ -7,7 +7,7 @@ acs: ["AC-09", "AC-12"]
 files_hint: ["src/integrations/csp.ts", "src/integrations/csp.test.ts"]
 owner: "Alexander Ponomarenko"
 estimate: "S"
-status: "todo"
+status: "done"
 ---
 
 # R14 — Run the handler and style checks on every element in the CSP audit

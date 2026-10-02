@@ -7,7 +7,7 @@ acs: ["AC-05"]
 files_hint: ["tests/e2e/fonts.spec.ts", "tests/e2e/platform-fonts.ts"]
 owner: "Alexander Ponomarenko"
 estimate: "S"
-status: "todo"
+status: "done"
 ---
 
 # R15 — Measure the font swap at phone width and assert the Mono labels and body face

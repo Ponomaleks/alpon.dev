@@ -7,7 +7,7 @@ acs: ["AC-01", "AC-07"]
 files_hint: [".github/workflows/visual-baselines.yml", "README.md", "tests/visual/__screenshots__/linux/"]
 owner: "Alexander Ponomarenko"
 estimate: "S"
-status: "todo"
+status: "review"
 ---
 
 # R12 — Produce the visual baselines from a labelled PR and document the local Docker fallback

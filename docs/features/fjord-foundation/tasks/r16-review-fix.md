@@ -7,7 +7,7 @@ acs: ["AC-02"]
 files_hint: ["src/scripts/theme-bootstrap.test.ts"]
 owner: "Alexander Ponomarenko"
 estimate: "S"
-status: "todo"
+status: "done"
 ---
 
 # R16 — Make the no-global bootstrap test see top-level let bindings

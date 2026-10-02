@@ -32,13 +32,13 @@
 | R9 | [Make missing visual baselines fail CI and add a manual baseline workflow](./r09-review-fix.md) | wiring | Alexander Ponomarenko | S | — | done |
 | R10 | [Run Lighthouse CI against wrangler dev so the delivered headers apply](./r10-review-fix.md) | wiring | Alexander Ponomarenko | S | R9 | done |
 | R11 | [Remove the stray screenshots and ignore mangled temp paths](./r11-review-fix.md) | wiring | Alexander Ponomarenko | S | — | done |
-| R12 | [Produce the visual baselines from a labelled PR and document the local Docker fallback](./r12-review-fix.md) | wiring | Alexander Ponomarenko | S | — | todo |
-| R13 | [Require both check and visual, and record the branch-protection commands](./r13-review-fix.md) | wiring | Alexander Ponomarenko | S | R12 | todo |
-| R14 | [Run the handler and style checks on every element in the CSP audit](./r14-review-fix.md) | wiring | Alexander Ponomarenko | S | — | todo |
-| R15 | [Measure the font swap at phone width and assert the Mono labels and body face](./r15-review-fix.md) | tests | Alexander Ponomarenko | S | — | todo |
-| R16 | [Make the no-global bootstrap test see top-level let bindings](./r16-review-fix.md) | tests | Alexander Ponomarenko | S | — | todo |
-| R17 | [Disallow container-query units and restrict viewport heights by value](./r17-review-fix.md) | tests | Alexander Ponomarenko | S | — | todo |
-| R18 | [Classify scale tokens by handoff usage and reject movement tokens outside motion.css](./r18-review-fix.md) | wiring | Alexander Ponomarenko | S | — | todo |
-| R19 | [Record that SEO is not asserted on the noindex Not-found page](./r19-review-fix.md) | docs | Alexander Ponomarenko | S | — | todo |
+| R12 | [Produce the visual baselines from a labelled PR and document the local Docker fallback](./r12-review-fix.md) | wiring | Alexander Ponomarenko | S | — | review |
+| R13 | [Require both check and visual, and record the branch-protection commands](./r13-review-fix.md) | wiring | Alexander Ponomarenko | S | R12 | done |
+| R14 | [Run the handler and style checks on every element in the CSP audit](./r14-review-fix.md) | wiring | Alexander Ponomarenko | S | — | done |
+| R15 | [Measure the font swap at phone width and assert the Mono labels and body face](./r15-review-fix.md) | tests | Alexander Ponomarenko | S | — | done |
+| R16 | [Make the no-global bootstrap test see top-level let bindings](./r16-review-fix.md) | tests | Alexander Ponomarenko | S | — | done |
+| R17 | [Disallow container-query units and restrict viewport heights by value](./r17-review-fix.md) | tests | Alexander Ponomarenko | S | — | done |
+| R18 | [Classify scale tokens by handoff usage and reject movement tokens outside motion.css](./r18-review-fix.md) | wiring | Alexander Ponomarenko | S | — | done |
+| R19 | [Record that SEO is not asserted on the noindex Not-found page](./r19-review-fix.md) | docs | Alexander Ponomarenko | S | — | done |
 
 **Total:** 16 tasks + 19 review follow-ups (R1–R19), ~17 person-days (S ≈ 0.5 d, M ≈ 1 d).
