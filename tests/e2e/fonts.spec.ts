@@ -146,8 +146,9 @@ test.describe('fallback face while brand fonts are blocked', () => {
     test(`${path} renders the Roboto fallback face and text does not move when brand fonts swap in`, async ({
       browser,
     }, testInfo) => {
-      // AC-05 is a phone story (review S1-03): measure explicitly at 390 in the mobile project
-      // (on top of its Pixel 7 emulation) and at 1440 in the desktop project.
+      // AC-05 is a phone story (review S1-03): measure explicitly at 390 in the mobile project and
+      // at 1440 in the desktop project. browser.newContext() does not inherit the project's Pixel 7
+      // emulation, so the width is set here; layout shift depends on the width, not the device.
       const width = testInfo.project.use.isMobile ? 390 : 1440;
       const measure = async (block: boolean) => {
         const context = await browser.newContext({ viewport: { width, height: 900 } });

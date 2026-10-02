@@ -438,7 +438,7 @@ Each top-3 goal from §1 expanded into scenarios. Numbers are quoted from spec �
 
 **QG-2. Visual stability and speed on a phone**
 - **When:** Lighthouse CI (mobile, cold cache) runs on the built Not-found page and home placeholder; the budget script runs on `dist/`.
-- **Then:** CLS "≤ 0.02 on the not-found page and the home placeholder"; LCP "≤ 2.0 s"; TBT "≤ 100 ms"; "Performance, Accessibility, Best Practices, SEO each ≥ 95"; initial JS "≤ 50 KB gzip in total; the render-blocking theme bootstrap ≤ 1 KB unminified"; critical fonts "exactly 2 preloaded font files, ≤ 60 KB combined; every shipped font file ≤ 30 KB".
+- **Then:** CLS "≤ 0.02 on the not-found page and the home placeholder"; LCP "≤ 2.0 s"; TBT "≤ 100 ms"; "Performance, Accessibility, Best Practices, SEO each ≥ 95" (SEO is not asserted on the noindex Not-found page, spec §6); initial JS "≤ 50 KB gzip in total; the render-blocking theme bootstrap ≤ 1 KB unminified"; critical fonts "exactly 2 preloaded font files, ≤ 60 KB combined; every shipped font file ≤ 30 KB".
 - **How verify:** `npm run lhci` assertions in CI on a runner with Roboto installed and no Arial, so the metric-matched Roboto fallback is the one measured; the Arial fallback overrides are covered by a Vitest test of the `tools/fonts/` metric script against the TTF metrics; `scripts/check-budgets.ts` after `npm run build`; the e2e fonts spec + P-26 for the preload set, the lazily requested weights (AC-06) and æ ø å rendered from brand files (AC-15).
 
 **QG-3. Build-enforced integrity**

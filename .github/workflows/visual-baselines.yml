@@ -16,6 +16,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: visual-baselines-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   baselines:
     if: github.event_name == 'workflow_dispatch' || contains(github.event.pull_request.labels.*.name, 'visual-baselines')

@@ -12,7 +12,7 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
-# Branch protection on v2 and main requires the checks `check` and `visual`: the job ids below
+# Branch protection on v2 and main (applied by the Owner) requires the checks `check` and `visual`: the job ids below
 # (commands in docs/features/fjord-foundation/tasks/t16-ci-lighthouse-protection.md). Keep both
 # jobs free of path filters (`paths` / `paths-ignore` under `on:`) and of job-level `if:`
 # conditions on PRs into v2/main: a required check that never reports blocks the merge forever.
@@ -83,8 +83,8 @@ jobs:
           path: .lighthouseci/
           retention-days: 7
 
-  # Visual regression runs in the official Playwright image, the same environment the manual
-  # "Visual baselines" workflow writes the baselines in (fjord-foundation sad §11). A missing
+  # Visual regression runs in the official Playwright image, the same environment the
+  # "Visual baselines" workflow (run by the `visual-baselines` PR label) writes the baselines in (fjord-foundation sad §11). A missing
   # baseline fails this job.
   visual:
     runs-on: ubuntu-latest

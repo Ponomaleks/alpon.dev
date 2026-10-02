@@ -291,7 +291,7 @@ Size S, route quick: the plan lives here instead of a separate file. Levels foll
 
 <!-- N/A: no numeric NFR -->
 No throughput or concurrency NFR: the numeric §6 targets are single-visit page budgets. They are validated without load as follows:
-- CLS ≤ 0.02, LCP ≤ 2.0 s, TBT ≤ 100 ms, four categories ≥ 95 → page performance audit (mobile, cold cache) on home and Not-found after the build.
+- CLS ≤ 0.02, LCP ≤ 2.0 s, TBT ≤ 100 ms, four categories ≥ 95 (SEO not asserted on the noindex Not-found page, see §6) → page performance audit (mobile, cold cache) on home and Not-found after the build.
 - Initial JS ≤ 50 KB gzip, bootstrap ≤ 1 KB, 2 preloads ≤ 60 KB, each font ≤ 30 KB → AC-06 / AC-15 unit and integration rows plus the build-output budget check.
 - 0 wrong-theme frames in 6 combinations → AC-01 / AC-02 e2e-through-UI rows.
 - 0 accessibility violations in Dag and Natt → accessibility scan on home and Not-found in both themes (with the AC-04 scripts-off row).
