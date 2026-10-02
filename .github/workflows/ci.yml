@@ -64,7 +64,10 @@ jobs:
           path: playwright-report/
           retention-days: 7
 
+      # Against wrangler dev on dist/, so the delivered headers apply while pages are scored.
       - name: Lighthouse CI
+        env:
+          WRANGLER_SEND_METRICS: 'false'
         run: npm run lhci
 
       - name: Upload Lighthouse reports
