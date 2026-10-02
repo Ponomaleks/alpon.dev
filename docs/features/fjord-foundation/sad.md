@@ -104,8 +104,8 @@ C4Context
 **Top strategic choices (the seeds for ADRs):**
 
 1. **One web surface, rendered at build time** — `target_surfaces: [web-frontend]`. The Visitor-facing pages are the only runtime surface; there is no backend, worker or API. UI architecture is inherited, not re-decided: static HTML rendered by Astro at build time (repo ADR-0001) with zero client JS except the theme bootstrap (repo ADR-0002). Everything else in this feature (token generator, checks, CSP integration) runs at build or CI time and is a module of the same surface, not a separate one. *(Single surface, inherited UI architecture: below the ADR gate, inline.)*
-2. **Theme decided before the first frame, CSS-first for the no-JS case** — a ~300-byte inline bootstrap accepts only a stored `dag`/`natt` Theme choice, else the device preference, and sets `data-theme` on `<html>`; `tokens.css` carries Dag, Natt, and a second Natt block under `@media (prefers-color-scheme: dark) { :root:not([data-theme]) }` that decides when the bootstrap could not run. Both Natt blocks are generated from the design sources so the values have one source. Serves quality goal 1. → [ADR-0001](./adr/0001-pair-a-validating-theme-bootstrap-with-generated-natt-blocks.md)
-3. **A build-generated, fail-closed script policy** — one CSP line under `/*` in `_headers` (removed from `/`), whose `script-src` hash is written by a local Astro integration after it has audited the built HTML: exactly one inline script (the bootstrap), no inline styles or handler attributes, no leftover placeholder, no second CSP line. Astro's small-file inlining is turned off so bundled CSS/JS stay covered by `'self'`. Serves quality goal 3. → [ADR-0002](./adr/0002-generate-the-bootstrap-hash-into-a-single-csp-rule-at-build.md)
+2. **Theme decided before the first frame, CSS-first for the no-JS case** — a ~300-byte inline bootstrap accepts only a stored `dag`/`natt` Theme choice, else the device preference (also when storage access throws), and always sets `data-theme` on `<html>` — with scripts on it is never missing; `tokens.css` carries Dag, Natt, and a second Natt block under `@media (prefers-color-scheme: dark) { :root:not([data-theme]) }` that decides only when scripts are off. Both Natt blocks are generated from the design sources so the values have one source. Serves quality goal 1. → [ADR-0001](./adr/0001-pair-a-validating-theme-bootstrap-with-generated-natt-blocks.md)
+3. **A build-generated, fail-closed script policy** — one CSP line under `/*` in `_headers` (removed from `/`), whose `script-src` hash is written by a local Astro integration after it has audited the built HTML: exactly one executable inline script (the bootstrap; non-executable `application/ld+json` data blocks are allowed), no inline styles or handler attributes, no leftover placeholder, no second CSP line. Astro's small-file inlining is turned off so bundled CSS/JS stay covered by `'self'`. Serves quality goal 3. → [ADR-0002](./adr/0002-generate-the-bootstrap-hash-into-a-single-csp-rule-at-build.md)
 4. **Guardrails in the toolchain, not in memory** — token-only styles by Stylelint core rules with a documented keyword and breakpoint allowlist (→ [ADR-0003](./adr/0003-enforce-token-only-styles-with-stylelint-built-in-rules.md)); a contrast script over the generated tokens; a budget script for bootstrap, JS and font sizes; the generator's `--check` mode. All run on every PR. Serves quality goal 3.
 5. **Brand fonts that hold still** — self-hosted woff2 in `public/fonts/` with hand-written `@font-face` (`font-display: swap`), exactly Schibsted Grotesk 400 and 600 preloaded, and metric-matched fallback faces for two local fonts (Arial for iOS/macOS/Windows, Roboto for Android) computed once from the TTFs. The Astro Fonts API was not used: it emits inline `<style>`, which pillar 3 forbids, and moves files to hashed URLs. Serves quality goal 2. *(Inline: reversible in under a day, one module.)*
 
@@ -202,11 +202,10 @@ sequenceDiagram
         Page->>Boot: runs the inline bootstrap first
         alt stored Theme choice is dag or natt
             Boot->>Page: sets data-theme to the stored choice
-        else unknown value
-            Boot->>Page: sets data-theme from the device preference
-        else storage access throws
-            Boot-->>Page: sets nothing and stays silent
+        else unknown or missing value, or storage access throws
+            Boot->>Page: sets data-theme from the device preference, silently
         end
+        Note over Boot,Page: data-theme is always dag or natt with scripts on
     else scripts disabled
         Page->>Page: bootstrap skipped and no data-theme
     end
@@ -236,7 +235,7 @@ sequenceDiagram
     Edge-->>Visitor: home placeholder
 ```
 
-**Critical flow 3: Owner change through CI and Workers Builds** (AC-10..AC-13)
+**Critical flow 3: Owner change through CI and Workers Builds** (AC-10..AC-12)
 
 Two independent paths start from one push. GitHub Actions CI gates the **merge** (branch protection, §7); Workers Builds gates the **deploy** only through `astro build`, which runs the CSP integration.
 
@@ -269,6 +268,123 @@ sequenceDiagram
     end
 ```
 
+### Policy refuses an injected script
+
+US-05 · AC-09 (and the §6.1 abuse case "injected script"). Runs in the Visitor's browser on any page (SCR-01, SCR-02); `<service>` is the static edge, `<ui>` the rendered page.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as <user>
+    participant UI as <ui>
+    participant S as <service>
+
+    Note over U,S: Precondition: every response carries the single policy that names the theme bootstrap by its fingerprint and grants no blanket inline permission
+    U->>S: opens a page
+    S-->>UI: page plus the policy with the bootstrap fingerprint
+    UI->>UI: fingerprint of the inline bootstrap matches the policy, so it runs
+    UI->>S: loads bundled same-origin scripts, if the page has any
+    S-->>UI: external script files allowed by the same-origin rule
+    alt an inline script whose fingerprint the policy does not name appears
+        UI->>UI: refuses to run it and records a policy violation, nothing visible to the Visitor
+    else a script from an origin the policy does not name appears
+        UI->>UI: refuses to load it
+    else an inline handler attribute appears
+        UI->>UI: refuses to run the handler
+    else a structured-data block appears
+        UI->>UI: reads it as data only, it never executes and the script rule does not apply
+    end
+    UI-->>U: page renders in the settled theme
+    Note over U,S: Postcondition: only the bootstrap and same-origin bundled scripts have run
+```
+
+### A new page inherits the shared layout
+
+US-06 · AC-13 (and the build side of AC-12). Build time: `<user>` is the Owner, `<service>` the site build with its inline-code audit, `<data-store>` the static output that gets deployed.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor O as <user>
+    participant S as <service>
+    participant D as <data-store>
+
+    Note over O,S: Precondition: the new page uses the shared layout and passes only a title and a description
+    O->>S: runs the site build
+    S->>S: renders the page through the shared layout
+    S->>S: adds language, title, description, theme bootstrap, the two critical font hints and the token, font and base styles
+    S->>S: audits the inline code of every built page
+    alt the page adds an inline executable script, an inline style element, a style attribute or an on-handler attribute
+        S-->>O: build fails and names the page and the offending code, nothing is deployed
+    else the page uses only the shared layout, bundled island scripts emitted as external files, or structured-data blocks
+        S->>S: fingerprints the bootstrap and writes it into the single policy line
+        S->>D: writes the built page, its external scripts and the policy
+        Note over S,D: persists static files only, no schema and no entity
+        S-->>O: page is ready with the full head contract and the shared policy
+    end
+    Note over O,S: Postcondition: every built page has the same head and is covered by one policy that names exactly the bootstrap
+```
+
+### Reduced motion
+
+US-07 · AC-14. Runs in the Visitor's browser on any page (SCR-01, SCR-02).
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as <user>
+    participant UI as <ui>
+    participant S as <service>
+
+    Note over U,UI: Precondition: the page styles use motion only through Fjord motion tokens
+    U->>S: opens a page
+    S-->>UI: page plus the token and base styles
+    UI->>UI: reads the device reduced-motion preference
+    alt reduced motion requested
+        UI->>UI: movement distances (rise, slide, parallax, scale) collapse to zero and loops stop
+        UI->>UI: opacity fades keep the short fade duration token
+        UI-->>U: page renders with no movement, slide or loop, at most a short fade
+    else no preference
+        UI-->>U: page renders with the standard motion tokens, nothing in this feature animates
+    end
+    Note over U,UI: Postcondition: nothing on the page moves or loops for a Visitor who asked for reduced motion
+```
+
+**Coverage (spec §4 / §5 → flows).**
+
+| User story | Flow(s) |
+|---|---|
+| US-01 Theme from the first frame | 1 |
+| US-02 Remembered Theme choice | 1 |
+| US-03 Brand type that holds still | 1 |
+| US-04 A way back from a dead link | 2 |
+| US-05 Only allowed scripts run | 4 |
+| US-06 Guardrails for the Owner | 3, 5 |
+| US-07 Calm for reduced motion | 6 |
+
+| AC | Shown in |
+|---|---|
+| AC-01 | Flow 1, scripts enabled, no stored choice: device preference |
+| AC-02 | Flow 1, branch `stored Theme choice is dag or natt` |
+| AC-03 | Flow 1, branch `unknown or missing value, or storage access throws` (data-theme still set) |
+| AC-04 | Flow 1, branch `scripts disabled` (no-JS media block) |
+| AC-05 | Flow 1, metric-matched fallback, then brand fonts swap in with no shift |
+| AC-06 | Flow 1, only the two preloaded fonts requested ahead of rendering |
+| AC-07 | Flow 2 |
+| AC-08 | Flow 2, note: See projects is not rendered |
+| AC-09 | Flow 4, all four `alt`/`else` branches |
+| AC-10 | Flow 3, branch `a text pair below the contrast level` |
+| AC-11 | Flow 3, branch `a literal value in a style` |
+| AC-12 | Flow 3, Workers Builds path; Flow 5, the build's fingerprint and audit step |
+| AC-13 | Flow 5 |
+| AC-14 | Flow 6 |
+| AC-15 | Flow 1, `opt another weight is used on the page` |
+
+**Flags for design (not decided here).**
+- Flows 1–3 were drawn by `design` with concrete participant names. They are kept as they were, apart from one change: the user's correction to ADR-0001 updated the blocked-storage branch of flow 1. Flows 4–6 use the generic vocabulary.
+- Flow 6 relies on the reduced-motion deviation in §8 Motion: a generated `--fjord-duration-fade`, with distances collapsed but durations kept. It is recorded inline and in the PR design-deviation list, not as an ADR. Escalate it to an ADR only if step 3's View Transitions need a different rule.
+- No new participant or entity: every persist step writes static build output only, so `data-model` has nothing to index.
+
 ## 7. Deployment view
 
 No topology change: the same single Worker (`alpon-dev`) serves `dist/` as static assets, deployed by Workers Builds (`v2` → preview URL via `npm run build && npx wrangler preview`; `main` keeps the stub). The build command is unchanged; the CSP integration runs inside `astro build`, so Workers Builds produces the hashed `_headers` with no extra step. What changes in the deployed config is `_headers` only: the CSP moves from `/` to `/*` with a build-written hash (ADR-0002). There is no runtime code, so no replicas or scaling thresholds apply.
@@ -288,13 +404,13 @@ No topology change: the same single Worker (`alpon-dev`) serves `dist/` as stati
 | Concept | Convention | Where defined |
 |---|---|---|
 | Fjord tokens | Only `--fjord-*` values in styles. `tokens.css` is generated from the design sources (palette from `design/brand/tokens.json`, semantics from the handoff token CSS) and committed with a "generated — do not edit" header; `--check` in CI keeps it current | ADR-0001; `CLAUDE.md` design rules |
-| Theme | `data-theme="dag\|natt"` on `<html>`, set by the validating bootstrap (key `fjord-theme`); Natt also applies through the no-JS media block; `color-scheme` set in every theme block; the bootstrap never writes storage in this feature (no visible switch until step 3) | ADR-0001 |
+| Theme | `data-theme="dag\|natt"` on `<html>`, set by the validating bootstrap (key `fjord-theme`); Natt also applies through the no-JS media block; `color-scheme` set in every theme block; the bootstrap never writes storage in this feature (no visible switch until step 3). Invariant: with scripts on, `data-theme` is always `dag` or `natt` (blocked storage included), so step 3 (ThemeToggle, Dag/Natt QR swap) handles two states only; the no-JS media block serves only scripts-off | ADR-0001 |
 | Token-only styles | Stylelint core rules; keyword allowlist `0`, `100%`, `auto`, `none`, `inherit`, `currentColor`, `transparent`; breakpoints only 360 / 768 / 1024 / 1440 px, enforced by `media-feature-name-value-allowed-list`; `tokens.css` and `fonts.css` excluded, and `fonts.css` holds only `@font-face` rules | ADR-0003 |
-| Security policy | One CSP line under `/*`, hash written at build, no `'unsafe-inline'`; no inline `<style>`, `style=` or `on*=` attributes anywhere; `build.inlineStylesheets: 'never'`, `vite.build.assetsInlineLimit: 0`; new origins are added to the same template line | ADR-0002 |
+| Security policy | One CSP line under `/*`, hash written at build, no `'unsafe-inline'`; the bootstrap is the only executable inline script, and inline `<script type="application/ld+json">` data blocks are allowed (not executed, outside `script-src`; Home's JSON-LD `Person`, P-24); no inline `<style>`, `style=` or `on*=` attributes anywhere; `build.inlineStylesheets: 'never'`, `vite.build.assetsInlineLimit: 0`; new origins are added to the same template line | ADR-0002 |
 | Fonts | Seven brand faces (Schibsted 400/500/600/700, JetBrains Mono 400/500/700), woff2, Latin subset incl. æ ø å and the en/em dashes, each ≤ 30 KB, `font-display: swap`, from `public/fonts/`; preload exactly Schibsted 400 and 600 with `crossorigin`; metric-matched fallback faces "… Fallback Arial" and "… Fallback Roboto" (`size-adjust`, `ascent-override`, `descent-override`, `line-gap-override`) listed in the token font stacks before the generic family; subsetting and metrics computed in `tools/fonts/`; CI installs Roboto only (no Arial), so the mobile Lighthouse and visual runs exercise the Roboto fallback as on Android | §4 pillar 5 |
 | Shared layout (head contract) | `BaseLayout` props `title`, `description`, `lang`, `noindex`; head order: charset → viewport → inline bootstrap → two font preloads → stylesheets (tokens → fonts → base) → title, description, robots, icons. A page sets only title and description (AC-13) | §5 |
-| Error handling | Build time: every check fails closed and names file/line, pair/theme/ratio, or the conflicting value. Run time: the bootstrap swallows storage errors silently and the CSS fallback decides (AC-03); a missing font keeps the matched fallback | ADR-0001, ADR-0002 |
-| Motion | No animation in this feature. Motion tokens collapse under `prefers-reduced-motion: reduce` (durations to 0, rise and parallax to 0) as in the handoff `motion.css`; base styles use transitions only through tokens; no View Transitions yet (step 3) | `CLAUDE.md` motion rules |
+| Error handling | Build time: every check fails closed and names file/line, pair/theme/ratio, or the conflicting value. Run time: the bootstrap treats a storage error like a missing choice and sets `data-theme` from the device preference, silently (AC-03); a missing font keeps the matched fallback | ADR-0001, ADR-0002 |
+| Motion | No animation in this feature. Reduced motion = fades only (`CLAUDE.md`): under `prefers-reduced-motion: reduce` the generator sets every movement distance token (rise, slide, parallax, scale) to 0 and the count-up duration to 0 (counters show final values); looping animations are declared only under `prefers-reduced-motion: no-preference`, so they stop; opacity fades keep a short duration through a generated `--fjord-duration-fade` (200 ms), so durations are **not** all collapsed to 0. The handoff `motion.css` has no fade token and does not cover slide, scale or loops: a deliberate deviation, noted in the generator and in the PR design-deviation list. Base styles use transitions only through tokens; no View Transitions yet (step 3) | `CLAUDE.md` motion rules; ADR-0001 generator |
 | Internationalisation | Page language `en`; Norwegian warm details (the "Ikke funnet" code line) carry `lang="no"` per the design readme | design readme › Languages |
 | Accessibility | Semantic landmarks and one `h1` per page; visible `:focus-visible` from tokens; 44 px targets via `--fjord-tap-min`; axe with zero violations in Dag and Natt | `CLAUDE.md` quality bar |
 | Testing | Playwright e2e against `wrangler dev` (theme matrix incl. scripts off, headers, not-found, fonts, parity P-16/P-26/P-41); axe; visual at 390 / 834 / 1440 × Dag / Natt with Linux-only baselines (CI or the official Playwright Docker image); Vitest for the pure logic in `scripts/` and `src/integrations/` (added with a PR explanation per `CLAUDE.md`) | architecture map › Tests |
@@ -317,8 +433,8 @@ Each top-3 goal from §1 expanded into scenarios. Numbers are quoted from spec �
 
 **QG-1. Theme correctness from the first frame**
 - **When:** a page is opened in each of the 6 combinations (stored Dag / Natt / none × device light / dark), plus an unknown stored value, blocked storage, and scripts off with device light and dark.
-- **Then:** wrong-theme frames are "0 across the 6 combinations (stored Dag / Natt / none × device light / dark)"; the unknown-value, blocked-storage and scripts-off cases render in the device-preference theme with no error; native controls follow `color-scheme`.
-- **How verify:** `tests/e2e/theme.spec.ts`, reading the theme before first paint — Playwright `colorScheme` emulation × storage seeded by an init script (plus a context where storage access throws). An `addInitScript` (runs before any page script) records every change of `data-theme` with a `MutationObserver` and captures the computed `<html>` background and `color-scheme` in the first `requestAnimationFrame` callback, which runs before the first paint; the test asserts that the captured value equals the settled value at `load` and that `data-theme` was set at most once. The scripts-off context (`javaScriptEnabled: false`, where no init script can run) asserts the computed background, `color-scheme` and a screenshot after load, which is sufficient because without scripts only CSS decides the theme.
+- **Then:** wrong-theme frames are "0 across the 6 combinations (stored Dag / Natt / none × device light / dark)"; the unknown-value and blocked-storage cases (AC-03) end with `data-theme` set from the device preference (`natt` for a dark device, `dag` for a light one) and no error; in every scripts-on context `data-theme` is `dag` or `natt`, never missing; the scripts-off case renders in the device-preference theme through the no-JS media block; native controls follow `color-scheme`.
+- **How verify:** `tests/e2e/theme.spec.ts`, reading the theme before first paint — Playwright `colorScheme` emulation × storage seeded by an init script (plus a context where storage access throws). An `addInitScript` (runs before any page script) records every change of `data-theme` with a `MutationObserver` and captures the computed `<html>` background and `color-scheme` in the first `requestAnimationFrame` callback, which runs before the first paint; the test asserts that the captured value equals the settled value at `load`, that `data-theme` was set exactly once, and that it is `dag` or `natt` (including the blocked-storage context). The scripts-off context (`javaScriptEnabled: false`, where no init script can run) asserts the computed background, `color-scheme` and a screenshot after load, which is sufficient because without scripts only CSS decides the theme.
 
 **QG-2. Visual stability and speed on a phone**
 - **When:** Lighthouse CI (mobile, cold cache) runs on the built Not-found page and home placeholder; the budget script runs on `dist/`.
@@ -328,12 +444,12 @@ Each top-3 goal from §1 expanded into scenarios. Numbers are quoted from spec �
 **QG-3. Build-enforced integrity**
 - **When:** a PR changes tokens, styles, the bootstrap or `_headers`.
 - **Then:** contrast stays at "body text ≥ 4.5:1; large text, UI borders and focus ring ≥ 3:1; every semantic text/background pair in Dag and Natt", else the check fails naming pair, theme and ratio (AC-10); a literal value fails with file and line (AC-11); the delivered policy allows exactly the current bootstrap, and a mismatch fails the build before deploy (AC-12); exactly one CSP header without `'unsafe-inline'` on `/`, a 404 response and the CV PDF, and an injected inline script is refused (AC-09).
-- **How verify:** `scripts/check-contrast.ts` and `stylelint` in `npm run lint` (each with a failing-fixture Vitest case); the CSP integration's unit tests plus a CI build; `tests/e2e/headers.spec.ts` and P-16.
+- **How verify:** `scripts/check-contrast.ts` and `stylelint` in `npm run lint` (each with a failing-fixture Vitest case); the CSP integration's unit tests (including an `application/ld+json` block that passes and the same block as an executable type that fails) plus a CI build; `tests/e2e/headers.spec.ts` and P-16.
 
 **Supporting scenarios (spec §6 rows not tied to one goal):**
 - Accessibility: "0 axe violations on the not-found page and home placeholder, in Dag and Natt" — `tests/a11y/` in CI.
 - Visual regression: "≤ 0.1% differing pixels per screenshot against the approved baseline, not-found page at 390 / 834 / 1440 in Dag and Natt" — `tests/visual/not-found.spec.ts`, Linux baselines.
-- Design match: "0 undocumented differences between the not-found page and the design reference at 390 / 834 / 1440 in Dag and Natt" — manual side-by-side review in the PR, differences listed (code line "404 · Ikke funnet" instead of the requested path; no "See projects"; theme-snippet deviations from ADR-0001).
+- Design match: "0 undocumented differences between the not-found page and the design reference at 390 / 834 / 1440 in Dag and Natt" — manual side-by-side review in the PR, differences listed (code line "404 · Ikke funnet" instead of the requested path; no "See projects"; theme-snippet deviations from ADR-0001; reduced-motion tokens per §8 Motion, with the generated `--fjord-duration-fade` and distances, not durations, collapsed).
 
 ## 11. Risks and technical debt
 
@@ -348,6 +464,7 @@ Each top-3 goal from §1 expanded into scenarios. Numbers are quoted from spec �
 | Turning off Astro's small-file inlining adds a few small requests | Low | Lighthouse CI budget on every PR; the CSS is one shared file in this feature | Owner |
 | Natt reference screenshots are captured from the standalone mockup (roadmap D1), not from the handoff bundle | Low | Capture with the visual tests in this feature; list any mockup vs handoff difference in the PR | Owner |
 | Release 1 adds Cloudflare Web Analytics origins to the policy | Low | Extend the single `/*` template line (`script-src`, `connect-src`), never a second rule; the integration's "one CSP line" guard enforces it | Owner |
+| Step 7's live-preview facade embeds `<name>.alpon.dev` apps in an iframe, which today's `frame-src 'self'` blocks | Low | Extend `frame-src` in the same `/*` template line, never a second rule; the integration's "one CSP line" guard enforces it | Owner |
 
 **Accepted debt (acceptable in v1, plan to fix later):**
 - The Not-found page renders only "Back to home"; "See projects" appears when step 7 adds the Published-project condition (AC-08).
@@ -366,6 +483,6 @@ Each top-3 goal from §1 expanded into scenarios. Numbers are quoted from spec �
 | Not-found page | The "Ikke funnet" page served with a 404 status for any address the site does not have |
 | Published project | A portfolio project ready to be presented with its case study; none exist in this feature |
 | Owner / Visitor / Recruiter / Tech lead | Roles as defined in the root `CONTEXT.md` glossary |
-| Theme bootstrap | The single inline script in `<head>` that applies a valid stored Theme choice or the device preference before the first frame *(not yet in CONTEXT.md — glossary follow-up)* |
-| No-JS Natt block | The generated copy of the Natt tokens under `@media (prefers-color-scheme: dark) { :root:not([data-theme]) }` that decides the theme when the bootstrap did not run *(not yet in CONTEXT.md — glossary follow-up)* |
+| Theme bootstrap | The single inline script in `<head>` that applies a valid stored Theme choice or the device preference before the first frame |
+| No-JS Natt block | The generated copy of the Natt tokens under `@media (prefers-color-scheme: dark) { :root:not([data-theme]) }` that decides the theme only when scripts are off |
 | Metric-matched fallback face | A local font (Arial or Roboto) re-declared with size and line-metric overrides so text keeps its size and position when the brand font swaps in *(technical term)* |

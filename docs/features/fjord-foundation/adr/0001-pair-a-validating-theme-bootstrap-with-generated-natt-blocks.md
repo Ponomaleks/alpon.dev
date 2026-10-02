@@ -39,16 +39,18 @@ The shape:
 
 - **Bootstrap** — `src/scripts/theme-bootstrap.js`, inlined first in `<head>` by `BaseLayout`, before any stylesheet:
   ```js
-  try{var t=localStorage.getItem('fjord-theme');if(t!=='dag'&&t!=='natt')t=matchMedia('(prefers-color-scheme: dark)').matches?'natt':'dag';document.documentElement.dataset.theme=t}catch(e){}
+  var t;try{t=localStorage.getItem('fjord-theme')}catch(e){}if(t!=='dag'&&t!=='natt')t=matchMedia('(prefers-color-scheme: dark)').matches?'natt':'dag';document.documentElement.dataset.theme=t
   ```
-  Only `dag` and `natt` are accepted (AC-03). If storage access throws, nothing is set and the CSS fallback below decides, so the Visitor sees no error.
-- **Generator** — `scripts/tokens/build.ts` (Node 24 runs it directly) reads `design/handoff/design-system/project/tokens/{colors,spacing,typography,motion}.css` and `design/brand/tokens.json`. The core palette comes from `tokens.json`; if a handoff palette value differs, the generator fails and names the conflict (BRAND.md wins, the conflict goes in the PR). It collects every `[data-theme="natt"]` declaration across the handoff files and writes `src/styles/tokens.css` with: `:root` (palette, Dag semantics, non-color tokens, `color-scheme: light`), `[data-theme="dag"]` (reset), `[data-theme="natt"]` (Natt, `color-scheme: dark`), `@media (prefers-color-scheme: dark) { :root:not([data-theme]) { …the same Natt list… } }`, `.fjord-on-spruce`, the responsive and reduced-motion overrides, and the font stacks with the metric-matched fallback faces (SAD §8).
+  Only the storage read sits inside `try`. Only `dag` and `natt` are accepted (AC-03); an unknown value, a missing value and a storage access that throws are all treated as "no choice", and the device preference decides. Validation and the `data-theme` write run outside the `try`, so the Visitor sees no error and the attribute is always set.
+- **Invariant** — with scripts on, `<html>` always carries `data-theme="dag"` or `data-theme="natt"` after the bootstrap. The no-JS media block below serves only the scripts-off case. Step 3 (ThemeToggle, the Dag/Natt QR swap) can therefore rely on exactly two states and never has to handle a missing attribute while scripts run.
+- **Generator** — `scripts/tokens/build.ts` (Node 24 runs it directly) reads `design/handoff/design-system/project/tokens/{colors,spacing,typography,motion}.css` and `design/brand/tokens.json`. The core palette comes from `tokens.json`; if a handoff palette value differs, the generator fails and names the conflict (BRAND.md wins, the conflict goes in the PR). It collects every `[data-theme="natt"]` declaration across the handoff files and writes `src/styles/tokens.css` with: `:root` (palette, Dag semantics, non-color tokens, `color-scheme: light`), `[data-theme="dag"]` (reset), `[data-theme="natt"]` (Natt, `color-scheme: dark`), `@media (prefers-color-scheme: dark) { :root:not([data-theme]) { …the same Natt list… } }`, `.fjord-on-spruce`, the responsive overrides, the reduced-motion overrides (movement distances and the count-up duration to 0, plus a generated `--fjord-duration-fade` that keeps fades short; a deliberate deviation from the handoff `motion.css`, commented in the generator — SAD §8 Motion), and the font stacks with the metric-matched fallback faces (SAD §8).
 - **Guards** — the file starts with a "generated — do not edit" header; `npm run lint` runs the generator with `--check` and fails if the committed file is stale; the contrast script additionally asserts the two Natt blocks are identical.
 
 ## Consequences
 
 **Positive**
 - Correct theme from the first frame with scripts on, scripts off, and storage blocked; native controls and scrollbars follow through `color-scheme` in each block.
+- With scripts on, `data-theme` is always `dag` or `natt` (blocked storage included), so later theme-aware code handles two states only; the media block is reached only with scripts off.
 - Natt values have one source; adding a Natt-only token in any handoff file reaches both blocks automatically.
 - Components in steps 3–7 only ever see `--fjord-*` names; the encoding can change later without touching them.
 

@@ -45,13 +45,14 @@ The shape:
   ```
   The existing `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, `Strict-Transport-Security` and `X-Frame-Options: SAMEORIGIN` stay on `/*`.
 - The integration, on `astro:build:done`, fails the build when:
-  1. any built HTML page has an inline `<script>` other than exactly one whose `sha256` equals the hash of `theme-bootstrap.js` (this also catches a transformed bootstrap);
+  1. any built HTML page has an inline `<script>` other than exactly one whose `sha256` equals the hash of `theme-bootstrap.js` (this also catches a transformed bootstrap). **Exception — non-executable data blocks:** an inline `<script type="application/ld+json">` (type compared case-insensitively, surrounding whitespace trimmed) is permitted; the browser never executes it and `script-src` does not apply to it. Home needs one for the JSON-LD `Person` (step 4, P-24). Every other inline script — no `type`, `text/javascript`, `module`, or any other value — still fails the build unless it is the bootstrap;
   2. any built HTML page has an inline `<style>`, a `style="…"` attribute or an `on*="…"` handler attribute;
   3. the placeholder `{{THEME_BOOTSTRAP_HASH}}` is still present in `dist/_headers` after substitution;
   4. `dist/_headers` contains more than one `Content-Security-Policy` line.
   Otherwise it writes `'sha256-…'` in place of the placeholder.
+- Vitest (`src/integrations/csp.test.ts`) covers rule 1 with fixtures: a page with the bootstrap plus a `<script type="application/ld+json">` block passes (also with `type="Application/LD+JSON"`); the same block with no `type` or with `type="text/javascript"` fails and names the page; a second copy of the bootstrap fails.
 - e2e (`tests/e2e/headers.spec.ts`, plus P-16 flipped in `parity.spec.ts`) asserts exactly one CSP header, containing the bootstrap hash and no `'unsafe-inline'`, on `/`, on a 404 response, and on a static file (the EN CV PDF); and that an injected inline script is refused while the bootstrap runs (AC-09).
-- The template is the only place to extend the policy: Release 1 adds the Cloudflare Web Analytics origins to `script-src` and `connect-src` in this same `/*` line, never as a second rule.
+- The template is the only place to extend the policy: Release 1 adds the Cloudflare Web Analytics origins to `script-src` and `connect-src`, and step 7's live-preview facade adds the `<name>.alpon.dev` app origins to `frame-src`, in this same `/*` line, never as a second rule.
 
 ## Consequences
 

@@ -12,11 +12,13 @@ updated_at: "2026-10-02"
 - Fjord token — a named design value (color, font, space, radius, duration, easing, layout) that is the only allowed source of that value on the site. NOT a one-off value written directly in a page or component.
 - Flash of wrong theme — any rendered frame that shows a theme other than the one the page settles in. NOT a deliberate cross-fade when the Visitor switches theme.
 - Natt — the dark Fjord theme (spruce/ink surfaces, snow text). NOT a high-contrast or accessibility mode.
+- No-JS Natt block — the copy of the Natt tokens that applies the dark theme when the device prefers dark and scripts are off, so no theme bootstrap could run. NOT a third theme: it is Natt, and with scripts on it never decides because the bootstrap always sets the theme.
 - Not-found page — the "Ikke funnet" page shown for any address the site does not have. NOT a short link or redirect; those always resolve to a real target.
 - Owner — Alexander, who builds, maintains and publishes the site from its repository. NOT a Visitor; the site has no admin interface or sign-in.
 - Published project — a portfolio project that is ready to be presented on the site with its case study. NOT a project that exists only in another repository and is not yet presented.
 - Recruiter — a Norwegian recruiter who scans the site, often on a phone, to learn within a minute who Alexander is, his role and location, and how to get the CV or contact him. NOT a Tech lead, who reads deeper.
 - Tech lead — a tech lead or hiring engineer who looks deeper at projects, case studies and the quality of the site itself. NOT a Recruiter, who only scans.
+- Theme bootstrap — the single small script at the top of every page that applies a valid Theme choice, otherwise the device preference, before the first frame, and always leaves the page in Dag or Natt when scripts run. NOT the visible theme switch: it only reads the Theme choice and never saves one.
 - Theme choice — the theme a Visitor explicitly picked, remembered only in their own browser. NOT the device color preference, which decides only when no Theme choice exists.
 - Visitor — anyone who opens the site in a browser, without signing in; Recruiter and Tech lead are kinds of Visitor. NOT the Owner.
 
