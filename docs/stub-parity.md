@@ -53,7 +53,7 @@ Note: CLAUDE.md plans `/cv`, `/cv/en`, `/cv/no` as CV pages later. The spec that
 | P-23 | "Save contact" links to `/alexander-ponomarenko.vcf` with a `download` attribute | fixme |
 | P-24 | Head meta: title, description, canonical `https://alpon.dev/`, `og:*` with `og:image=https://alpon.dev/og.png` 1200×630, `twitter:card=summary_large_image`, JSON-LD `Person` (name, jobTitle, email, telephone, Oslo/NO address, `sameAs` LinkedIn + GitHub) | fixme |
 | P-25 | Skip link is the first focusable element | fixme |
-| P-26 | Fonts: Schibsted Grotesk 400 and 600 preloaded | fixme |
+| P-26 | Fonts: Schibsted Grotesk 400 and 600 preloaded | active |
 
 ## CV viewer (stub: on the home page, `#cv`)
 
