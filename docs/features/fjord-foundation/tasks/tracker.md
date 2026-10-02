@@ -7,7 +7,7 @@
 |---|---|---|---|---|---|---|
 | T1 | [Install the check toolchain: Vitest and Stylelint with the ADR-0003 rule set](./t01-check-toolchain.md) | wiring | Alexander Ponomarenko | M | — | done |
 | T2 | [Ship the seven brand faces and their metric-matched fallback faces](./t02-brand-fonts.md) | wiring | Alexander Ponomarenko | M | T1 | done |
-| T3 | [Generate tokens.css from the design sources with Dag, Natt and the no-JS Natt block](./t03-token-generator.md) | wiring | Alexander Ponomarenko | M | T1 | todo |
+| T3 | [Generate tokens.css from the design sources with Dag, Natt and the no-JS Natt block](./t03-token-generator.md) | wiring | Alexander Ponomarenko | M | T1 | done |
 | T4 | [Extend the generator with reduced-motion tokens, fallback font stacks and --check mode](./t04-generator-motion-fonts-check.md) | wiring | Alexander Ponomarenko | S | T3 | todo |
 | T5 | [Add the contrast check over the generated tokens](./t05-contrast-check.md) | tests | Alexander Ponomarenko | M | T3 | todo |
 | T6 | [Port the handoff base.css as token-only element styles](./t06-base-styles.md) | ui | Alexander Ponomarenko | S | T4 | todo |
