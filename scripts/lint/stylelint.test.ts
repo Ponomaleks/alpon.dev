@@ -28,6 +28,41 @@ describe('stylelint token-only rules (ADR-0003)', () => {
     ['leading.css', 'line-height: 1.2', 2, 'declaration-property-value-allowed-list'],
     ['breakpoint.css', 'min-width: 800px', 1, 'media-feature-name-value-allowed-list'],
     ['component.astro', '12px in an .astro <style>', 5, 'unit-disallowed-list'],
+    // Radius and size.
+    ['radius.css', 'border-radius: 4px', 2, 'unit-disallowed-list'],
+    ['radius.css', 'border-top-left-radius: 50%', 3, 'declaration-property-value-allowed-list'],
+    ['size.css', 'font-size: 14px', 2, 'declaration-property-value-allowed-list'],
+    ['size.css', 'width: 640px', 3, 'unit-disallowed-list'],
+    // Literals hidden in shorthands.
+    [
+      'shorthand-easing.css',
+      'ease-in-out in transition',
+      2,
+      'declaration-property-value-disallowed-list',
+    ],
+    [
+      'shorthand-easing.css',
+      'linear in animation',
+      3,
+      'declaration-property-value-disallowed-list',
+    ],
+    ['font-shorthand.css', 'the font shorthand', 2, 'property-disallowed-list'],
+    ['border-shorthand.css', 'border: thin', 2, 'declaration-property-value-allowed-list'],
+    ['border-shorthand.css', 'outline: medium', 3, 'declaration-property-value-allowed-list'],
+    // Absolute and viewport units.
+    ['absolute-unit.css', '12pt', 2, 'unit-disallowed-list'],
+    ['absolute-unit.css', '4mm in box-shadow', 3, 'unit-disallowed-list'],
+    ['viewport.css', 'top: 3vh', 2, 'declaration-property-unit-disallowed-list'],
+    ['viewport.css', '100vw', 3, 'unit-disallowed-list'],
+    ['viewport.css', 'padding-block: 2dvh', 4, 'declaration-property-unit-disallowed-list'],
+    // Tokens that tokens.css does not declare.
+    [
+      'unknown-token.css',
+      'var(--fjord-color-txt)',
+      2,
+      'declaration-property-value-disallowed-list',
+    ],
+    ['unknown-token.css', 'var(--fjord-space-99)', 3, 'declaration-property-value-disallowed-list'],
   ];
 
   for (const [file, literal, line, rule] of banned) {

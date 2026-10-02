@@ -40,13 +40,20 @@ Fjord tokens are the only allowed source of color, font, space, radius, duration
 | `color-no-hex` | `true` | `#24493D` |
 | `color-named` | `"never"` | `red`, `white` |
 | `function-disallowed-list` | `rgb`, `rgba`, `hsl`, `hsla`, `hwb`, `oklch`, `cubic-bezier`, `steps` | literal colors and easings |
-| `unit-disallowed-list` | `px`, `rem`, `em`, `ms`, `s`, with `ignoreMediaFeatureNames: { px: ['width', 'min-width', 'max-width'] }` | literal sizes, spaces, radii, durations |
+| `unit-disallowed-list` | `px`, `rem`, `em`, `ms`, `s`; absolute and font-relative units (`pt`, `pc`, `cm`, `mm`, `in`, `Q`, `ch`, `ex`, `cap`, `ic`, `lh`, `rlh`); every viewport unit except the height ones (`vw`, `vi`, `vb`, `vmin`, `vmax` and their `s`/`l`/`d` forms); with `ignoreMediaFeatureNames: { px: ['width', 'min-width', 'max-width'] }` | literal sizes, spaces, radii, durations |
+| `declaration-property-unit-disallowed-list` | every property except `height`, `min-height`, `max-height` → `vh`, `svh`, `lvh`, `dvh` | viewport heights outside the layout allowlist (`min-height: 100dvh` passes, `top: 3vh` fails) |
+| `property-disallowed-list` | `font` | the `font` shorthand, which hides a raw weight, size, line-height and family; use the token-checked longhands |
+| `declaration-property-value-disallowed-list` | any property → `var(--fjord-*)` naming a token `tokens.css` does not declare (the list is read from `tokens.css` when the config loads); `transition`, `animation` → keyword easings (`ease*`, `linear`, `step-*`) | misspelled tokens; easings hidden in shorthands |
 | `media-feature-name-value-allowed-list` | `width`, `min-width`, `max-width` → `360px`, `768px`, `1024px`, `1440px` | breakpoints outside the four in `CLAUDE.md` (media queries cannot use `var()`) |
 | `declaration-property-value-allowed-list` | the properties below → a sequence of `var(--fjord-*)` and allowlisted keywords | unitless literals (`font-weight: 600`, `line-height: 1.2`) and anything the rules above miss |
 
-Properties under `declaration-property-value-allowed-list`: color properties (`color`, `background-color`, `border*-color`, `outline-color`, `fill`, `stroke`, `caret-color`, `accent-color`, `text-decoration-color`), `font-family`, `font-size`, `font-weight`, `line-height`, `letter-spacing`, `margin*`, `padding*`, `gap`, `row-gap`, `column-gap`, `inset*`, `border-radius`, `transition-duration`, `transition-timing-function`, `animation-duration`, `animation-timing-function`.
+Properties under `declaration-property-value-allowed-list`: color properties (`color`, `background-color`, `border*-color`, `outline-color`, `fill`, `stroke`, `caret-color`, `accent-color`, `text-decoration-color`), `font-family`, `font-size`, `font-weight`, `line-height`, `letter-spacing`, `margin*`, `padding*`, `gap`, `row-gap`, `column-gap`, `inset*`, `top`, `right`, `bottom`, `left`, `border*-radius`, `border*-width`, `outline*-width`, `outline-offset`, `box-shadow`, `transition-duration`, `transition-timing-function`, `animation-duration`, `animation-timing-function`.
+
+The `border*` and `outline*` shorthands take the same sequence plus the line styles `solid`, `dashed`, `dotted`, `double` (so `thin`, `medium`, `thick` fail).
 
 **Keyword allowlist:** `0`, `100%`, `auto`, `none`, `inherit`, `currentColor`, `transparent`.
+
+_Extended after review 2026-10-02 (F-09): shorthands, absolute and viewport units, the `font` shorthand and undeclared tokens were not caught by the first rule set. Still core rules only._
 
 **Excluded files:** `src/styles/tokens.css` (generated, ADR-0001) and `src/styles/fonts.css`. `fonts.css` is excluded because its `@font-face` descriptors (family names, `src`, numeric weights, percentage metric overrides) are literals by nature and would fail the rules above; in exchange, `fonts.css` holds **only** `@font-face` rules, never ordinary style rules.
 

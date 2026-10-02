@@ -1,0 +1,4 @@
+.a {
+  border: thin solid currentColor;
+  outline: medium dashed var(--fjord-color-focus-ring);
+}

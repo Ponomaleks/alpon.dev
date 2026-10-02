@@ -2,12 +2,39 @@
 // Token-only styles (fjord-foundation ADR-0003): every color, size, space, radius, duration and
 // easing in a page or component style comes from a --fjord-* token. Core rules only.
 
+import { readFileSync } from 'node:fs';
+
+/** Every --fjord-* token tokens.css declares; any other var(--fjord-*) is a typo. */
+const declared = [
+  ...new Set(
+    readFileSync(new URL('./src/styles/tokens.css', import.meta.url), 'utf8').match(
+      /(?<=^\s*)--fjord-[a-z0-9-]+(?=\s*:)/gm,
+    ) ?? [],
+  ),
+];
+const undeclaredToken = new RegExp(
+  String.raw`var\(\s*--fjord-(?!(?:${declared.map((t) => t.slice('--fjord-'.length)).join('|')})\s*[,)])`,
+);
+
 /** Values the token-only properties accept besides var(--fjord-*). */
 const keywords = ['0', '100%', 'auto', 'none', 'inherit', 'currentColor', 'transparent'];
 
 /** A space-separated sequence of Fjord tokens and allowlisted keywords. */
-const term = String.raw`(?:var\(--fjord-[a-z0-9-]+\)|${keywords.join('|')})`;
-const tokenOnly = new RegExp(String.raw`^${term}(?:\s+${term})*$`);
+const sequence = (/** @type {string[]} */ extra) => {
+  const term = String.raw`(?:var\(--fjord-[a-z0-9-]+\)|${[...keywords, ...extra].join('|')})`;
+  return new RegExp(String.raw`^${term}(?:\s+${term})*$`);
+};
+const tokenOnly = sequence([]);
+
+/** Border and outline shorthands: tokens plus the line styles (no thin / medium / thick). */
+const lineShorthand = sequence(['solid', 'dashed', 'dotted', 'double']);
+
+/** Keyword easings inside the transition and animation shorthands (tokens hold the curves). */
+const keywordEasing = /(?<![\w-])(?:ease(?:-in|-out|-in-out)?|linear|step-start|step-end)(?![\w-])/;
+
+/** Viewport-height units are allowed only where layout needs them (e.g. min-height: 100dvh). */
+const viewportHeightUnits = ['vh', 'svh', 'lvh', 'dvh'];
+const viewportHeightProperties = ['height', 'min-height', 'max-height'];
 
 const tokenOnlyProperties = [
   'color',
@@ -30,6 +57,13 @@ const tokenOnlyProperties = [
   'row-gap',
   'column-gap',
   '/^inset/',
+  'top',
+  'right',
+  'bottom',
+  'left',
+  '/^(border|outline)(-(top|right|bottom|left|block|inline)(-(start|end))?)?-width$/',
+  'outline-offset',
+  'box-shadow',
   '/^border(-.+)?-radius$/',
   'transition-duration',
   'transition-timing-function',
@@ -57,17 +91,36 @@ export default {
       'steps',
     ],
     'unit-disallowed-list': [
-      ['px', 'rem', 'em', 'ms', 's'],
+      [
+        ...['px', 'rem', 'em', 'ms', 's'],
+        // Absolute and font-relative units: sizes come from tokens (measures are --fjord-measure*).
+        ...['pt', 'pc', 'cm', 'mm', 'in', 'Q', 'ch', 'ex', 'cap', 'ic', 'lh', 'rlh'],
+        // Viewport units other than the height ones allowed below.
+        ...['vw', 'vi', 'vb', 'vmin', 'vmax'],
+        ...['svw', 'lvw', 'dvw', 'svi', 'lvi', 'dvi', 'svb', 'lvb', 'dvb'],
+        ...['svmin', 'lvmin', 'dvmin', 'svmax', 'lvmax', 'dvmax'],
+      ],
       { ignoreMediaFeatureNames: { px: ['width', 'min-width', 'max-width'] } },
     ],
+    'declaration-property-unit-disallowed-list': {
+      [`/^(?!(?:${viewportHeightProperties.join('|')})$)/`]: viewportHeightUnits,
+    },
+    'property-disallowed-list': ['font'],
+    'declaration-property-value-disallowed-list': {
+      '/.*/': [undeclaredToken],
+      '/^(transition|animation)$/': [keywordEasing],
+    },
     'media-feature-name-value-allowed-list': {
       width: breakpoints,
       'min-width': breakpoints,
       'max-width': breakpoints,
     },
-    'declaration-property-value-allowed-list': Object.fromEntries(
-      tokenOnlyProperties.map((property) => [property, [tokenOnly]]),
-    ),
+    'declaration-property-value-allowed-list': {
+      ...Object.fromEntries(tokenOnlyProperties.map((property) => [property, [tokenOnly]])),
+      '/^(border|outline)(-(top|right|bottom|left|block|inline)(-(start|end))?)?$/': [
+        lineShorthand,
+      ],
+    },
   },
   overrides: [{ files: ['**/*.astro'], customSyntax: 'postcss-html' }],
 };
