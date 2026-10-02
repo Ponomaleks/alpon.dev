@@ -3,15 +3,22 @@ name: Visual baselines
 # Writes the Linux visual baselines in the official Playwright image (the image the CI "visual"
 # job compares in) and uploads them as an artifact. The Owner reviews them against the design,
 # then commits them under tests/visual/__screenshots__/linux/ (fjord-foundation sad §11).
+#
+# Main path: add the `visual-baselines` label to the PR. Every push to the PR regenerates the
+# baselines while the label is on; remove it once the PNGs are committed. workflow_dispatch stays
+# for runs from the default branch.
 
 on:
   workflow_dispatch:
+  pull_request:
+    types: [labeled, synchronize]
 
 permissions:
   contents: read
 
 jobs:
   baselines:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.pull_request.labels.*.name, 'visual-baselines')
     runs-on: ubuntu-latest
     timeout-minutes: 20
     container:
