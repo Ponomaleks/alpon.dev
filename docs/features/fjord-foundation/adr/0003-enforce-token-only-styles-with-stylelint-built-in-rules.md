@@ -48,7 +48,9 @@ Properties under `declaration-property-value-allowed-list`: color properties (`c
 
 **Keyword allowlist:** `0`, `100%`, `auto`, `none`, `inherit`, `currentColor`, `transparent`.
 
-**Excluded files:** `src/styles/tokens.css` (generated, ADR-0001) and `src/styles/fonts.css` (`@font-face` descriptors: family names, `src`, weights and fallback metric overrides).
+**Excluded files:** `src/styles/tokens.css` (generated, ADR-0001) and `src/styles/fonts.css`. `fonts.css` is excluded because its `@font-face` descriptors (family names, `src`, numeric weights, percentage metric overrides) are literals by nature and would fail the rules above; in exchange, `fonts.css` holds **only** `@font-face` rules, never ordinary style rules.
+
+**Breakpoints are enforced, not only documented.** `media-feature-name-value-allowed-list` is a core rule (no new dependency); it turns "the four breakpoint values from `CLAUDE.md`" into a check, so `@media (min-width: 800px)` fails lint.
 
 ## Consequences
 

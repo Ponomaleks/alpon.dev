@@ -161,9 +161,9 @@ C4Container
         Container(pages, "Pages and BaseLayout", "Astro 6 static HTML", "web-frontend surface: home placeholder and Not-found page with the shared head")
         Container(bootstrap, "Theme bootstrap", "Inline JS, about 300 bytes", "Validates the stored Theme choice and sets data-theme")
         Container(styles, "Fjord styles", "Plain CSS", "Generated tokens.css, fonts.css with fallback faces, base.css")
-        Container(tokengen, "Token generator", "Node 24 TypeScript script", "Writes tokens.css with both Natt blocks")
-        Container(checks, "Build checks", "Stylelint and Node scripts", "Token-only lint, contrast, budgets, generator check")
-        Container(cspint, "CSP integration", "Astro integration", "Audits inline code and writes the hashed policy into dist/_headers")
+        Container(tokengen, "Token generator", "Build-time module, Node 24 TypeScript script", "Writes tokens.css with both Natt blocks")
+        Container(checks, "Build checks", "Build-time module, Stylelint and Node scripts", "Token-only lint, contrast, budgets, generator check")
+        Container(cspint, "CSP integration", "Build-time module, Astro integration", "Audits inline code and writes the hashed policy into dist/_headers")
         ContainerDb(design, "Design sources", "Read-only files", "Handoff token CSS and brand tokens.json")
     }
 
@@ -179,6 +179,8 @@ C4Container
     Rel(visitor, edge, "Opens pages", "HTTPS")
     Rel(edge, pages, "Serves with the generated CSP header")
 ```
+
+The one declared surface (`web-frontend`) is **Pages and BaseLayout**; the bootstrap and styles ship inside it. Token generator, Build checks and CSP integration are build-time modules of that same surface, drawn separately only to show what reads and writes what; they are not additional surfaces and run nowhere at request time.
 
 ## 6. Runtime view
 
@@ -234,7 +236,9 @@ sequenceDiagram
     Edge-->>Visitor: home placeholder
 ```
 
-**Critical flow 3: Owner change through the build** (AC-10..AC-13)
+**Critical flow 3: Owner change through CI and Workers Builds** (AC-10..AC-13)
+
+Two independent paths start from one push. GitHub Actions CI gates the **merge** (branch protection, §7); Workers Builds gates the **deploy** only through `astro build`, which runs the CSP integration.
 
 ```mermaid
 sequenceDiagram
@@ -242,21 +246,25 @@ sequenceDiagram
     participant Checks as Build checks
     participant Gen as Token generator
     participant Int as CSP integration
-    participant Edge as Workers static assets
-    Owner->>Checks: pushes a change and CI runs lint
-    Checks->>Gen: runs the generator in check mode
-    alt tokens.css is stale or brand and handoff palettes conflict
-        Gen-->>Owner: fails and names the file or the conflicting value
-    else a literal value in a style
-        Checks-->>Owner: Stylelint fails with file and line
-    else a text pair below the contrast level
-        Checks-->>Owner: fails with pair, theme and measured ratio
-    else all checks pass
-        Checks->>Int: astro build runs and the integration audits the HTML
+    participant Edge as Workers Builds and static assets
+    Owner->>Checks: pushes a branch and opens a PR
+    par CI on the PR gates the merge
+        Checks->>Gen: runs the generator in check mode
+        alt tokens.css is stale or brand and handoff palettes conflict
+            Gen-->>Owner: fails and names the file or the conflicting value
+        else a literal value in a style
+            Checks-->>Owner: Stylelint fails with file and line
+        else a text pair below the contrast level
+            Checks-->>Owner: fails with pair, theme and measured ratio
+        else all checks, tests and Lighthouse pass
+            Checks-->>Owner: required checks green and the PR may merge
+        end
+    and Workers Builds on the push gates the deploy
+        Edge->>Int: npm run build runs astro build with the integration
         alt unexpected inline code, leftover placeholder or a second CSP line
-            Int-->>Owner: build fails before deploy
+            Int-->>Owner: build fails and nothing is deployed
         else exactly the bootstrap
-            Int->>Edge: dist with the hashed policy is deployed by Workers Builds
+            Int-->>Edge: dist with the hashed policy is deployed as a preview
         end
     end
 ```
@@ -265,9 +273,11 @@ sequenceDiagram
 
 No topology change: the same single Worker (`alpon-dev`) serves `dist/` as static assets, deployed by Workers Builds (`v2` → preview URL via `npm run build && npx wrangler preview`; `main` keeps the stub). The build command is unchanged; the CSP integration runs inside `astro build`, so Workers Builds produces the hashed `_headers` with no extra step. What changes in the deployed config is `_headers` only: the CSP moves from `/` to `/*` with a build-written hash (ADR-0002). There is no runtime code, so no replicas or scaling thresholds apply.
 
+**What gates what.** Workers Builds deploys on every push with no CI gate of its own: a preview for `v2` and feature branches, production for `main`. Only the CSP integration inside `astro build` can stop a deploy. Lint, contrast, the generator `--check`, tests and Lighthouse run in GitHub Actions and gate the **merge**, which holds only with branch protection. This feature therefore includes a repository-settings task: protect `v2` and `main` with required status checks (the CI workflow jobs) and allow no direct pushes to `main`. That matters most for `main`, where every push is a production deploy.
+
 **Monitoring:**
 - Metrics: Lighthouse CI (mobile) on every PR for the Not-found page and the home placeholder; the budget script's sizes printed in the CI log.
-- Alerts: a failing required check blocks the PR (lint, build, test, lhci); there is no runtime alerting and none is needed for static files.
+- Alerts: a failing required check blocks the merge into `v2` / `main` (lint, build, test, lhci) once branch protection is on; there is no runtime alerting and none is needed for static files.
 - Verification after deploy: the security review reads the delivered headers on the `v2` preview URL before merge (spec §6.1).
 
 **Scaling thresholds:**
@@ -279,9 +289,9 @@ No topology change: the same single Worker (`alpon-dev`) serves `dist/` as stati
 |---|---|---|
 | Fjord tokens | Only `--fjord-*` values in styles. `tokens.css` is generated from the design sources (palette from `design/brand/tokens.json`, semantics from the handoff token CSS) and committed with a "generated — do not edit" header; `--check` in CI keeps it current | ADR-0001; `CLAUDE.md` design rules |
 | Theme | `data-theme="dag\|natt"` on `<html>`, set by the validating bootstrap (key `fjord-theme`); Natt also applies through the no-JS media block; `color-scheme` set in every theme block; the bootstrap never writes storage in this feature (no visible switch until step 3) | ADR-0001 |
-| Token-only styles | Stylelint core rules; keyword allowlist `0`, `100%`, `auto`, `none`, `inherit`, `currentColor`, `transparent`; breakpoints only 360 / 768 / 1024 / 1440 px; `tokens.css` and `fonts.css` excluded | ADR-0003 |
+| Token-only styles | Stylelint core rules; keyword allowlist `0`, `100%`, `auto`, `none`, `inherit`, `currentColor`, `transparent`; breakpoints only 360 / 768 / 1024 / 1440 px, enforced by `media-feature-name-value-allowed-list`; `tokens.css` and `fonts.css` excluded, and `fonts.css` holds only `@font-face` rules | ADR-0003 |
 | Security policy | One CSP line under `/*`, hash written at build, no `'unsafe-inline'`; no inline `<style>`, `style=` or `on*=` attributes anywhere; `build.inlineStylesheets: 'never'`, `vite.build.assetsInlineLimit: 0`; new origins are added to the same template line | ADR-0002 |
-| Fonts | Seven brand faces (Schibsted 400/500/600/700, JetBrains Mono 400/500/700), woff2, Latin subset incl. æ ø å and the en/em dashes, each ≤ 30 KB, `font-display: swap`, from `public/fonts/`; preload exactly Schibsted 400 and 600 with `crossorigin`; metric-matched fallback faces "… Fallback Arial" and "… Fallback Roboto" (`size-adjust`, `ascent-override`, `descent-override`, `line-gap-override`) listed in the token font stacks before the generic family; subsetting and metrics computed in `tools/fonts/` | §4 pillar 5 |
+| Fonts | Seven brand faces (Schibsted 400/500/600/700, JetBrains Mono 400/500/700), woff2, Latin subset incl. æ ø å and the en/em dashes, each ≤ 30 KB, `font-display: swap`, from `public/fonts/`; preload exactly Schibsted 400 and 600 with `crossorigin`; metric-matched fallback faces "… Fallback Arial" and "… Fallback Roboto" (`size-adjust`, `ascent-override`, `descent-override`, `line-gap-override`) listed in the token font stacks before the generic family; subsetting and metrics computed in `tools/fonts/`; CI installs Roboto only (no Arial), so the mobile Lighthouse and visual runs exercise the Roboto fallback as on Android | §4 pillar 5 |
 | Shared layout (head contract) | `BaseLayout` props `title`, `description`, `lang`, `noindex`; head order: charset → viewport → inline bootstrap → two font preloads → stylesheets (tokens → fonts → base) → title, description, robots, icons. A page sets only title and description (AC-13) | §5 |
 | Error handling | Build time: every check fails closed and names file/line, pair/theme/ratio, or the conflicting value. Run time: the bootstrap swallows storage errors silently and the CSS fallback decides (AC-03); a missing font keeps the matched fallback | ADR-0001, ADR-0002 |
 | Motion | No animation in this feature. Motion tokens collapse under `prefers-reduced-motion: reduce` (durations to 0, rise and parallax to 0) as in the handoff `motion.css`; base styles use transitions only through tokens; no View Transitions yet (step 3) | `CLAUDE.md` motion rules |
@@ -308,12 +318,12 @@ Each top-3 goal from §1 expanded into scenarios. Numbers are quoted from spec �
 **QG-1. Theme correctness from the first frame**
 - **When:** a page is opened in each of the 6 combinations (stored Dag / Natt / none × device light / dark), plus an unknown stored value, blocked storage, and scripts off with device light and dark.
 - **Then:** wrong-theme frames are "0 across the 6 combinations (stored Dag / Natt / none × device light / dark)"; the unknown-value, blocked-storage and scripts-off cases render in the device-preference theme with no error; native controls follow `color-scheme`.
-- **How verify:** `tests/e2e/theme.spec.ts` — Playwright `colorScheme` emulation × storage seeded by an init script (and a context where storage access throws, and one with `javaScriptEnabled: false`); asserts `data-theme` and the computed `<html>` background and `color-scheme` at `DOMContentLoaded` and again at `load` (no change between them).
+- **How verify:** `tests/e2e/theme.spec.ts`, reading the theme before first paint — Playwright `colorScheme` emulation × storage seeded by an init script (plus a context where storage access throws). An `addInitScript` (runs before any page script) records every change of `data-theme` with a `MutationObserver` and captures the computed `<html>` background and `color-scheme` in the first `requestAnimationFrame` callback, which runs before the first paint; the test asserts that the captured value equals the settled value at `load` and that `data-theme` was set at most once. The scripts-off context (`javaScriptEnabled: false`, where no init script can run) asserts the computed background, `color-scheme` and a screenshot after load, which is sufficient because without scripts only CSS decides the theme.
 
 **QG-2. Visual stability and speed on a phone**
 - **When:** Lighthouse CI (mobile, cold cache) runs on the built Not-found page and home placeholder; the budget script runs on `dist/`.
 - **Then:** CLS "≤ 0.02 on the not-found page and the home placeholder"; LCP "≤ 2.0 s"; TBT "≤ 100 ms"; "Performance, Accessibility, Best Practices, SEO each ≥ 95"; initial JS "≤ 50 KB gzip in total; the render-blocking theme bootstrap ≤ 1 KB unminified"; critical fonts "exactly 2 preloaded font files, ≤ 60 KB combined; every shipped font file ≤ 30 KB".
-- **How verify:** `npm run lhci` assertions in CI; `scripts/check-budgets.ts` after `npm run build`; the e2e fonts spec + P-26 for the preload set, the lazily requested weights (AC-06) and æ ø å rendered from brand files (AC-15).
+- **How verify:** `npm run lhci` assertions in CI on a runner with Roboto installed and no Arial, so the metric-matched Roboto fallback is the one measured; the Arial fallback overrides are covered by a Vitest test of the `tools/fonts/` metric script against the TTF metrics; `scripts/check-budgets.ts` after `npm run build`; the e2e fonts spec + P-26 for the preload set, the lazily requested weights (AC-06) and æ ø å rendered from brand files (AC-15).
 
 **QG-3. Build-enforced integrity**
 - **When:** a PR changes tokens, styles, the bootstrap or `_headers`.
@@ -329,7 +339,8 @@ Each top-3 goal from §1 expanded into scenarios. Numbers are quoted from spec �
 
 | Risk / debt | Severity | Mitigation | Owner |
 |---|---|---|---|
-| CI runners may not have Arial or Roboto installed, so the fallback faces resolve to the generic font and the CLS/visual runs do not exercise the metric-matched fallbacks | Medium | Install the Roboto and Arial (msttcorefonts) packages in the CI job before Lighthouse and visual runs, and assert in the e2e fonts spec that the fallback face is used while the brand font is blocked | Owner |
+| The Arial fallback face is never exercised live in CI: the Linux runner has Roboto only, so the stack skips the Arial face | Medium | Install only Roboto in CI (the Android path, the one the mobile CLS budget targets); the e2e fonts spec asserts the "… Fallback Roboto" face renders while the brand font is blocked; a Vitest test checks the Arial overrides against the TTF metrics; a manual look on an iPhone before merge | Owner |
+| Workers Builds deploys every push; a feature-branch preview can be red, and without branch protection a red change could reach `main` (production) | Medium | Branch protection on `v2` and `main` with the CI jobs as required checks and no direct pushes to `main` (§7); preview deploys on feature branches may be red, production cannot, because nothing reaches `main` without green CI | Owner |
 | Visual baselines differ by OS font rendering; the Owner works on Windows | Medium | Linux-only baselines produced in CI or the official Playwright Docker image; never commit Windows snapshots | Owner |
 | The CSP on `/*` now also covers the CV PDFs; the same-origin inline PDF viewer (P-32) has not been verified under it | Low | `headers.spec.ts` asserts the header on the PDF now; step 5 verifies the viewer under the policy before flipping P-32 | Owner |
 | Token values can only change through the read-only design sources (re-export or brand update) | Low | Accepted by ADR-0001; the generator names any brand/handoff conflict; revisit with an override layer only if an urgent fix ever needs one | Owner |
