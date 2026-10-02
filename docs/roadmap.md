@@ -20,7 +20,7 @@ A Norwegian recruiter can tell within 60 seconds on a phone who Alexander is and
 | # | Step | Source | Size | Status |
 |---|---|---|:---:|---|
 | 1 | Project skeleton: Astro 6 static build, test harness, CI, Workers preview deploys ([`_scaffold`](features/_scaffold/)) | `architecture-map.md` Greenfield foundation | S | shipped |
-| 2 | Fjord foundation: tokens, self-hosted fonts, Dag/Natt theme with no flash (inline theme script allowed by a CSP hash generated at build), `BaseLayout`, and the 404 "Ikke funnet" page | `idea-brief.md` §1 Raw idea | S | idea |
+| 2 | Fjord foundation ([`fjord-foundation`](features/fjord-foundation/)): tokens, self-hosted fonts, Dag/Natt theme with no flash (inline theme script allowed by a CSP hash generated at build), `BaseLayout`, and the 404 "Ikke funnet" page | `idea-brief.md` §1 Raw idea | S | spec'd |
 | 3 | Base components + `/styleguide`: only what Home and CV need — Button, Link, Badge, Tag, Stat, SectionHeader, Toast, Header/Footer, SkipLink, ThemeToggle, Contours; plus `src/data/contact.ts`, which the Footer reads | `reference/01-foundations.md` 8. Styleguide page | S | idea |
 | 4 | Home with contacts: name, role, Oslo area, contact block from `contact.ts`, copy email ("Kopiert"), vCard, QR tile, meta + JSON-LD | `idea-brief.md` §3 Users | S | idea |
 | 5 | CV pages EN/NO: `/cv`, `/cv/en`, `/cv/no` as HTML, language switch, page-image preview, Download PDF, legacy `#cv`/`#cv-no` hand-off from home | `idea-brief.md` §7 Recommendation | S | idea |
