@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
-import { BRAND_FILE, HANDOFF_DIR } from './sources.ts';
+import { BRAND_FILE, HANDOFF_DIR, MEASURE_FONT } from './sources.ts';
 
 // ADR-0001 guard: `build.ts --check` fails, naming the file, when tokens.css is stale (AC-11).
 
@@ -18,6 +18,7 @@ function fixtureRoot(): string {
   dirs.push(dir);
   cpSync(join(repo, HANDOFF_DIR), join(dir, HANDOFF_DIR), { recursive: true });
   cpSync(join(repo, BRAND_FILE), join(dir, BRAND_FILE));
+  cpSync(join(repo, MEASURE_FONT), join(dir, MEASURE_FONT));
   mkdirSync(join(dir, 'src/styles'), { recursive: true });
   return dir;
 }

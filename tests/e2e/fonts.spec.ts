@@ -157,9 +157,11 @@ test.describe('fallback face while brand fonts are blocked', () => {
         await page.goto(path);
         expect(await page.evaluate(() => window.innerWidth)).toBe(width);
         await page.evaluate(() => document.fonts.ready);
-        // The text itself, not the block: a block's width is its container's whatever the font
-        // (review F-10). A Range over the contents gives the run's width, its line count, and
-        // where the glyph content area sits in the block (ascent / descent overrides).
+        // The text itself, not the block (review F-10): a block's width is its container's or a
+        // measure, and measures are in em, not ch, so neither depends on the face (review
+        // 2026-10-02-3 S1-05: a 48ch box was 624 px in Roboto and 672 px in Schibsted Grotesk).
+        // A Range over the contents gives the run's width, its line count, and where the glyph
+        // content area sits in the block (ascent / descent overrides).
         const runs = await page.evaluate(() =>
           ['h1', 'main p'].map((selector) => {
             const element = document.querySelector(selector);

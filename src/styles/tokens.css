@@ -1,5 +1,6 @@
 /* Fjord tokens — generated — do not edit.
-   Sources: design/handoff/design-system/project/tokens/{colors,spacing,typography,motion}.css and design/brand/tokens.json.
+   Sources: design/handoff/design-system/project/tokens/{colors,spacing,typography,motion}.css, design/brand/tokens.json
+   and the "0" advance in design/brand/fonts/SchibstedGrotesk-Regular.ttf (measures, ch to em).
    Regenerate: node scripts/tokens/build.ts (fjord-foundation ADR-0001). */
 
 :root {
@@ -105,8 +106,8 @@
   --fjord-tracking-body: 0;
   --fjord-tracking-mono: 0;
   --fjord-tracking-label: 0.02em;
-  --fjord-measure: 66ch;
-  --fjord-measure-narrow: 48ch;
+  --fjord-measure: 40.348em;
+  --fjord-measure-narrow: 29.344em;
   --fjord-numeric: tabular-nums;
   --fjord-duration-120: 120ms;
   --fjord-duration-200: 200ms;

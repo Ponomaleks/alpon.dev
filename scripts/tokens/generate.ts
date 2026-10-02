@@ -1,5 +1,5 @@
 import { parseCss, type Declaration, type Stylesheet } from './parse.ts';
-import { BRAND_FILE, HANDOFF_DIR, type Sources } from './sources.ts';
+import { BRAND_FILE, HANDOFF_DIR, MEASURE_FONT, type Sources } from './sources.ts';
 
 // Fjord token generator (ADR-0001): one list of Natt values feeds both the [data-theme="natt"]
 // block and the no-JS block that decides only when scripts are off.
@@ -26,6 +26,21 @@ const COUNT_UP = '--fjord-duration-1200';
 /** The one duration that survives reduced motion: opacity fades only (CLAUDE.md motion rules). */
 const FADE: Declaration = ['--fjord-duration-fade', '200ms'];
 
+/**
+ * Measures: the handoff gives them in `ch`, which is the advance of "0" in the face that is drawn,
+ * so the box widened when the brand font swapped in and the text rewrapped (review S1-05). They
+ * are emitted in `em` instead: relative to the font size like `ch`, independent of the face.
+ */
+const MEASURES = ['--fjord-measure', '--fjord-measure-narrow'];
+const CH_LENGTH = /^(\d+(?:\.\d+)?)ch$/;
+
+/** `48ch` → `29.344em` for a "0" advance of 0.6113 em; three decimals (< 0.03 px at 23 px). */
+export function chToEm(value: string, zeroAdvance: number): string {
+  const ch = CH_LENGTH.exec(value.trim());
+  if (!ch) throw new Error(`measure "${value}" is not a ch length`);
+  return `${Number((Number(ch[1]) * zeroAdvance).toFixed(3))}em`;
+}
+
 /** Metric-matched fallback faces declared in src/styles/fonts.css (sad §8 Fonts). */
 const FALLBACK_LOCALS = ['Arial', 'Roboto'];
 const FONT_STACKS: [token: string, generic: string][] = [
@@ -34,7 +49,8 @@ const FONT_STACKS: [token: string, generic: string][] = [
 ];
 
 const HEADER = `/* Fjord tokens — generated — do not edit.
-   Sources: ${HANDOFF_DIR}/{colors,spacing,typography,motion}.css and ${BRAND_FILE}.
+   Sources: ${HANDOFF_DIR}/{colors,spacing,typography,motion}.css, ${BRAND_FILE}
+   and the "0" advance in ${MEASURE_FONT} (measures, ch to em).
    Regenerate: node scripts/tokens/build.ts (fjord-foundation ADR-0001). */`;
 
 /** Ordered declarations where a later property replaces an earlier one in place. */
@@ -182,6 +198,11 @@ export function generateTokens(sources: Sources): string {
     root.set(token, fontStack(handoff, generic));
   }
   root.set(...FADE);
+  for (const token of MEASURES) {
+    const handoff = root.get(token);
+    if (handoff === undefined) throw new Error(`${token} is missing from the handoff typography`);
+    root.set(token, chToEm(handoff, sources.zeroAdvance));
+  }
 
   const natt = collect(sheets, NATT).entries();
   // Dag resets a subtree to light: its own block plus the Dag value of everything Natt changes.

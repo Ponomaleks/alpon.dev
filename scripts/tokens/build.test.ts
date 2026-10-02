@@ -1,7 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { generateTokens } from './generate.ts';
+import { create } from 'fontkitten';
+import { chToEm, generateTokens } from './generate.ts';
 import { readSources, type Sources } from './sources.ts';
 
 // ADR-0001 generator: tokens.css with Dag, Natt and the no-JS Natt block from one list of values
@@ -266,4 +267,50 @@ describe('font stacks (sad §8 Fonts, AC-05)', () => {
       for (const name of names?.slice(0, 3) ?? []) expect(faceNames()).toContain(name);
     },
   );
+});
+
+// Review 2026-10-02-3 S1-05: a `ch` measure depends on the face, so the box widened from 624 px
+// (fallback) to 672 px (brand) and the text rewrapped on swap. The generator converts the handoff
+// `ch` measures to `em` (font-size relative like `ch`, face independent) with the advance of "0"
+// in Schibsted Grotesk, read from the font file.
+describe('measure tokens (sad §8 Fonts, AC-05)', () => {
+  const zeroAdvance = () => {
+    const font = create(readFileSync(`${root}design/brand/fonts/SchibstedGrotesk-Regular.ttf`));
+    if (!('glyphForCodePoint' in font)) throw new Error('font collection');
+    return font.glyphForCodePoint(0x30).advanceWidth / font.unitsPerEm;
+  };
+
+  it('reads the advance of "0" from the Schibsted Grotesk Regular file', () => {
+    expect(real().zeroAdvance).toBe(zeroAdvance());
+  });
+
+  it.each([
+    ['66ch', 0.5, '33em'],
+    ['48ch', 1252 / 2048, '29.344em'],
+    ['66ch', 1252 / 2048, '40.348em'],
+    [' 12.5ch ', 0.6, '7.5em'],
+  ])('converts %s with an advance of %d em to %s', (ch, advance, em) => {
+    expect(chToEm(ch, advance)).toBe(em);
+  });
+
+  it.each(['48', '48em', '48ch 1px', 'var(--x)'])(
+    'fails loudly on %s, which is not a ch length',
+    (bad) => {
+      expect(() => chToEm(bad, 0.6)).toThrow(/is not a ch length/);
+    },
+  );
+
+  it('emits both measures in em from the font metrics, never in ch', () => {
+    const css = generateTokens(real());
+    const rootBlock = block(css, ':root');
+    expect(value(rootBlock, '--fjord-measure')).toBe(chToEm('66ch', zeroAdvance()));
+    expect(value(rootBlock, '--fjord-measure-narrow')).toBe(chToEm('48ch', zeroAdvance()));
+    expect(css).not.toMatch(/\d(?:\.\d+)?ch\b/);
+  });
+
+  it('follows the font metrics, not a literal', () => {
+    const rootBlock = block(generateTokens({ ...real(), zeroAdvance: 0.5 }), ':root');
+    expect(value(rootBlock, '--fjord-measure')).toBe('33em');
+    expect(value(rootBlock, '--fjord-measure-narrow')).toBe('24em');
+  });
 });
