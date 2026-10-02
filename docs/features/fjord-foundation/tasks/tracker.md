@@ -42,7 +42,7 @@
 | R19 | [Record that SEO is not asserted on the noindex Not-found page](./r19-review-fix.md) | docs | Alexander Ponomarenko | S | — | done |
 | R20 | [Make the measure tokens font-independent so text does not rewrap when the brand fonts swap in](./r20-review-fix.md) | wiring | Alexander Ponomarenko | S | — | todo |
 | R21 | [Fix baseline-run concurrency, document the label and download, then run CI and the label flow](./r21-review-fix.md) | wiring | Alexander Ponomarenko | S | R20, R22 | todo |
-| R22 | [Audit both the scripting-off and scripting-on parse trees in the CSP audit](./r22-review-fix.md) | wiring | Alexander Ponomarenko | S | — | todo |
+| R22 | [Audit both the scripting-off and scripting-on parse trees in the CSP audit](./r22-review-fix.md) | wiring | Alexander Ponomarenko | S | — | done |
 | R23 | [Amend ADR-0003 to match the stylelint rules added by R17](./r23-review-fix.md) | docs | Alexander Ponomarenko | S | — | todo |
 
 **Total:** 16 tasks + 23 review follow-ups (R1–R23), ~17 person-days (S ≈ 0.5 d, M ≈ 1 d).

@@ -118,6 +118,18 @@ describe('applyCsp', () => {
       '<script type="application/ld+json" style="color:red">{}</script>',
       /style attribute/,
     ],
+    // Review 2026-10-02-3 S2-07: with scripting on (as browsers parse), <noscript> is raw text, so
+    // a script hidden in <title> / <textarea> of the scripting-off tree is a real script.
+    [
+      'a script that is <title> text only with scripting off',
+      '<noscript><title></noscript><script>alert(1)</script></title></noscript>',
+      /inline script \(type none\) that is not the bootstrap: "alert\(1\)"/,
+    ],
+    [
+      'a script that is <textarea> text only with scripting off',
+      '<noscript><textarea></noscript><script>alert(1)</script></textarea></noscript>',
+      /inline script \(type none\) that is not the bootstrap: "alert\(1\)"/,
+    ],
   ] as [string, string | BuiltPage, RegExp][])(
     'fails on %s, naming the page',
     (_, probe, reason) => {
@@ -126,6 +138,21 @@ describe('applyCsp', () => {
       expect(() => run([built])).toThrow(reason);
     },
   );
+
+  // S2-07: both parse trees are audited, but a problem both trees see is reported once, and the
+  // one bootstrap copy is counted per tree (not as a second copy).
+  it('reports a problem seen in both parse trees once', () => {
+    const error = (() => {
+      try {
+        run([page('<a onclick="x()">x</a>', '404.html')]);
+      } catch (e) {
+        return e as CspError;
+      }
+    })();
+    expect(error).toBeInstanceOf(CspError);
+    expect(error?.message.match(/onclick handler/g)).toHaveLength(1);
+    expect(error?.message).not.toMatch(/second copy/);
+  });
 
   // Review 2026-10-02 F-17: browsers hash an inline script after turning CRLF into LF.
   it('hashes a CRLF bootstrap source as the LF text the browser hashes', () => {

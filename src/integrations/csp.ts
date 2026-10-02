@@ -1,7 +1,7 @@
 // The CSP integration (fjord-foundation ADR-0002). After `astro build` it audits the inline code
 // of every built page, then writes the theme bootstrap's sha256 into the single
 // Content-Security-Policy line of dist/_headers. It fails the build, before anything can be
-// deployed, when:
+// deployed, when (in either parse tree, scripting off or on):
 //   1. a page has an inline <script> other than exactly one copy of the bootstrap
 //      (non-executable application/ld+json data blocks are allowed, type compared case-insensitively);
 //   2. a page has an inline <style>, a style="…" attribute or an on*="…" handler attribute;
@@ -62,13 +62,17 @@ const isExternal = (script: Element) =>
     (a) => a.name === 'src' || (script.namespaceURI === html.NS.SVG && a.name === 'href'),
   );
 
-function auditPage({ name, html: source }: BuiltPage, bootstrapHash: string): string[] {
+function auditTree(
+  name: string,
+  source: string,
+  scriptingEnabled: boolean,
+  bootstrapHash: string,
+): string[] {
   const problems: string[] = [];
   let bootstrapCopies = 0;
   // Parsed as the browser parses it (WHATWG algorithm): attribute names are exact, quoted values
-  // may hold '>', and CRLF in script text is already LF. Scripting off, so <noscript> content
-  // is audited as markup too.
-  const document = parse(source, { scriptingEnabled: false });
+  // may hold '>', and CRLF in script text is already LF.
+  const document = parse(source, { scriptingEnabled });
 
   for (const element of elements(document)) {
     const tag = `<${element.tagName}${element.attrs.map((a) => ` ${a.name}="${a.value}"`).join('')}>`;
@@ -95,6 +99,18 @@ function auditPage({ name, html: source }: BuiltPage, bootstrapHash: string): st
   }
   return problems;
 }
+
+/**
+ * Audits a page in both parse trees: scripting off (so <noscript> content is audited as markup)
+ * and scripting on (as browsers parse it: <noscript> is raw text, so a script hidden in a
+ * <title> or <textarea> of the scripting-off tree is a real script; review 2026-10-02-3 S2-07).
+ * Each tree counts its own bootstrap copy; a problem both trees see is reported once.
+ */
+const auditPage = ({ name, html: source }: BuiltPage, bootstrapHash: string): string[] => [
+  ...new Set(
+    [false, true].flatMap((scripting) => auditTree(name, source, scripting, bootstrapHash)),
+  ),
+];
 
 /** Audits the built pages and returns `headers` with the bootstrap hash substituted. */
 export function applyCsp(input: {
