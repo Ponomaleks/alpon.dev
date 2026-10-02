@@ -215,3 +215,90 @@ Traceability:
 ## 8. Open questions
 
 <!-- N/A: no open questions — every decision was taken from CLAUDE.md, the roadmap and the design, and listed in the assumptions ledger for veto. -->
+
+## Test plan
+
+Size S, route quick: the plan lives here instead of a separate file. Levels follow `sad.md` `target_surfaces: [web-frontend]`. "Integration" means a check against a real, fresh production build in a throwaway output directory served with production routing; the site has no datastore (repo ADR-0003). `implement` picks the concrete runners from the repo.
+
+### AC coverage
+
+| AC (spec.md §5) | Test name (intent-based) | Level | Expected outcome |
+|---|---|---|---|
+| AC-01 | first frame follows a dark device preference when nothing is stored | e2e-through-UI | the theme marker is set once, to Natt, already at the first animation frame and unchanged at load; native controls report a dark color scheme |
+| AC-01 | first frame follows a light device preference when nothing is stored | e2e-through-UI | same as above for Dag with a light color scheme |
+| AC-01 | Not-found page in Natt matches its approved baseline | visual-regression | 390 / 834 / 1440 in Natt differ from the baseline by ≤ 0.1 % of pixels |
+| AC-01 | both generated Natt blocks carry identical values | unit | the scripted Natt block and the no-script Natt block list the same tokens with the same values |
+| AC-02 | stored Dag wins over a dark device | e2e-through-UI | Dag from the first frame through load |
+| AC-02 | stored Natt wins over a light device | e2e-through-UI | Natt from the first frame through load |
+| AC-02 | bootstrap honours a valid stored choice in isolation | unit | the bootstrap source file (`src/scripts/theme-bootstrap.js`, read as raw text, unchanged) run in an isolated script context with stubbed storage, media query and root element sets the marker to the stored `dag` / `natt` for both device preferences |
+| AC-03 | unknown stored value falls back to the device preference | e2e-through-UI | the value is ignored, the theme follows the device, no error is shown and nothing is logged as an uncaught error |
+| AC-03 | blocked site storage falls back to the device preference | e2e-through-UI | storage access throws, the page still renders in the device theme with no visible error |
+| AC-03 | bootstrap rejects every unusable stored value in isolation | unit | same isolated run as the AC-02 unit row, for `DAG`, ` natt`, empty, missing, `foo` and a storage read that throws, each × device light / dark: the marker is always exactly `dag` or `natt` and equals the device preference |
+| AC-04 | scripts off, device dark, renders Natt | e2e-through-UI | no theme marker, Natt colors from the no-script block, brand fonts applied |
+| AC-04 | scripts off, device light, renders Dag | e2e-through-UI | Dag colors, brand fonts applied |
+| AC-04 | scripts-off pages pass the accessibility scan | e2e-through-UI | zero violations, including contrast, on home and Not-found in both device preferences |
+| AC-05 | fallback faces match the brand font metrics | unit | the computed size and ascent / descent / line-gap overrides of each fallback face equal the values derived from the brand font metrics |
+| AC-05 | brand files contain the Norwegian letters | unit | the character map of every shipped brand file includes æ ø å |
+| AC-05 | text boxes do not move when the brand fonts swap in | e2e-through-UI | with brand fonts blocked the metric-matched fallback face renders; after they load, heading and body boxes differ by ≤ 1 px per dimension or ≤ 1 % of the box; runs only in the CI Linux environment with the Roboto fallback installed and no Arial |
+| AC-06 | budget check rejects a wrong preload set | unit | fixtures with 1, 3, or two over-60 KB preloads fail, naming the page and the sizes |
+| AC-06 | real build preloads exactly the two critical files | integration | every built page preloads Schibsted Grotesk regular and semibold only, ≤ 60 KB combined |
+| AC-06 | only critical fonts are requested before render | e2e-through-UI | before first render only the two critical files are requested; any other weight is requested only on a page that uses it |
+| AC-07 | unknown address returns the Fjord Not-found page | e2e-through-UI | not-found response; code line "404 · Ikke funnet" marked Norwegian, title "Page not found", the explanation, one primary "Back to home" link; page is marked noindex |
+| AC-07 | "Back to home" leads to the home page | e2e-through-UI | following the link lands on `/` and the home placeholder renders |
+| AC-07 | a crafted address containing markup is not echoed back | e2e-through-UI | not-found response; the requested path appears nowhere in the DOM and nothing from it executes |
+| AC-07 | Not-found page matches its approved baselines | visual-regression | 390 / 834 / 1440 × Dag / Natt each differ by ≤ 0.1 % of pixels |
+| AC-08 | Not-found offers no route into an empty projects section | e2e-through-UI | no "See projects" action and no link into a projects path; "Back to home" is the only action |
+| AC-09 | an injected inline script is refused while the bootstrap runs | e2e-through-UI | a script element added to the page does not execute and the browser reports a policy violation; the theme marker is still set by the bootstrap |
+| AC-09 | a script from another origin is refused | e2e-through-UI | the external script is blocked by the policy and never executes |
+| AC-09 | the policy generator never grants blanket inline scripts | unit | for every fixture the generated policy carries the bootstrap fingerprint and never `'unsafe-inline'` or `'unsafe-eval'` |
+| AC-10 | a lowered contrast pair fails the check | unit | a fixture with one pair under its threshold fails, naming the pair, the theme and the measured ratio |
+| AC-10 | generator fails on a brand vs handoff palette conflict | unit | a fixture where the brand and handoff sources give one token different values fails, naming the token and both values (ADR-0001) |
+| AC-10 | the real tokens pass the contrast check | integration | every manifest pair in Dag, Natt and on-spruce meets its threshold on the generated tokens |
+| AC-11 | each kind of hard-coded visual value is reported | unit | fixtures with a raw color, size, space, radius, duration and easing each fail, naming the file and line; token-only styles pass |
+| AC-11 | generator check mode fails when tokens.css is stale | unit | with a design source changed and `tokens.css` not regenerated, the generator's `--check` mode fails naming the file; a fresh `tokens.css` passes (ADR-0001) |
+| AC-11 | the repo styles are token-only | integration | the style check over all page and component styles reports zero findings |
+| AC-12 | the build refuses a policy and bootstrap that disagree | unit | each of the four ADR-0002 fail rules fails with a named reason and page: an executable inline script other than exactly one bootstrap copy (no type, `text/javascript`, `module`, a second bootstrap copy), an inline style or handler attribute, the hash placeholder left unsubstituted, more than one policy line; a structured-data block passes in any type casing |
+| AC-12 | changing the bootstrap updates the delivered policy with no manual edit | integration | after editing the bootstrap and rebuilding, the generated header carries the new fingerprint; a deliberately mismatched build fails before output is finalized |
+| AC-12 | the delivered header matches the agreed policy contract | contract | the built header file has one rule for all paths and exactly the directive set and values in `tests/contracts/csp.contract.json`: `frame-ancestors 'self'`, no `'unsafe-inline'` / `'unsafe-eval'`, no wildcard sources; an intentional policy change updates the contract in the same PR |
+| AC-12 | every response carries the current policy | e2e | home, a not-found response and the EN CV PDF each carry exactly one policy header with the current fingerprint |
+| AC-13 | a page with only a title and description inherits the full head | integration | a fixture page built on the shared layout has the language, title, description, bootstrap first, two font preloads, tokens and base styles, with no per-page setup; the fixture is excluded from the shipped output |
+| AC-14 | generated tokens switch motion off under reduced motion | unit | the reduced-motion block sets every movement distance token (rise, slide, parallax, scale) and the count-up duration to zero, and keeps `--fjord-duration-fade` for opacity fades; other durations are not collapsed (SAD §8 Motion) |
+| AC-14 | no element moves under reduced motion | e2e-through-UI | on home and Not-found no animation is running and no transition other than opacity is declared |
+| AC-15 | every design weight ships as its own small file | unit | 7 brand files exist (Schibsted 400 / 500 / 600 / 700, JetBrains Mono 400 / 500 / 700), each ≤ 30 KB, each with æ ø å |
+| AC-15 | every weight renders from its own file without synthesized bold | e2e-through-UI | a page using each weight loads that weight's file from the site, renders æ ø å, and the browser reports no synthesized bold |
+
+### Edge cases / error paths
+
+- Stored Theme choice in a different case or with spaces (`DAG`, ` natt`) → ignored, device preference decides (AC-03 unit row).
+- Storage read throws (privacy mode, blocked storage) → device preference decides, no visible error (AC-03 dedicated rows).
+- Scripts turned off → the no-script Natt block decides by device preference; the page stays readable (AC-04 dedicated rows).
+- Brand fonts fail to load → the metric-matched fallback face renders with no layout change (AC-05 e2e row).
+- Requested address contains markup (e.g. a path with a script tag) → not-found response, the address is never shown back, nothing executes.
+- Injected inline script or a script from another origin → refused by the policy; the bootstrap still runs (AC-09 dedicated rows).
+- Policy widened by accident (framing by other origins, wildcard source, blanket inline) → the contract row fails and names the directive.
+- Bootstrap edited without a rebuild of the policy → the build fails before output is finalized (AC-12 integration row).
+- A page is added with an extra inline script → the build fails naming the page (AC-12 unit fail rule).
+- Generated tokens are stale against their design sources → the token check fails naming the file.
+
+### Test data
+
+- Seed: fixture style files, token sets and built-page snippets checked in next to the unit tests, one per fail rule; the real generated tokens and the real build output for integration rows.
+- Integration dependency: a fresh production build into a throwaway output directory per suite, served with production routing; nothing is mocked in place of the build.
+- Browser state: a fresh browser context per test (empty storage, set device color scheme and motion preference) so theme cases never leak into each other.
+- Cleanup: per suite, the throwaway build output and the AC-13 fixture page are removed; per test, the browser context is discarded.
+
+### NFR validation (load)
+
+<!-- N/A: no numeric NFR -->
+No throughput or concurrency NFR: the numeric §6 targets are single-visit page budgets. They are validated without load as follows:
+- CLS ≤ 0.02, LCP ≤ 2.0 s, TBT ≤ 100 ms, four categories ≥ 95 → page performance audit (mobile, cold cache) on home and Not-found after the build.
+- Initial JS ≤ 50 KB gzip, bootstrap ≤ 1 KB, 2 preloads ≤ 60 KB, each font ≤ 30 KB → AC-06 / AC-15 unit and integration rows plus the build-output budget check.
+- 0 wrong-theme frames in 6 combinations → AC-01 / AC-02 e2e-through-UI rows.
+- 0 accessibility violations in Dag and Natt → accessibility scan on home and Not-found in both themes (with the AC-04 scripts-off row).
+- ≤ 0.1 % differing pixels → AC-01 / AC-07 visual-regression rows; the design match stays a manual PR review.
+
+### CI placement
+
+- On every PR: unit and contract (fast), plus the integration rows that run on the build already produced in CI.
+- On every PR as well (small static site, a few minutes): e2e, e2e-through-UI, visual-regression, the accessibility scan and the page performance audit, because P-16, P-26 and P-41 gate the parity suite. The font-shift row and the audit run only in the CI Linux environment.
+- Visual-regression baselines are produced and compared only in the CI Linux environment or the official browser-test container image, never on Windows; Windows snapshots are never committed (SAD §11).
