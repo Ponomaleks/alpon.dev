@@ -18,6 +18,8 @@
 
 .page {
   min-height: 100dvh;
+  height: 100svh;
+  max-height: 150%;
 }
 
 @media (min-width: 768px) {

@@ -55,6 +55,14 @@ describe('stylelint token-only rules (ADR-0003)', () => {
     ['viewport.css', 'top: 3vh', 2, 'declaration-property-unit-disallowed-list'],
     ['viewport.css', '100vw', 3, 'unit-disallowed-list'],
     ['viewport.css', 'padding-block: 2dvh', 4, 'declaration-property-unit-disallowed-list'],
+    // Height properties take a viewport unit only as a full 100vh / 100svh / 100lvh / 100dvh.
+    ['viewport.css', 'min-height: 73vh', 5, 'declaration-property-value-allowed-list'],
+    ['viewport.css', 'max-height: 50svh', 6, 'declaration-property-value-allowed-list'],
+    ['viewport.css', 'calc(100dvh - token)', 7, 'declaration-property-value-allowed-list'],
+    // Container-query units.
+    ['container-unit.css', 'width: 50cqi', 2, 'unit-disallowed-list'],
+    ['container-unit.css', 'inline-size: 10cqmin', 3, 'unit-disallowed-list'],
+    ['container-unit.css', 'height: 20cqh', 4, 'unit-disallowed-list'],
     // Tokens that tokens.css does not declare.
     [
       'unknown-token.css',

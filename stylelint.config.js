@@ -36,6 +36,17 @@ const keywordEasing = /(?<![\w-])(?:ease(?:-in|-out|-in-out)?|linear|step-start|
 const viewportHeightUnits = ['vh', 'svh', 'lvh', 'dvh'];
 const viewportHeightProperties = ['height', 'min-height', 'max-height'];
 
+/**
+ * Height values: tokens, auto, percentages, a full-viewport 100vh / 100svh / 100lvh / 100dvh, or
+ * a calc() of tokens and plain numbers (e.g. calc(var(--fjord-space-1) * 105)). Any other
+ * viewport height (73vh, calc(100dvh - ...)) is a magic number.
+ */
+const heightValue = sequence([
+  String.raw`\d+(?:\.\d+)?%`,
+  String.raw`100(?:s|l|d)?vh`,
+  String.raw`calc\((?:var\(--fjord-[a-z0-9-]+\)|\d+(?:\.\d+)?|[-+*/()\s])+\)`,
+]);
+
 const tokenOnlyProperties = [
   'color',
   'background-color',
@@ -99,6 +110,8 @@ export default {
         ...['vw', 'vi', 'vb', 'vmin', 'vmax'],
         ...['svw', 'lvw', 'dvw', 'svi', 'lvi', 'dvi', 'svb', 'lvb', 'dvb'],
         ...['svmin', 'lvmin', 'dvmin', 'svmax', 'lvmax', 'dvmax'],
+        // Container-query units: sizes come from tokens, not from the container.
+        ...['cqw', 'cqh', 'cqi', 'cqb', 'cqmin', 'cqmax'],
       ],
       { ignoreMediaFeatureNames: { px: ['width', 'min-width', 'max-width'] } },
     ],
@@ -117,6 +130,7 @@ export default {
     },
     'declaration-property-value-allowed-list': {
       ...Object.fromEntries(tokenOnlyProperties.map((property) => [property, [tokenOnly]])),
+      ...Object.fromEntries(viewportHeightProperties.map((property) => [property, [heightValue]])),
       '/^(border|outline)(-(top|right|bottom|left|block|inline)(-(start|end))?)?$/': [
         lineShorthand,
       ],
