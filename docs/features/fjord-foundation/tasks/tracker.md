@@ -21,5 +21,16 @@
 | T14 | [Verify the Not-found page and reduced motion end to end and flip P-41](./t14-not-found-e2e-p41.md) | tests | Alexander Ponomarenko | S | T9 | done |
 | T15 | [Add axe checks in Dag and Natt and the Not-found visual baselines; capture the Natt references](./t15-a11y-visual.md) | tests | Alexander Ponomarenko | M | T9 | review |
 | T16 | [Run Lighthouse on both pages with the Roboto-only runner and protect v2 and main](./t16-ci-lighthouse-protection.md) | wiring | Alexander Ponomarenko | S | T9, T10 | review |
+| R1 | [Parse built HTML with a real parser in the CSP audit and hash a CRLF-normalised bootstrap](./r01-review-fix.md) | wiring | Alexander Ponomarenko | S | — | todo |
+| R2 | [Prove with a real rebuild that editing the bootstrap updates the delivered policy](./r02-review-fix.md) | tests | Alexander Ponomarenko | S | R1 | todo |
+| R3 | [Bootstrap without globals, one Norwegian language code, no viewport-fit, Norwegian 'Oslo, Norge'](./r03-review-fix.md) | ui | Alexander Ponomarenko | S | R1 | todo |
+| R4 | [Close the token-only lint gaps: shorthands, units, size and radius, unknown tokens](./r04-review-fix.md) | tests | Alexander Ponomarenko | S | — | todo |
+| R5 | [Not-found: unclipped focus ring, arrow icon from tokens, measured 44px target](./r05-review-fix.md) | ui | Alexander Ponomarenko | S | R3, R4 | todo |
+| R6 | [Make reduced-motion tokens fail loudly and add the base reduced-motion guard](./r06-review-fix.md) | wiring | Alexander Ponomarenko | S | R4 | todo |
+| R7 | [Keep the Dag warning pair visible as a named known contrast failure](./r07-review-fix.md) | tests | Alexander Ponomarenko | S | — | todo |
+| R8 | [Assert drawn brand fonts with scripts off and measure text runs in the font-swap test](./r08-review-fix.md) | tests | Alexander Ponomarenko | S | R5 | todo |
+| R9 | [Make missing visual baselines fail CI and add a manual baseline workflow](./r09-review-fix.md) | wiring | Alexander Ponomarenko | S | — | todo |
+| R10 | [Run Lighthouse CI against wrangler dev so the delivered headers apply](./r10-review-fix.md) | wiring | Alexander Ponomarenko | S | R9 | todo |
+| R11 | [Remove the stray screenshots and ignore mangled temp paths](./r11-review-fix.md) | wiring | Alexander Ponomarenko | S | — | todo |
 
-**Total:** 16 tasks, ~13 person-days (S ≈ 0.5 d, M ≈ 1 d).
+**Total:** 16 tasks + 11 review follow-ups (R1–R11), ~13 person-days (S ≈ 0.5 d, M ≈ 1 d).

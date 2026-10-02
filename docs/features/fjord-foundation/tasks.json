@@ -291,6 +291,203 @@
         ".github/workflows/ci.yml",
         "lighthouserc.cjs"
       ]
+    },
+    {
+      "id": "R1",
+      "title": "Parse built HTML with a real parser in the CSP audit and hash a CRLF-normalised bootstrap",
+      "layer": "wiring",
+      "deps": [],
+      "acs": [
+        "AC-09",
+        "AC-12"
+      ],
+      "dod": "The CSP audit walks a parsed DOM (htmlparser2 or parse5 devDependency, justified in the PR) instead of regexes; Vitest fixtures with data-src=, data-type=\"application/ld+json\" and a '>' inside an attribute value before style=/onclick= each fail naming the page; the bootstrap text is read once, CRLF-normalised, and that same string is inlined and hashed; a Vitest case with a CRLF source still builds with a matching hash; .gitattributes sets src/scripts/*.js text eol=lf; build, lint, unit green.",
+      "files_hint": [
+        "src/integrations/csp.ts",
+        "src/integrations/csp.test.ts",
+        "src/integrations/fixtures/",
+        "src/layouts/BaseLayout.astro",
+        "package.json",
+        "package-lock.json",
+        ".gitattributes"
+      ],
+      "source": "review-2026-10-02 F-06, F-17"
+    },
+    {
+      "id": "R2",
+      "title": "Prove with a real rebuild that editing the bootstrap updates the delivered policy",
+      "layer": "tests",
+      "deps": [
+        "R1"
+      ],
+      "acs": [
+        "AC-12"
+      ],
+      "dod": "A Vitest integration test copies the site sources into a temp root, changes one character of the bootstrap, runs astro build there, and asserts the new sha256 is in dist/_headers and the old one is not; no edits outside the temp root.",
+      "files_hint": [
+        "src/integrations/csp.build.test.ts",
+        "scripts/test-utils/build-site.ts"
+      ],
+      "source": "review-2026-10-02 F-03"
+    },
+    {
+      "id": "R3",
+      "title": "Bootstrap without globals, one Norwegian language code, no viewport-fit, Norwegian 'Oslo, Norge'",
+      "layer": "ui",
+      "deps": [
+        "R1"
+      ],
+      "acs": [
+        "AC-01",
+        "AC-02",
+        "AC-03",
+        "AC-13"
+      ],
+      "dod": "The bootstrap creates no global (window.t undefined after it runs) and the ADR-0001 snippet matches it; BaseLayout's lang prop uses 'no' (not 'nb'); the viewport meta has no viewport-fit=cover; home renders 'Oslo, Norge' inside an element with lang=\"no\"; unit tests cover each; build, lint, unit green.",
+      "files_hint": [
+        "src/scripts/theme-bootstrap.js",
+        "src/scripts/theme-bootstrap.test.ts",
+        "docs/features/fjord-foundation/adr/0001-pair-a-validating-theme-bootstrap-with-generated-natt-blocks.md",
+        "src/layouts/BaseLayout.astro",
+        "src/layouts/BaseLayout.test.ts",
+        "src/pages/index.astro"
+      ],
+      "source": "review-2026-10-02 F-11, F-12, F-13, F-18"
+    },
+    {
+      "id": "R4",
+      "title": "Close the token-only lint gaps: shorthands, units, size and radius, unknown tokens",
+      "layer": "tests",
+      "deps": [],
+      "acs": [
+        "AC-11"
+      ],
+      "dod": "Fixtures for border-radius, size (font-size/width), keyword easing inside transition/animation, raw values in font/border shorthands, pt and other absolute units, viewport units outside the allowlist, and an undeclared var(--fjord-*) each fail naming file and line; token-only.css uses only declared tokens and passes; viewport units allowed only through an explicit property allowlist (e.g. min-height: 100dvh); npm run lint is clean on src/.",
+      "files_hint": [
+        "stylelint.config.js",
+        "scripts/lint/",
+        "src/styles/",
+        "src/pages/"
+      ],
+      "source": "review-2026-10-02 F-04, F-09"
+    },
+    {
+      "id": "R5",
+      "title": "Not-found: unclipped focus ring, arrow icon from tokens, measured 44px target",
+      "layer": "ui",
+      "deps": [
+        "R3",
+        "R4"
+      ],
+      "acs": [
+        "AC-07"
+      ],
+      "dod": ".not-found no longer clips its children (the ridge clips itself); an e2e check shows the focused 'Back to home' outline box lies inside the section and the link's rendered height is >= 44px at 390 and 1440; the arrow's size and stroke come from --fjord-icon-sm / --fjord-icon-stroke in CSS; build, lint, unit, e2e green.",
+      "files_hint": [
+        "src/pages/404.astro",
+        "src/pages/_404.test.ts",
+        "tests/e2e/not-found.spec.ts"
+      ],
+      "source": "review-2026-10-02 F-08, F-14, F-20"
+    },
+    {
+      "id": "R6",
+      "title": "Make reduced-motion tokens fail loudly and add the base reduced-motion guard",
+      "layer": "wiring",
+      "deps": [
+        "R4"
+      ],
+      "acs": [
+        "AC-14"
+      ],
+      "dod": "The generator matches motion tokens by an anchored name pattern, throws on a matched value that is not a plain number, and resets scale tokens by how the handoff uses them (factor -> 1, delta -> 0); a unit test asserts no reduced-motion token can make an element invisible; base.css under prefers-reduced-motion: reduce sets animation-iteration-count: 1 and scroll-behavior: auto on all elements; tokens:check, lint, unit green.",
+      "files_hint": [
+        "scripts/tokens/generate.ts",
+        "scripts/tokens/build.test.ts",
+        "src/styles/tokens.css",
+        "src/styles/base.css",
+        "scripts/lint/base-css.test.ts"
+      ],
+      "source": "review-2026-10-02 F-15, F-16"
+    },
+    {
+      "id": "R7",
+      "title": "Keep the Dag warning pair visible as a named known contrast failure",
+      "layer": "tests",
+      "deps": [],
+      "acs": [
+        "AC-10"
+      ],
+      "dod": "warning on warning-soft and text on warning-soft are in the manifest; the check treats the warning pair as a named known failure (it must fail, by name, or the check errors) and prints pair, theme, ratio and 'known failure, fix before step 7 Callout' on every run; text on warning-soft passes normally; check:contrast and unit green.",
+      "files_hint": [
+        "scripts/contrast-pairs.ts",
+        "scripts/check-contrast.ts",
+        "scripts/check-contrast.test.ts"
+      ],
+      "source": "review-2026-10-02 F-02"
+    },
+    {
+      "id": "R8",
+      "title": "Assert drawn brand fonts with scripts off and measure text runs in the font-swap test",
+      "layer": "tests",
+      "deps": [
+        "R5"
+      ],
+      "acs": [
+        "AC-04",
+        "AC-05"
+      ],
+      "dod": "The scripts-off e2e asserts via CDP CSS.getPlatformFontsForNode that h1 is drawn with the custom Schibsted Grotesk face; the font-swap test compares text-run rects (Range) and baselines, not block boxes; each strengthened assertion is shown to fail against a deliberately broken variant (fonts blocked / wrong size-adjust) before being kept.",
+      "files_hint": [
+        "tests/e2e/theme.spec.ts",
+        "tests/e2e/fonts.spec.ts"
+      ],
+      "source": "review-2026-10-02 F-05, F-10"
+    },
+    {
+      "id": "R9",
+      "title": "Make missing visual baselines fail CI and add a manual baseline workflow",
+      "layer": "wiring",
+      "deps": [],
+      "acs": [
+        "AC-01",
+        "AC-07"
+      ],
+      "dod": "In CI a missing Linux baseline fails the visual test instead of skipping (only an explicit write mode proceeds without one); a workflow_dispatch workflow builds the site, runs the visual suite in the official Playwright Docker image with --update-snapshots and uploads the PNGs as an artifact; the CI baseline step with continue-on-error is removed. Baselines themselves are committed by the Owner after reviewing them.",
+      "files_hint": [
+        "tests/visual/not-found.spec.ts",
+        ".github/workflows/ci.yml",
+        ".github/workflows/visual-baselines.yml"
+      ],
+      "source": "review-2026-10-02 F-01"
+    },
+    {
+      "id": "R10",
+      "title": "Run Lighthouse CI against wrangler dev so the delivered headers apply",
+      "layer": "wiring",
+      "deps": [
+        "R9"
+      ],
+      "acs": [],
+      "dod": "lighthouserc.cjs starts wrangler dev on dist/ and audits / and a missing path; CSP, HSTS and the 404 handling are in effect during scoring; CI uses it.",
+      "files_hint": [
+        "lighthouserc.cjs",
+        ".github/workflows/ci.yml"
+      ],
+      "source": "review-2026-10-02 F-19"
+    },
+    {
+      "id": "R11",
+      "title": "Remove the stray screenshots and ignore mangled temp paths",
+      "layer": "wiring",
+      "deps": [],
+      "acs": [],
+      "dod": "UsersUserAppDataLocalTemp/ is removed from the repo and a .gitignore rule keeps such mangled Windows temp paths out.",
+      "files_hint": [
+        "UsersUserAppDataLocalTemp/",
+        ".gitignore"
+      ],
+      "source": "review-2026-10-02 F-07"
     }
   ]
 }
