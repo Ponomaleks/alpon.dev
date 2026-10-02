@@ -488,6 +488,130 @@
         ".gitignore"
       ],
       "source": "review-2026-10-02 F-07"
+    },
+    {
+      "id": "R12",
+      "title": "Produce the visual baselines from a labelled PR and document the local Docker fallback",
+      "layer": "wiring",
+      "deps": [],
+      "acs": [
+        "AC-01",
+        "AC-07"
+      ],
+      "dod": "visual-baselines.yml also runs on pull_request types [labeled, synchronize], only when the PR has the `visual-baselines` label; it builds, writes the baselines in the official Playwright image and uploads the PNGs as an artifact. The README documents the equivalent local docker run command (FJORD_VISUAL=write) as a fallback, not the main path. After the Owner reviews and commits the 6 PNGs under tests/visual/__screenshots__/linux/ and removes the label, the CI visual job is green without continue-on-error and T15 moves to done.",
+      "files_hint": [
+        ".github/workflows/visual-baselines.yml",
+        "README.md",
+        "tests/visual/__screenshots__/linux/"
+      ],
+      "source": "review-2026-10-02-2 S1-01, S2-01"
+    },
+    {
+      "id": "R13",
+      "title": "Require both check and visual, and record the branch-protection commands",
+      "layer": "wiring",
+      "deps": [
+        "R12"
+      ],
+      "acs": [
+        "AC-01",
+        "AC-07"
+      ],
+      "dod": "T16 records the exact gh api commands: v2 requires check and visual now; main either now with enforce_admins false (a stub hotfix stays possible before Release 1) or as part of the Release 1 step, the Owner picks. ci.yml carries a comment that check and visual must have no path filters or job-level conditions on PRs into v2/main (a required check that never reports blocks the merge forever). The commands go into the PR; the Owner runs them.",
+      "files_hint": [
+        "docs/features/fjord-foundation/tasks/t16-ci-lighthouse-protection.md",
+        ".github/workflows/ci.yml"
+      ],
+      "source": "review-2026-10-02-2 S1-02"
+    },
+    {
+      "id": "R14",
+      "title": "Run the handler and style checks on every element in the CSP audit",
+      "layer": "wiring",
+      "deps": [],
+      "acs": [
+        "AC-09",
+        "AC-12"
+      ],
+      "dod": "The script branch of auditPage no longer uses continue; the on*= and style= checks run for every element, including ld+json scripts and the bootstrap copy. The F-06 it.each in csp.test.ts gains: ld+json with onload, the bootstrap with onerror, ld+json with style; each is reported.",
+      "files_hint": [
+        "src/integrations/csp.ts",
+        "src/integrations/csp.test.ts"
+      ],
+      "source": "review-2026-10-02-2 S2-02"
+    },
+    {
+      "id": "R15",
+      "title": "Measure the font swap at phone width and assert the Mono labels and body face",
+      "layer": "tests",
+      "deps": [],
+      "acs": [
+        "AC-05"
+      ],
+      "dod": "fonts.spec.ts creates its contexts from the project use settings (or measures explicitly at 390 and 1440), so the font-swap rows run at phone width. After document.fonts.ready on the Not-found page, platformFonts reports JetBrains Mono for .code and Schibsted Grotesk for main p.",
+      "files_hint": [
+        "tests/e2e/fonts.spec.ts",
+        "tests/e2e/platform-fonts.ts"
+      ],
+      "source": "review-2026-10-02-2 S1-03, S1-04"
+    },
+    {
+      "id": "R16",
+      "title": "Make the no-global bootstrap test see top-level let bindings",
+      "layer": "tests",
+      "deps": [],
+      "acs": [
+        "AC-02"
+      ],
+      "dod": "theme-bootstrap.test.ts runs the snippet in a vm.createContext context and asserts typeof t is undefined there (or runs it twice in one context without error); an unwrapped `let t` variant fails the test.",
+      "files_hint": [
+        "src/scripts/theme-bootstrap.test.ts"
+      ],
+      "source": "review-2026-10-02-2 S2-03"
+    },
+    {
+      "id": "R17",
+      "title": "Disallow container-query units and restrict viewport heights by value",
+      "layer": "tests",
+      "deps": [],
+      "acs": [
+        "AC-11"
+      ],
+      "dod": "stylelint.config.js disallows cqw/cqh/cqi/cqb/cqmin/cqmax; height, min-height and max-height accept only tokens, auto, % and 100vh/100svh/100lvh/100dvh. Fixtures with 50cqi and 73vh fail, naming file and line; src/ still lints clean.",
+      "files_hint": [
+        "stylelint.config.js",
+        "scripts/lint/fixtures/",
+        "scripts/lint/stylelint.test.ts"
+      ],
+      "source": "review-2026-10-02-2 S2-04"
+    },
+    {
+      "id": "R18",
+      "title": "Classify scale tokens by handoff usage and reject movement tokens outside motion.css",
+      "layer": "wiring",
+      "deps": [],
+      "acs": [
+        "AC-14"
+      ],
+      "dod": "generate.ts classifies each *-scale token from the handoff CSS: scale(var(--x)) is a factor (reduced to 1), calc(1 + var(--x)) is a delta (reduced to 0); it throws when neither is found and when a rise/slide/parallax/scale token is declared outside motion.css. Unit tests cover factor, delta, unclassified and misplaced tokens; tokens:check passes.",
+      "files_hint": [
+        "scripts/tokens/generate.ts",
+        "scripts/tokens/build.test.ts"
+      ],
+      "source": "review-2026-10-02-2 S2-05"
+    },
+    {
+      "id": "R19",
+      "title": "Record that SEO is not asserted on the noindex Not-found page",
+      "layer": "docs",
+      "deps": [],
+      "acs": [],
+      "dod": "spec §6 (Lighthouse categories) and §7 (Lighthouse KPI) state that SEO is not asserted on the noindex Not-found page because the crawlability audit fails a noindex page by design; lighthouserc.cjs keeps it off. The PR lists it among the deviations.",
+      "files_hint": [
+        "docs/features/fjord-foundation/spec.md",
+        "lighthouserc.cjs"
+      ],
+      "source": "review-2026-10-02-2 S2-06"
     }
   ]
 }
