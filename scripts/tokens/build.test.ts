@@ -138,25 +138,56 @@ describe('reduced motion (sad §8 Motion, AC-14)', () => {
   });
 
   /** The reduced-motion :root of the tokens generated with extra lines in a handoff file. */
-  const reduceWith = (file: 'motion' | 'typography', extra: string) => {
+  const reduceWith = (extra: string) => {
     const sources = real();
-    const css = generateTokens(withFile(sources, file, `${sources.handoff[file]}\n${extra}\n`));
+    const css = generateTokens(
+      withFile(sources, 'motion', `${sources.handoff.motion}\n${extra}\n`),
+    );
     return Object.fromEntries(declarations(reduceBlock(css)));
   };
+  /** A rule that uses `token` as a factor, the way the handoff scales (scale(.985), scale(.94)). */
+  const asFactor = (token: string) => `.fjord-test-press { transform: scale(var(${token})); }`;
+  /** A rule that uses `token` as a delta added to 1. */
+  const asDelta = (token: string) =>
+    `.fjord-test-grow { transform: scale(calc(1 + var(${token}))); }`;
 
-  it('collapses slide distances to 0 and resets scale factors to 1, as the handoff uses scale', () => {
-    // The handoff scales by factor (scale(.985), scale(.94), scale(1.015)), never by a delta.
+  it('collapses slide distances to 0 and resets a factor, used as scale(var()), to 1', () => {
     const reduce = reduceWith(
-      'motion',
-      ':root { --fjord-slide-x: 24px; --fjord-press-scale: 0.985; }',
+      `:root { --fjord-slide-x: 24px; --fjord-press-scale: 0.985; }\n${asFactor('--fjord-press-scale')}`,
     );
     expect(reduce).toMatchObject({ '--fjord-slide-x': '0px', '--fjord-press-scale': '1' });
   });
 
-  it('touches only motion.css tokens, so a typographic scale is left alone', () => {
-    const reduce = reduceWith('typography', ':root { --fjord-type-scale: 1.25; }');
-    expect(reduce).not.toHaveProperty('--fjord-type-scale');
+  it('resets a delta, used as calc(1 + var()), to 0', () => {
+    const reduce = reduceWith(
+      `:root { --fjord-hover-scale: 0.015; }\n${asDelta('--fjord-hover-scale')}`,
+    );
+    expect(reduce).toMatchObject({ '--fjord-hover-scale': '0' });
   });
+
+  it('fails on a scale token that the handoff uses neither as a factor nor as a delta', () => {
+    const sources = real();
+    const motion = `${sources.handoff.motion}\n:root { --fjord-press-scale: 0.985; }\n`;
+    expect(() => generateTokens(withFile(sources, 'motion', motion))).toThrow(
+      /--fjord-press-scale.*neither.*factor.*delta/,
+    );
+  });
+
+  it.each([
+    ['typography', '--fjord-type-scale', '1.25'],
+    ['spacing', '--fjord-card-rise', '8px'],
+    ['colors', '--fjord-hero-parallax', '12px'],
+    ['spacing', '--fjord-slide-x', '24px'],
+  ] as const)(
+    'fails on a movement token declared outside motion.css (%s: %s)',
+    (file, token, v) => {
+      const sources = real();
+      const css = `${sources.handoff[file]}\n:root { ${token}: ${v}; }\n`;
+      expect(() => generateTokens(withFile(sources, file, css))).toThrow(
+        new RegExp(`${token}.*${file}\\.css.*motion\\.css`),
+      );
+    },
+  );
 
   it('fails loudly on a motion token that is not a plain number', () => {
     const sources = real();
@@ -167,7 +198,9 @@ describe('reduced motion (sad §8 Motion, AC-14)', () => {
   });
 
   it('no reduced-motion token can make an element invisible (no unitless 0)', () => {
-    const reduce = reduceWith('motion', ':root { --fjord-press-scale: 0.985; }');
+    const reduce = reduceWith(
+      `:root { --fjord-press-scale: 0.985; }\n${asFactor('--fjord-press-scale')}`,
+    );
     for (const [property, v] of Object.entries(reduce))
       expect(v, `${property}: ${v}`).not.toMatch(/^-?0*\.?0+$/);
   });

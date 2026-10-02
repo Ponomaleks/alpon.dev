@@ -14,10 +14,11 @@ const REDUCE = '@media (prefers-reduced-motion: reduce)';
 /** Name segments of motion.css tokens that are movement distances: they collapse to 0. */
 const DISTANCE = new Set(['rise', 'slide', 'parallax']);
 /**
- * A motion.css token whose last segment is `scale` is a factor (the handoff writes scale(.985),
- * scale(.94), scale(1.015)), so reduced motion resets it to 1, never to 0 (review F-15).
+ * A motion.css token whose last segment is `scale`. The handoff CSS decides what it is
+ * (review S2-05): `scale(var(--x))` makes it a factor, reset to 1 (never 0, review F-15);
+ * `calc(1 + var(--x))` makes it a delta, reset to 0. Any other use fails the build.
  */
-const FACTOR = 'scale';
+const SCALE = 'scale';
 /** A number with an optional unit: anything else cannot be reset safely, so the build fails. */
 const PLAIN_NUMBER = /^-?(?:\d+\.?\d*|\.\d+)[a-z%]*$/i;
 /** The stat count-up duration: counters show their final value under reduced motion. */
@@ -98,17 +99,51 @@ function fontStack(handoffStack: string, generic: string): string {
   return [...names.map((name) => `"${name}"`), generic].join(', ');
 }
 
-/** Reduced-motion values for the motion.css tokens: distances to 0, scale factors to 1. */
-function reducedMotion(root: DeclarationList, motionTokens: Set<string>): Declaration[] {
+const segments = (property: string) => property.slice('--fjord-'.length).split('-');
+const isScale = (property: string) => segments(property).at(-1) === SCALE;
+/** A rise/slide/parallax distance or a scale token: reduced motion resets it. */
+const isMovement = (property: string) =>
+  isScale(property) || segments(property).some((segment) => DISTANCE.has(segment));
+
+/** Movement tokens are reset only from motion.css, so one declared elsewhere fails the build. */
+function assertMovementInMotion(files: [file: string, sheet: Stylesheet][]) {
+  for (const [file, sheet] of files)
+    for (const { declarations } of [...sheet.rules, ...sheet.media.flatMap((m) => m.rules)])
+      for (const [property] of declarations)
+        if (property.startsWith('--fjord-') && isMovement(property))
+          throw new Error(
+            `${property} is declared in ${file}.css: movement tokens belong in motion.css, ` +
+              'where reduced motion resets them',
+          );
+}
+
+/** `factor` or `delta`, from how the handoff CSS (comments stripped) uses the scale token. */
+function scaleKind(property: string, handoffCss: string): 'factor' | 'delta' {
+  const v = `var\\(\\s*${property}\\s*[,)]`; // custom property names hold no regex metacharacters
+  const factor = new RegExp(`scale\\(\\s*${v}`).test(handoffCss);
+  const delta = new RegExp(`calc\\(\\s*1\\s*\\+\\s*${v}`).test(handoffCss);
+  if (factor && delta)
+    throw new Error(`${property}: the handoff uses it both as a factor and as a delta`);
+  if (factor) return 'factor';
+  if (delta) return 'delta';
+  throw new Error(
+    `${property}: the handoff uses it neither as a factor (scale(var(${property}))) nor as a ` +
+      `delta (calc(1 + var(${property}))), so reduced motion cannot reset it`,
+  );
+}
+
+/** Reduced-motion values for the motion.css tokens: distances and deltas to 0, factors to 1. */
+function reducedMotion(
+  root: DeclarationList,
+  motionTokens: Set<string>,
+  handoffCss: string,
+): Declaration[] {
   const reduce: Declaration[] = [];
   for (const [property, value] of root.entries()) {
-    if (!motionTokens.has(property)) continue;
-    const segments = property.slice('--fjord-'.length).split('-');
-    if (segments.at(-1) === FACTOR) {
-      zero(property, value); // still a plain number, or the build fails
-      reduce.push([property, '1']);
-    } else if (segments.some((segment) => DISTANCE.has(segment)))
-      reduce.push([property, zero(property, value)]);
+    if (!motionTokens.has(property) || !isMovement(property)) continue;
+    const reset = zero(property, value); // a plain number, or the build fails
+    const factor = isScale(property) && scaleKind(property, handoffCss) === 'factor';
+    reduce.push([property, factor ? '1' : reset]);
   }
   const countUp = root.get(COUNT_UP);
   if (countUp === undefined) throw new Error(`${COUNT_UP} (count-up duration) is missing`);
@@ -122,9 +157,17 @@ function rule(selector: string, declarations: Declaration[], indent = ''): strin
 
 export function generateTokens(sources: Sources): string {
   const { colors, spacing, typography, motion } = sources.handoff;
-  const sheets = [colors, spacing, typography, motion].map(parseCss);
-  const motionSheet = sheets[3];
-  if (!motionSheet) throw new Error('motion.css is missing');
+  const others: [file: string, sheet: Stylesheet][] = [
+    ['colors', parseCss(colors)],
+    ['spacing', parseCss(spacing)],
+    ['typography', parseCss(typography)],
+  ];
+  const motionSheet = parseCss(motion);
+  const sheets = [...others.map(([, sheet]) => sheet), motionSheet];
+  assertMovementInMotion(others);
+  const handoffCss = [colors, spacing, typography, motion]
+    .join('\n')
+    .replace(/\/\*[\s\S]*?\*\//g, '');
   const motionTokens = new Set(
     collect([motionSheet], ':root')
       .entries()
@@ -165,7 +208,7 @@ export function generateTokens(sources: Sources): string {
   /* Deliberate deviation from the handoff motion.css (fjord-foundation sad §8 Motion): every
      movement distance and the count-up duration collapse to 0, scale factors reset to 1;
      --fjord-duration-fade keeps opacity fades; other durations stay as they are. */
-${rule(':root', reducedMotion(root, motionTokens), '  ')}
+${rule(':root', reducedMotion(root, motionTokens, handoffCss), '  ')}
 }`,
   ].join('\n\n')}\n`;
 }
