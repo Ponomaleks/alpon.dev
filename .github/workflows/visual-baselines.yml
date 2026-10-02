@@ -1,0 +1,41 @@
+name: Visual baselines
+
+# Writes the Linux visual baselines in the official Playwright image (the image the CI "visual"
+# job compares in) and uploads them as an artifact. The Owner reviews them against the design,
+# then commits them under tests/visual/__screenshots__/linux/ (fjord-foundation sad §11).
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  baselines:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
+      options: --user 1001
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      - name: Write the visual baselines
+        env:
+          FJORD_VISUAL: write
+        run: npx playwright test tests/visual --project desktop --update-snapshots=all
+
+      - name: Upload the baselines for review
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-baselines-linux
+          path: tests/visual/__screenshots__/linux/
+          if-no-files-found: error
+          retention-days: 14
