@@ -46,12 +46,12 @@ All values come from `src/styles/tokens.css` (`--fjord-*`, generated, do not edi
 |---|---|---|---|
 | BaseLayout | `src/layouts/BaseLayout.astro:1` | — (head contract: lang, title, description, noindex) | fjord-foundation extends it: theme bootstrap, font preloads, tokens → fonts → base |
 
-**Pending registration (page-local in fjord-foundation, `docs/features/fjord-foundation/screens.md`)**
+**Registered page-local (built by fjord-foundation, `docs/features/fjord-foundation/screens.md`; step 3 promotes them)**
 
 | Component | Source (`file:line` / node / URL) | States it supports | Notes |
 |---|---|---|---|
-| home-link | `src/pages/404.astro` (once built); design `components/actions/actions.css:8` | default / hover / focus-visible (color only) | Promoted to `Button` (primary, arrow) in step 3, same token names |
-| ridge-contours | `src/pages/404.astro` (once built); design `components/brand/Contours.jsx:28` | static only | Promoted to `Contours` in step 3, same markup |
+| home-link | `src/pages/404.astro:40` (markup), `src/pages/404.astro:140` (styles); design `components/actions/actions.css:8` | default / hover / focus-visible (color only) | Promoted to `Button` (primary, arrow) in step 3, same token names |
+| ridge-contours | `src/pages/404.astro:17` (markup), `src/pages/404.astro:90` (styles); paths from design `components/brand/contourData.js`; design `components/brand/Contours.jsx:28` | static only | Promoted to `Contours` in step 3, same markup |
 
 **Design-only (handoff), by group**
 
