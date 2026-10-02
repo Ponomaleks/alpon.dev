@@ -165,6 +165,22 @@ describe('reduced motion (sad §8 Motion, AC-14)', () => {
     expect(reduce).toMatchObject({ '--fjord-hover-scale': '0' });
   });
 
+  it('classifies a scale token by its use in the component CSS, where the handoff scales', () => {
+    const sources = real();
+    const motion = `${sources.handoff.motion}\n:root { --fjord-press-scale: 0.985; }\n`;
+    const usage = `${sources.handoff.usage}\n${asFactor('--fjord-press-scale')}\n`;
+    const css = generateTokens(withFile(withFile(sources, 'motion', motion), 'usage', usage));
+    expect(Object.fromEntries(declarations(reduceBlock(css)))).toMatchObject({
+      '--fjord-press-scale': '1',
+    });
+  });
+
+  it('reads the handoff component and base CSS as scale usage', () => {
+    const { usage } = real().handoff;
+    expect(usage).toMatch(/\.fj-btn:active[^{]*\{[^}]*scale\(/);
+    expect(usage).toMatch(/@keyframes fjord-drift/);
+  });
+
   it('fails on a scale token that the handoff uses neither as a factor nor as a delta', () => {
     const sources = real();
     const motion = `${sources.handoff.motion}\n:root { --fjord-press-scale: 0.985; }\n`;

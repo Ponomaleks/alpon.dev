@@ -156,7 +156,7 @@ function rule(selector: string, declarations: Declaration[], indent = ''): strin
 }
 
 export function generateTokens(sources: Sources): string {
-  const { colors, spacing, typography, motion } = sources.handoff;
+  const { colors, spacing, typography, motion, usage } = sources.handoff;
   const others: [file: string, sheet: Stylesheet][] = [
     ['colors', parseCss(colors)],
     ['spacing', parseCss(spacing)],
@@ -165,7 +165,7 @@ export function generateTokens(sources: Sources): string {
   const motionSheet = parseCss(motion);
   const sheets = [...others.map(([, sheet]) => sheet), motionSheet];
   assertMovementInMotion(others);
-  const handoffCss = [colors, spacing, typography, motion]
+  const handoffCss = [colors, spacing, typography, motion, usage]
     .join('\n')
     .replace(/\/\*[\s\S]*?\*\//g, '');
   const motionTokens = new Set(
@@ -206,7 +206,7 @@ export function generateTokens(sources: Sources): string {
     ),
     `${REDUCE} {
   /* Deliberate deviation from the handoff motion.css (fjord-foundation sad §8 Motion): every
-     movement distance and the count-up duration collapse to 0, scale factors reset to 1;
+     movement distance and the count-up duration collapse to 0, scale factors reset to 1, scale deltas to 0;
      --fjord-duration-fade keeps opacity fades; other durations stay as they are. */
 ${rule(':root', reducedMotion(root, motionTokens, handoffCss), '  ')}
 }`,

@@ -266,7 +266,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   /* Deliberate deviation from the handoff motion.css (fjord-foundation sad §8 Motion): every
-     movement distance and the count-up duration collapse to 0, scale factors reset to 1;
+     movement distance and the count-up duration collapse to 0, scale factors reset to 1, scale deltas to 0;
      --fjord-duration-fade keeps opacity fades; other durations stay as they are. */
   :root {
     --fjord-reveal-rise: 0px;
