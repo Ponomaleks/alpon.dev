@@ -15,7 +15,7 @@
 | T8 | [Generate the bootstrap hash into a single /* CSP rule with a fail-closed build integration](./t08-csp-integration.md) | wiring | Alexander Ponomarenko | M | T1, T7 | done |
 | T9 | [Build the Fjord Not-found page (SCR-02) with the page-local home-link and ridge contours](./t09-not-found-page.md) | ui | Alexander Ponomarenko | M | T7 | done |
 | T10 | [Add the budget check for bootstrap, JS and font sizes](./t10-budget-check.md) | tests | Alexander Ponomarenko | S | T2, T7 | done |
-| T11 | [Cover the theme matrix end to end, including blocked storage and scripts off](./t11-theme-e2e.md) | tests | Alexander Ponomarenko | M | T7 | todo |
+| T11 | [Cover the theme matrix end to end, including blocked storage and scripts off](./t11-theme-e2e.md) | tests | Alexander Ponomarenko | M | T7 | done |
 | T12 | [Verify the delivered security policy end to end and flip P-16](./t12-headers-e2e-p16.md) | tests | Alexander Ponomarenko | S | T8 | todo |
 | T13 | [Verify font loading end to end and flip P-26](./t13-fonts-e2e-p26.md) | tests | Alexander Ponomarenko | M | T7 | todo |
 | T14 | [Verify the Not-found page and reduced motion end to end and flip P-41](./t14-not-found-e2e-p41.md) | tests | Alexander Ponomarenko | S | T9 | todo |
