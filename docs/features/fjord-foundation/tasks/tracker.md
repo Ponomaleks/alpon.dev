@@ -12,7 +12,7 @@
 | T5 | [Add the contrast check over the generated tokens](./t05-contrast-check.md) | tests | Alexander Ponomarenko | M | T3 | done |
 | T6 | [Port the handoff base.css as token-only element styles](./t06-base-styles.md) | ui | Alexander Ponomarenko | S | T4 | done |
 | T7 | [Add the theme bootstrap and the BaseLayout head contract, with the home placeholder on it (SCR-01)](./t07-bootstrap-and-layout.md) | ui | Alexander Ponomarenko | M | T2, T4, T6 | done |
-| T8 | [Generate the bootstrap hash into a single /* CSP rule with a fail-closed build integration](./t08-csp-integration.md) | wiring | Alexander Ponomarenko | M | T1, T7 | todo |
+| T8 | [Generate the bootstrap hash into a single /* CSP rule with a fail-closed build integration](./t08-csp-integration.md) | wiring | Alexander Ponomarenko | M | T1, T7 | done |
 | T9 | [Build the Fjord Not-found page (SCR-02) with the page-local home-link and ridge contours](./t09-not-found-page.md) | ui | Alexander Ponomarenko | M | T7 | todo |
 | T10 | [Add the budget check for bootstrap, JS and font sizes](./t10-budget-check.md) | tests | Alexander Ponomarenko | S | T2, T7 | todo |
 | T11 | [Cover the theme matrix end to end, including blocked storage and scripts off](./t11-theme-e2e.md) | tests | Alexander Ponomarenko | M | T7 | todo |
