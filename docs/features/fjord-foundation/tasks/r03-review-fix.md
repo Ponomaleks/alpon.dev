@@ -7,7 +7,7 @@ acs: ["AC-01", "AC-02", "AC-03", "AC-13"]
 files_hint: ["src/scripts/theme-bootstrap.js", "src/scripts/theme-bootstrap.test.ts", "docs/features/fjord-foundation/adr/0001-pair-a-validating-theme-bootstrap-with-generated-natt-blocks.md", "src/layouts/BaseLayout.astro", "src/layouts/BaseLayout.test.ts", "src/pages/index.astro"]
 owner: "Alexander Ponomarenko"
 estimate: "S"
-status: "todo"
+status: "done"
 ---
 
 # R3 — Bootstrap without globals, one Norwegian language code, no viewport-fit, Norwegian 'Oslo, Norge'

@@ -7,7 +7,7 @@ acs: []
 files_hint: ["lighthouserc.cjs", ".github/workflows/ci.yml"]
 owner: "Alexander Ponomarenko"
 estimate: "S"
-status: "todo"
+status: "done"
 ---
 
 # R10 — Run Lighthouse CI against wrangler dev so the delivered headers apply

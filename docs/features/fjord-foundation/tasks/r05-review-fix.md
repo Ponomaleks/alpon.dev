@@ -7,7 +7,7 @@ acs: ["AC-07"]
 files_hint: ["src/pages/404.astro", "src/pages/_404.test.ts", "tests/e2e/not-found.spec.ts"]
 owner: "Alexander Ponomarenko"
 estimate: "S"
-status: "todo"
+status: "done"
 ---
 
 # R5 — Not-found: unclipped focus ring, arrow icon from tokens, measured 44px target

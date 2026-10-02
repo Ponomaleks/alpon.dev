@@ -7,7 +7,7 @@ acs: ["AC-11"]
 files_hint: ["stylelint.config.js", "scripts/lint/", "src/styles/", "src/pages/"]
 owner: "Alexander Ponomarenko"
 estimate: "S"
-status: "todo"
+status: "done"
 ---
 
 # R4 — Close the token-only lint gaps: shorthands, units, size and radius, unknown tokens

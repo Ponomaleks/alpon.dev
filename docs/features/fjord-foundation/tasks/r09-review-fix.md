@@ -7,7 +7,7 @@ acs: ["AC-01", "AC-07"]
 files_hint: ["tests/visual/not-found.spec.ts", ".github/workflows/ci.yml", ".github/workflows/visual-baselines.yml"]
 owner: "Alexander Ponomarenko"
 estimate: "S"
-status: "todo"
+status: "done"
 ---
 
 # R9 — Make missing visual baselines fail CI and add a manual baseline workflow

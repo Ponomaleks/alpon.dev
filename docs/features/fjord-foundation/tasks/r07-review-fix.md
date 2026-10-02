@@ -7,7 +7,7 @@ acs: ["AC-10"]
 files_hint: ["scripts/contrast-pairs.ts", "scripts/check-contrast.ts", "scripts/check-contrast.test.ts"]
 owner: "Alexander Ponomarenko"
 estimate: "S"
-status: "todo"
+status: "done"
 ---
 
 # R7 — Keep the Dag warning pair visible as a named known contrast failure

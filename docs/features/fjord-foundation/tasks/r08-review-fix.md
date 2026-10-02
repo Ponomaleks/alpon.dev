@@ -7,7 +7,7 @@ acs: ["AC-04", "AC-05"]
 files_hint: ["tests/e2e/theme.spec.ts", "tests/e2e/fonts.spec.ts"]
 owner: "Alexander Ponomarenko"
 estimate: "S"
-status: "todo"
+status: "done"
 ---
 
 # R8 — Assert drawn brand fonts with scripts off and measure text runs in the font-swap test

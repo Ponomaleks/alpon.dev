@@ -7,7 +7,7 @@ acs: []
 files_hint: ["UsersUserAppDataLocalTemp/", ".gitignore"]
 owner: "Alexander Ponomarenko"
 estimate: "S"
-status: "todo"
+status: "done"
 ---
 
 # R11 — Remove the stray screenshots and ignore mangled temp paths

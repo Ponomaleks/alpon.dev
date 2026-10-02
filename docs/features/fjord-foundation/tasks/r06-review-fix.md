@@ -7,7 +7,7 @@ acs: ["AC-14"]
 files_hint: ["scripts/tokens/generate.ts", "scripts/tokens/build.test.ts", "src/styles/tokens.css", "src/styles/base.css", "scripts/lint/base-css.test.ts"]
 owner: "Alexander Ponomarenko"
 estimate: "S"
-status: "todo"
+status: "done"
 ---
 
 # R6 — Make reduced-motion tokens fail loudly and add the base reduced-motion guard

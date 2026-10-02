@@ -7,7 +7,7 @@ acs: ["AC-12"]
 files_hint: ["src/integrations/csp.build.test.ts", "scripts/test-utils/build-site.ts"]
 owner: "Alexander Ponomarenko"
 estimate: "S"
-status: "todo"
+status: "done"
 ---
 
 # R2 — Prove with a real rebuild that editing the bootstrap updates the delivered policy

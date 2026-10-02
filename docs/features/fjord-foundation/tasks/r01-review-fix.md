@@ -7,7 +7,7 @@ acs: ["AC-09", "AC-12"]
 files_hint: ["src/integrations/csp.ts", "src/integrations/csp.test.ts", "src/integrations/fixtures/", "src/layouts/BaseLayout.astro", "package.json", "package-lock.json", ".gitattributes"]
 owner: "Alexander Ponomarenko"
 estimate: "S"
-status: "todo"
+status: "done"
 ---
 
 # R1 — Parse built HTML with a real parser in the CSP audit and hash a CRLF-normalised bootstrap
