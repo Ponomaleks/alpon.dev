@@ -12,6 +12,11 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+# Branch protection on v2 and main requires the checks `check` and `visual`: the job ids below
+# (commands in docs/features/fjord-foundation/tasks/t16-ci-lighthouse-protection.md). Keep both
+# jobs free of path filters (`paths` / `paths-ignore` under `on:`) and of job-level `if:`
+# conditions on PRs into v2/main: a required check that never reports blocks the merge forever.
+# Renaming a job id or giving a job a `name:` changes its check name; update the protection with it.
 jobs:
   check:
     runs-on: ubuntu-latest
