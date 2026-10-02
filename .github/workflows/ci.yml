@@ -26,7 +26,7 @@ jobs:
 
       - run: npm ci
 
-      - name: Lint (astro check, eslint, prettier)
+      - name: Lint (tokens check, contrast, astro check, eslint, prettier, stylelint)
         run: npm run lint
 
       - name: Unit tests (Vitest)
@@ -40,6 +40,18 @@ jobs:
 
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
+
+      # The fallback-face e2e and mobile Lighthouse must exercise the metric-matched Roboto fallback,
+      # as on Android: install Roboto and make sure no Arial is present (fjord-foundation sad §11).
+      - name: Fonts for the fallback checks (Roboto only, no Arial)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends fonts-roboto
+          fc-list : file family | grep -i arial | cut -d: -f1 | xargs -r sudo rm -f
+          sudo fc-cache -f
+          echo "Roboto:"; fc-list : family | grep -i "^roboto" | sort -u | head -3
+          if fc-list : family | grep -qi "arial"; then echo "Arial is still installed" >&2; exit 1; fi
+          echo "Arial: none"
 
       - name: Test (Playwright e2e + axe)
         run: npm run test
