@@ -15,11 +15,16 @@ export default {
       name: 'head-contract-fixture',
       hooks: {
         /** @param {{ injectRoute: (route: { pattern: string; entrypoint: string | URL }) => void }} options */
-        'astro:config:setup': ({ injectRoute }) =>
+        'astro:config:setup': ({ injectRoute }) => {
           injectRoute({
             pattern: '/fixture',
             entrypoint: new URL('./MinimalPage.astro', import.meta.url),
-          }),
+          });
+          injectRoute({
+            pattern: '/fixture-no',
+            entrypoint: new URL('./NorwegianPage.astro', import.meta.url),
+          });
+        },
       },
     },
   ],

@@ -68,6 +68,12 @@ describe.each(['fixture.html', 'index.html', '404.html'])('built %s', (page) => 
     expect(order).not.toContain('style');
   });
 
+  it('has a plain viewport with no viewport-fit (no safe-area padding yet, review F-18)', () => {
+    expect(head(page)).toContain(
+      '<meta name="viewport" content="width=device-width, initial-scale=1">',
+    );
+  });
+
   it('inlines the bootstrap verbatim as the first and only inline script', () => {
     const scripts = [...html(page).matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/g)];
     expect(scripts).toHaveLength(1);
@@ -113,5 +119,15 @@ describe('page-specific head', () => {
 
   it('the 404 page keeps noindex', () => {
     expect(head('404.html')).toContain('<meta name="robots" content="noindex">');
+  });
+});
+
+describe('Norwegian (review 2026-10-02 F-11, F-12)', () => {
+  it('a Norwegian page is marked lang="no", the code the inline spans use', () => {
+    expect(html('fixture-no.html')).toMatch(/<html lang="no"/);
+  });
+
+  it('home marks "Oslo, Norge" as Norwegian', () => {
+    expect(html('index.html')).toMatch(/<span lang="no"[^>]*>Oslo, Norge<\/span>/);
   });
 });

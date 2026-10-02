@@ -39,7 +39,7 @@ The shape:
 
 - **Bootstrap** — `src/scripts/theme-bootstrap.js`, inlined first in `<head>` by `BaseLayout`, before any stylesheet:
   ```js
-  var t;try{t=localStorage.getItem('fjord-theme')}catch(e){}if(t!=='dag'&&t!=='natt')t=matchMedia('(prefers-color-scheme: dark)').matches?'natt':'dag';document.documentElement.dataset.theme=t
+  {let t;try{t=localStorage.getItem('fjord-theme')}catch(e){}if(t!=='dag'&&t!=='natt')t=matchMedia('(prefers-color-scheme: dark)').matches?'natt':'dag';document.documentElement.dataset.theme=t}
   ```
   Only the storage read sits inside `try`. Only `dag` and `natt` are accepted (AC-03); an unknown value, a missing value and a storage access that throws are all treated as "no choice", and the device preference decides. Validation and the `data-theme` write run outside the `try`, so the Visitor sees no error and the attribute is always set.
 - **Invariant** — with scripts on, `<html>` always carries `data-theme="dag"` or `data-theme="natt"` after the bootstrap. The no-JS media block below serves only the scripts-off case. Step 3 (ThemeToggle, the Dag/Natt QR swap) can therefore rely on exactly two states and never has to handle a missing attribute while scripts run.

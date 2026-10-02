@@ -21,6 +21,7 @@ function run(stored: Stored, device: 'light' | 'dark') {
   const writes: unknown[] = [];
   const dataset: Record<string, string> = {};
   const errors: unknown[] = [];
+  const context: Record<string, unknown> = {};
   const localStorage = {
     getItem(key: string) {
       if (stored === 'THROWS') throw new Error('SecurityError: storage blocked');
@@ -30,17 +31,23 @@ function run(stored: Stored, device: 'light' | 'dark') {
     removeItem: (...args: unknown[]) => writes.push(args),
   };
   try {
-    runInNewContext(source(), {
-      localStorage,
-      matchMedia: (query: string) => ({
-        matches: query === '(prefers-color-scheme: dark)' && device === 'dark',
+    runInNewContext(
+      source(),
+      Object.assign(context, {
+        localStorage,
+        matchMedia: (query: string) => ({
+          matches: query === '(prefers-color-scheme: dark)' && device === 'dark',
+        }),
+        document: { documentElement: { dataset } },
       }),
-      document: { documentElement: { dataset } },
-    });
+    );
   } catch (error) {
     errors.push(error);
   }
-  return { theme: dataset.theme, writes, errors };
+  const globals = Object.keys(context).filter(
+    (key) => !['localStorage', 'matchMedia', 'document'].includes(key),
+  );
+  return { theme: dataset.theme, writes, errors, globals };
 }
 
 describe('theme-bootstrap.js', () => {
@@ -56,7 +63,12 @@ describe('theme-bootstrap.js', () => {
   for (const device of ['light', 'dark'] as const) {
     for (const stored of ['dag', 'natt'] as const) {
       it(`honours a stored "${stored}" on a ${device} device`, () => {
-        expect(run(stored, device)).toEqual({ theme: stored, writes: [], errors: [] });
+        expect(run(stored, device)).toEqual({
+          theme: stored,
+          writes: [],
+          errors: [],
+          globals: [],
+        });
       });
     }
 
@@ -67,6 +79,7 @@ describe('theme-bootstrap.js', () => {
           theme: device === 'dark' ? 'natt' : 'dag',
           writes: [],
           errors: [],
+          globals: [],
         });
       });
     }
