@@ -115,6 +115,27 @@ test.describe('every design weight', () => {
   }
 });
 
+test.describe('Not-found faces once the brand fonts load', () => {
+  test.skip(
+    ({ browserName }) => browserName !== 'chromium',
+    'platform fonts come from Chromium CDP',
+  );
+
+  // AC-05: technical labels in JetBrains Mono, body text in Schibsted Grotesk (review S1-04).
+  // Runs in both projects, so at phone (Pixel 7) and desktop width.
+  for (const [selector, family] of [
+    ['.code', 'JetBrains Mono'],
+    ['main p', 'Schibsted Grotesk'],
+  ] as const) {
+    test(`${selector} is drawn in ${family}`, async ({ page }) => {
+      await page.goto('/does-not-exist');
+      await page.evaluate(() => document.fonts.ready);
+      const fonts = await platformFonts(page, selector);
+      expect(fonts.map((f) => [f.familyName, f.isCustomFont])).toEqual([[family, true]]);
+    });
+  }
+});
+
 test.describe('fallback face while brand fonts are blocked', () => {
   test.skip(
     !(process.env.CI && process.platform === 'linux'),
@@ -124,12 +145,16 @@ test.describe('fallback face while brand fonts are blocked', () => {
   for (const path of ['/', '/does-not-exist']) {
     test(`${path} renders the Roboto fallback face and text does not move when brand fonts swap in`, async ({
       browser,
-    }) => {
+    }, testInfo) => {
+      // AC-05 is a phone story (review S1-03): measure explicitly at 390 in the mobile project
+      // (on top of its Pixel 7 emulation) and at 1440 in the desktop project.
+      const width = testInfo.project.use.isMobile ? 390 : 1440;
       const measure = async (block: boolean) => {
-        const context = await browser.newContext();
+        const context = await browser.newContext({ viewport: { width, height: 900 } });
         const page = await context.newPage();
         if (block) await page.route('**/fonts/*.woff2', (route) => route.abort());
         await page.goto(path);
+        expect(await page.evaluate(() => window.innerWidth)).toBe(width);
         await page.evaluate(() => document.fonts.ready);
         // The text itself, not the block: a block's width is its container's whatever the font
         // (review F-10). A Range over the contents gives the run's width, its line count, and
