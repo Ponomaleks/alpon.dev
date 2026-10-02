@@ -135,7 +135,8 @@ if (import.meta.main) {
   const { failures, known, measured } = checkContrast(
     readFileSync('src/styles/tokens.css', 'utf8'),
   );
-  for (const m of measured)
+  // Failing pairs are printed below, as known failures or as errors.
+  for (const m of measured.filter((p) => p.ratio >= p.threshold))
     console.log(`${m.fg} on ${m.bg} · ${m.theme} · ${m.ratio.toFixed(2)}:1 (≥ ${m.threshold}:1)`);
   for (const k of known) console.log(k);
   if (failures.length > 0) {

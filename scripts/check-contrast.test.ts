@@ -110,5 +110,7 @@ describe('scripts/check-contrast.ts CLI', () => {
     expect(run.stdout).toMatch(
       /--fjord-color-warning on --fjord-color-warning-soft · Dag · 4\.40:1 \(needs 4\.5:1\) · known failure, fix before step 7 Callout/,
     );
+    // A failing pair is never printed as if it met its threshold.
+    expect(run.stdout).not.toMatch(/4\.40:1 \(≥/);
   });
 });
