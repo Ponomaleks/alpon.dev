@@ -106,6 +106,20 @@ gh api repos/Ponomaleks/alpon.dev/branches/v2/protection --jq '.required_status_
 gh api repos/Ponomaleks/alpon.dev/branches/main/protection --jq '.required_status_checks.checks, .enforce_admins.enabled'
 ```
 
+### Visual baselines commands
+
+The required check `visual` fails until the Linux baselines are committed. They come from the labelled PR flow in `.github/workflows/visual-baselines.yml` (review S1-07, task R21); the label is created once per repository:
+
+```sh
+gh label create visual-baselines --description "Write the Linux visual baselines on this PR"
+gh pr edit <pr> --add-label visual-baselines
+gh run list --workflow visual-baselines.yml --limit 1
+gh run download <run-id> -n visual-baselines-linux -D tests/visual/__screenshots__/linux
+gh pr edit <pr> --remove-label visual-baselines
+```
+
+Review the PNGs against the design before committing them; then `visual` must go green on the next push.
+
 ## Notes
 
 - Never apply the branch protection without the Owner's explicit confirmation in chat. The commands above go into the PR; the Owner runs them.

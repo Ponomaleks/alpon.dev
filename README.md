@@ -32,6 +32,16 @@ CI: `.github/workflows/ci.yml` на кожен PR і push у `main` / `v2` — l
 
 Основний шлях: додати до PR мітку `visual-baselines`. Workflow `.github/workflows/visual-baselines.yml` збирає сайт, пише еталони (`FJORD_VISUAL=write`) і викладає PNG як артефакт `visual-baselines-linux`; кожен новий push у PR, поки мітка є, генерує їх заново. Переглянути PNG проти дизайну, закомітити їх у `tests/visual/__screenshots__/linux/` і зняти мітку.
 
+```sh
+gh label create visual-baselines --description "Write the Linux visual baselines on this PR"
+gh pr edit <pr> --add-label visual-baselines
+gh run list --workflow visual-baselines.yml --limit 1
+gh run download <run-id> -n visual-baselines-linux -D tests/visual/__screenshots__/linux
+gh pr edit <pr> --remove-label visual-baselines
+```
+
+Мітку створюють один раз на репозиторій. `gh run download` кладе PNG прямо в `tests/visual/__screenshots__/linux/`.
+
 Запасний шлях, локально в Docker (той самий образ; анонімний том для `node_modules`, щоб не зачепити Windows-залежності):
 
 ```powershell

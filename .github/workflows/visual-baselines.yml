@@ -4,9 +4,12 @@ name: Visual baselines
 # job compares in) and uploads them as an artifact. The Owner reviews them against the design,
 # then commits them under tests/visual/__screenshots__/linux/ (fjord-foundation sad §11).
 #
-# Main path: add the `visual-baselines` label to the PR. Every push to the PR regenerates the
-# baselines while the label is on; remove it once the PNGs are committed. workflow_dispatch stays
-# for runs from the default branch.
+# Main path: add the `visual-baselines` label to the PR (create it once with
+# `gh label create visual-baselines`). Every push to the PR regenerates the baselines while the
+# label is on; download them with
+# `gh run download <run-id> -n visual-baselines-linux -D tests/visual/__screenshots__/linux`,
+# and remove the label once the PNGs are committed. workflow_dispatch stays for runs from the
+# default branch.
 
 on:
   workflow_dispatch:
@@ -16,13 +19,15 @@ on:
 permissions:
   contents: read
 
-concurrency:
-  group: visual-baselines-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   baselines:
     if: github.event_name == 'workflow_dispatch' || contains(github.event.pull_request.labels.*.name, 'visual-baselines')
+    # On the job, not the workflow (review S1-08): at workflow level, a run for any other label
+    # cancelled a running baseline job and was then skipped by `if:`. A job that `if:` skips
+    # never starts, so it is not meant to take the group from a running baseline job.
+    concurrency:
+      group: visual-baselines-${{ github.ref }}
+      cancel-in-progress: true
     runs-on: ubuntu-latest
     timeout-minutes: 20
     container:
