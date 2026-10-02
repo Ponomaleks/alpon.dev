@@ -69,7 +69,8 @@ describe('built 404.html (SCR-02)', () => {
     expect(ridge).toContain('aria-hidden="true"');
     expect(ridge).toContain('focusable="false"');
     expect(css()).toMatch(/stroke:\s*var\(--fjord-color-contour-line\)/);
-    expect(css()).not.toMatch(/@keyframes|animation/);
+    // The base.css reduced-motion guard sets animation-iteration-count; nothing animates.
+    expect(css()).not.toMatch(/@keyframes|animation(-name)?\s*:/);
   });
 
   it('draws the arrow as a hidden 1.5px currentColor line icon', () => {

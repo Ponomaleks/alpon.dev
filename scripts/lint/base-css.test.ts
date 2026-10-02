@@ -30,7 +30,7 @@ describe('src/styles/base.css', () => {
   });
 
   it('declares no animation and only token-based transitions, never under reduced motion', () => {
-    expect(css()).not.toMatch(/@keyframes|animation/);
+    expect(css()).not.toMatch(/@keyframes|animation(-name)?\s*:/);
     const sheet = parseCss(css());
     const transitions = (r: { declarations: [string, string][] }) =>
       r.declarations.some(([p]) => p.startsWith('transition'));
@@ -47,6 +47,19 @@ describe('src/styles/base.css', () => {
               .replace(/[a-z-]+|,/g, '')
               .trim(),
           ).toBe('');
+  });
+
+  it('stops looping animation and smooth scrolling under reduced motion (review F-16)', () => {
+    const reduce = parseCss(css()).media.find(
+      (m) => m.query === '@media (prefers-reduced-motion: reduce)',
+    );
+    const guard = reduce?.rules.find(
+      (r) => r.selector.replace(/\s+/g, ' ') === '*, *::before, *::after',
+    );
+    expect(Object.fromEntries(guard?.declarations ?? [])).toEqual({
+      'animation-iteration-count': '1 !important',
+      'scroll-behavior': 'auto !important',
+    });
   });
 
   it('sets border-box sizing on every element', () => {

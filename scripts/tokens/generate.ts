@@ -11,8 +11,15 @@ const NO_JS_NATT = '@media (prefers-color-scheme: dark)';
 const REDUCED_MOTION = 'prefers-reduced-motion';
 const REDUCE = '@media (prefers-reduced-motion: reduce)';
 
-/** Movement distances collapse to zero under reduced motion (rise, slide, parallax, scale). */
-const MOVEMENT = /^--fjord-[a-z0-9-]*(rise|slide|parallax|scale)[a-z0-9-]*$/;
+/** Name segments of motion.css tokens that are movement distances: they collapse to 0. */
+const DISTANCE = new Set(['rise', 'slide', 'parallax']);
+/**
+ * A motion.css token whose last segment is `scale` is a factor (the handoff writes scale(.985),
+ * scale(.94), scale(1.015)), so reduced motion resets it to 1, never to 0 (review F-15).
+ */
+const FACTOR = 'scale';
+/** A number with an optional unit: anything else cannot be reset safely, so the build fails. */
+const PLAIN_NUMBER = /^-?(?:\d+\.?\d*|\.\d+)[a-z%]*$/i;
 /** The stat count-up duration: counters show their final value under reduced motion. */
 const COUNT_UP = '--fjord-duration-1200';
 /** The one duration that survives reduced motion: opacity fades only (CLAUDE.md motion rules). */
@@ -71,8 +78,14 @@ function applyBrandPalette(root: DeclarationList, brand: Sources['brand']) {
     throw new Error(`brand vs handoff palette conflict:\n  ${conflicts.join('\n  ')}`);
 }
 
-/** `10px` → `0px`, `1200ms` → `0ms`, `0.02` → `0`: zero with the original unit. */
-const zero = (value: string) => value.replace(/^-?[\d.]+/, '0');
+/** `10px` → `0px`, `1200ms` → `0ms`: zero with the original unit. */
+function zero(property: string, value: string): string {
+  if (!PLAIN_NUMBER.test(value))
+    throw new Error(
+      `${property}: "${value}" is not a plain number, so reduced motion cannot reset it`,
+    );
+  return value.replace(/^-?[\d.]+/, '0');
+}
 
 /** The brand family first, then its fallback faces, then the generic family. */
 function fontStack(handoffStack: string, generic: string): string {
@@ -85,14 +98,21 @@ function fontStack(handoffStack: string, generic: string): string {
   return [...names.map((name) => `"${name}"`), generic].join(', ');
 }
 
-function reducedMotion(root: DeclarationList): Declaration[] {
-  const reduce: Declaration[] = root
-    .entries()
-    .filter(([property]) => MOVEMENT.test(property))
-    .map(([property, value]) => [property, zero(value)]);
+/** Reduced-motion values for the motion.css tokens: distances to 0, scale factors to 1. */
+function reducedMotion(root: DeclarationList, motionTokens: Set<string>): Declaration[] {
+  const reduce: Declaration[] = [];
+  for (const [property, value] of root.entries()) {
+    if (!motionTokens.has(property)) continue;
+    const segments = property.slice('--fjord-'.length).split('-');
+    if (segments.at(-1) === FACTOR) {
+      zero(property, value); // still a plain number, or the build fails
+      reduce.push([property, '1']);
+    } else if (segments.some((segment) => DISTANCE.has(segment)))
+      reduce.push([property, zero(property, value)]);
+  }
   const countUp = root.get(COUNT_UP);
   if (countUp === undefined) throw new Error(`${COUNT_UP} (count-up duration) is missing`);
-  return [...reduce, [COUNT_UP, zero(countUp)]];
+  return [...reduce, [COUNT_UP, zero(COUNT_UP, countUp)]];
 }
 
 function rule(selector: string, declarations: Declaration[], indent = ''): string {
@@ -103,6 +123,13 @@ function rule(selector: string, declarations: Declaration[], indent = ''): strin
 export function generateTokens(sources: Sources): string {
   const { colors, spacing, typography, motion } = sources.handoff;
   const sheets = [colors, spacing, typography, motion].map(parseCss);
+  const motionSheet = sheets[3];
+  if (!motionSheet) throw new Error('motion.css is missing');
+  const motionTokens = new Set(
+    collect([motionSheet], ':root')
+      .entries()
+      .map(([p]) => p),
+  );
 
   const root = collect(sheets, ':root');
   applyBrandPalette(root, sources.brand);
@@ -136,9 +163,9 @@ export function generateTokens(sources: Sources): string {
     ),
     `${REDUCE} {
   /* Deliberate deviation from the handoff motion.css (fjord-foundation sad §8 Motion): every
-     movement distance and the count-up duration collapse to 0; --fjord-duration-fade keeps
-     opacity fades; other durations stay as they are. */
-${rule(':root', reducedMotion(root), '  ')}
+     movement distance and the count-up duration collapse to 0, scale factors reset to 1;
+     --fjord-duration-fade keeps opacity fades; other durations stay as they are. */
+${rule(':root', reducedMotion(root, motionTokens), '  ')}
 }`,
   ].join('\n\n')}\n`;
 }

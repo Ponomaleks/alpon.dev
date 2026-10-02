@@ -137,13 +137,39 @@ describe('reduced motion (sad §8 Motion, AC-14)', () => {
     });
   });
 
-  it('collapses slide and scale distance tokens too, whichever handoff file adds them', () => {
+  /** The reduced-motion :root of the tokens generated with extra lines in a handoff file. */
+  const reduceWith = (file: 'motion' | 'typography', extra: string) => {
     const sources = real();
-    const spacing = `${sources.handoff.spacing}\n:root { --fjord-slide-x: 24px; --fjord-hover-scale: 0.02; }\n`;
-    const reduce = Object.fromEntries(
-      declarations(reduceBlock(generateTokens(withFile(sources, 'spacing', spacing)))),
+    const css = generateTokens(withFile(sources, file, `${sources.handoff[file]}\n${extra}\n`));
+    return Object.fromEntries(declarations(reduceBlock(css)));
+  };
+
+  it('collapses slide distances to 0 and resets scale factors to 1, as the handoff uses scale', () => {
+    // The handoff scales by factor (scale(.985), scale(.94), scale(1.015)), never by a delta.
+    const reduce = reduceWith(
+      'motion',
+      ':root { --fjord-slide-x: 24px; --fjord-press-scale: 0.985; }',
     );
-    expect(reduce).toMatchObject({ '--fjord-slide-x': '0px', '--fjord-hover-scale': '0' });
+    expect(reduce).toMatchObject({ '--fjord-slide-x': '0px', '--fjord-press-scale': '1' });
+  });
+
+  it('touches only motion.css tokens, so a typographic scale is left alone', () => {
+    const reduce = reduceWith('typography', ':root { --fjord-type-scale: 1.25; }');
+    expect(reduce).not.toHaveProperty('--fjord-type-scale');
+  });
+
+  it('fails loudly on a motion token that is not a plain number', () => {
+    const sources = real();
+    const motion = `${sources.handoff.motion}\n:root { --fjord-slide-x: clamp(8px, 2vw, 24px); }\n`;
+    expect(() => generateTokens(withFile(sources, 'motion', motion))).toThrow(
+      /--fjord-slide-x.*plain number/,
+    );
+  });
+
+  it('no reduced-motion token can make an element invisible (no unitless 0)', () => {
+    const reduce = reduceWith('motion', ':root { --fjord-press-scale: 0.985; }');
+    for (const [property, v] of Object.entries(reduce))
+      expect(v, `${property}: ${v}`).not.toMatch(/^-?0*\.?0+$/);
   });
 
   it('keeps a 200ms --fjord-duration-fade in both modes and leaves other durations intact', () => {
