@@ -50,7 +50,7 @@ A Norwegian recruiter can tell within 60 seconds on a phone who Alexander is and
 
 | # | Question | Type | Owner | Blocks |
 |---|---|:---:|:---:|:---:|
-| D1 | Natt reference screenshots are missing in `design/screenshots/` (only `dag_*`); provide them or accept Dag-only design comparison for visual tests | task | human | — |
+| D1 | Capture the missing Natt (and any other missing state/breakpoint) reference screenshots from `design/handoff/site/alpon.dev standalone.html` into `design/screenshots/`, done with the visual tests in Fjord foundation | task | agent | — |
 | D2 | How cookieless Cloudflare Web Analytics is enabled (dashboard toggle vs. beacon script) and what that means for the CSP in `public/_headers` | research | agent | 6 |
 | D3 | What "craft proof" means on the alpon.dev case study and how its numbers are kept true | grilling | human | 9 |
 | D4 | Which external projects are ready to be case studies #2 and onward | grilling | human | 10 |
