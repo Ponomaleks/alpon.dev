@@ -76,6 +76,49 @@ describe('applyCsp', () => {
     expect(() => run([page(body, '404.html')])).toThrow(reason);
   });
 
+  // Review 2026-10-02 F-06: attribute look-alikes and a '>' in a value must not hide anything.
+  it.each([
+    ['data-src= on an inline script', '<script data-src="x">alert(1)</script>', /inline script/],
+    [
+      'data-type="application/ld+json" on an inline script',
+      '<script data-type="application/ld+json">alert(1)</script>',
+      /inline script/,
+    ],
+    [
+      "a '>' in an attribute value before onclick=",
+      '<a title="a>b" onclick="x()">x</a>',
+      /onclick handler/,
+    ],
+    [
+      "a '>' in an attribute value before style=",
+      '<div data-x="1>0" style="color:red">x</div>',
+      /style attribute/,
+    ],
+    [
+      'a handler inside <template>',
+      '<template><b onmouseover="x()">x</b></template>',
+      /onmouseover/,
+    ],
+  ])('fails on %s, naming the page', (_, body, reason) => {
+    expect(() => run([page(body, '404.html')])).toThrow(/404\.html/);
+    expect(() => run([page(body, '404.html')])).toThrow(reason);
+  });
+
+  // Review 2026-10-02 F-17: browsers hash an inline script after turning CRLF into LF.
+  it('hashes a CRLF bootstrap source as the LF text the browser hashes', () => {
+    const lf = 'var t;\ndocument.documentElement.dataset.theme = t;';
+    const crlf = lf.replace(/\n/g, '\r\n');
+    const out = run([{ name: 'index.html', html: `<script>${lf}</script>` }], HEADERS, crlf);
+    expect(out).toContain(hash(lf));
+  });
+
+  it('accepts a bootstrap copy that reached the page with CRLF line endings', () => {
+    const lf = 'var t;\ndocument.documentElement.dataset.theme = t;';
+    const page = `<script>${lf.replace(/\n/g, '\r\n')}</script>`;
+    const out = run([{ name: 'index.html', html: page }], HEADERS, lf);
+    expect(out).toContain(hash(lf));
+  });
+
   it('does not mistake text that mentions style= or onclick= for attributes', () => {
     expect(() => run([page('<p>Set style="x" or onclick="y" in prose.</p>')])).not.toThrow();
   });

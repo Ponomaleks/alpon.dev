@@ -3,7 +3,8 @@
 // theme bootstrap → two font preloads → stylesheets (tokens → fonts → base) → title,
 // description, robots, icons. A page passes only a title and a description (AC-13).
 import stylesheet from '../styles/global.css?url';
-import themeBootstrap from '../scripts/theme-bootstrap.js?raw';
+import themeBootstrapSource from '../scripts/theme-bootstrap.js?raw';
+import { normaliseNewlines } from '../scripts/newlines.ts';
 
 interface Props {
   title: string;
@@ -13,6 +14,8 @@ interface Props {
 }
 
 const { title, description, lang = 'en', noindex = false } = Astro.props;
+// The same LF text the CSP integration hashes (ADR-0002).
+const themeBootstrap = normaliseNewlines(themeBootstrapSource);
 ---
 
 <!doctype html>

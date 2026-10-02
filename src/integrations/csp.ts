@@ -7,13 +7,16 @@
 //   2. a page has an inline <style>, a style="…" attribute or an on*="…" handler attribute;
 //   3. the hash placeholder is missing from the policy line, or left anywhere after substitution;
 //   4. dist/_headers has more than one Content-Security-Policy line (or none).
-// It also refuses a policy that grants 'unsafe-inline' or 'unsafe-eval'.
+// It also refuses a policy that grants 'unsafe-inline' or 'unsafe-eval'. Pages are parsed with
+// parse5 (the WHATWG HTML parser), never scanned with regexes (review 2026-10-02 F-06).
 
 import { createHash } from 'node:crypto';
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { AstroIntegration } from 'astro';
+import { html, parse, type DefaultTreeAdapterMap } from 'parse5';
+import { normaliseNewlines } from '../scripts/newlines.ts';
 
 export const HASH_PLACEHOLDER = '{{THEME_BOOTSTRAP_HASH}}';
 const BOOTSTRAP_SOURCE = 'src/scripts/theme-bootstrap.js';
@@ -35,40 +38,58 @@ export class CspError extends Error {
 const sha256 = (source: string) =>
   `'sha256-${createHash('sha256').update(source, 'utf8').digest('base64')}'`;
 
-const SCRIPT = /<script\b([^>]*)>([\s\S]*?)<\/script\s*>/gi;
-const typeOf = (attrs: string) =>
-  attrs
-    .match(/\btype\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/i)
-    ?.slice(1)
-    .find((v) => v !== undefined);
-const hasSrc = (attrs: string) => /\bsrc\s*=/i.test(attrs);
+type Node = DefaultTreeAdapterMap['node'];
+type Element = DefaultTreeAdapterMap['element'];
 
-function auditPage({ name, html }: BuiltPage, bootstrapHash: string): string[] {
+const isElement = (node: Node): node is Element => 'tagName' in node;
+const attr = (element: Element, name: string) =>
+  element.attrs.find((a) => a.name === name && !a.prefix)?.value;
+
+/** Every element of the page, including template contents, in document order. */
+function* elements(node: Node): Generator<Element> {
+  if (isElement(node)) yield node;
+  const content = 'content' in node ? node.content.childNodes : [];
+  for (const child of [...content, ...('childNodes' in node ? node.childNodes : [])])
+    yield* elements(child);
+}
+
+const text = (element: Element) =>
+  element.childNodes.map((child) => ('value' in child ? child.value : '')).join('');
+
+/** An external script: `src` on HTML, `href` / `xlink:href` on SVG. */
+const isExternal = (script: Element) =>
+  script.attrs.some(
+    (a) => a.name === 'src' || (script.namespaceURI === html.NS.SVG && a.name === 'href'),
+  );
+
+function auditPage({ name, html: source }: BuiltPage, bootstrapHash: string): string[] {
   const problems: string[] = [];
   let bootstrapCopies = 0;
+  // Parsed as the browser parses it (WHATWG algorithm): attribute names are exact, quoted values
+  // may hold '>', and CRLF in script text is already LF. Scripting off, so <noscript> content
+  // is audited as markup too.
+  const document = parse(source, { scriptingEnabled: false });
 
-  for (const [, attrs = '', body = ''] of html.matchAll(SCRIPT)) {
-    if (hasSrc(attrs)) continue;
-    if (typeOf(attrs)?.trim().toLowerCase() === 'application/ld+json') continue;
-    if (sha256(body) === bootstrapHash && bootstrapCopies++ === 0) continue;
-    const kind =
-      sha256(body) === bootstrapHash
-        ? 'a second copy of the bootstrap'
-        : `"${body.trim().slice(0, 40)}"`;
-    problems.push(
-      `${name}: inline script (type ${typeOf(attrs) ?? 'none'}) that is not the bootstrap: ${kind}`,
-    );
-  }
-
-  // Script bodies are text, not markup; drop them before scanning tags.
-  const markup = html.replace(SCRIPT, (_, attrs: string) => `<script${attrs}></script>`);
-  if (/<style\b/i.test(markup)) problems.push(`${name}: inline <style> element`);
-  for (const [tag] of markup.matchAll(/<[a-z][^\s/>]*(?:\s[^>]*)?>/gi)) {
-    const attributes = tag.replace(/"[^"]*"|'[^']*'/g, '""');
-    if (/\sstyle\s*=/i.test(attributes))
+  for (const element of elements(document)) {
+    const tag = `<${element.tagName}${element.attrs.map((a) => ` ${a.name}="${a.value}"`).join('')}>`;
+    if (element.tagName === 'script' && !isExternal(element)) {
+      const type = attr(element, 'type');
+      if (type?.trim().toLowerCase() === 'application/ld+json') continue;
+      const body = text(element);
+      if (sha256(body) === bootstrapHash && bootstrapCopies++ === 0) continue;
+      const kind =
+        sha256(body) === bootstrapHash
+          ? 'a second copy of the bootstrap'
+          : `"${body.trim().slice(0, 40)}"`;
+      problems.push(
+        `${name}: inline script (type ${type ?? 'none'}) that is not the bootstrap: ${kind}`,
+      );
+    }
+    if (element.tagName === 'style') problems.push(`${name}: inline <style> element`);
+    if (element.attrs.some((a) => a.name === 'style'))
       problems.push(`${name}: style attribute in ${tag.slice(0, 60)}`);
-    const handler = attributes.match(/\s(on[a-z]+)\s*=/i)?.[1];
-    if (handler) problems.push(`${name}: ${handler} handler attribute in ${tag.slice(0, 60)}`);
+    for (const handler of element.attrs.filter((a) => /^on/i.test(a.name)))
+      problems.push(`${name}: ${handler.name} handler attribute in ${tag.slice(0, 60)}`);
   }
   return problems;
 }
@@ -79,7 +100,7 @@ export function applyCsp(input: {
   headers: string;
   bootstrap: string;
 }): string {
-  const bootstrapHash = sha256(input.bootstrap);
+  const bootstrapHash = sha256(normaliseNewlines(input.bootstrap));
   const problems = input.pages.flatMap((page) => auditPage(page, bootstrapHash));
 
   const policies = input.headers.match(CSP_LINE) ?? [];
@@ -122,7 +143,7 @@ export default function csp(): AstroIntegration {
       'astro:build:done': ({ dir, logger }) => {
         const out = fileURLToPath(dir);
         const headersPath = join(out, '_headers');
-        const bootstrap = readFileSync(join(root, BOOTSTRAP_SOURCE), 'utf8');
+        const bootstrap = normaliseNewlines(readFileSync(join(root, BOOTSTRAP_SOURCE), 'utf8'));
         const pages = htmlFiles(out).map((file) => ({
           name: relative(out, file).split(sep).join('/'),
           html: readFileSync(file, 'utf8'),
