@@ -15,3 +15,4 @@ README.md
 .claude/
 CONTEXT.md
 src/styles/tokens.css
+src/scripts/theme-bootstrap.js

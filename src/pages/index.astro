@@ -1,4 +1,6 @@
 ---
+// SCR-01 home placeholder (fjord-foundation screens.md) until step 4: proves that a page with
+// only a title and a description gets the whole Fjord base (AC-13).
 import BaseLayout from '../layouts/BaseLayout.astro';
 ---
 
@@ -6,8 +8,25 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   title="Alexander Ponomarenko · Software Engineer"
   description="Alexander Ponomarenko, Software Engineer and Full Stack Developer based in Oslo, Norway."
 >
-  <main>
+  <main class="home">
     <h1>Alexander Ponomarenko</h1>
     <p>Software Engineer · Full Stack Developer · Oslo, Norge</p>
   </main>
 </BaseLayout>
+
+<style>
+  .home {
+    max-width: var(--fjord-content-max);
+    padding: var(--fjord-space-section) var(--fjord-grid-margin);
+  }
+
+  h1 {
+    font-size: var(--fjord-text-h1);
+  }
+
+  p {
+    margin: var(--fjord-space-3) 0 0;
+    color: var(--fjord-color-text-muted);
+    font-size: var(--fjord-text-lead);
+  }
+</style>

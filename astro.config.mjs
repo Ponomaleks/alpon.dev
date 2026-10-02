@@ -10,5 +10,9 @@ export default defineConfig({
   trailingSlash: 'never',
   build: {
     format: 'file',
+    // Never inline CSS into <style>: the CSP allows only style-src 'self' (ADR-0002).
+    inlineStylesheets: 'never',
   },
+  // Never inline assets as data: URLs either (the global stylesheet is linked by ?url).
+  vite: { build: { assetsInlineLimit: 0 } },
 });

@@ -1,4 +1,10 @@
 ---
+// The shared layout and its head contract (fjord-foundation sad §8): charset → viewport →
+// theme bootstrap → two font preloads → stylesheets (tokens → fonts → base) → title,
+// description, robots, icons. A page passes only a title and a description (AC-13).
+import stylesheet from '../styles/global.css?url';
+import themeBootstrap from '../scripts/theme-bootstrap.js?raw';
+
 interface Props {
   title: string;
   description: string;
@@ -14,6 +20,22 @@ const { title, description, lang = 'en', noindex = false } = Astro.props;
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <script is:inline set:html={themeBootstrap} />
+    <link
+      rel="preload"
+      href="/fonts/schibsted-grotesk-400.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/fonts/schibsted-grotesk-600.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link rel="stylesheet" href={stylesheet} />
     <title>{title}</title>
     <meta name="description" content={description} />
     {noindex && <meta name="robots" content="noindex" />}
