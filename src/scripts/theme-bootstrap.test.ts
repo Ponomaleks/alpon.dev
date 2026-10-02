@@ -1,10 +1,12 @@
 import { readFileSync, statSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { runInNewContext } from 'node:vm';
+import { createContext, runInContext } from 'node:vm';
 import { describe, expect, it } from 'vitest';
 
 // ADR-0001 bootstrap, run as raw text in an isolated context with stubbed storage, media
-// query and root element (AC-02, AC-03; test plan unit rows).
+// query and root element (AC-02, AC-03; test plan unit rows). A top-level `let`/`const` is
+// not a property of the context object, so leaks are also probed with `typeof` inside the
+// context and by running the snippet a second time there (a redeclaration throws).
 
 const path = fileURLToPath(new URL('./theme-bootstrap.js', import.meta.url));
 const adr = fileURLToPath(
@@ -17,7 +19,7 @@ const source = () => readFileSync(path, 'utf8');
 
 type Stored = string | null | 'THROWS';
 
-function run(stored: Stored, device: 'light' | 'dark') {
+function run(stored: Stored, device: 'light' | 'dark', code = source()) {
   const writes: unknown[] = [];
   const dataset: Record<string, string> = {};
   const errors: unknown[] = [];
@@ -30,23 +32,26 @@ function run(stored: Stored, device: 'light' | 'dark') {
     setItem: (...args: unknown[]) => writes.push(args),
     removeItem: (...args: unknown[]) => writes.push(args),
   };
-  try {
-    runInNewContext(
-      source(),
-      Object.assign(context, {
-        localStorage,
-        matchMedia: (query: string) => ({
-          matches: query === '(prefers-color-scheme: dark)' && device === 'dark',
-        }),
-        document: { documentElement: { dataset } },
+  const ctx = createContext(
+    Object.assign(context, {
+      localStorage,
+      matchMedia: (query: string) => ({
+        matches: query === '(prefers-color-scheme: dark)' && device === 'dark',
       }),
-    );
-  } catch (error) {
-    errors.push(error);
+      document: { documentElement: { dataset } },
+    }),
+  );
+  for (let pass = 0; pass < 2; pass += 1) {
+    try {
+      runInContext(code, ctx);
+    } catch (error) {
+      errors.push(error);
+    }
   }
   const globals = Object.keys(context).filter(
     (key) => !['localStorage', 'matchMedia', 'document'].includes(key),
   );
+  if (runInContext('typeof t', ctx) !== 'undefined') globals.push('t');
   return { theme: dataset.theme, writes, errors, globals };
 }
 
@@ -84,4 +89,14 @@ describe('theme-bootstrap.js', () => {
       });
     }
   }
+
+  it('reports a leak when the snippet is not wrapped in a block (negative control)', () => {
+    const unwrapped = source().replace(/^\{([\s\S]*)\}$/, '$1');
+    expect(unwrapped.startsWith('let t;')).toBe(true);
+    const leaky = run('dag', 'light', unwrapped);
+    expect(leaky.globals).toEqual(['t']);
+    expect(leaky.errors).toEqual([
+      expect.objectContaining({ name: 'SyntaxError', message: expect.stringMatching(/'t'/) }),
+    ]);
+  });
 });
