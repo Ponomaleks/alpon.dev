@@ -1,4 +1,5 @@
 import { expect, test, type Browser, type Page } from '@playwright/test';
+import { platformFonts } from './platform-fonts.ts';
 
 // Brand fonts (AC-05, AC-06, AC-15; sad QG-2): two critical preloads, other weights only when
 // used, every design weight from its own file with æ ø å, and a metric-matched fallback.
@@ -25,18 +26,6 @@ function trackFonts(page: Page): string[] {
     if (pathname.endsWith('.woff2')) requested.push(pathname);
   });
   return requested;
-}
-
-/** The platform font Chromium actually draws a node's text with. */
-async function platformFonts(page: Page, selector: string) {
-  const cdp = await page.context().newCDPSession(page);
-  await cdp.send('DOM.enable');
-  await cdp.send('CSS.enable');
-  const { root } = await cdp.send('DOM.getDocument');
-  const { nodeId } = await cdp.send('DOM.querySelector', { nodeId: root.nodeId, selector });
-  const { fonts } = await cdp.send('CSS.getPlatformFontsForNode', { nodeId });
-  await cdp.detach();
-  return fonts;
 }
 
 for (const path of ['/', '/does-not-exist']) {
@@ -142,28 +131,48 @@ test.describe('fallback face while brand fonts are blocked', () => {
         if (block) await page.route('**/fonts/*.woff2', (route) => route.abort());
         await page.goto(path);
         await page.evaluate(() => document.fonts.ready);
-        const boxes = await page.evaluate(() =>
+        // The text itself, not the block: a block's width is its container's whatever the font
+        // (review F-10). A Range over the contents gives the run's width, its line count, and
+        // where the glyph content area sits in the block (ascent / descent overrides).
+        const runs = await page.evaluate(() =>
           ['h1', 'main p'].map((selector) => {
-            const r = document.querySelector(selector)?.getBoundingClientRect();
-            return { selector, width: r?.width ?? 0, height: r?.height ?? 0 };
+            const element = document.querySelector(selector);
+            if (!element) return { selector, lines: 0, width: 0, height: 0, top: 0 };
+            const range = document.createRange();
+            range.selectNodeContents(element);
+            const text = range.getBoundingClientRect();
+            const lines = new Set([...range.getClientRects()].map((r) => Math.round(r.bottom)));
+            return {
+              selector,
+              lines: lines.size,
+              width: text.width,
+              height: text.height,
+              top: text.top - element.getBoundingClientRect().top,
+            };
           }),
         );
         const fonts = block ? await platformFonts(page, 'h1') : [];
         await context.close();
-        return { boxes, fonts };
+        return { runs, fonts };
       };
       const fallback = await measure(true);
       const brand = await measure(false);
       expect(fallback.fonts.map((f) => f.familyName)).toEqual(['Roboto']);
-      for (const [i, box] of brand.boxes.entries()) {
-        const other = fallback.boxes[i];
-        for (const dimension of ['width', 'height'] as const) {
-          const delta = Math.abs(box[dimension] - (other?.[dimension] ?? 0));
+      // AC-05 test plan: vertical metrics (what moves later boxes) within 1 px, the same line
+      // count, and run width within 5 %: size-adjust can only match the average glyph width.
+      for (const [i, run] of brand.runs.entries()) {
+        const other = fallback.runs[i];
+        const seen = `brand ${JSON.stringify(run)} vs fallback ${JSON.stringify(other)}`;
+        expect(other?.lines, `${run.selector} line count: ${seen}`).toBe(run.lines);
+        for (const dimension of ['height', 'top'] as const)
           expect(
-            delta <= 1 || delta <= box[dimension] * 0.01,
-            `${box.selector} ${dimension}: brand ${box[dimension]} vs fallback ${other?.[dimension]}`,
-          ).toBe(true);
-        }
+            Math.abs(run[dimension] - (other?.[dimension] ?? 0)),
+            `${run.selector} text ${dimension}: ${seen}`,
+          ).toBeLessThanOrEqual(1);
+        expect(
+          Math.abs(run.width - (other?.width ?? 0)),
+          `${run.selector} text width: ${seen}`,
+        ).toBeLessThanOrEqual(run.width * 0.05);
       }
     });
   }

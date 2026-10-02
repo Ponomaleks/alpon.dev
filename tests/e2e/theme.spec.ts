@@ -1,4 +1,5 @@
 import { expect, test, type BrowserContext, type Page } from '@playwright/test';
+import { platformFonts } from './platform-fonts.ts';
 
 // Theme from the first frame (AC-01..AC-04, sad QG-1): stored Theme choice × device preference,
 // unusable stored values, blocked storage and scripts off, on SCR-01 and SCR-02.
@@ -131,6 +132,11 @@ for (const path of PAGES) {
           });
           expect(result.font).toMatch(/^"Schibsted Grotesk"/);
           await expect(page.locator('h1')).toBeVisible();
+          // The face actually drawn, not just the declared stack (review F-05).
+          await page.evaluate(() => document.fonts.ready);
+          expect(await platformFonts(page, 'h1')).toEqual([
+            expect.objectContaining({ familyName: 'Schibsted Grotesk', isCustomFont: true }),
+          ]);
         });
       });
     }
