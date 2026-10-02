@@ -29,9 +29,16 @@ describe('src/styles/base.css', () => {
     expect(results[0]?.warnings).toEqual([]);
   });
 
-  it('declares no animation and only token-based transitions', () => {
+  it('declares no animation and only token-based transitions, never under reduced motion', () => {
     expect(css()).not.toMatch(/@keyframes|animation/);
-    for (const rule of rules())
+    const sheet = parseCss(css());
+    const transitions = (r: { declarations: [string, string][] }) =>
+      r.declarations.some(([p]) => p.startsWith('transition'));
+    expect(sheet.rules.filter(transitions)).toEqual([]);
+    for (const media of sheet.media)
+      if (media.rules.some(transitions))
+        expect(media.query).toBe('@media (prefers-reduced-motion: no-preference)');
+    for (const rule of [...sheet.rules, ...sheet.media.flatMap((m) => m.rules)])
       for (const [property, value] of rule.declarations)
         if (property.startsWith('transition'))
           expect(

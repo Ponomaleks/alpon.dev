@@ -117,5 +117,11 @@ test.describe('404', () => {
     expect(response.status()).toBe(404);
   });
 
-  test.fixme('P-41 404 page shows "404 · Ikke funnet", noindex, link to /', async () => {});
+  test('P-41 404 page shows "404 · Ikke funnet", noindex, link to /', async ({ page }) => {
+    const response = await page.goto('/this-path-does-not-exist');
+    expect(response?.status()).toBe(404);
+    await expect(page.getByText('404 · Ikke funnet')).toBeVisible();
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex');
+    await expect(page.getByRole('link', { name: 'Back to home' })).toHaveAttribute('href', '/');
+  });
 });

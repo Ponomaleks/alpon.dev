@@ -49,13 +49,20 @@ a {
   color: var(--fjord-color-link);
   text-decoration-thickness: var(--fjord-border-width);
   text-underline-offset: var(--fjord-space-1);
-  transition-property: color;
-  transition-duration: var(--fjord-duration-200);
-  transition-timing-function: var(--fjord-ease-out);
 }
 
 a:hover {
   color: var(--fjord-color-link-hover);
+}
+
+/* Reduced motion = fades only (CLAUDE.md): color transitions only for visitors who did not ask
+   for reduced motion (AC-14). */
+@media (prefers-reduced-motion: no-preference) {
+  a {
+    transition-property: color;
+    transition-duration: var(--fjord-duration-200);
+    transition-timing-function: var(--fjord-ease-out);
+  }
 }
 
 :focus-visible {
