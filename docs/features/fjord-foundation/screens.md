@@ -1,7 +1,7 @@
 ---
 status: draft            # draft | approved
 feature_size: "S"
-tool: "code"             # docs/design-system.md absent → code mode (see §Source)
+tool: "code"             # copied from docs/design-system.md
 updated_at: "2026-10-02"
 ---
 
@@ -14,10 +14,10 @@ updated_at: "2026-10-02"
 
 ## Source
 
-- **Tool:** code. `docs/design-system.md` does not exist yet, so there is no canon `tool` and no component inventory. This is the default, not a fallback from a broken MCP. Run `/sdd:design-system` before step 3.
+- **Tool:** code (from `docs/design-system.md`).
 - **File:** inline wireframes below.
 - **Visual reference (read-only, for review):** `design/handoff/design-system/project/components/feedback/NotFound.jsx` + `feedback.css` (`.fj-404*`), `components/brand/Contours.jsx` (`ridge`), `components/actions/actions.css` (`.fj-btn--primary`), `design/handoff/site/project/site/Misc.jsx` (not-found screen), and `design/handoff/site/alpon.dev standalone.html` for the Natt variants.
-- **Inventory gap:** there is no design-system inventory to pick components from. Each building piece is either an existing repo file (`BaseLayout.astro`) or a page-local piece listed in §New components. Step 3 later lifts the page-local pieces into `components/ui/Button` and `components/brand/Contours`.
+- **Inventory:** `docs/design-system.md` §Component inventory. Only `BaseLayout` is built in the repo; the page-local pieces below are registered there as pending, and step 3 promotes them to `components/ui/Button` and `components/brand/Contours`.
 
 ### Cross-screen states (apply to SCR-01 and SCR-02 alike)
 
@@ -132,11 +132,11 @@ SCR-02 default — 1440 (834 is the same structure with narrower gutters)
 
 ## New components
 
-None of these are registered components yet. They are **page-local** pieces in `src/pages/404.astro` (and its page stylesheet). There's no design-system inventory to register them in until `/sdd:design-system` runs. Step 3 promotes them.
+These are **page-local** pieces in `src/pages/404.astro` (and its page stylesheet), registered as pending in `docs/design-system.md`. Step 3 promotes them.
 
 | Component | Why no existing primitive fits | Registered in design-system |
 |---|---|---|
-| NEW: home-link (page-local primary link + arrow) | The repo has no Button yet; `components/ui/Button` is a step-3 base component (spec §3). It uses the design Button's token names so step 3 can swap it in without changing the baseline. | pending: step 3 promotes it to `components/ui/Button` |
-| NEW: ridge-contours (page-local static inline SVG) | The repo has no brand components yet; `components/brand/Contours` is step 3. It is static (no parallax or drift) so this feature has no motion. | pending: step 3 promotes it to `components/brand/Contours` with the same markup |
+| NEW: home-link (page-local primary link + arrow) | The repo has no Button yet; `components/ui/Button` is a step-3 base component (spec §3). It uses the design Button's token names so step 3 can swap it in without changing the baseline. | pending (listed in docs/design-system.md): step 3 promotes it to `components/ui/Button` |
+| NEW: ridge-contours (page-local static inline SVG) | The repo has no brand components yet; `components/brand/Contours` is step 3. It is static (no parallax or drift) so this feature has no motion. | pending (listed in docs/design-system.md): step 3 promotes it to `components/brand/Contours` with the same markup |
 
 `BaseLayout` already exists (`src/layouts/BaseLayout.astro`). This feature extends its head contract (sad.md §8) but adds no new component.
