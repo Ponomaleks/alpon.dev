@@ -44,6 +44,24 @@ jobs:
       - name: Test (Playwright e2e + axe)
         run: npm run test
 
+      # Visual baselines are Linux-only (fjord-foundation sad §11). While none are committed, write
+      # them here and upload them for review; once committed, the Test step compares against them.
+      - name: Visual baselines (written only while none are committed)
+        id: baselines
+        if: hashFiles('tests/visual/__screenshots__/linux/**') == ''
+        continue-on-error: true
+        env:
+          FJORD_VISUAL_BASELINES: write
+        run: npx playwright test tests/visual --project desktop --update-snapshots=missing
+
+      - name: Upload visual baselines
+        if: steps.baselines.outcome != 'skipped'
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-baselines-linux
+          path: tests/visual/__screenshots__/linux/
+          retention-days: 14
+
       - name: Upload Playwright report
         if: failure()
         uses: actions/upload-artifact@v4
