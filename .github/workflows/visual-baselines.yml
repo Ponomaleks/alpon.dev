@@ -8,7 +8,8 @@ name: Visual baselines
 # `gh label create visual-baselines`). Every push to the PR regenerates the baselines while the
 # label is on; download them with
 # `gh run download <run-id> -n visual-baselines-linux -D tests/visual/__screenshots__/linux`,
-# and remove the label once the PNGs are committed. workflow_dispatch stays for runs from the
+# then remove the label before committing and pushing the PNGs (a push while the label is on
+# starts another baselines run). workflow_dispatch stays for runs from the
 # default branch.
 
 on:

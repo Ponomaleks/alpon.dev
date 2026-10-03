@@ -97,7 +97,7 @@ gh api -X PUT repos/Ponomaleks/alpon.dev/branches/main/protection \
 JSON
 ```
 
-**Option 2: apply at Release 1.** Run the `v2` command above with `branches/main` in the URL, as a step of the Release 1 merge (v2 into `main`, once no `test.fixme` is left), right after the merge so `main` already carries `ci.yml`. Until then `main` stays unprotected.
+**Option 2: apply at Release 1.** _Chosen by the Owner (2026-10-03); tracked in [roadmap step 6](../../../roadmap.md)._ Run the `v2` command above with `branches/main` in the URL, as a step of the Release 1 merge (v2 into `main`, once no `test.fixme` is left), right after the merge so `main` already carries `ci.yml`. Until then `main` stays unprotected.
 
 ### Verify
 
@@ -115,10 +115,10 @@ gh label create visual-baselines --description "Write the Linux visual baselines
 gh pr edit <pr> --add-label visual-baselines
 gh run list --workflow visual-baselines.yml --limit 1
 gh run download <run-id> -n visual-baselines-linux -D tests/visual/__screenshots__/linux
-gh pr edit <pr> --remove-label visual-baselines
+gh pr edit <pr> --remove-label visual-baselines   # before committing and pushing the PNGs
 ```
 
-Review the PNGs against the design before committing them; then `visual` must go green on the next push.
+Review the PNGs against the design, remove the label, then commit and push them: a push while the label is on starts another baselines run. `visual` must go green on that push.
 
 ## Notes
 

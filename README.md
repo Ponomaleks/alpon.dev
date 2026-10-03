@@ -30,14 +30,14 @@ CI: `.github/workflows/ci.yml` на кожен PR і push у `main` / `v2` — l
 
 Візуальні тести (`tests/visual/`) порівнюють сторінку з Linux-еталонами в `tests/visual/__screenshots__/linux/`, знятими в офіційному образі Playwright (`mcr.microsoft.com/playwright:v1.63.0-noble`, версія = `@playwright/test`). Без еталона job `visual` у CI падає.
 
-Основний шлях: додати до PR мітку `visual-baselines`. Workflow `.github/workflows/visual-baselines.yml` збирає сайт, пише еталони (`FJORD_VISUAL=write`) і викладає PNG як артефакт `visual-baselines-linux`; кожен новий push у PR, поки мітка є, генерує їх заново. Переглянути PNG проти дизайну, закомітити їх у `tests/visual/__screenshots__/linux/` і зняти мітку.
+Основний шлях: додати до PR мітку `visual-baselines`. Workflow `.github/workflows/visual-baselines.yml` збирає сайт, пише еталони (`FJORD_VISUAL=write`) і викладає PNG як артефакт `visual-baselines-linux`; кожен новий push у PR, поки мітка є, генерує їх заново. Переглянути PNG проти дизайну, зняти мітку і лише тоді закомітити їх у `tests/visual/__screenshots__/linux/` та запушити: інакше push з еталонами ще раз запустить baselines.
 
 ```sh
 gh label create visual-baselines --description "Write the Linux visual baselines on this PR"
 gh pr edit <pr> --add-label visual-baselines
 gh run list --workflow visual-baselines.yml --limit 1
 gh run download <run-id> -n visual-baselines-linux -D tests/visual/__screenshots__/linux
-gh pr edit <pr> --remove-label visual-baselines
+gh pr edit <pr> --remove-label visual-baselines   # до коміту й push еталонів
 ```
 
 Мітку створюють один раз на репозиторій. `gh run download` кладе PNG прямо в `tests/visual/__screenshots__/linux/`.
