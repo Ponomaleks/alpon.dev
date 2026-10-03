@@ -24,7 +24,7 @@ Traceability:
 - Roadmap D1: the missing Natt reference screenshots are captured from `design/handoff/site/alpon.dev standalone.html` together with this feature's visual tests.
 - `docs/reference/01-foundations.md` §9 asked to fail the build on long and en dashes; `CLAUDE.md` now allows them, so that check is not carried over (CLAUDE.md and SDD artifacts win over early drafts).
 - The design's not-found screen offers "See projects" as a second action. Per the roadmap decision "Projects never go public empty", that action appears only once a Published project exists; step 7 owns the positive case.
-- The design's not-found code line reads "404 · <requested path>". This feature shows "404 · Ikke funnet" instead (P-41, Norwegian warm detail) and does not echo the requested address back, which keeps the page free of scripts. Listed as a design difference in the PR.
+- The component demo's not-found code line reads "404 · <requested path>"; the page design reads "404 / Ikke funnet". This feature shows "404 · Ikke funnet" (P-41, Norwegian warm detail) and does not echo the requested address back, which keeps the page free of scripts. Interim 404, see §8 OQ-02; rebuilt in step 3 per Misc.jsx. Listed as a design difference in the PR.
 - Fonts: `BRAND.md` lists JetBrains Mono 400/500; `CLAUDE.md` requires 400/500/700 because the design system uses 700. Shipping 700 adds a weight the design uses and does not break any brand rule; noted in the PR.
 
 ## 2. Goals
@@ -220,8 +220,14 @@ Traceability:
   2. Layout: the design has two columns (text left, map right); the page has one column with the ridge as a background.
   3. Heading: the design says "This page is off the map."; the page says "Page not found".
   4. Code line separator: the design says "404 / Ikke funnet"; the page says "404 · Ikke funnet".
+  5. Body copy: the design body starts "The link may be old, or the page has moved." ("This page is off the map." is the heading); the page body (`src/pages/404.astro:38`) starts "This page is off the map. The link may be old, …".
+  6. Title scale: the design uses `--fjord-text-h1`, semibold, `--fjord-tracking-heading`, `--fjord-leading-heading` and `text-wrap: balance` (site `_ds` `feedback.css:44`); the page uses `--fjord-text-display` with display tracking and leading (`404.astro:116-120`).
+  7. Sticky action bar at 390: the design shows "View CV / Get in touch" on every page except the CV (`site/App.jsx:127`, `dag_not_found_390.png`); the page has none. Roadmap step 3 builds it as part of MobileBar.
+  8. Code line colour: the design colours "404" with the link colour (`.fj-eyebrow b`, site `_ds` `content.css:4`) and the rest of the line muted; the page colours the whole line muted (`404.astro:107-114`).
+  9. Spacing and alignment: the design has a text gap of `--fjord-space-5`, section padding `--fjord-space-404` top and `--fjord-space-section` bottom, and `align-items: center` (site `_ds` `feedback.css:41-43`); the page has a gap of `--fjord-space-4`, padding `--fjord-space-12` and the content at the bottom of the section (`404.astro:72-80`). `--fjord-space-404` and `--fjord-space-5` are not in `src/styles/tokens.css`; step 3 adds what it needs.
+  10. Button size: the design "Back to home" is the default `.fj-btn` (padding `0 --fjord-space-5`, gap `--fjord-space-3`, `--fjord-text-ui`, site `_ds` `actions.css:2`), about 170 px wide at 1440 in the screenshots; the page `.home-link` (`404.astro:138-154`) has padding `0 --fjord-space-4`, gap `--fjord-space-2` and `--fjord-text-body-sm`, about 155 px. The CSS values are confirmed in the site `_ds`; the pixel widths are to confirm against the page design in the built page.
 
-  Intentional and already documented (§1 Traceability, `screens.md`): the requested path is not echoed (the design's "Nothing lives at /path" is omitted), no "See projects" until step 7, no Header or Footer until step 3. Decision: do not rebuild in this feature. Items 1–4 go to the PR's design-deviation list, and roadmap step 3 rebuilds the page per the site design and re-baselines the 404 visuals. AC-07's wording ("Page not found", "404 · Ikke funnet") and P-41 are updated by the step 3 spec. Owner: Alexander Ponomarenko. Due: step 3 (Base components).
+  Intentional and already documented (§1 Traceability, `screens.md`): the requested path is not echoed (the design's "Nothing lives at /path" is omitted), no "See projects" until step 7, no Header, Footer or sticky action bar (the design's "View CV / Get in touch" at 390) until step 3. Decision: do not rebuild in this feature. Items 1–10 go to the PR's design-deviation list, and roadmap step 3 rebuilds the page per the site design and re-baselines the 404 visuals. AC-07's wording ("Page not found", "404 · Ikke funnet") and P-41 are updated by the step 3 spec. Owner: Alexander Ponomarenko. Due: step 3 (Base components).
 
 ## Test plan
 

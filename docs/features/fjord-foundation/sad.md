@@ -449,7 +449,7 @@ Each top-3 goal from §1 expanded into scenarios. Numbers are quoted from spec �
 **Supporting scenarios (spec §6 rows not tied to one goal):**
 - Accessibility: "0 axe violations on the not-found page and home placeholder, in Dag and Natt" — `tests/a11y/` in CI.
 - Visual regression: "≤ 0.1% differing pixels per screenshot against the approved baseline, not-found page at 390 / 834 / 1440 in Dag and Natt" — `tests/visual/not-found.spec.ts`, Linux baselines.
-- Design match: "0 undocumented differences between the not-found page and the design reference at 390 / 834 / 1440 in Dag and Natt" — manual side-by-side review in the PR, differences listed (code line "404 · Ikke funnet" instead of the requested path; no "See projects"; theme-snippet deviations from ADR-0001; reduced-motion tokens per §8 Motion, with the generated `--fjord-duration-fade` and distances, not durations, collapsed).
+- Design match: "0 undocumented differences between the not-found page and the design reference at 390 / 834 / 1440 in Dag and Natt" — manual side-by-side review in the PR, differences listed (interim 404, see §8 OQ-02; rebuilt in step 3 per Misc.jsx; code line "404 · Ikke funnet" instead of the requested path; no "See projects"; theme-snippet deviations from ADR-0001; reduced-motion tokens per §8 Motion, with the generated `--fjord-duration-fade` and distances, not durations, collapsed).
 
 ## 11. Risks and technical debt
 

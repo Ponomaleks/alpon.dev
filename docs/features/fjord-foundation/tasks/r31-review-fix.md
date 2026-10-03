@@ -7,7 +7,7 @@ acs: ["AC-07"]
 files_hint: ["docs/features/fjord-foundation/spec.md", "docs/features/fjord-foundation/sad.md", "docs/features/fjord-foundation/screens.md", "docs/roadmap.md"]
 owner: "Alexander Ponomarenko"
 estimate: "S"
-status: "todo"
+status: "done"
 ---
 
 # R31 — Point the stale Not-found design statements to OQ-02 and rank the page design first in screens.md
@@ -25,8 +25,8 @@ Owner's decision (2026-10-03): fix now; keep the page-design files in `screens.m
 
 ## Definition of Done
 
-- [ ] `spec.md:27` and `sad.md:452` each carry a one-line pointer: "interim 404, see §8 OQ-02; rebuilt in step 3 per Misc.jsx".
-- [ ] `screens.md`: `design/handoff/site` (`Misc.jsx` for Not-found) is listed only under the primary sources; the component demos are the secondary ones. The stale lines (`:20`, `:79`) point to OQ-02.
-- [ ] `docs/roadmap.md` step 3 row says "update AC-07 / P-41 wording to the page design".
-- [ ] Docs only. Committed together with R30.
+- [x] `spec.md:27` and `sad.md:452` each carry a one-line pointer: "interim 404, see §8 OQ-02; rebuilt in step 3 per Misc.jsx".
+- [x] `screens.md`: `design/handoff/site` (`Misc.jsx` for Not-found) is listed only under the primary sources; the component demos are the secondary ones. The stale lines (`:20`, `:79`) point to OQ-02.
+- [x] `docs/roadmap.md` step 3 row says "update AC-07 / P-41 wording to the page design".
+- [x] Docs only. Committed together with R30.
 - [ ] `npm run lint` and `npm run test:unit` green

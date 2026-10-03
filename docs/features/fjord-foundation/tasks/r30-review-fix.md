@@ -7,7 +7,7 @@ acs: ["AC-07"]
 files_hint: ["docs/features/fjord-foundation/spec.md", "docs/roadmap.md"]
 owner: "Alexander Ponomarenko"
 estimate: "S"
-status: "todo"
+status: "done"
 ---
 
 # R30 — List every Not-found design difference in OQ-02 and give the sticky action bar a roadmap step
@@ -29,9 +29,9 @@ Owner's decision (2026-10-03): fix now, docs only, with all six items.
 
 ## Definition of Done
 
-- [ ] Spec §8 OQ-02 has one line per difference above, each with the design value and the current value.
-- [ ] Items 4 and 6 are checked against `design/handoff/site` (`Misc.jsx` and the site's `NotFound`); an item that cannot be confirmed there is marked "to confirm against the page design" and is not dropped.
-- [ ] The sticky action bar is named next to "no Header or Footer" in OQ-02, and `docs/roadmap.md` step 3 lists it as part of MobileBar, together with Header/Footer.
-- [ ] No code or baseline changes. The 404 rebuild stays in step 3 and follows the page design (`Misc.jsx`), not the component demo.
-- [ ] Committed together with R31 (the other 404 docs changes).
+- [x] Spec §8 OQ-02 has one line per difference above, each with the design value and the current value.
+- [x] Items 4 and 6 are checked against `design/handoff/site` (`Misc.jsx` and the site's `NotFound`); an item that cannot be confirmed there is marked "to confirm against the page design" and is not dropped.
+- [x] The sticky action bar is named next to "no Header or Footer" in OQ-02, and `docs/roadmap.md` step 3 lists it as part of MobileBar, together with Header/Footer.
+- [x] No code or baseline changes. The 404 rebuild stays in step 3 and follows the page design (`Misc.jsx`), not the component demo.
+- [x] Committed together with R31 (the other 404 docs changes).
 - [ ] `npm run lint` and `npm run test:unit` green

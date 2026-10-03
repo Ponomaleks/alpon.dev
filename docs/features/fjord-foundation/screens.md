@@ -16,8 +16,8 @@ updated_at: "2026-10-03"
 
 - **Tool:** code (from `docs/design-system.md`).
 - **File:** inline wireframes below.
-- **Page design (primary reference):** SCR-02 is the 404 screen of the site design: `design/handoff/site/project/site/Misc.jsx` (not-found screen), `design/handoff/site/alpon.dev standalone.html`, screenshots `design/screenshots/{dag,natt}_not_found_{390,834,1440}.png`. SCR-01 is a temporary placeholder with no page design; Home (`site/Home.jsx`) replaces it in step 4. **Known gap:** the SCR-02 manifest below was written from the component demo, not from the page design, and differs from it in four ways (map panel, two-column layout, heading, code line separator); see spec §8 OQ-02. It is kept as built and is rewritten from the page design in step 3.
-- **Component references (secondary, building blocks):** `design/handoff/design-system/project/components/feedback/NotFound.jsx` + `feedback.css` (`.fj-404*`), `components/brand/Contours.jsx` (`ridge`), `components/actions/actions.css` (`.fj-btn--primary`), `design/handoff/site/project/site/Misc.jsx` (not-found screen), and `design/handoff/site/alpon.dev standalone.html` for the Natt variants.
+- **Page design (primary reference):** SCR-02 is the 404 screen of the site design: `design/handoff/site/project/site/Misc.jsx` (not-found screen), `design/handoff/site/alpon.dev standalone.html`, screenshots `design/screenshots/{dag,natt}_not_found_{390,834,1440}.png`. SCR-01 is a temporary placeholder with no page design; Home (`site/Home.jsx`) replaces it in step 4. **Known gap:** the SCR-02 manifest below was written from the component demo, not from the page design, and differs from it in ten ways (map panel, two-column layout, heading, code line separator, body copy, title scale, sticky action bar, code line colour, spacing, button size); see spec §8 OQ-02. It is kept as built and is rewritten from the page design in step 3.
+- **Component references (secondary, building blocks):** `design/handoff/design-system/project/components/feedback/NotFound.jsx` + `feedback.css` (`.fj-404*`), `components/brand/Contours.jsx` (`ridge`) and `components/actions/actions.css` (`.fj-btn--primary`). The page-design files (`Misc.jsx`, the standalone HTML) are listed only under the primary reference above.
 - **Inventory:** `docs/design-system.md` §Component inventory. Only `BaseLayout` is built in the repo; the page-local pieces below are registered there as pending, and step 3 promotes them to `components/ui/Button` and `components/brand/Contours`.
 
 ### Cross-screen states (apply to SCR-01 and SCR-02 alike)
@@ -76,7 +76,7 @@ Built from the design-system `NotFound` component demo (`.fj-404`), not from the
 
 **Content (AC-07, spec §1 design differences):**
 
-- Code line: `404 · Ikke funnet` in the mono label style (`.fj-404__code`). "Ikke funnet" is wrapped in `lang="no"` (sad.md §8). The requested path is **never** shown (design difference: the design shows `404 · <path>`).
+- Code line: `404 · Ikke funnet` in the mono label style (`.fj-404__code`). "Ikke funnet" is wrapped in `lang="no"` (sad.md §8). The requested path is **never** shown (interim 404, see spec §8 OQ-02: the page design reads "404 / Ikke funnet" with the "404" in the link colour).
 - Title `h1`: "Page not found" (`.fj-404__title`, display size).
 - Body: "This page is off the map. The link may be old, or the page has moved." (the design default, `.fj-404__body`, lead size, muted, max 46ch).
 - Action: "Back to home" → `/`, primary, with an arrow. The **only** action (AC-08).
