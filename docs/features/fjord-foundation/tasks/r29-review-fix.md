@@ -7,7 +7,7 @@ acs: ["AC-05"]
 files_hint: ["docs/features/fjord-foundation/tasks.json", "docs/features/fjord-foundation/tasks/r20-review-fix.md"]
 owner: "Alexander Ponomarenko"
 estimate: "S"
-status: "todo"
+status: "done"
 ---
 
 # R29 — Correct the R20 definition of done from rem to em
@@ -18,5 +18,5 @@ Review round 4, S1-09. The R20 definition of done (`tasks.json:624`, `tasks/r20-
 
 ## Definition of Done
 
-- [ ] The R20 definition of done in tasks.json and tasks/r20-review-fix.md says the measures are emitted in em, matching src/styles/tokens.css.
-- [ ] `npm run lint` and `npm run test:unit` green
+- [x] The R20 definition of done in tasks.json and tasks/r20-review-fix.md says the measures are emitted in em, matching src/styles/tokens.css.
+- [x] `npm run lint` and `npm run test:unit` green

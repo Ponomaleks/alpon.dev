@@ -49,6 +49,6 @@
 | R26 | [Switch the token-only lint from block lists to allow lists for functions and units](./r26-review-fix.md) | wiring | Alexander Ponomarenko | S | — | done |
 | R27 | [Validate the "0" advance in the token generator and pin it in the test](./r27-review-fix.md) | wiring | Alexander Ponomarenko | S | — | done |
 | R28 | [Upload the Lighthouse reports only when Lighthouse ran](./r28-review-fix.md) | wiring | Alexander Ponomarenko | S | — | done |
-| R29 | [Correct the R20 definition of done from rem to em](./r29-review-fix.md) | docs | Alexander Ponomarenko | S | — | todo |
+| R29 | [Correct the R20 definition of done from rem to em](./r29-review-fix.md) | docs | Alexander Ponomarenko | S | — | done |
 
 **Total:** 16 tasks + 29 follow-ups (R1–R29), ~20 person-days (S ≈ 0.5 d, M ≈ 1 d).
