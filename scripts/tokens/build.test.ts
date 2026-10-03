@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { create } from 'fontkitten';
 import { chToEm, generateTokens } from './generate.ts';
-import { readSources, type Sources } from './sources.ts';
+import { readSources, zeroAdvanceEm, type Sources } from './sources.ts';
 
 // ADR-0001 generator: tokens.css with Dag, Natt and the no-JS Natt block from one list of values
 // (AC-01, AC-02, AC-04), failing on a brand vs handoff palette conflict (AC-10).
@@ -281,7 +281,31 @@ describe('measure tokens (sad §8 Fonts, AC-05)', () => {
   };
 
   it('reads the advance of "0" from the Schibsted Grotesk Regular file', () => {
-    expect(real().zeroAdvance).toBe(zeroAdvance());
+    expect(real().zeroAdvance).toBe(1252 / 2048);
+  });
+
+  it('reads the same advance as the font file reports', () => {
+    expect(zeroAdvance()).toBe(1252 / 2048);
+  });
+
+  it('accepts a mapped glyph with an advance in (0, 1] em', () => {
+    expect(zeroAdvanceEm(17, 1252, 2048)).toBe(1252 / 2048);
+    expect(zeroAdvanceEm(17, 2048, 2048)).toBe(1);
+  });
+
+  it('fails loudly on a font without "0" (glyph id 0 is .notdef)', () => {
+    expect(() => zeroAdvanceEm(0, 1024, 2048)).toThrow(/no "0"|\.notdef/);
+  });
+
+  it.each([
+    ['zero', 0, 2048],
+    ['negative', -1, 2048],
+    ['wider than 1 em', 2049, 2048],
+    ['NaN', Number.NaN, 2048],
+    ['Infinity', Number.POSITIVE_INFINITY, 2048],
+    ['zero units per em', 1252, 0],
+  ])('fails loudly on a "0" advance that is %s', (_name, advance, unitsPerEm) => {
+    expect(() => zeroAdvanceEm(17, advance, unitsPerEm)).toThrow(/advance/);
   });
 
   it.each([
@@ -297,6 +321,13 @@ describe('measure tokens (sad §8 Fonts, AC-05)', () => {
     'fails loudly on %s, which is not a ch length',
     (bad) => {
       expect(() => chToEm(bad, 0.6)).toThrow(/is not a ch length/);
+    },
+  );
+
+  it.each([Number.NaN, Number.POSITIVE_INFINITY, 0, -0.6, 1.01])(
+    'rejects an advance of %d em',
+    (bad) => {
+      expect(() => chToEm('48ch', bad)).toThrow(/advance/);
     },
   );
 

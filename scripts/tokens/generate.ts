@@ -38,6 +38,8 @@ const CH_LENGTH = /^(\d+(?:\.\d+)?)ch$/;
 export function chToEm(value: string, zeroAdvance: number): string {
   const ch = CH_LENGTH.exec(value.trim());
   if (!ch) throw new Error(`measure "${value}" is not a ch length`);
+  if (!Number.isFinite(zeroAdvance) || zeroAdvance <= 0 || zeroAdvance > 1)
+    throw new Error(`the "0" advance ${zeroAdvance} em is not in (0, 1]`);
   return `${Number((Number(ch[1]) * zeroAdvance).toFixed(3))}em`;
 }
 

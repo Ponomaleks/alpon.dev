@@ -7,7 +7,7 @@ acs: ["AC-05"]
 files_hint: ["scripts/tokens/sources.ts", "scripts/tokens/generate.ts", "scripts/tokens/build.test.ts"]
 owner: "Alexander Ponomarenko"
 estimate: "S"
-status: "todo"
+status: "done"
 ---
 
 # R27 — Validate the "0" advance in the token generator and pin it in the test
@@ -18,5 +18,5 @@ Review round 4, S2-11. `zeroAdvance` (`scripts/tokens/sources.ts:30-34`) does no
 
 ## Definition of Done
 
-- [ ] Reading the "0" advance throws when the glyph id is 0 (.notdef) and when the ratio is not finite or not in (0, 1]; chToEm rejects such an advance too. The unit test pins the literal 1252 / 2048 instead of repeating the implementation, and a failure-path case covers a font without "0" and a bad advance. tokens:check stays in sync and tokens.css is unchanged.
-- [ ] `npm run lint` and `npm run test:unit` green
+- [x] Reading the "0" advance throws when the glyph id is 0 (.notdef) and when the ratio is not finite or not in (0, 1]; chToEm rejects such an advance too. The unit test pins the literal 1252 / 2048 instead of repeating the implementation, and a failure-path case covers a font without "0" and a bad advance. tokens:check stays in sync and tokens.css is unchanged.
+- [x] `npm run lint` and `npm run test:unit` green

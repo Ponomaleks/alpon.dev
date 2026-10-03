@@ -26,11 +26,23 @@ export const HANDOFF_DIR = `${HANDOFF_PROJECT}/tokens`;
 export const BRAND_FILE = 'design/brand/tokens.json';
 export const MEASURE_FONT = 'design/brand/fonts/SchibstedGrotesk-Regular.ttf';
 
-/** The advance of "0" (U+0030) over the units per em, read from the font file. */
+/**
+ * The advance of "0" over the units per em. Glyph id 0 is .notdef (the font has no "0"), and an
+ * advance outside (0, 1] em is not a digit width; both would silently skew every `ch` measure.
+ */
+export function zeroAdvanceEm(glyphId: number, advanceWidth: number, unitsPerEm: number): number {
+  if (glyphId === 0) throw new Error('the measure font has no "0" (glyph is .notdef)');
+  const advance = advanceWidth / unitsPerEm;
+  if (!Number.isFinite(advance) || advance <= 0 || advance > 1)
+    throw new Error(`the "0" advance ${advance} em is not in (0, 1]`);
+  return advance;
+}
+
 function zeroAdvance(path: string): number {
   const font = create(readFileSync(path));
   if (!('glyphForCodePoint' in font)) throw new Error(`${path} is a font collection`);
-  return font.glyphForCodePoint(0x30).advanceWidth / font.unitsPerEm;
+  const glyph = font.glyphForCodePoint(0x30);
+  return zeroAdvanceEm(glyph.id, glyph.advanceWidth, font.unitsPerEm);
 }
 
 export function readSources(root: string): Sources {
