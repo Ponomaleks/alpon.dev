@@ -7,7 +7,7 @@ acs: ["AC-11"]
 files_hint: ["stylelint.config.js", "scripts/lint/stylelint.test.ts", "scripts/lint/fixtures/", "docs/features/fjord-foundation/adr/0003-enforce-token-only-styles-with-stylelint-built-in-rules.md"]
 owner: "Alexander Ponomarenko"
 estimate: "S"
-status: "todo"
+status: "done"
 ---
 
 # R32 — Ban @container in the token-only lint until a feature needs container queries
@@ -20,7 +20,7 @@ Owner's decision (2026-10-03): ban `@container`; do not ban `@supports`.
 
 ## Definition of Done
 
-- [ ] `stylelint.config.js` has `at-rule-disallowed-list: ['container']`.
-- [ ] A fixture with an `@container` rule fails for that rule; the test asserts the rule name and line.
-- [ ] ADR-0003 has a row for the ban. It says a later feature that needs container queries lifts the ban and adds its own rule for the allowed widths, and that `@supports` preludes are not checked on purpose: they only test support and set no values.
-- [ ] `npm run lint` and `npm run test:unit` green
+- [x] `stylelint.config.js` has `at-rule-disallowed-list: ['container']`.
+- [x] A fixture with an `@container` rule fails for that rule; the test asserts the rule name and line.
+- [x] ADR-0003 has a row for the ban. It says a later feature that needs container queries lifts the ban and adds its own rule for the allowed widths, and that `@supports` preludes are not checked on purpose: they only test support and set no values.
+- [x] `npm run lint` and `npm run test:unit` green

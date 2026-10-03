@@ -103,6 +103,9 @@ export default {
     'color-named': 'never',
     // Allow lists reject any new function or unit by default; the disallowed lists below stay
     // for their clearer messages.
+    // Container queries read a container's size, which skips the unit and breakpoint rules; a
+    // feature that needs them lifts this ban and adds its own rule for the allowed widths.
+    'at-rule-disallowed-list': ['container'],
     'function-allowed-list': allowedFunctions,
     'unit-allowed-list': allowedUnits,
     'function-disallowed-list': [

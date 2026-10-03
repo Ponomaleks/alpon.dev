@@ -63,6 +63,8 @@ describe('stylelint token-only rules (ADR-0003)', () => {
     ['container-unit.css', 'width: 50cqi', 2, 'unit-disallowed-list'],
     ['container-unit.css', 'inline-size: 10cqmin', 3, 'unit-disallowed-list'],
     ['container-unit.css', 'height: 20cqh', 4, 'unit-disallowed-list'],
+    // Container queries bypass the unit and breakpoint rules, so the at-rule is banned (R32).
+    ['container.css', '@container (min-width: 400px)', 1, 'at-rule-disallowed-list'],
     // Allow lists: functions and units nobody listed are rejected by default.
     ['lab.css', 'lab()', 2, 'function-allowed-list'],
     ['oklab.css', 'oklab()', 2, 'function-allowed-list'],
