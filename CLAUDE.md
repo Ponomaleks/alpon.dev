@@ -28,7 +28,7 @@ The site itself is a portfolio piece: code quality, accessibility and performanc
 
 - Use tokens only: every color, font, space, radius, duration and easing comes from `--fjord-*` custom properties in `src/styles/tokens.css`. No hardcoded hex values or magic numbers in components.
 - Two themes: `Dag` (light) and `Natt` (dark). Theme = `data-theme="dag|natt"` on `<html>`, default from `prefers-color-scheme`, user choice saved in localStorage. No flash of wrong theme.
-- One dark color per composition; accent only for text and interactive states, never large fills; one primary CTA per screen.
+- One dark color per composition; accent only for text and interactive states, never large fills; one primary CTA per screen. One primary CTA per screen counts buttons in page content. The shell's persistent contact action (header CTA on wide screens, sticky bar on phones) is the same single action and is not counted separately. When the sticky bar is visible, the header CTA uses the secondary style.
 - Fonts: Schibsted Grotesk (400/500/600/700) and JetBrains Mono (400/500/700), self-hosted woff2, Latin subset including æ ø å. Max two families. Every family and weight used by the design system or the page designs is required; ship it (convert the handoff TTFs to subset woff2).
 - 4px spacing grid, left-aligned asymmetric layouts, breakpoints 360 / 768 / 1024 / 1440.
 - Motion: only via motion tokens. Everything must work with `prefers-reduced-motion: reduce` (fades only, no loops, counters show final values).
@@ -37,14 +37,14 @@ The site itself is a portfolio piece: code quality, accessibility and performanc
 
 ## Content rules
 
-- English for main content. Norwegian for small warm details: "Hei", "Ta kontakt", "Kopiert", "Nå", "Oslo, Norge", "Skann meg", "Ikke funnet", "Sist oppdatert".
+- English for main content. Norwegian for small warm details: "Hei", "Ta kontakt", "Kopiert", "Nå", "Oslo, Norge", "Skann meg", "Ikke funnet", "Sist oppdatert". The shell's call to action is English, "Get in touch", as in the page design; BRAND.md's "Norwegian for the call to action" applies to labels such as "Ta kontakt", not to the shell buttons.
 - Voice: modest and concrete. No "passionate", "rockstar", superlatives.
 - Dashes are allowed in user-facing text: the long dash (U+2014) and the en dash (U+2013) as used in the design copy (e.g. date ranges `Nov 2022 – Jan 2026`).
 - Never name the EPAM client or its events directly (NDA). Indirect descriptions are allowed and the design copy is the reference (e.g. "a global B2B software leader (Fortune Global 500)", "an international conference series", "28,000+ attendees").
 - Numbers on the site must be real and verified by Alexander. Unverified values stay as `[placeholder]`.
 - Language levels are self-assessed: show plain labels, no CEFR codes. EN: English "Upper-intermediate", Norwegian "Intermediate", Ukrainian "Native". NO: Engelsk "Øvre mellomnivå", Norsk "Mellomnivå", Ukrainsk "Morsmål".
 - Contacts live in one place: `src/data/contact.ts` (used by the contact block and footer). The vCard file (`public/alexander-ponomarenko.vcf`) is static and must match it. The QR SVGs are static too and intentionally encode a shortened subset of the vCard; do not regenerate them when the `.vcf` changes.
-- Location has two meanings, keep them apart: "Oslo, Norge" / Oslo area is the region of work (hero, contacts, vCard `ADR: Oslo, Norway`); "Nittedal" is the place of residence and appears in the CV (`1482 Nittedal, Norway`) and in the home quick facts ("Based in: Nittedal, Oslo area").
+- Location has two meanings, keep them apart: "Oslo, Norge" / Oslo area is the region of work (hero, contacts, vCard `ADR: Oslo, Norway`); "Nittedal" is the place of residence and appears in the CV (`1482 Nittedal, Norway`) in the home quick facts ("Based in: Nittedal, Oslo area") and in the footer "Based in" column ("Nittedal, Norge", with the municipality coordinates 60.07° N, 10.87° E). `src/data/contact.ts` keeps the two as separate fields.
 - Contact title: vCard `TITLE` is the broad role "Software Engineer"; the specialisation goes to `NOTE` (Full Stack Developer, agentic engineering).
 - Downloads are real files, never placeholders: "Download CV" links to `public/cv/alexander-ponomarenko-cv-en.pdf` or `public/cv/alexander-ponomarenko-cv-no.pdf` by the current CV language (EN on pages without a language), and "Save contact" links to `public/alexander-ponomarenko.vcf`; both use the `download` attribute. The CV "View original PDF" preview uses the page images `public/cv/cv-{en,no}-{1,2}.webp`.
 
