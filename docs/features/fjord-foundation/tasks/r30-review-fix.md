@@ -34,4 +34,4 @@ Owner's decision (2026-10-03): fix now, docs only, with all six items.
 - [x] The sticky action bar is named next to "no Header or Footer" in OQ-02, and `docs/roadmap.md` step 3 lists it as part of MobileBar, together with Header/Footer.
 - [x] No code or baseline changes. The 404 rebuild stays in step 3 and follows the page design (`Misc.jsx`), not the component demo.
 - [x] Committed together with R31 (the other 404 docs changes).
-- [ ] `npm run lint` and `npm run test:unit` green
+- [x] `npm run lint` and `npm run test:unit` green

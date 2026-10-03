@@ -50,10 +50,10 @@
 | R27 | [Validate the "0" advance in the token generator and pin it in the test](./r27-review-fix.md) | wiring | Alexander Ponomarenko | S | — | done |
 | R28 | [Upload the Lighthouse reports only when Lighthouse ran](./r28-review-fix.md) | wiring | Alexander Ponomarenko | S | — | done |
 | R29 | [Correct the R20 definition of done from rem to em](./r29-review-fix.md) | docs | Alexander Ponomarenko | S | — | done |
-| R30 | [List every Not-found design difference in OQ-02 and give the sticky action bar a roadmap step](./r30-review-fix.md) | docs | Alexander Ponomarenko | S | — | todo |
-| R31 | [Point the stale Not-found design statements to OQ-02 and rank the page design first in screens.md](./r31-review-fix.md) | docs | Alexander Ponomarenko | S | R30 | todo |
-| R32 | [Ban @container in the token-only lint until a feature needs container queries](./r32-review-fix.md) | wiring | Alexander Ponomarenko | S | — | todo |
-| R33 | [Cut the function allow list to var and calc](./r33-review-fix.md) | wiring | Alexander Ponomarenko | S | R32 | todo |
-| R34 | [Test the .notdef guard through the real font lookup](./r34-review-fix.md) | tests | Alexander Ponomarenko | S | — | todo |
+| R30 | [List every Not-found design difference in OQ-02 and give the sticky action bar a roadmap step](./r30-review-fix.md) | docs | Alexander Ponomarenko | S | — | done |
+| R31 | [Point the stale Not-found design statements to OQ-02 and rank the page design first in screens.md](./r31-review-fix.md) | docs | Alexander Ponomarenko | S | R30 | done |
+| R32 | [Ban @container in the token-only lint until a feature needs container queries](./r32-review-fix.md) | wiring | Alexander Ponomarenko | S | — | done |
+| R33 | [Cut the function allow list to var and calc](./r33-review-fix.md) | wiring | Alexander Ponomarenko | S | R32 | done |
+| R34 | [Test the .notdef guard through the real font lookup](./r34-review-fix.md) | tests | Alexander Ponomarenko | S | — | done |
 
 **Total:** 16 tasks + 34 follow-ups (R1–R34), ~20 person-days (S ≈ 0.5 d, M ≈ 1 d).

@@ -78,7 +78,7 @@ Built from the design-system `NotFound` component demo (`.fj-404`), not from the
 
 - Code line: `404 · Ikke funnet` in the mono label style (`.fj-404__code`). "Ikke funnet" is wrapped in `lang="no"` (sad.md §8). The requested path is **never** shown (interim 404, see spec §8 OQ-02: the page design reads "404 / Ikke funnet" with the "404" in the link colour).
 - Title `h1`: "Page not found" (`.fj-404__title`, display size).
-- Body: "This page is off the map. The link may be old, or the page has moved." (the design default, `.fj-404__body`, lead size, muted, max 46ch).
+- Body: "This page is off the map. The link may be old, or the page has moved." (the component demo's default; the page design's body omits the first sentence, see spec §8 OQ-02 item 5; `.fj-404__body`, lead size, muted, max 46ch).
 - Action: "Back to home" → `/`, primary, with an arrow. The **only** action (AC-08).
 - `<meta name="robots" content="noindex">` through `BaseLayout noindex`.
 

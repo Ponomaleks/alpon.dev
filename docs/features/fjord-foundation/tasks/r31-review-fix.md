@@ -29,4 +29,4 @@ Owner's decision (2026-10-03): fix now; keep the page-design files in `screens.m
 - [x] `screens.md`: `design/handoff/site` (`Misc.jsx` for Not-found) is listed only under the primary sources; the component demos are the secondary ones. The stale lines (`:20`, `:79`) point to OQ-02.
 - [x] `docs/roadmap.md` step 3 row says "update AC-07 / P-41 wording to the page design".
 - [x] Docs only. Committed together with R30.
-- [ ] `npm run lint` and `npm run test:unit` green
+- [x] `npm run lint` and `npm run test:unit` green
