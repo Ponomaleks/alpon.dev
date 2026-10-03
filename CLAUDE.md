@@ -16,7 +16,10 @@ The site itself is a portfolio piece: code quality, accessibility and performanc
 
 ## Sources of truth (read before changing UI)
 
-1. `design/handoff/` - bundle exported from Claude Design ("Fjord" design system + page designs). Read-only.
+1. `design/handoff/` - bundle exported from Claude Design. Read-only. It has two levels:
+   - `design/handoff/site/` (page designs: `project/site/*.jsx`, `alpon.dev standalone.html`) is the source of truth for what each page looks like: layout, content, sections, copy. Reference screenshots of the page designs are in `design/screenshots/`.
+   - `design/handoff/design-system/` provides the building blocks: tokens, components, states. Component demos are examples, not page specs.
+   - If a page design and a component demo differ, the page design wins; the component is adapted or extended to match it. The site bundles its own, newer copy of the design system (`design/handoff/site/project/_ds/`), so a component there can differ from `design/handoff/design-system/`. `BRAND.md` still wins over both for brand rules. List conflicts in the PR.
 2. `design/brand/BRAND.md` and `design/brand/tokens.json` - brand rules. If the handoff conflicts with BRAND.md, BRAND.md wins; report the conflict in the PR description.
 3. `docs/` - artifacts of the SDD workflow (idea brief, specs, plans, tasks). The current SDD spec defines scope; implement only what it asks for.
 4. `docs/reference/` - early drafts written before the SDD workflow (e.g. 01-foundations.md, phase 1 scaffold scope). Use them as input; if they differ from SDD artifacts, the SDD artifacts win.
@@ -91,7 +94,8 @@ tools/             sources for the OG image, contours and CV previews (not deplo
 
 - Follow the SDD workflow. Before coding, restate the acceptance criteria from the current SDD spec and list open questions.
 - Small commits, one PR per spec (or per logical part of it). PR description: what changed, screenshots at 390 / 834 / 1440 in both themes, test results, conflicts with the design.
-- After each UI change, run the visual tests and compare with the design screenshots in `design/`.
+- After each UI change, run the visual tests and compare with the page-design screenshots in `design/screenshots/`, not with component demos.
+- Every screen in a feature's `screens.md` cites its page design (file and screen in `design/handoff/site/`) as the primary reference; component files are secondary. The "Design match" review compares the built page with the page-design screenshots in `design/screenshots/` and lists every difference.
 - Do not add dependencies without explaining why in the PR. Prefer platform features (CSS, View Transitions, native `<dialog>`, `popover`).
 - Commands: `npm run dev`, `npm run build`, `npm run preview` (`wrangler dev` on `dist/`, production routing), `npm run test` (Playwright e2e + axe against `wrangler dev`), `npm run lint` (`astro check` + ESLint + Prettier check), `npm run format`, `npm run lhci` (Lighthouse CI on `dist/`, run after a build).
 - Parity gate: `main` serves the stub until v2 reaches parity. `tests/e2e/parity.spec.ts` mirrors `docs/stub-parity.md`; the feature spec that builds an item flips its `test.fixme` to `test`. v2 goes to `main` only when no `test.fixme` is left.

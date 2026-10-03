@@ -3,7 +3,7 @@ status: Living
 tool: code               # figma | pencil | code — the single committed source of the design-tool choice (never sdd.local.md: that file is per-developer + gitignored)
 figma_file: ""           # tool: figma → the Figma file URL/key the canon lives in; else ""
 pen_file: ""             # tool: pencil → the .pen library path (e.g. docs/design/library.pen); else ""
-updated_at: "2026-10-02"
+updated_at: "2026-10-03"
 ---
 
 # Design system — alpon.dev (Fjord)
@@ -15,7 +15,15 @@ updated_at: "2026-10-02"
 > component inventory, cross-screen conventions). Refresh via `/sdd:design-system` when the
 > foundation changes.
 
-Precedence (`CLAUDE.md` §Sources of truth): `design/brand/BRAND.md` + `design/brand/tokens.json` win over `design/handoff/`. A conflict between them is reported in the PR description.
+Precedence (`CLAUDE.md` §Sources of truth), highest first:
+
+1. `design/brand/BRAND.md` + `design/brand/tokens.json` for brand rules.
+2. The page designs in `design/handoff/site/` (`project/site/*.jsx`, `alpon.dev standalone.html`, screenshots in `design/screenshots/`) for what each page looks like: layout, content, sections, copy.
+3. `design/handoff/design-system/` for the building blocks: tokens, components, states. Component demos are examples, not page specs.
+
+If a page design and a component demo differ, the page design wins and the component is adapted or extended to match it. Conflicts are listed in the PR description. Every screen in a `screens.md` cites its page design (file and screen) as the primary reference and component files as secondary; the "Design match" review compares against `design/screenshots/`.
+
+The inventory below lists building blocks. A row never defines a page: the "Source" column is where the component's design lives, and the page that uses it is specified by its page design.
 
 ## Platform posture
 
@@ -25,7 +33,7 @@ Precedence (`CLAUDE.md` §Sources of truth): `design/brand/BRAND.md` + `design/b
 ## Design tool
 
 - **Tool:** code. The design comes as a Claude Design handoff (JSX + CSS), not a Figma or Pencil file. `screens.md` carries inline markdown wireframes, and it needs no MCP.
-- **Library location:** the visual reference is `design/handoff/design-system/project/` (components, tokens, guidelines) and `design/handoff/site/alpon.dev standalone.html` (whole site, including Natt). Both are read-only. The in-repo library is `src/components/{ui,layout,brand,prose}/`. Handoff JSX is a reference only; it is never copied into the Astro site.
+- **Library location:** pages follow `design/handoff/site/` (`project/site/*.jsx` and `alpon.dev standalone.html`, whole site, including Natt); building blocks come from `design/handoff/design-system/project/` (components, tokens, guidelines). The site bundles a newer copy of the design system in `design/handoff/site/project/_ds/`; where the two copies of a component differ, the site copy is the one the page designs use. All are read-only. The in-repo library is `src/components/{ui,layout,brand,prose}/`. Handoff JSX is a reference only; it is never copied into the Astro site.
 
 ## Token source
 
@@ -89,7 +97,7 @@ All values come from `src/styles/tokens.css` (`--fjord-*`, generated, do not edi
 | TextField | `components/cv/TextField.jsx:4` | default / hint / error / optional; multiline | |
 | AvailabilityBadge | `components/feedback/AvailabilityBadge.jsx:5` | see `.d.ts` | |
 | EmptyState | `components/feedback/EmptyState.jsx:4` | eyebrow / title / body / action | |
-| NotFound | `components/feedback/NotFound.jsx:4` | title / body / code line / actions | built as `src/pages/404.astro` by fjord-foundation |
+| NotFound | `components/feedback/NotFound.jsx:4`; newer site copy `design/handoff/site/project/_ds/…/components/feedback/feedback.css:40` (terrain map, "You are here" pin) | title / body / code line / actions; map panel in the site copy | A building block, not the page spec. The 404 page follows the site design (`design/handoff/site/project/site/Misc.jsx`, `design/screenshots/{dag,natt}_not_found_*.png`). `src/pages/404.astro` (fjord-foundation) was built from the older component demo and differs from the page design; rebuilt in step 3 (fjord-foundation spec §8 OQ-02) |
 | Skeleton | `components/feedback/Skeleton.jsx:3` | — | islands only; static pages have no loading state |
 | StatusBadge | `components/feedback/StatusBadge.jsx:5` | see `.d.ts` | |
 | Tag / TagList | `components/feedback/Tag.jsx:3`, `:7` | — | |

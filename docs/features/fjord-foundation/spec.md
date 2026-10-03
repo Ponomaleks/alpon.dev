@@ -2,7 +2,7 @@
 status: Draft
 owner: "Alexander Ponomarenko"
 reviewers: ["Tech Lead", "Security Lead"]
-updated_at: "2026-10-02"
+updated_at: "2026-10-03"
 feature_size: "S"
 ---
 
@@ -215,6 +215,13 @@ Traceability:
 ## 8. Open questions
 
 - **OQ-01 — Dag warning pair under 4.5:1** (from review 2026-10-02). `--fjord-color-warning` on `--fjord-color-warning-soft` measures 4.40:1 in Dag. It stays in the contrast manifest as a named known failure, printed on every run of the contrast check, until the design source is fixed: the Owner darkens the Dag warning color in Claude Design and re-exports, then the pair moves to the normal passing pairs. Owner: Alexander Ponomarenko. Due: before roadmap step 7 (Callout) is built.
+- **OQ-02 — The Not-found page does not match the site page design** (from the Owner's design-match check, 2026-10-03). The page was built from the design-system component demo (`design/handoff/design-system/project/components/feedback/NotFound.jsx`), but the page design is the 404 screen in `design/handoff/site` (`project/site/Misc.jsx`, which renders the site's newer `NotFound`; screenshots `design/screenshots/{dag,natt}_not_found_{390,834,1440}.png`). Differences that were not documented:
+  1. The map panel is missing: grid, contour terrain, dashed route, the "You are here" pin outside the map, and the coordinates "59.91° N · 10.75° E" in mono.
+  2. Layout: the design has two columns (text left, map right); the page has one column with the ridge as a background.
+  3. Heading: the design says "This page is off the map."; the page says "Page not found".
+  4. Code line separator: the design says "404 / Ikke funnet"; the page says "404 · Ikke funnet".
+
+  Intentional and already documented (§1 Traceability, `screens.md`): the requested path is not echoed (the design's "Nothing lives at /path" is omitted), no "See projects" until step 7, no Header or Footer until step 3. Decision: do not rebuild in this feature. Items 1–4 go to the PR's design-deviation list, and roadmap step 3 rebuilds the page per the site design and re-baselines the 404 visuals. AC-07's wording ("Page not found", "404 · Ikke funnet") and P-41 are updated by the step 3 spec. Owner: Alexander Ponomarenko. Due: step 3 (Base components).
 
 ## Test plan
 

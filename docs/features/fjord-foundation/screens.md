@@ -2,7 +2,7 @@
 status: draft            # draft | approved
 feature_size: "S"
 tool: "code"             # copied from docs/design-system.md
-updated_at: "2026-10-02"
+updated_at: "2026-10-03"
 ---
 
 # Screens — fjord-foundation
@@ -16,7 +16,8 @@ updated_at: "2026-10-02"
 
 - **Tool:** code (from `docs/design-system.md`).
 - **File:** inline wireframes below.
-- **Visual reference (read-only, for review):** `design/handoff/design-system/project/components/feedback/NotFound.jsx` + `feedback.css` (`.fj-404*`), `components/brand/Contours.jsx` (`ridge`), `components/actions/actions.css` (`.fj-btn--primary`), `design/handoff/site/project/site/Misc.jsx` (not-found screen), and `design/handoff/site/alpon.dev standalone.html` for the Natt variants.
+- **Page design (primary reference):** SCR-02 is the 404 screen of the site design: `design/handoff/site/project/site/Misc.jsx` (not-found screen), `design/handoff/site/alpon.dev standalone.html`, screenshots `design/screenshots/{dag,natt}_not_found_{390,834,1440}.png`. SCR-01 is a temporary placeholder with no page design; Home (`site/Home.jsx`) replaces it in step 4. **Known gap:** the SCR-02 manifest below was written from the component demo, not from the page design, and differs from it in four ways (map panel, two-column layout, heading, code line separator); see spec §8 OQ-02. It is kept as built and is rewritten from the page design in step 3.
+- **Component references (secondary, building blocks):** `design/handoff/design-system/project/components/feedback/NotFound.jsx` + `feedback.css` (`.fj-404*`), `components/brand/Contours.jsx` (`ridge`), `components/actions/actions.css` (`.fj-btn--primary`), `design/handoff/site/project/site/Misc.jsx` (not-found screen), and `design/handoff/site/alpon.dev standalone.html` for the Natt variants.
 - **Inventory:** `docs/design-system.md` §Component inventory. Only `BaseLayout` is built in the repo; the page-local pieces below are registered there as pending, and step 3 promotes them to `components/ui/Button` and `components/brand/Contours`.
 
 ### Cross-screen states (apply to SCR-01 and SCR-02 alike)
@@ -61,7 +62,7 @@ SCR-01 default — 390 (same structure at 834 / 1440; left-aligned, wrap max-wid
 
 ### SCR-02 — Not-found page ("Ikke funnet")
 
-Built from the design's `NotFound` (`.fj-404`). It is the feature's only visual-test surface: 390 / 834 / 1440 × Dag / Natt.
+Built from the design-system `NotFound` component demo (`.fj-404`), not from the page design (see §Source, known gap). It is the feature's only visual-test surface: 390 / 834 / 1440 × Dag / Natt.
 
 | State | Trigger / condition | Components | Source-ref |
 |---|---|---|---|
