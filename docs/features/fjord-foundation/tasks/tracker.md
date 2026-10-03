@@ -20,7 +20,7 @@
 | T13 | [Verify font loading end to end and flip P-26](./t13-fonts-e2e-p26.md) | tests | Alexander Ponomarenko | M | T7 | done |
 | T14 | [Verify the Not-found page and reduced motion end to end and flip P-41](./t14-not-found-e2e-p41.md) | tests | Alexander Ponomarenko | S | T9 | done |
 | T15 | [Add axe checks in Dag and Natt and the Not-found visual baselines; capture the Natt references](./t15-a11y-visual.md) | tests | Alexander Ponomarenko | M | T9 | done |
-| T16 | [Run Lighthouse on both pages with the Roboto-only runner and protect v2 and main](./t16-ci-lighthouse-protection.md) | wiring | Alexander Ponomarenko | S | T9, T10 | review |
+| T16 | [Run Lighthouse on both pages with the Roboto-only runner and protect v2 and main](./t16-ci-lighthouse-protection.md) | wiring | Alexander Ponomarenko | S | T9, T10 | done |
 | R1 | [Parse built HTML with a real parser in the CSP audit and hash a CRLF-normalised bootstrap](./r01-review-fix.md) | wiring | Alexander Ponomarenko | S | — | done |
 | R2 | [Prove with a real rebuild that editing the bootstrap updates the delivered policy](./r02-review-fix.md) | tests | Alexander Ponomarenko | S | R1 | done |
 | R3 | [Bootstrap without globals, one Norwegian language code, no viewport-fit, Norwegian 'Oslo, Norge'](./r03-review-fix.md) | ui | Alexander Ponomarenko | S | R1 | done |

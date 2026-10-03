@@ -7,7 +7,7 @@ acs: ["AC-05", "AC-06"]
 files_hint: [".github/workflows/ci.yml", "lighthouserc.cjs"]
 owner: "Alexander Ponomarenko"
 estimate: "S"
-status: "todo"
+status: "done"
 ---
 
 # T16 — Run Lighthouse on both pages with the Roboto-only runner and protect v2 and main
@@ -27,7 +27,7 @@ NFR rows CLS / LCP / TBT / Lighthouse ([spec §6](../spec.md)); [sad §7 What ga
 
 - [x] CI log shows Roboto installed and no Arial (CI run 37122773367, job `check` 111202017550: `fonts-roboto` installed, "Arial: none")
 - [x] `npm run lhci` green (CI run 37122773367, job `check`: 3 runs each on `/` and `/404` against `wrangler dev`, "Checking assertions against 2 URL(s), 6 total run(s)", no failed assertion; the reports were not uploaded, see R24): Performance, Accessibility, Best Practices, SEO ≥ 95 (SEO off on 404), LCP ≤ 2.0 s, CLS ≤ 0.02, TBT ≤ 100 ms
-- [ ] Branch protection active on `v2` with required checks `check` and `visual`, and on `main` by the option the Owner picks (verified with `gh api repos/Ponomaleks/alpon.dev/branches/<b>/protection`)
+- [x] Branch protection active on `v2` with required checks `check` and `visual`, and on `main` by the option the Owner picks (verified with `gh api repos/Ponomaleks/alpon.dev/branches/<b>/protection`): `v2` applied by the Owner on 2026-10-03, verified: checks `check` and `visual` (`app_id` 15368), `strict: true`, `enforce_admins: true`, 0 required approvals. `main`: option 2, applied at Release 1 ([roadmap step 6](../../../roadmap.md)); unprotected until then.
 
 ## Branch protection commands
 
