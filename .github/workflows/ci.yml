@@ -71,12 +71,14 @@ jobs:
 
       # Against wrangler dev on dist/, so the delivered headers apply while pages are scored.
       - name: Lighthouse CI
+        id: lhci
         env:
           WRANGLER_SEND_METRICS: 'false'
         run: npm run lhci
 
       - name: Upload Lighthouse reports
-        if: always()
+        # Skip when the Lighthouse step never ran (an earlier step failed); upload otherwise, even on failure.
+        if: ${{ !cancelled() && steps.lhci.outcome != 'skipped' }}
         uses: actions/upload-artifact@v7
         with:
           name: lighthouse
