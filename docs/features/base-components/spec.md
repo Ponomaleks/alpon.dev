@@ -2,7 +2,7 @@
 status: Draft
 owner: "Alexander Ponomarenko"
 reviewers: ["Tech Lead", "Security Lead"]
-updated_at: "2026-10-03"
+updated_at: "2026-10-04"
 feature_size: "S"
 ---
 
@@ -33,6 +33,7 @@ Traceability:
   - Mobile menu: a dialog is fine. AC-06 is met by the Sticky action bar, which is always on screen with scripts off and carries both the CV and the contact action.
   - Header call to action below 768: no extra script. The Sticky action bar's script already sets the bar's state; the header style follows it with one CSS rule (`:has()`).
   - Allow list: `color-mix()` enters only with Fjord token arguments (`var()`), never a literal colour. `ch` needs an explanation before it enters, because fjord-foundation moved the measure tokens from `ch` to `em`; if a measure token covers the need, `ch` stays rejected. Every new entry gets its reason in ADR-0003.
+- Change log, 2026-10-04 (ux-flows stage, decided by the Owner): AC-24 gained the rule for leaving out the Sticky action bar; AC-21 and the `/styleguide` row of §1.1 now say which Shell parts the Styleguide uses for real and which it shows as samples; D-12 says that the menu button is not shown with scripts off if the menu mechanism needs a script. Nothing else changed.
 - The e2e suite runs with reduced motion emulated, so page and theme transitions never make it unstable; AC-29 and AC-32 have their own tests with motion allowed.
 
 ### 1.1 New or extended
@@ -47,7 +48,7 @@ Nothing that fjord-foundation built is specified again. `src/components/` is emp
 | Contours, Terrain map panel, Wordmark | new | `ridge-contours` on the Not-found page is promoted to Contours |
 | SkipLink, Header, MobileMenu, ThemeToggle, CtaBand, Footer, MobileBar (Sticky action bar) | new | the Shell |
 | `src/data/contact.ts` | new | contact facts, Work region, Residence, "Sist oppdatert" date |
-| `/styleguide` | new | noindex, not linked, not in the sitemap |
+| `/styleguide` | new | noindex, not linked, not in the sitemap; uses the real header and footer, and leaves out the real Sticky action bar and the closing call-to-action band, which it shows as samples |
 | BaseLayout | extend | renders the Shell and takes the page options of AC-24 |
 | Not-found page | extend (rebuild) | per the page design; closes OQ-02 |
 | Home placeholder | unchanged | gets the Shell from the layout; content is step 4 |
@@ -85,7 +86,7 @@ Decided by the Owner; they go to the PR's design-difference list as they are.
 | D-09 | Theme switch always shown | not offered with scripts off | it could not work |
 | D-10 | "Sist oppdatert 2026-09-30", year from the clock | date from the contact data, year set at build | real values, no script |
 | D-11 | Sticky action bar slides away on scroll down | same with scripts on; stays in place with scripts off or reduced motion | AC-09 |
-| D-12 | Mobile menu is a modal dialog driven by script | mechanism chosen at the design stage, platform features first; a dialog is acceptable | Owner decision; AC-04 to AC-06 are the contract |
+| D-12 | Mobile menu is a modal dialog driven by script | mechanism chosen at the design stage, platform features first; a dialog is acceptable. If the mechanism needs a script, the menu button is not shown with scripts off, for the same reason as D-09 | Owner decision; AC-04 to AC-06 are the contract |
 
 Not a difference: the coordinates printed on the Not-found map stay "59.91° N · 10.75° E". They are decoration, hidden from assistive technology, and are not a location fact; the single-source rule for contact data does not cover them.
 
@@ -318,7 +319,7 @@ Not a difference: the coordinates printed on the Not-found map stay "59.91° N �
 
 **Given** the Owner opens the Styleguide
 **When** the page is shown in Dag and in Natt
-**Then** it shows every component of §1.1 in every state it has: default, hover, keyboard focus, pressed and disabled for interactive ones; the four header variants (default, bordered, on spruce, secondary call to action); the open menu panel; the Sticky action bar; the closing call-to-action band; the footer; and a Toast that the Owner can trigger
+**Then** it shows every component of §1.1 in every state it has: default, hover, keyboard focus, pressed and disabled for interactive ones; the four header variants (default, bordered, on spruce, secondary call to action); the open menu panel; the Sticky action bar; the closing call-to-action band; the footer; and a Toast that the Owner can trigger. The Styleguide itself uses the real header, whose theme switch is how the Owner changes between Dag and Natt, and the real footer; it leaves out the real Sticky action bar and the closing call-to-action band and shows both as samples, and the rule of AC-24 for leaving out the bar does not apply to it, as AC-23 does not
 
 ### AC-22 (US-09) — authorization
 
@@ -336,7 +337,7 @@ Not a difference: the coordinates printed on the Not-found map stay "59.91° N �
 
 **Given** the Owner builds a later page on the shared layout
 **When** they set only page options: which navigation link is current, the header variant, leaving out the Sticky action bar, leaving out the closing call-to-action band, and the CV language for the download
-**Then** the page gets the matching Shell with no change to any shared component or layout file
+**Then** the page gets the matching Shell with no change to any shared component or layout file; a page for Visitors may leave out the Sticky action bar only if it is the CV page itself or its own content links to the CV
 
 ### AC-25 (US-10) — happy
 
