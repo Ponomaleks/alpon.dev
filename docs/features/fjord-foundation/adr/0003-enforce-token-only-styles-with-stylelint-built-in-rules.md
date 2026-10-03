@@ -39,6 +39,8 @@ Fjord tokens are the only allowed source of color, font, space, radius, duration
 |---|---|---|
 | `color-no-hex` | `true` | `#24493D` |
 | `color-named` | `"never"` | `red`, `white` |
+| `function-allowed-list` | `var`, `calc`, `clamp`, `min`, `max`, `url` (see below) | any other function, including `lab()`, `oklab()`, `color-mix()` |
+| `unit-allowed-list` | `%`, `vh`, `svh`, `lvh`, `dvh`, `px` (`px` is listed only because the rule cannot scope it to media features; `unit-disallowed-list` still rejects it everywhere else) | any other unit, including `rch`, `fr`, `deg` |
 | `function-disallowed-list` | `rgb`, `rgba`, `hsl`, `hsla`, `hwb`, `oklch`, `cubic-bezier`, `steps` | literal colors and easings |
 | `unit-disallowed-list` | `px`, `rem`, `em`, `ms`, `s`; absolute and font-relative units (`pt`, `pc`, `cm`, `mm`, `in`, `Q`, `ch`, `ex`, `cap`, `ic`, `lh`, `rlh`); every viewport unit except the height ones (`vw`, `vi`, `vb`, `vmin`, `vmax` and their `s`/`l`/`d` forms); container-query units (`cqw`, `cqh`, `cqi`, `cqb`, `cqmin`, `cqmax`); with `ignoreMediaFeatureNames: { px: ['width', 'min-width', 'max-width'] }` | literal sizes, spaces, radii, durations; sizes taken from the container |
 | `declaration-property-unit-disallowed-list` | every property except `height`, `min-height`, `max-height` → `vh`, `svh`, `lvh`, `dvh` | viewport heights outside the layout allowlist (`min-height: 100dvh` passes, `top: 3vh` fails) |
@@ -51,6 +53,21 @@ Fjord tokens are the only allowed source of color, font, space, radius, duration
 Properties under `declaration-property-value-allowed-list`: color properties (`color`, `background-color`, `border*-color`, `outline-color`, `fill`, `stroke`, `caret-color`, `accent-color`, `text-decoration-color`), `font-family`, `font-size`, `font-weight`, `line-height`, `letter-spacing`, `margin*`, `padding*`, `gap`, `row-gap`, `column-gap`, `inset*`, `top`, `right`, `bottom`, `left`, `border*-radius`, `border*-width`, `outline*-width`, `outline-offset`, `box-shadow`, `transition-duration`, `transition-timing-function`, `animation-duration`, `animation-timing-function`.
 
 The `border*` and `outline*` shorthands take the same sequence plus the line styles `solid`, `dashed`, `dotted`, `double` (so `thin`, `medium`, `thick` fail).
+
+**Allow lists (R26, review 2026-10-03).** New CSS functions and units are rejected by default; the `*-disallowed-list` rules above stay because they give a clearer message for the common cases. A function or unit enters the allow list only when real code under `src/` needs it, with a reason here.
+
+| Function | Reason |
+|---|---|
+| `var` | every token reference |
+| `calc` | height values over tokens (`calc(var(--fjord-space-1) * 105)`) |
+| `clamp`, `min`, `max` | fluid sizes built from tokens, as the type scale needs |
+| `url` | asset references |
+
+| Unit | Reason |
+|---|---|
+| `%` | percentage sizes and `text-size-adjust: 100%` |
+| `vh`, `svh`, `lvh`, `dvh` | full-viewport heights, and only on `height`, `min-height`, `max-height` (per-property rule) |
+| `px` | breakpoints in media queries, which cannot use `var()`; elsewhere `unit-disallowed-list` rejects it |
 
 **Keyword allowlist:** `0`, `100%`, `auto`, `none`, `inherit`, `currentColor`, `transparent`.
 

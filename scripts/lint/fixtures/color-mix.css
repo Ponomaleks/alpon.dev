@@ -1,0 +1,3 @@
+.a {
+  background: color-mix(in srgb, var(--fjord-color-bg) 50%, var(--fjord-color-text));
+}

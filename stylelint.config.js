@@ -85,12 +85,26 @@ const tokenOnlyProperties = [
 /** The four breakpoints from CLAUDE.md; media queries cannot use var(). */
 const breakpoints = ['360px', '768px', '1024px', '1440px'];
 
+/** The only CSS functions styles may use; color and easing functions are tokens' job. */
+const allowedFunctions = ['var', 'calc', 'clamp', 'min', 'max', 'url'];
+
+/**
+ * The only units styles may use: percentages, the viewport heights (see above) and px for the
+ * breakpoints. This rule cannot scope px to media features, so unit-disallowed-list keeps
+ * rejecting px everywhere except width media features.
+ */
+const allowedUnits = ['%', 'px', ...viewportHeightUnits];
+
 /** @type {import('stylelint').Config} */
 export default {
   ignoreFiles: ['src/styles/tokens.css', 'src/styles/fonts.css'],
   rules: {
     'color-no-hex': true,
     'color-named': 'never',
+    // Allow lists reject any new function or unit by default; the disallowed lists below stay
+    // for their clearer messages.
+    'function-allowed-list': allowedFunctions,
+    'unit-allowed-list': allowedUnits,
     'function-disallowed-list': [
       'rgb',
       'rgba',
