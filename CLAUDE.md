@@ -57,12 +57,20 @@ The site itself is a portfolio piece: code quality, accessibility and performanc
 
 ## Review policy
 
-- Ship gate: no open critical, high or medium findings, and CI is green. Low findings go to `docs/backlog.md` by default. They become tasks only when the owner asks.
-- At most two review rounds per feature. Round 2 reviews only the diff of the fix commits. A third round happens only if round 2 finds medium or higher.
-- Hardening of lint or test rules against edge cases that no code under `src/` uses is backlog, not a finding.
+The SDD plugin has no severity scale or round limit; this section sets them and overrides the review skill's defaults.
+
+- Blocking findings:
+  - stage 1 findings that change what is built or how an AC is verified;
+  - stage 2 findings that are real defects: bug, security, accessibility, broken test or CI.
+
+  Only these are raised with the owner as Fix now / Defer / Not an issue.
+
+- Everything else is non-blocking. This covers doc wording and drift that changes nothing built or tested, edge-case hardening of lint or test rules that no code under `src/` uses, and style. It goes to `docs/backlog.md` without asking, and the review record lists it in one table.
+- Spec §8 is only for real open questions, never for deferred findings.
+- At most two review rounds per feature. Round 2 reviews only the changed surface (pass the commit range as the argument). A third round happens only if round 2 has a blocking finding.
 - Each fact lives in one doc. Other docs link to it by ID (AC-xx, OQ-xx, SCR-xx) and never copy values. Cite IDs, not line numbers.
-- The spec lists out-of-scope and interim surfaces up front. Review does not check them against the design.
-- Historical records (task results, past review rounds) are not edited and are not reviewed for drift.
+- The spec lists out-of-scope and interim surfaces up front, and review does not check them against the design.
+- Historical records (task results, past review rounds) are not edited and not reviewed for drift.
 
 ## Architecture decisions
 
