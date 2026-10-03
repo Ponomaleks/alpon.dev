@@ -7,6 +7,9 @@ const baseURL = `http://localhost:${PORT}`;
 // 404 page behave as they do in production on Workers static assets.
 export default defineConfig({
   testDir: './tests',
+  // Screenshots live per platform; only Linux baselines are committed (fjord-foundation sad §11).
+  snapshotPathTemplate:
+    '{testDir}/{testFileDir}/__screenshots__/{platform}/{testFileName}/{arg}{ext}',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,

@@ -1,6 +1,11 @@
 // Lighthouse CI: the per-page budget from CLAUDE.md (Quality bar), mobile emulation (the default).
-// Runs against the built dist/ with Playwright's Chromium, so CI and local use the same browser.
+// Runs with Playwright's Chromium, so CI and local use the same browser, against `wrangler dev`
+// serving the built dist/, so _headers (CSP, HSTS, …) and the Workers routing are in effect as in
+// production. Run `npm run build` first.
 const { chromium } = require('@playwright/test');
+
+const PORT = 8788; // not Playwright's 8787
+const baseUrl = `http://localhost:${PORT}`;
 
 const budget = {
   'categories:performance': ['error', { minScore: 0.95 }],
@@ -15,7 +20,12 @@ const budget = {
 module.exports = {
   ci: {
     collect: {
-      staticDistDir: './dist',
+      startServerCommand: `npx wrangler dev --port ${PORT}`,
+      startServerReadyPattern: 'Ready on',
+      startServerReadyTimeout: 60_000,
+      // Lighthouse refuses to audit a document answered with 404 (ERRORED_DOCUMENT_REQUEST), so the
+      // Not-found page is audited at its own path, served with the same headers.
+      url: [`${baseUrl}/`, `${baseUrl}/404`],
       chromePath: chromium.executablePath(),
       numberOfRuns: 3,
       settings: {
@@ -24,10 +34,11 @@ module.exports = {
     },
     assert: {
       assertMatrix: [
-        { matchingUrlPattern: '^(?!.*/404\\.html$).*', assertions: budget },
-        // The 404 page is noindex on purpose, so the SEO category does not apply to it.
+        { matchingUrlPattern: '^(?!.*/404$).*', assertions: budget },
+        // The 404 page is noindex on purpose, so the SEO category does not apply to it: Lighthouse's
+        // crawlability audit (is-crawlable) fails a noindex page by design. Recorded in spec §6/§7.
         {
-          matchingUrlPattern: '/404\\.html$',
+          matchingUrlPattern: '/404$',
           assertions: { ...budget, 'categories:seo': 'off' },
         },
       ],

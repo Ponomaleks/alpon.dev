@@ -13,3 +13,11 @@ package-lock.json
 CLAUDE.md
 README.md
 .claude/
+CONTEXT.md
+src/styles/tokens.css
+src/scripts/theme-bootstrap.js
+# Upper-case fixtures for the Stylelint rules; Prettier would lower-case them.
+scripts/lint/fixtures/container-upper.css
+scripts/lint/fixtures/breakpoint-upper.css
+scripts/lint/fixtures/breakpoint-range-upper.css
+scripts/lint/fixtures/breakpoint-allowed.css

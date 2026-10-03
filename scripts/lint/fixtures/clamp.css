@@ -1,0 +1,3 @@
+.a {
+  font-size: clamp(var(--fjord-space-1), 4%, var(--fjord-space-2));
+}

@@ -1,0 +1,58 @@
+name: Visual baselines
+
+# Writes the Linux visual baselines in the official Playwright image (the image the CI "visual"
+# job compares in) and uploads them as an artifact. The Owner reviews them against the design,
+# then commits them under tests/visual/__screenshots__/linux/ (fjord-foundation sad §11).
+#
+# Main path: add the `visual-baselines` label to the PR (create it once with
+# `gh label create visual-baselines`). Every push to the PR regenerates the baselines while the
+# label is on; download them with
+# `gh run download <run-id> -n visual-baselines-linux -D tests/visual/__screenshots__/linux`,
+# then remove the label before committing and pushing the PNGs (a push while the label is on
+# starts another baselines run). workflow_dispatch stays for runs from the
+# default branch.
+
+on:
+  workflow_dispatch:
+  pull_request:
+    types: [labeled, synchronize]
+
+permissions:
+  contents: read
+
+jobs:
+  baselines:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.pull_request.labels.*.name, 'visual-baselines')
+    # On the job, not the workflow (review S1-08): at workflow level, a run for any other label
+    # cancelled a running baseline job and was then skipped by `if:`. A job that `if:` skips
+    # never starts, so it is not meant to take the group from a running baseline job.
+    concurrency:
+      group: visual-baselines-${{ github.ref }}
+      cancel-in-progress: true
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
+      options: --user 1001
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      - name: Write the visual baselines
+        env:
+          FJORD_VISUAL: write
+        run: npx playwright test tests/visual --project desktop --update-snapshots=all
+
+      - name: Upload the baselines for review
+        uses: actions/upload-artifact@v7
+        with:
+          name: visual-baselines-linux
+          path: tests/visual/__screenshots__/linux/
+          if-no-files-found: error
+          retention-days: 14

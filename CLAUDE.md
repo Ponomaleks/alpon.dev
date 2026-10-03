@@ -16,7 +16,10 @@ The site itself is a portfolio piece: code quality, accessibility and performanc
 
 ## Sources of truth (read before changing UI)
 
-1. `design/handoff/` - bundle exported from Claude Design ("Fjord" design system + page designs). Read-only.
+1. `design/handoff/` - bundle exported from Claude Design. Read-only. It has two levels:
+   - `design/handoff/site/` (page designs: `project/site/*.jsx`, `alpon.dev standalone.html`) is the source of truth for what each page looks like: layout, content, sections, copy. Reference screenshots of the page designs are in `design/screenshots/`.
+   - `design/handoff/design-system/` provides the building blocks: tokens, components, states. Component demos are examples, not page specs.
+   - If a page design and a component demo differ, the page design wins; the component is adapted or extended to match it. The site bundles its own, newer copy of the design system (`design/handoff/site/project/_ds/`), so a component there can differ from `design/handoff/design-system/`. `BRAND.md` still wins over both for brand rules. List conflicts in the PR.
 2. `design/brand/BRAND.md` and `design/brand/tokens.json` - brand rules. If the handoff conflicts with BRAND.md, BRAND.md wins; report the conflict in the PR description.
 3. `docs/` - artifacts of the SDD workflow (idea brief, specs, plans, tasks). The current SDD spec defines scope; implement only what it asks for.
 4. `docs/reference/` - early drafts written before the SDD workflow (e.g. 01-foundations.md, phase 1 scaffold scope). Use them as input; if they differ from SDD artifacts, the SDD artifacts win.
@@ -51,6 +54,23 @@ The site itself is a portfolio piece: code quality, accessibility and performanc
 - Performance budget per page (Lighthouse mobile): Performance, Accessibility, Best Practices, SEO >= 95; LCP <= 2.0 s; CLS <= 0.02; TBT <= 100 ms; initial JS <= 50 KB gzip (islands loaded on interaction do not count).
 - No layout shift from fonts (preload the 2 critical files, `font-display: swap`, metric-matched fallbacks).
 - Security headers in `public/_headers` (CSP without `unsafe-inline` scripts where possible, HSTS, Referrer-Policy, Permissions-Policy).
+
+## Review policy
+
+The SDD plugin has no severity scale or round limit; this section sets them and overrides the review skill's defaults.
+
+- Blocking findings:
+  - stage 1 findings that change what is built or how an AC is verified;
+  - stage 2 findings that are real defects: bug, security, accessibility, broken test or CI.
+
+  Only these are raised with the owner as Fix now / Defer / Not an issue.
+
+- Everything else is non-blocking. This covers doc wording and drift that changes nothing built or tested, edge-case hardening of lint or test rules that no code under `src/` uses, and style. It goes to `docs/backlog.md` without asking, and the review record lists it in one table.
+- Spec §8 is only for real open questions, never for deferred findings.
+- At most two review rounds per feature. Round 2 reviews only the changed surface (pass the commit range as the argument). A third round happens only if round 2 has a blocking finding.
+- Each fact lives in one doc. Other docs link to it by ID (AC-xx, OQ-xx, SCR-xx) and never copy values. Cite IDs, not line numbers.
+- The spec lists out-of-scope and interim surfaces up front, and review does not check them against the design.
+- Historical records (task results, past review rounds) are not edited and not reviewed for drift.
 
 ## Architecture decisions
 
@@ -91,7 +111,8 @@ tools/             sources for the OG image, contours and CV previews (not deplo
 
 - Follow the SDD workflow. Before coding, restate the acceptance criteria from the current SDD spec and list open questions.
 - Small commits, one PR per spec (or per logical part of it). PR description: what changed, screenshots at 390 / 834 / 1440 in both themes, test results, conflicts with the design.
-- After each UI change, run the visual tests and compare with the design screenshots in `design/`.
+- After each UI change, run the visual tests and compare with the page-design screenshots in `design/screenshots/`, not with component demos.
+- Every screen in a feature's `screens.md` cites its page design (file and screen in `design/handoff/site/`) as the primary reference; component files are secondary. The "Design match" review compares the built page with the page-design screenshots in `design/screenshots/` and lists every difference.
 - Do not add dependencies without explaining why in the PR. Prefer platform features (CSS, View Transitions, native `<dialog>`, `popover`).
 - Commands: `npm run dev`, `npm run build`, `npm run preview` (`wrangler dev` on `dist/`, production routing), `npm run test` (Playwright e2e + axe against `wrangler dev`), `npm run lint` (`astro check` + ESLint + Prettier check), `npm run format`, `npm run lhci` (Lighthouse CI on `dist/`, run after a build).
 - Parity gate: `main` serves the stub until v2 reaches parity. `tests/e2e/parity.spec.ts` mirrors `docs/stub-parity.md`; the feature spec that builds an item flips its `test.fixme` to `test`. v2 goes to `main` only when no `test.fixme` is left.

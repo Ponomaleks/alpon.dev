@@ -1,0 +1,4 @@
+.a {
+  width: 12pt;
+  box-shadow: 0 0 0 4mm var(--fjord-color-focus-ring);
+}

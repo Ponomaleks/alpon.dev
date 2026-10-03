@@ -12,7 +12,12 @@
     "build": "astro build",
     "preview": "wrangler dev",
     "test": "playwright test",
-    "lint": "astro check && eslint . && prettier --check .",
+    "test:unit": "vitest run",
+    "lint": "npm run tokens:check && npm run check:contrast && astro check && eslint . && prettier --check . && stylelint \"src/**/*.{css,astro}\" --allow-empty-input",
+    "tokens:build": "node scripts/tokens/build.ts",
+    "tokens:check": "node scripts/tokens/build.ts --check",
+    "check:contrast": "node scripts/check-contrast.ts",
+    "check:budgets": "node scripts/check-budgets.ts",
     "format": "prettier --write .",
     "lhci": "lhci autorun"
   },
@@ -22,17 +27,24 @@
   "devDependencies": {
     "@astrojs/check": "0.9.10",
     "@axe-core/playwright": "4.13.0",
+    "@capsizecss/metrics": "4.3.0",
+    "@capsizecss/unpack": "4.0.1",
     "@eslint/js": "10.0.1",
     "@lhci/cli": "0.15.1",
     "@playwright/test": "1.63.0",
     "@types/node": "24.19.1",
     "eslint": "10.11.0",
     "eslint-plugin-astro": "3.2.1",
+    "fontkitten": "1.0.3",
     "globals": "17.13.0",
+    "parse5": "7.3.0",
+    "postcss-html": "2.0.0",
     "prettier": "3.9.9",
     "prettier-plugin-astro": "1.1.0",
+    "stylelint": "17.16.0",
     "typescript": "5.9.3",
     "typescript-eslint": "8.71.0",
+    "vitest": "5.0.3",
     "wrangler": "4.146.0"
   }
 }

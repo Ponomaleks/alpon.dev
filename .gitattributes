@@ -1,0 +1,2 @@
+# The theme bootstrap is inlined and hashed into the CSP (fjord-foundation ADR-0002): keep LF.
+src/scripts/*.js text eol=lf

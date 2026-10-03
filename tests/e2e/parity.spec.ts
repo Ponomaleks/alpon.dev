@@ -78,7 +78,12 @@ test.describe('static files and headers', () => {
     expect(cv.headers()['cache-control']).toContain('must-revalidate');
   });
 
-  test.fixme("P-16 home CSP: script-src 'self' plus a hash, no 'unsafe-inline'", async () => {});
+  test("P-16 home CSP: script-src 'self' plus a hash, no 'unsafe-inline'", async ({ request }) => {
+    const policy = (await request.get('/')).headers()['content-security-policy'] ?? '';
+    const scriptSrc = policy.split(';').find((d) => d.trim().startsWith('script-src'));
+    expect(scriptSrc?.trim()).toMatch(/^script-src 'self' 'sha256-[A-Za-z0-9+/]+={0,2}'$/);
+    expect(policy).not.toContain("'unsafe-inline'");
+  });
 });
 
 test.describe('home page', () => {
@@ -88,7 +93,14 @@ test.describe('home page', () => {
   test.fixme('P-23 "Save contact" downloads the vCard', async () => {});
   test.fixme('P-24 head meta, Open Graph and JSON-LD Person', async () => {});
   test.fixme('P-25 skip link is the first focusable element', async () => {});
-  test.fixme('P-26 Schibsted Grotesk 400 and 600 are preloaded', async () => {});
+  test('P-26 Schibsted Grotesk 400 and 600 are preloaded', async ({ page }) => {
+    await page.goto('/');
+    const preloads = page.locator('link[rel="preload"][as="font"][type="font/woff2"][crossorigin]');
+    await expect(preloads).toHaveCount(2);
+    expect(await preloads.evaluateAll((links) => links.map((l) => l.getAttribute('href')))).toEqual(
+      ['/fonts/schibsted-grotesk-400.woff2', '/fonts/schibsted-grotesk-600.woff2'],
+    );
+  });
 });
 
 test.describe('CV viewer', () => {
@@ -105,5 +117,11 @@ test.describe('404', () => {
     expect(response.status()).toBe(404);
   });
 
-  test.fixme('P-41 404 page shows "404 · Ikke funnet", noindex, link to /', async () => {});
+  test('P-41 404 page shows "404 · Ikke funnet", noindex, link to /', async ({ page }) => {
+    const response = await page.goto('/this-path-does-not-exist');
+    expect(response?.status()).toBe(404);
+    await expect(page.getByText('404 · Ikke funnet')).toBeVisible();
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex');
+    await expect(page.getByRole('link', { name: 'Back to home' })).toHaveAttribute('href', '/');
+  });
 });

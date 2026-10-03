@@ -26,6 +26,28 @@ npx playwright install chromium   # один раз, для тестів і Ligh
 
 CI: `.github/workflows/ci.yml` на кожен PR і push у `main` / `v2` — lint, build, test, lhci.
 
+### Visual baselines
+
+Візуальні тести (`tests/visual/`) порівнюють сторінку з Linux-еталонами в `tests/visual/__screenshots__/linux/`, знятими в офіційному образі Playwright (`mcr.microsoft.com/playwright:v1.63.0-noble`, версія = `@playwright/test`). Без еталона job `visual` у CI падає.
+
+Основний шлях: додати до PR мітку `visual-baselines`. Workflow `.github/workflows/visual-baselines.yml` збирає сайт, пише еталони (`FJORD_VISUAL=write`) і викладає PNG як артефакт `visual-baselines-linux`; кожен новий push у PR, поки мітка є, генерує їх заново. Переглянути PNG проти дизайну, зняти мітку і лише тоді закомітити їх у `tests/visual/__screenshots__/linux/` та запушити: інакше push з еталонами ще раз запустить baselines.
+
+```sh
+gh label create visual-baselines --description "Write the Linux visual baselines on this PR"
+gh pr edit <pr> --add-label visual-baselines
+gh run list --workflow visual-baselines.yml --limit 1
+gh run download <run-id> -n visual-baselines-linux -D tests/visual/__screenshots__/linux
+gh pr edit <pr> --remove-label visual-baselines   # до коміту й push еталонів
+```
+
+Мітку створюють один раз на репозиторій. `gh run download` кладе PNG прямо в `tests/visual/__screenshots__/linux/`.
+
+Запасний шлях, локально в Docker (той самий образ; анонімний том для `node_modules`, щоб не зачепити Windows-залежності):
+
+```powershell
+docker run --rm --ipc=host -v "${PWD}:/work" -v /work/node_modules -w /work -e FJORD_VISUAL=write mcr.microsoft.com/playwright:v1.63.0-noble bash -c "npm ci && npx playwright test tests/visual --project desktop --update-snapshots=all"
+```
+
 ```
 alpon.dev/
 ├─ astro.config.mjs        Astro: static, build.format 'file', trailingSlash 'never'
@@ -52,7 +74,7 @@ Workers Builds не читає custom build з `wrangler.jsonc`, а налашт
 
 Preview URL гілки `v2` видно у Worker `alpon-dev` → **Deployments** (або в статусі коміту на GitHub).
 
-Node: образ Workers Builds за замовчуванням має Node 24 і читає `.nvmrc`. Версію, яку реально використано, видно в лозі першої збірки `v2`; якщо там не 24, додати build variable `NODE_VERSION=24`.
+Node: Workers Builds читає `.nvmrc` — перша збірка `v2` (2026-10-02) встановила Node 24.21.0, тож build variable `NODE_VERSION` не потрібна. Якщо колись у лозі буде інша версія, додати `NODE_VERSION=24` для non-production гілок.
 
 Під час злиття `v2` → `main` змінити production deploy command на `npm run build && npx wrangler deploy`.
 

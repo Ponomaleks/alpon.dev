@@ -1,12 +1,178 @@
 ---
+// SCR-02 Fjord Not-found page (fjord-foundation screens.md), built from the design's NotFound
+// (.fj-404). Page-local pieces until step 3 promotes them: home-link (→ components/ui/Button)
+// and ridge-contours (→ components/brand/Contours), with the same token names and markup.
+// The requested address is never shown back (AC-07); "See projects" waits for a Published
+// project (AC-08, step 7).
+import { contourData } from '../../design/handoff/design-system/project/components/brand/contourData.js';
 import BaseLayout from '../layouts/BaseLayout.astro';
+
+// The design's ridge, anchored top-right: flipped on both axes from its natural low-left place.
+const ridgePaths: string[] = contourData.ridge;
 ---
 
 <BaseLayout title="Ikke funnet · alpon.dev" description="Page not found." noindex>
-  <main>
-    <h1>404 · Ikke funnet</h1>
-    <p>
-      <a href="/">Back to alpon.dev</a>
-    </p>
+  <main class="wrap">
+    <section class="not-found" aria-labelledby="not-found-title">
+      <div class="ridge-contours" aria-hidden="true">
+        <svg
+          class="ridge"
+          viewBox={contourData.viewBox}
+          preserveAspectRatio="xMaxYMin slice"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <g transform="translate(85 55) scale(-1 -1)" fill="none" stroke-width="1">
+            {ridgePaths.map((d) => (
+              <path d={d} vector-effect="non-scaling-stroke" />
+            ))}
+          </g>
+        </svg>
+      </div>
+      <span class="code">
+        404 · <span lang="no">Ikke funnet</span>
+      </span>
+      <h1 class="title" id="not-found-title">
+        Page not found
+      </h1>
+      <p class="body">This page is off the map. The link may be old, or the page has moved.</p>
+      <div class="actions">
+        <a class="home-link" href="/">
+          Back to home
+          <svg
+            class="arrow"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <path d="M5 12h14"></path>
+            <path d="m12 5 7 7-7 7"></path>
+          </svg>
+        </a>
+      </div>
+    </section>
   </main>
 </BaseLayout>
+
+<style>
+  .wrap {
+    width: 100%;
+    max-width: calc(var(--fjord-content-max) + 2 * var(--fjord-grid-margin));
+    margin: 0 auto;
+    padding: 0 var(--fjord-grid-margin);
+  }
+
+  /* .fj-404: content stacked at the bottom of a min-height section, the ridge behind it. */
+  /* No overflow clipping here: the ridge clips itself, and the home-link focus ring sits flush
+     with the left edge (review F-08). */
+  .not-found {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: var(--fjord-space-4);
+    min-height: calc(var(--fjord-space-1) * 105);
+    padding: var(--fjord-space-12) 0;
+  }
+
+  .not-found > :not(.ridge-contours) {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ridge-contours: static, no drift or parallax (screens.md ridge constraints). */
+  .ridge-contours {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .ridge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: block;
+    width: 150%;
+    height: 150%;
+    overflow: visible;
+    stroke: var(--fjord-color-contour-line);
+  }
+
+  .code {
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-mono-label);
+    font-weight: var(--fjord-weight-medium);
+    line-height: var(--fjord-leading-display);
+    font-variant-numeric: var(--fjord-numeric);
+    color: var(--fjord-color-text-muted);
+  }
+
+  .title {
+    font-size: var(--fjord-text-display);
+    letter-spacing: var(--fjord-tracking-display);
+    line-height: var(--fjord-leading-display);
+  }
+
+  .body {
+    margin: 0;
+    max-width: var(--fjord-measure-narrow);
+    color: var(--fjord-color-text-muted);
+    font-size: var(--fjord-text-lead);
+    line-height: var(--fjord-leading-mono);
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--fjord-space-3);
+    margin-top: var(--fjord-space-2);
+  }
+
+  /* home-link: the design's .fj-btn.fj-btn--primary with an arrow, same token names. */
+  .home-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--fjord-space-2);
+    height: var(--fjord-tap-min);
+    padding: 0 var(--fjord-space-4);
+    border: var(--fjord-border-width) solid transparent;
+    border-radius: var(--fjord-radius-md);
+    background-color: var(--fjord-color-cta-bg);
+    color: var(--fjord-color-cta-text);
+    font-family: var(--fjord-font-sans);
+    font-size: var(--fjord-text-body-sm);
+    font-weight: var(--fjord-weight-semibold);
+    line-height: var(--fjord-leading-display);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .home-link:hover,
+  .home-link:focus-visible {
+    background-color: var(--fjord-color-cta-hover);
+    color: var(--fjord-color-cta-text);
+  }
+
+  .arrow {
+    flex: none;
+    width: var(--fjord-icon-sm);
+    height: var(--fjord-icon-sm);
+    stroke-width: var(--fjord-icon-stroke);
+  }
+
+  /* Color only, and only for visitors who did not ask for reduced motion (AC-14). */
+  @media (prefers-reduced-motion: no-preference) {
+    .home-link {
+      transition-property: background-color, color;
+      transition-duration: var(--fjord-duration-200);
+      transition-timing-function: var(--fjord-ease-out);
+    }
+  }
+</style>

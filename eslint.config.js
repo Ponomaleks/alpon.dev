@@ -26,6 +26,12 @@ export default defineConfig(
     },
   },
   {
+    // The theme bootstrap is the ADR-0001 snippet verbatim (its CSP hash depends on every byte):
+    // an empty catch is the point — a storage error means "no Theme choice".
+    files: ['src/scripts/theme-bootstrap.js'],
+    rules: { 'no-empty': 'off', '@typescript-eslint/no-unused-vars': 'off' },
+  },
+  {
     // CommonJS config files (lighthouserc.cjs): LHCI loads them with require().
     files: ['**/*.cjs'],
     languageOptions: { sourceType: 'commonjs' },

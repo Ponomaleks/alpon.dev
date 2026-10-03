@@ -1,0 +1,948 @@
+{
+  "slug": "fjord-foundation",
+  "tasks": [
+    {
+      "id": "T1",
+      "title": "Install the check toolchain: Vitest and Stylelint with the ADR-0003 rule set",
+      "layer": "wiring",
+      "deps": [],
+      "acs": [
+        "AC-11"
+      ],
+      "dod": "npm run lint runs stylelint over src/**/*.{css,astro} with the ADR-0003 rule set and exits 0 on the repo; npm run test:unit runs Vitest in CI; a Vitest fixture test shows every banned literal reported with file and line while token-only CSS passes.",
+      "files_hint": [
+        "package.json",
+        "package-lock.json",
+        "vitest.config.ts",
+        "stylelint.config.js",
+        "scripts/lint/",
+        ".github/workflows/ci.yml"
+      ]
+    },
+    {
+      "id": "T2",
+      "title": "Ship the seven brand faces and their metric-matched fallback faces",
+      "layer": "wiring",
+      "deps": [
+        "T1"
+      ],
+      "acs": [
+        "AC-05",
+        "AC-15"
+      ],
+      "dod": "public/fonts holds the 7 brand woff2 files, each ≤ 30 KB with æ ø å and the en/em dashes (Vitest reads their cmap); tools/fonts computes the Arial and Roboto fallback overrides, verified by Vitest against the TTF metrics; src/styles/fonts.css holds only the @font-face rules.",
+      "files_hint": [
+        "tools/fonts/",
+        "public/fonts/",
+        "src/styles/fonts.css"
+      ]
+    },
+    {
+      "id": "T3",
+      "title": "Generate tokens.css from the design sources with Dag, Natt and the no-JS Natt block",
+      "layer": "wiring",
+      "deps": [
+        "T1"
+      ],
+      "acs": [
+        "AC-01",
+        "AC-02",
+        "AC-04"
+      ],
+      "dod": "node scripts/tokens/build.ts writes src/styles/tokens.css with the ADR-0001 block layout; Vitest proves a brand/handoff palette conflict fails naming token and both values, both Natt lists are identical, and a Natt-only token from any handoff file reaches both Natt blocks.",
+      "files_hint": [
+        "scripts/tokens/",
+        "src/styles/tokens.css"
+      ]
+    },
+    {
+      "id": "T4",
+      "title": "Extend the generator with reduced-motion tokens, fallback font stacks and --check mode",
+      "layer": "wiring",
+      "deps": [
+        "T3"
+      ],
+      "acs": [
+        "AC-05",
+        "AC-14"
+      ],
+      "dod": "tokens.css carries the reduced-motion overrides and --fjord-duration-fade and the font stacks with the fallback faces; generator --check fails naming the file when tokens.css is stale and runs in npm run lint; Vitest covers stale and fresh cases.",
+      "files_hint": [
+        "scripts/tokens/",
+        "src/styles/tokens.css",
+        "package.json"
+      ]
+    },
+    {
+      "id": "T5",
+      "title": "Add the contrast check over the generated tokens",
+      "layer": "tests",
+      "deps": [
+        "T3"
+      ],
+      "acs": [
+        "AC-10"
+      ],
+      "dod": "scripts/check-contrast.ts computes every manifest pair in Dag, Natt and on-spruce and runs in npm run lint; a Vitest fixture with a lowered pair fails naming pair, theme and measured ratio; the real tokens pass and both Natt blocks are asserted identical.",
+      "files_hint": [
+        "scripts/check-contrast.ts",
+        "scripts/contrast-pairs.ts",
+        "package.json"
+      ]
+    },
+    {
+      "id": "T6",
+      "title": "Port the handoff base.css as token-only element styles",
+      "layer": "ui",
+      "deps": [
+        "T4"
+      ],
+      "acs": [
+        "AC-04",
+        "AC-14"
+      ],
+      "dod": "src/styles/base.css covers the element base (box sizing, page background and text, type, headings, links, :focus-visible, selection) using only --fjord-* tokens and allowlisted keywords; Stylelint reports zero findings; it declares no animation and only token-based transitions.",
+      "files_hint": [
+        "src/styles/base.css"
+      ]
+    },
+    {
+      "id": "T7",
+      "title": "Add the theme bootstrap and the BaseLayout head contract, with the home placeholder on it (SCR-01)",
+      "layer": "ui",
+      "deps": [
+        "T2",
+        "T4",
+        "T6"
+      ],
+      "acs": [
+        "AC-01",
+        "AC-02",
+        "AC-03",
+        "AC-06",
+        "AC-13"
+      ],
+      "dod": "BaseLayout renders the sad §8 head order with the ADR-0001 bootstrap inlined first and exactly two font preloads; index.astro passes only title and description and renders SCR-01; npm run build succeeds and the existing smoke and a11y suites stay green.",
+      "files_hint": [
+        "src/scripts/theme-bootstrap.js",
+        "src/layouts/BaseLayout.astro",
+        "src/pages/index.astro"
+      ]
+    },
+    {
+      "id": "T8",
+      "title": "Generate the bootstrap hash into a single /* CSP rule with a fail-closed build integration",
+      "layer": "wiring",
+      "deps": [
+        "T1",
+        "T7"
+      ],
+      "acs": [
+        "AC-09",
+        "AC-12"
+      ],
+      "dod": "npm run build writes dist/_headers with one CSP line under /* carrying the bootstrap sha256 and no 'unsafe-inline'; Vitest fixtures for all four ADR-0002 fail rules pass, including the ld+json allowance; editing the bootstrap and rebuilding updates the hash with no manual edit.",
+      "files_hint": [
+        "src/integrations/",
+        "public/_headers",
+        "astro.config.mjs"
+      ]
+    },
+    {
+      "id": "T9",
+      "title": "Build the Fjord Not-found page (SCR-02) with the page-local home-link and ridge contours",
+      "layer": "ui",
+      "deps": [
+        "T7"
+      ],
+      "acs": [
+        "AC-07",
+        "AC-08"
+      ],
+      "dod": "src/pages/404.astro renders every SCR-02 state from screens.md (code line 404 · Ikke funnet with lang=no, h1 Page not found, the body copy, the single primary Back to home link, static aria-hidden ridge), noindex, no See projects, no echoed path, no inline style; Stylelint is clean and home-link / ridge-contours are registered in docs/design-system.md.",
+      "files_hint": [
+        "src/pages/404.astro",
+        "docs/design-system.md"
+      ]
+    },
+    {
+      "id": "T10",
+      "title": "Add the budget check for bootstrap, JS and font sizes",
+      "layer": "tests",
+      "deps": [
+        "T2",
+        "T7"
+      ],
+      "acs": [
+        "AC-06"
+      ],
+      "dod": "scripts/check-budgets.ts runs after npm run build in CI and fails, naming file and size, when the bootstrap exceeds 1 KB, a page's initial JS exceeds 50 KB gzip, a page preloads other than exactly 2 fonts or more than 60 KB combined, or any shipped font exceeds 30 KB; a Vitest fixture proves each failure.",
+      "files_hint": [
+        "scripts/check-budgets.ts",
+        "package.json",
+        ".github/workflows/ci.yml"
+      ]
+    },
+    {
+      "id": "T11",
+      "title": "Cover the theme matrix end to end, including blocked storage and scripts off",
+      "layer": "tests",
+      "deps": [
+        "T7"
+      ],
+      "acs": [
+        "AC-01",
+        "AC-02",
+        "AC-03",
+        "AC-04"
+      ],
+      "dod": "tests/e2e/theme.spec.ts passes for the 6 stored-choice × device combinations plus unknown value and blocked storage (data-theme set once, dag or natt, equal at first rAF and at load, color-scheme matching) and for scripts off with device light and dark.",
+      "files_hint": [
+        "tests/e2e/theme.spec.ts"
+      ]
+    },
+    {
+      "id": "T12",
+      "title": "Verify the delivered security policy end to end and flip P-16",
+      "layer": "tests",
+      "deps": [
+        "T8"
+      ],
+      "acs": [
+        "AC-09",
+        "AC-12"
+      ],
+      "dod": "tests/e2e/headers.spec.ts asserts exactly one CSP header with the bootstrap hash and no 'unsafe-inline' on /, on a 404 response and on the EN CV PDF, and that an injected inline script is refused while the bootstrap runs; P-16 in parity.spec.ts is a passing test.",
+      "files_hint": [
+        "tests/e2e/headers.spec.ts",
+        "tests/e2e/parity.spec.ts"
+      ]
+    },
+    {
+      "id": "T13",
+      "title": "Verify font loading end to end and flip P-26",
+      "layer": "tests",
+      "deps": [
+        "T7"
+      ],
+      "acs": [
+        "AC-05",
+        "AC-06",
+        "AC-15"
+      ],
+      "dod": "tests/e2e/fonts.spec.ts proves only Schibsted 400 and 600 are requested before render, other weights load only when used, æ ø å render from the brand files at every design weight with no synthesized bold, and the Roboto fallback face renders while brand fonts are blocked; P-26 is a passing test.",
+      "files_hint": [
+        "tests/e2e/fonts.spec.ts",
+        "tests/e2e/parity.spec.ts"
+      ]
+    },
+    {
+      "id": "T14",
+      "title": "Verify the Not-found page and reduced motion end to end and flip P-41",
+      "layer": "tests",
+      "deps": [
+        "T9"
+      ],
+      "acs": [
+        "AC-07",
+        "AC-08",
+        "AC-14"
+      ],
+      "dod": "tests/e2e/not-found.spec.ts asserts a 404 status, the SCR-02 content, noindex, a single link to / that reaches home, no See projects and no echoed path (also for a crafted path with markup), and that under reduced motion neither page has running animations; P-41 is a passing test.",
+      "files_hint": [
+        "tests/e2e/not-found.spec.ts",
+        "tests/e2e/parity.spec.ts"
+      ]
+    },
+    {
+      "id": "T15",
+      "title": "Add axe checks in Dag and Natt and the Not-found visual baselines; capture the Natt references",
+      "layer": "tests",
+      "deps": [
+        "T9"
+      ],
+      "acs": [
+        "AC-01",
+        "AC-04",
+        "AC-07"
+      ],
+      "dod": "axe reports 0 violations on / and the Not-found page in Dag and Natt; tests/visual/not-found.spec.ts compares 390 / 834 / 1440 × Dag / Natt against Linux baselines at ≤ 0.1% differing pixels; the missing Natt reference screenshots are added to design/screenshots/ (roadmap D1).",
+      "files_hint": [
+        "tests/a11y/",
+        "tests/visual/",
+        "playwright.config.ts",
+        "design/screenshots/"
+      ]
+    },
+    {
+      "id": "T16",
+      "title": "Run Lighthouse on both pages with the Roboto-only runner and protect v2 and main",
+      "layer": "wiring",
+      "deps": [
+        "T9",
+        "T10"
+      ],
+      "acs": [
+        "AC-05",
+        "AC-06"
+      ],
+      "dod": "CI installs Roboto and no Arial before tests and Lighthouse; npm run lhci on / and 404.html meets every spec §6 Lighthouse budget; branch protection on v2 and main requires the CI job and main allows no direct push, applied by the Owner and recorded in the PR.",
+      "files_hint": [
+        ".github/workflows/ci.yml",
+        "lighthouserc.cjs"
+      ]
+    },
+    {
+      "id": "R1",
+      "title": "Parse built HTML with a real parser in the CSP audit and hash a CRLF-normalised bootstrap",
+      "layer": "wiring",
+      "deps": [],
+      "acs": [
+        "AC-09",
+        "AC-12"
+      ],
+      "dod": "The CSP audit walks a parsed DOM (htmlparser2 or parse5 devDependency, justified in the PR) instead of regexes; Vitest fixtures with data-src=, data-type=\"application/ld+json\" and a '>' inside an attribute value before style=/onclick= each fail naming the page; the bootstrap text is read once, CRLF-normalised, and that same string is inlined and hashed; a Vitest case with a CRLF source still builds with a matching hash; .gitattributes sets src/scripts/*.js text eol=lf; build, lint, unit green.",
+      "files_hint": [
+        "src/integrations/csp.ts",
+        "src/integrations/csp.test.ts",
+        "src/integrations/fixtures/",
+        "src/layouts/BaseLayout.astro",
+        "package.json",
+        "package-lock.json",
+        ".gitattributes"
+      ],
+      "source": "review-2026-10-02 F-06, F-17"
+    },
+    {
+      "id": "R2",
+      "title": "Prove with a real rebuild that editing the bootstrap updates the delivered policy",
+      "layer": "tests",
+      "deps": [
+        "R1"
+      ],
+      "acs": [
+        "AC-12"
+      ],
+      "dod": "A Vitest integration test copies the site sources into a temp root, changes one character of the bootstrap, runs astro build there, and asserts the new sha256 is in dist/_headers and the old one is not; no edits outside the temp root.",
+      "files_hint": [
+        "src/integrations/csp.build.test.ts",
+        "scripts/test-utils/build-site.ts"
+      ],
+      "source": "review-2026-10-02 F-03"
+    },
+    {
+      "id": "R3",
+      "title": "Bootstrap without globals, one Norwegian language code, no viewport-fit, Norwegian 'Oslo, Norge'",
+      "layer": "ui",
+      "deps": [
+        "R1"
+      ],
+      "acs": [
+        "AC-01",
+        "AC-02",
+        "AC-03",
+        "AC-13"
+      ],
+      "dod": "The bootstrap creates no global (window.t undefined after it runs) and the ADR-0001 snippet matches it; BaseLayout's lang prop uses 'no' (not 'nb'); the viewport meta has no viewport-fit=cover; home renders 'Oslo, Norge' inside an element with lang=\"no\"; unit tests cover each; build, lint, unit green.",
+      "files_hint": [
+        "src/scripts/theme-bootstrap.js",
+        "src/scripts/theme-bootstrap.test.ts",
+        "docs/features/fjord-foundation/adr/0001-pair-a-validating-theme-bootstrap-with-generated-natt-blocks.md",
+        "src/layouts/BaseLayout.astro",
+        "src/layouts/BaseLayout.test.ts",
+        "src/pages/index.astro"
+      ],
+      "source": "review-2026-10-02 F-11, F-12, F-13, F-18"
+    },
+    {
+      "id": "R4",
+      "title": "Close the token-only lint gaps: shorthands, units, size and radius, unknown tokens",
+      "layer": "tests",
+      "deps": [],
+      "acs": [
+        "AC-11"
+      ],
+      "dod": "Fixtures for border-radius, size (font-size/width), keyword easing inside transition/animation, raw values in font/border shorthands, pt and other absolute units, viewport units outside the allowlist, and an undeclared var(--fjord-*) each fail naming file and line; token-only.css uses only declared tokens and passes; viewport units allowed only through an explicit property allowlist (e.g. min-height: 100dvh); npm run lint is clean on src/.",
+      "files_hint": [
+        "stylelint.config.js",
+        "scripts/lint/",
+        "src/styles/",
+        "src/pages/"
+      ],
+      "source": "review-2026-10-02 F-04, F-09"
+    },
+    {
+      "id": "R5",
+      "title": "Not-found: unclipped focus ring, arrow icon from tokens, measured 44px target",
+      "layer": "ui",
+      "deps": [
+        "R3",
+        "R4"
+      ],
+      "acs": [
+        "AC-07"
+      ],
+      "dod": ".not-found no longer clips its children (the ridge clips itself); an e2e check shows the focused 'Back to home' outline box lies inside the section and the link's rendered height is >= 44px at 390 and 1440; the arrow's size and stroke come from --fjord-icon-sm / --fjord-icon-stroke in CSS; build, lint, unit, e2e green.",
+      "files_hint": [
+        "src/pages/404.astro",
+        "src/pages/_404.test.ts",
+        "tests/e2e/not-found.spec.ts"
+      ],
+      "source": "review-2026-10-02 F-08, F-14, F-20"
+    },
+    {
+      "id": "R6",
+      "title": "Make reduced-motion tokens fail loudly and add the base reduced-motion guard",
+      "layer": "wiring",
+      "deps": [
+        "R4"
+      ],
+      "acs": [
+        "AC-14"
+      ],
+      "dod": "The generator matches motion tokens by an anchored name pattern, throws on a matched value that is not a plain number, and resets scale tokens by how the handoff uses them (factor -> 1, delta -> 0); a unit test asserts no reduced-motion token can make an element invisible; base.css under prefers-reduced-motion: reduce sets animation-iteration-count: 1 and scroll-behavior: auto on all elements; tokens:check, lint, unit green.",
+      "files_hint": [
+        "scripts/tokens/generate.ts",
+        "scripts/tokens/build.test.ts",
+        "src/styles/tokens.css",
+        "src/styles/base.css",
+        "scripts/lint/base-css.test.ts"
+      ],
+      "source": "review-2026-10-02 F-15, F-16"
+    },
+    {
+      "id": "R7",
+      "title": "Keep the Dag warning pair visible as a named known contrast failure",
+      "layer": "tests",
+      "deps": [],
+      "acs": [
+        "AC-10"
+      ],
+      "dod": "warning on warning-soft and text on warning-soft are in the manifest; the check treats the warning pair as a named known failure (it must fail, by name, or the check errors) and prints pair, theme, ratio and 'known failure, fix before step 7 Callout' on every run; text on warning-soft passes normally; check:contrast and unit green.",
+      "files_hint": [
+        "scripts/contrast-pairs.ts",
+        "scripts/check-contrast.ts",
+        "scripts/check-contrast.test.ts"
+      ],
+      "source": "review-2026-10-02 F-02"
+    },
+    {
+      "id": "R8",
+      "title": "Assert drawn brand fonts with scripts off and measure text runs in the font-swap test",
+      "layer": "tests",
+      "deps": [
+        "R5"
+      ],
+      "acs": [
+        "AC-04",
+        "AC-05"
+      ],
+      "dod": "The scripts-off e2e asserts via CDP CSS.getPlatformFontsForNode that h1 is drawn with the custom Schibsted Grotesk face; the font-swap test compares text-run rects (Range) and baselines, not block boxes; each strengthened assertion is shown to fail against a deliberately broken variant (fonts blocked / wrong size-adjust) before being kept.",
+      "files_hint": [
+        "tests/e2e/theme.spec.ts",
+        "tests/e2e/fonts.spec.ts"
+      ],
+      "source": "review-2026-10-02 F-05, F-10"
+    },
+    {
+      "id": "R9",
+      "title": "Make missing visual baselines fail CI and add a manual baseline workflow",
+      "layer": "wiring",
+      "deps": [],
+      "acs": [
+        "AC-01",
+        "AC-07"
+      ],
+      "dod": "In CI a missing Linux baseline fails the visual test instead of skipping (only an explicit write mode proceeds without one); a workflow_dispatch workflow builds the site, runs the visual suite in the official Playwright Docker image with --update-snapshots and uploads the PNGs as an artifact; the CI baseline step with continue-on-error is removed. Baselines themselves are committed by the Owner after reviewing them.",
+      "files_hint": [
+        "tests/visual/not-found.spec.ts",
+        ".github/workflows/ci.yml",
+        ".github/workflows/visual-baselines.yml"
+      ],
+      "source": "review-2026-10-02 F-01"
+    },
+    {
+      "id": "R10",
+      "title": "Run Lighthouse CI against wrangler dev so the delivered headers apply",
+      "layer": "wiring",
+      "deps": [
+        "R9"
+      ],
+      "acs": [],
+      "dod": "lighthouserc.cjs starts wrangler dev on dist/ and audits / and a missing path; CSP, HSTS and the 404 handling are in effect during scoring; CI uses it.",
+      "files_hint": [
+        "lighthouserc.cjs",
+        ".github/workflows/ci.yml"
+      ],
+      "source": "review-2026-10-02 F-19"
+    },
+    {
+      "id": "R11",
+      "title": "Remove the stray screenshots and ignore mangled temp paths",
+      "layer": "wiring",
+      "deps": [],
+      "acs": [],
+      "dod": "UsersUserAppDataLocalTemp/ is removed from the repo and a .gitignore rule keeps such mangled Windows temp paths out.",
+      "files_hint": [
+        "UsersUserAppDataLocalTemp/",
+        ".gitignore"
+      ],
+      "source": "review-2026-10-02 F-07"
+    },
+    {
+      "id": "R12",
+      "title": "Produce the visual baselines from a labelled PR and document the local Docker fallback",
+      "layer": "wiring",
+      "deps": [],
+      "acs": [
+        "AC-01",
+        "AC-07"
+      ],
+      "dod": "visual-baselines.yml also runs on pull_request types [labeled, synchronize], only when the PR has the `visual-baselines` label; it builds, writes the baselines in the official Playwright image and uploads the PNGs as an artifact. The README documents the equivalent local docker run command (FJORD_VISUAL=write) as a fallback, not the main path. After the Owner reviews and commits the 6 PNGs under tests/visual/__screenshots__/linux/ and removes the label, the CI visual job is green without continue-on-error and T15 moves to done.",
+      "files_hint": [
+        ".github/workflows/visual-baselines.yml",
+        "README.md",
+        "tests/visual/__screenshots__/linux/"
+      ],
+      "source": "review-2026-10-02-2 S1-01, S2-01"
+    },
+    {
+      "id": "R13",
+      "title": "Require both check and visual, and record the branch-protection commands",
+      "layer": "wiring",
+      "deps": [
+        "R12"
+      ],
+      "acs": [
+        "AC-01",
+        "AC-07"
+      ],
+      "dod": "T16 records the exact gh api commands: v2 requires check and visual now; main either now with enforce_admins false (a stub hotfix stays possible before Release 1) or as part of the Release 1 step, the Owner picks. ci.yml carries a comment that check and visual must have no path filters or job-level conditions on PRs into v2/main (a required check that never reports blocks the merge forever). The commands go into the PR; the Owner runs them.",
+      "files_hint": [
+        "docs/features/fjord-foundation/tasks/t16-ci-lighthouse-protection.md",
+        ".github/workflows/ci.yml"
+      ],
+      "source": "review-2026-10-02-2 S1-02"
+    },
+    {
+      "id": "R14",
+      "title": "Run the handler and style checks on every element in the CSP audit",
+      "layer": "wiring",
+      "deps": [],
+      "acs": [
+        "AC-09",
+        "AC-12"
+      ],
+      "dod": "The script branch of auditPage no longer uses continue; the on*= and style= checks run for every element, including ld+json scripts and the bootstrap copy. The F-06 it.each in csp.test.ts gains: ld+json with onload, the bootstrap with onerror, ld+json with style; each is reported.",
+      "files_hint": [
+        "src/integrations/csp.ts",
+        "src/integrations/csp.test.ts"
+      ],
+      "source": "review-2026-10-02-2 S2-02"
+    },
+    {
+      "id": "R15",
+      "title": "Measure the font swap at phone width and assert the Mono labels and body face",
+      "layer": "tests",
+      "deps": [],
+      "acs": [
+        "AC-05"
+      ],
+      "dod": "fonts.spec.ts creates its contexts from the project use settings (or measures explicitly at 390 and 1440), so the font-swap rows run at phone width. After document.fonts.ready on the Not-found page, platformFonts reports JetBrains Mono for .code and Schibsted Grotesk for main p.",
+      "files_hint": [
+        "tests/e2e/fonts.spec.ts",
+        "tests/e2e/platform-fonts.ts"
+      ],
+      "source": "review-2026-10-02-2 S1-03, S1-04"
+    },
+    {
+      "id": "R16",
+      "title": "Make the no-global bootstrap test see top-level let bindings",
+      "layer": "tests",
+      "deps": [],
+      "acs": [
+        "AC-02"
+      ],
+      "dod": "theme-bootstrap.test.ts runs the snippet in a vm.createContext context and asserts typeof t is undefined there (or runs it twice in one context without error); an unwrapped `let t` variant fails the test.",
+      "files_hint": [
+        "src/scripts/theme-bootstrap.test.ts"
+      ],
+      "source": "review-2026-10-02-2 S2-03"
+    },
+    {
+      "id": "R17",
+      "title": "Disallow container-query units and restrict viewport heights by value",
+      "layer": "tests",
+      "deps": [],
+      "acs": [
+        "AC-11"
+      ],
+      "dod": "stylelint.config.js disallows cqw/cqh/cqi/cqb/cqmin/cqmax; height, min-height and max-height accept only tokens, auto, % and 100vh/100svh/100lvh/100dvh. Fixtures with 50cqi and 73vh fail, naming file and line; src/ still lints clean.",
+      "files_hint": [
+        "stylelint.config.js",
+        "scripts/lint/fixtures/",
+        "scripts/lint/stylelint.test.ts"
+      ],
+      "source": "review-2026-10-02-2 S2-04"
+    },
+    {
+      "id": "R18",
+      "title": "Classify scale tokens by handoff usage and reject movement tokens outside motion.css",
+      "layer": "wiring",
+      "deps": [],
+      "acs": [
+        "AC-14"
+      ],
+      "dod": "generate.ts classifies each *-scale token from the handoff CSS: scale(var(--x)) is a factor (reduced to 1), calc(1 + var(--x)) is a delta (reduced to 0); it throws when neither is found and when a rise/slide/parallax/scale token is declared outside motion.css. Unit tests cover factor, delta, unclassified and misplaced tokens; tokens:check passes.",
+      "files_hint": [
+        "scripts/tokens/generate.ts",
+        "scripts/tokens/build.test.ts"
+      ],
+      "source": "review-2026-10-02-2 S2-05"
+    },
+    {
+      "id": "R19",
+      "title": "Record that SEO is not asserted on the noindex Not-found page",
+      "layer": "docs",
+      "deps": [],
+      "acs": [],
+      "dod": "spec §6 (Lighthouse categories) and §7 (Lighthouse KPI) state that SEO is not asserted on the noindex Not-found page because the crawlability audit fails a noindex page by design; lighthouserc.cjs keeps it off. The PR lists it among the deviations.",
+      "files_hint": [
+        "docs/features/fjord-foundation/spec.md",
+        "lighthouserc.cjs"
+      ],
+      "source": "review-2026-10-02-2 S2-06"
+    },
+    {
+      "id": "R20",
+      "title": "Make the measure tokens font-independent so text does not rewrap when the brand fonts swap in",
+      "layer": "wiring",
+      "deps": [],
+      "acs": [
+        "AC-05"
+      ],
+      "dod": "The token generator emits --fjord-measure and --fjord-measure-narrow in em, converted from the handoff ch values with the advance width of \"0\" in Schibsted Grotesk (taken from the font file's metrics, not a literal), with a unit test for the conversion; tokens:check stays in sync; the comment at tests/e2e/fonts.spec.ts:160-162 is corrected; the font-swap run-width tolerance stays at 5 %; the Not-found page looks the same at 390 / 834 / 1440.",
+      "files_hint": [
+        "scripts/tokens/generate.ts",
+        "scripts/tokens/build.test.ts",
+        "src/styles/tokens.css",
+        "tests/e2e/fonts.spec.ts"
+      ],
+      "source": "review-2026-10-02-3 S1-05"
+    },
+    {
+      "id": "R21",
+      "title": "Fix baseline-run concurrency, document the label and download, then run CI and the label flow",
+      "layer": "wiring",
+      "deps": [
+        "R20",
+        "R22"
+      ],
+      "acs": [
+        "AC-01",
+        "AC-05",
+        "AC-07"
+      ],
+      "dod": "visual-baselines.yml sets concurrency on the baselines job, not the workflow; the README and T16 include `gh label create visual-baselines` and `gh run download <id> -n visual-baselines-linux -D tests/visual/__screenshots__/linux`; the Owner pushes the branch, `check` is green (run ID recorded), the label flow produces the baselines, they are committed, and `visual` is green (run ID recorded).",
+      "files_hint": [
+        ".github/workflows/visual-baselines.yml",
+        "README.md",
+        "docs/features/fjord-foundation/tasks/t16-ci-lighthouse-protection.md"
+      ],
+      "source": "review-2026-10-02-3 S1-06, S1-07, S1-08"
+    },
+    {
+      "id": "R22",
+      "title": "Audit both the scripting-off and scripting-on parse trees in the CSP audit",
+      "layer": "wiring",
+      "deps": [],
+      "acs": [
+        "AC-09",
+        "AC-12"
+      ],
+      "dod": "applyCsp audits each page parsed with scriptingEnabled false and true, merges the problems without duplicates and counts the bootstrap copies per tree; the <noscript><title></noscript><script>…</script></title></noscript> probe (and a <textarea> variant) is added to the F-06 it.each and fails.",
+      "files_hint": [
+        "src/integrations/csp.ts",
+        "src/integrations/csp.test.ts"
+      ],
+      "source": "review-2026-10-02-3 S2-07"
+    },
+    {
+      "id": "R23",
+      "title": "Amend ADR-0003 to match the stylelint rules added by R17",
+      "layer": "docs",
+      "deps": [],
+      "acs": [
+        "AC-11"
+      ],
+      "dod": "ADR-0003 lists the container-query units among the disallowed units and the height properties with their value grammar (tokens, auto, %, 100vh/svh/lvh/dvh, calc(token * n)), and records the calc(token * n) exception for heights, citing the T09 420 px mapping.",
+      "files_hint": [
+        "docs/features/fjord-foundation/adr/0003-enforce-token-only-styles-with-stylelint-built-in-rules.md"
+      ],
+      "source": "review-2026-10-02-3 S2-08"
+    },
+    {
+      "id": "R24",
+      "title": "Upload the Lighthouse reports and move upload-artifact to Node 24",
+      "layer": "wiring",
+      "deps": [
+        "R21"
+      ],
+      "acs": [],
+      "dod": "The CI Lighthouse upload sets include-hidden-files: true and if-no-files-found: error so the .lighthouseci/ reports reach the `lighthouse` artifact; every actions/upload-artifact use is v7 (runs.using node24); the next CI run shows the artifact and no Node.js 20 deprecation warning.",
+      "files_hint": [
+        ".github/workflows/ci.yml",
+        ".github/workflows/visual-baselines.yml"
+      ],
+      "source": "Owner follow-up 2026-10-03 on CI run 37122773367"
+    },
+    {
+      "id": "R25",
+      "title": "Audit every script with a body as inline in the CSP audit, whatever its src or href",
+      "layer": "wiring",
+      "deps": [],
+      "acs": [
+        "AC-09",
+        "AC-12"
+      ],
+      "dod": "The CSP audit treats any <script> element (HTML or SVG namespace) with non-whitespace text content as inline, whether or not it has src, href or xlink:href: only the theme bootstrap and ld+json pass, everything else with a body fails the build. A script counts as external only when it has src / href and an empty body. The F-06 it.each gains the probes <svg><script src=\"x.js\">alert(1)</script></svg> and <script src=x.js>alert(1)</script>, both failing the audit in both parse trees.",
+      "files_hint": [
+        "src/integrations/csp.ts",
+        "src/integrations/csp.test.ts"
+      ],
+      "source": "review-2026-10-03 S2-09"
+    },
+    {
+      "id": "R26",
+      "title": "Switch the token-only lint from block lists to allow lists for functions and units",
+      "layer": "wiring",
+      "deps": [],
+      "acs": [
+        "AC-11"
+      ],
+      "dod": "stylelint.config.js uses function-allowed-list (var, calc, clamp, min, max, url, plus anything the current code genuinely needs) and unit-allowed-list (the units actually used outside tokens.css, e.g. %, the viewport units already allowed for min-height, fr, deg if needed; px only in media queries as today), so new CSS functions and units are rejected by default. The existing specific rules stay where they give a clearer error message. The ADR-0003 table lists every allowed function and unit with a reason. Fixtures under scripts/lint/fixtures/ cover lab(), oklab(), color-mix() and rch, and the existing fixtures still pass or fail as before.",
+      "files_hint": [
+        "stylelint.config.js",
+        "scripts/lint/stylelint.test.ts",
+        "scripts/lint/fixtures/",
+        "docs/features/fjord-foundation/adr/0003-enforce-token-only-styles-with-stylelint-built-in-rules.md"
+      ],
+      "source": "review-2026-10-03 S2-10"
+    },
+    {
+      "id": "R27",
+      "title": "Validate the \"0\" advance in the token generator and pin it in the test",
+      "layer": "wiring",
+      "deps": [],
+      "acs": [
+        "AC-05"
+      ],
+      "dod": "Reading the \"0\" advance throws when the glyph id is 0 (.notdef) and when the ratio is not finite or not in (0, 1]; chToEm rejects such an advance too. The unit test pins the literal 1252 / 2048 instead of repeating the implementation, and a failure-path case covers a font without \"0\" and a bad advance. tokens:check stays in sync and tokens.css is unchanged.",
+      "files_hint": [
+        "scripts/tokens/sources.ts",
+        "scripts/tokens/generate.ts",
+        "scripts/tokens/build.test.ts"
+      ],
+      "source": "review-2026-10-03 S2-11"
+    },
+    {
+      "id": "R28",
+      "title": "Upload the Lighthouse reports only when Lighthouse ran",
+      "layer": "wiring",
+      "deps": [],
+      "acs": [],
+      "dod": "The Lighthouse CI step has id: lhci and the upload step runs with if: ${{ !cancelled() && steps.lhci.outcome != 'skipped' }}; include-hidden-files and if-no-files-found: error stay. The next green CI run still uploads the `lighthouse` artifact.",
+      "files_hint": [
+        ".github/workflows/ci.yml"
+      ],
+      "source": "review-2026-10-03 S2-12"
+    },
+    {
+      "id": "R29",
+      "title": "Correct the R20 definition of done from rem to em",
+      "layer": "docs",
+      "deps": [],
+      "acs": [
+        "AC-05"
+      ],
+      "dod": "The R20 definition of done in tasks.json and tasks/r20-review-fix.md says the measures are emitted in em, matching src/styles/tokens.css.",
+      "files_hint": [
+        "docs/features/fjord-foundation/tasks.json",
+        "docs/features/fjord-foundation/tasks/r20-review-fix.md"
+      ],
+      "source": "review-2026-10-03 S1-09"
+    },
+    {
+      "id": "R30",
+      "title": "List every Not-found design difference in OQ-02 and give the sticky action bar a roadmap step",
+      "layer": "docs",
+      "deps": [],
+      "acs": [
+        "AC-07"
+      ],
+      "dod": "spec §8 OQ-02 has one line per further difference (body copy, title scale, sticky action bar at 390, accent-coloured \"404\", spacing and alignment, button size), each with the design value and the current value; an item taken from the screenshots and not checked against design/handoff/site (Misc.jsx and the site's NotFound) is marked \"to confirm against the page design\", not dropped. The sticky action bar is named next to \"no Header or Footer\" in OQ-02 and is in the roadmap step 3 scope as part of MobileBar, together with Header/Footer. No code or baseline changes.",
+      "files_hint": [
+        "docs/features/fjord-foundation/spec.md",
+        "docs/roadmap.md"
+      ],
+      "source": "review-2026-10-03-2 S1-11"
+    },
+    {
+      "id": "R31",
+      "title": "Point the stale Not-found design statements to OQ-02 and rank the page design first in screens.md",
+      "layer": "docs",
+      "deps": [
+        "R30"
+      ],
+      "acs": [
+        "AC-07"
+      ],
+      "dod": "spec.md §1 (the code-line bullet) and sad.md §10 Design match each carry a one-line pointer (\"interim 404, see §8 OQ-02; rebuilt in step 3 per Misc.jsx\"). In screens.md the page-design files (design/handoff/site, Misc.jsx for Not-found) are listed only under the primary sources and the component demos under the secondary ones; the code-line note points to OQ-02 instead of saying the design shows \"404 · <path>\". The roadmap step 3 row says \"update AC-07 / P-41 wording to the page design\". Docs only.",
+      "files_hint": [
+        "docs/features/fjord-foundation/spec.md",
+        "docs/features/fjord-foundation/sad.md",
+        "docs/features/fjord-foundation/screens.md",
+        "docs/roadmap.md"
+      ],
+      "source": "review-2026-10-03-2 S1-12"
+    },
+    {
+      "id": "R32",
+      "title": "Ban @container in the token-only lint until a feature needs container queries",
+      "layer": "wiring",
+      "deps": [],
+      "acs": [
+        "AC-11"
+      ],
+      "dod": "stylelint.config.js has at-rule-disallowed-list: ['container']; a fixture with an @container rule fails for that rule (asserted by rule name and line). ADR-0003 has a row for it that says a later feature lifts the ban and adds its own rule for the allowed widths, and that @supports preludes are not checked on purpose (they only test support and set no values). npm run lint stays green on src/.",
+      "files_hint": [
+        "stylelint.config.js",
+        "scripts/lint/stylelint.test.ts",
+        "scripts/lint/fixtures/",
+        "docs/features/fjord-foundation/adr/0003-enforce-token-only-styles-with-stylelint-built-in-rules.md"
+      ],
+      "source": "review-2026-10-03-2 S2-14"
+    },
+    {
+      "id": "R33",
+      "title": "Cut the function allow list to var and calc",
+      "layer": "wiring",
+      "deps": [
+        "R32"
+      ],
+      "acs": [
+        "AC-11"
+      ],
+      "dod": "First confirm that src/styles/fonts.css (url) and the generated src/styles/tokens.css (clamp) are excluded from Stylelint; if either is linted, keep that function and state the reason in the ADR. Otherwise function-allowed-list is ['var', 'calc'], and fixtures show clamp(), min(), max() and url() rejected by that rule. ADR-0003's function table matches the config, updated_at is bumped, and a note says step 3 adds back what it needs (for example min/clamp and the transform functions), each with its reason. npm run lint stays green on src/.",
+      "files_hint": [
+        "stylelint.config.js",
+        "scripts/lint/stylelint.test.ts",
+        "scripts/lint/fixtures/",
+        "docs/features/fjord-foundation/adr/0003-enforce-token-only-styles-with-stylelint-built-in-rules.md"
+      ],
+      "source": "review-2026-10-03-2 S2-15"
+    },
+    {
+      "id": "R34",
+      "title": "Test the .notdef guard through the real font lookup",
+      "layer": "tests",
+      "deps": [],
+      "acs": [
+        "AC-05"
+      ],
+      "dod": "The advance lookup in scripts/tokens/sources.ts takes a code point, with a default that keeps today's behaviour (U+0030). One test loads the real font file the script reads, asks for U+4E00 and expects the .notdef error. tokens:check output is unchanged and src/styles/tokens.css is not modified.",
+      "files_hint": [
+        "scripts/tokens/sources.ts",
+        "scripts/tokens/build.test.ts"
+      ],
+      "source": "review-2026-10-03-2 S2-16"
+    },
+    {
+      "id": "R35",
+      "title": "Complete the OQ-02 difference list, state that it is a checklist, and give the two-column layout its breakpoint",
+      "layer": "docs",
+      "deps": [],
+      "acs": [
+        "AC-07"
+      ],
+      "dod": "Spec §8 OQ-02 has one line each, with the page-design value and the built value, for: code line typography (tracking-label, inline-flex gap space-3, leading-none vs none / word spaces / leading-display), actions margin-top (space-1 vs space-2), section min-height (none vs 420px), arrow icon (18px vs --fjord-icon-sm 16px), body measure (46ch vs --fjord-measure-narrow 48ch). OQ-02 has the line: \"The current 404 is an interim page and does not follow Misc.jsx. Any difference from Misc.jsx, listed here or not, is in scope for the step 3 rebuild. The list is a checklist, not an exhaustive diff.\" and the Design match note in spec §6 points to it. OQ-02 item 2 and the roadmap step 3 row read \"two columns from 1024 (5fr / 7fr); below 1024, one column with the map under the text\". The \"ten ways\" count in screens.md and every other count of the OQ-02 items match the new list. No code or baseline changes. npm run lint and npm run test:unit green.",
+      "files_hint": [
+        "docs/features/fjord-foundation/spec.md",
+        "docs/features/fjord-foundation/screens.md",
+        "docs/roadmap.md"
+      ],
+      "source": "review-2026-10-03-3 S1-13, S1-14"
+    },
+    {
+      "id": "R36",
+      "title": "Name the source of every Not-found design value in sad.md and screens.md and sweep docs/ for stale 404 statements",
+      "layer": "docs",
+      "deps": [
+        "R35"
+      ],
+      "acs": [
+        "AC-07"
+      ],
+      "dod": "sad.md:452: the code-line phrase is rewritten to what design/handoff/site/project/site/Misc.jsx shows, read from the page design and not from the component demo. screens.md:85: 420px and the 16px gap are labelled \"component demo\", not \"design\". screens.md:81 and :112: \"max 46ch\" becomes \"--fjord-measure-narrow (48ch; page design 46ch)\". The code comment in src/pages/404.astro:2 is kept for the step 3 rebuild. Final sweep: grep docs/ for every statement about the 404 design (spec, sad, screens, ux-flows, roadmap, tracker); each one matches Misc.jsx or points to OQ-02, and the source of every value is named (page design / component demo / built). The changed lines are reported. No code or baseline changes. npm run lint and npm run test:unit green.",
+      "files_hint": [
+        "docs/features/fjord-foundation/sad.md",
+        "docs/features/fjord-foundation/screens.md",
+        "docs/features/fjord-foundation/spec.md",
+        "docs/features/fjord-foundation/ux-flows.md",
+        "docs/features/fjord-foundation/tasks/tracker.md",
+        "docs/roadmap.md"
+      ],
+      "source": "review-2026-10-03-3 S1-15, S1-16"
+    },
+    {
+      "id": "R37",
+      "title": "Match the @container ban and the breakpoint rule case-insensitively",
+      "layer": "wiring",
+      "deps": [],
+      "acs": [
+        "AC-11"
+      ],
+      "dod": "at-rule-disallowed-list uses '/^container$/i' and the breakpoint rule is keyed '/^(min-|max-)?width$/i'. Fixtures, each asserted by rule name and line: one upper-case row per rule (@CONTAINER, @media (MIN-WIDTH: 800px)) and the range forms @media (width >= 800px) and @media (WIDTH >= 800px), all rejected; if the upper-case range form is not rejected, the rule is extended until it is. An allowed breakpoint stays clean in lower and upper case. ADR-0003 notes that the rules match case-insensitively and do not depend on Prettier running first. npm run lint and npm run test:unit green.",
+      "files_hint": [
+        "stylelint.config.js",
+        "scripts/lint/stylelint.test.ts",
+        "scripts/lint/fixtures/",
+        "docs/features/fjord-foundation/adr/0003-enforce-token-only-styles-with-stylelint-built-in-rules.md"
+      ],
+      "source": "review-2026-10-03-3 S2-18"
+    },
+    {
+      "id": "R38",
+      "title": "Make screens.md SCR-02 describe the built interim 404 only, cite the R36 spec rows by ID, and set T1-T14 to done",
+      "layer": "docs",
+      "deps": [],
+      "acs": [
+        "AC-07"
+      ],
+      "dod": "screens.md SCR-02: the layout paragraph and the wireframe note describe the built behaviour (only the ridge wrapper clips, since F-08). The baseline claims (ridge constraint, home-link line, the two NEW-component rows) are deleted and point to spec §8 OQ-02 (step 3 rebuilds and re-baselines). SCR-02 opens with the banner \"Interim 404. This section describes the built page only. Step 3 rewrites SCR-02 against Misc.jsx; see OQ-02.\" One sweep of SCR-02: every remaining line matches src/pages/404.astro or points to OQ-02; the changed lines are reported. r36-review-fix.md: \"spec.md:259-263\" becomes \"spec.md Test plan, AC-07 rows\". The front matter of the 14 task files T1-T14 says status \"done\"; the definition-of-done boxes stay as they are; tasks.json holds no status field. No code or baseline changes. npm run lint and npm run test:unit green.",
+      "files_hint": [
+        "docs/features/fjord-foundation/screens.md",
+        "docs/features/fjord-foundation/tasks/r36-review-fix.md",
+        "docs/features/fjord-foundation/tasks/"
+      ],
+      "source": "review-2026-10-03-4 S1-17, S1-18, S1-19, S1-20"
+    },
+    {
+      "id": "R39",
+      "title": "Reject a media condition on @import in the token-only lint",
+      "layer": "wiring",
+      "deps": [],
+      "acs": [
+        "AC-11"
+      ],
+      "dod": "No @import under src/ may carry a media condition: a built-in Stylelint rule in stylelint.config.js if one can express it, otherwise a check in scripts/lint/ that runs in npm run lint or npm run test:unit; the result says which and why. A failing fixture with a conditional @import (lower-case and upper-case feature name), asserted by rule or check name, red before the change. The plain string imports in src/styles/global.css stay clean. ADR-0003 has one sentence next to the @supports note. npm run lint and npm run test:unit green.",
+      "files_hint": [
+        "stylelint.config.js",
+        "scripts/lint/stylelint.test.ts",
+        "scripts/lint/fixtures/",
+        "docs/features/fjord-foundation/adr/0003-enforce-token-only-styles-with-stylelint-built-in-rules.md"
+      ],
+      "source": "review-2026-10-03-4 S2-19"
+    }
+  ]
+}

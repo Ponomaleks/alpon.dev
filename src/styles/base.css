@@ -1,0 +1,90 @@
+/* Fjord element base, ported from the handoff tokens/base.css with tokens only
+   (fjord-foundation ADR-0003). Helper classes, motion patterns and keyframes stay out:
+   components bring their own styles. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background-color: var(--fjord-color-bg);
+  color: var(--fjord-color-text);
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--fjord-font-sans);
+  font-size: var(--fjord-text-body);
+  line-height: var(--fjord-leading-body);
+  font-weight: var(--fjord-weight-regular);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background-color: var(--fjord-color-selection);
+  color: var(--fjord-color-text);
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 0;
+  font-weight: var(--fjord-weight-semibold);
+  letter-spacing: var(--fjord-tracking-heading);
+  line-height: var(--fjord-leading-heading);
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+a {
+  color: var(--fjord-color-link);
+  text-decoration-thickness: var(--fjord-border-width);
+  text-underline-offset: var(--fjord-space-1);
+}
+
+a:hover {
+  color: var(--fjord-color-link-hover);
+}
+
+/* Reduced motion = fades only (CLAUDE.md): color transitions only for visitors who did not ask
+   for reduced motion (AC-14). */
+@media (prefers-reduced-motion: no-preference) {
+  a {
+    transition-property: color;
+    transition-duration: var(--fjord-duration-200);
+    transition-timing-function: var(--fjord-ease-out);
+  }
+}
+
+/* A guard for whatever a component declares later (handoff base.css): under reduced motion no
+   animation loops and nothing scrolls smoothly; single fades still run. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+:focus-visible {
+  outline: var(--fjord-focus-width) solid var(--fjord-color-focus-ring);
+  outline-offset: var(--fjord-focus-offset);
+  border-radius: var(--fjord-radius-sm);
+}
+
+code,
+kbd,
+samp,
+pre {
+  font-family: var(--fjord-font-mono);
+}
