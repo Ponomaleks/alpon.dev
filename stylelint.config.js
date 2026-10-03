@@ -85,8 +85,12 @@ const tokenOnlyProperties = [
 /** The four breakpoints from CLAUDE.md; media queries cannot use var(). */
 const breakpoints = ['360px', '768px', '1024px', '1440px'];
 
-/** The only CSS functions styles may use; color and easing functions are tokens' job. */
-const allowedFunctions = ['var', 'calc', 'clamp', 'min', 'max', 'url'];
+/**
+ * The only CSS functions styles may use; color and easing functions are tokens' job. clamp() lives
+ * in the generated tokens.css and url() in fonts.css, both excluded below; a function is added
+ * back only when real code under src/ needs it.
+ */
+const allowedFunctions = ['var', 'calc'];
 
 /**
  * The only units styles may use: percentages, the viewport heights (see above) and px for the

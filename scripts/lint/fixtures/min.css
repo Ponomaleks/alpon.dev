@@ -1,0 +1,3 @@
+.a {
+  padding: min(var(--fjord-space-1), var(--fjord-space-2));
+}

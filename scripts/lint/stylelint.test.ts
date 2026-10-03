@@ -69,6 +69,10 @@ describe('stylelint token-only rules (ADR-0003)', () => {
     ['lab.css', 'lab()', 2, 'function-allowed-list'],
     ['oklab.css', 'oklab()', 2, 'function-allowed-list'],
     ['color-mix.css', 'color-mix() on background', 2, 'function-allowed-list'],
+    ['clamp.css', 'clamp()', 2, 'function-allowed-list'],
+    ['min.css', 'min()', 2, 'function-allowed-list'],
+    ['max.css', 'max()', 2, 'function-allowed-list'],
+    ['url.css', 'url()', 2, 'function-allowed-list'],
     ['rch.css', '20rch', 2, 'unit-allowed-list'],
     // Tokens that tokens.css does not declare.
     [

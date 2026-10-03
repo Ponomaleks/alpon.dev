@@ -2,7 +2,7 @@
 status: Accepted
 owner: "Alexander Ponomarenko"
 reviewers: []
-updated_at: "2026-10-02"
+updated_at: "2026-10-03"
 feature_size: "S"
 ticket: "roadmap step 2 — fjord-foundation"
 ---
@@ -39,7 +39,7 @@ Fjord tokens are the only allowed source of color, font, space, radius, duration
 |---|---|---|
 | `color-no-hex` | `true` | `#24493D` |
 | `color-named` | `"never"` | `red`, `white` |
-| `function-allowed-list` | `var`, `calc`, `clamp`, `min`, `max`, `url` (see below) | any other function, including `lab()`, `oklab()`, `color-mix()` |
+| `function-allowed-list` | `var`, `calc` (see below) | any other function, including `lab()`, `oklab()`, `color-mix()` |
 | `unit-allowed-list` | `%`, `vh`, `svh`, `lvh`, `dvh`, `px` (`px` is listed only because the rule cannot scope it to media features; `unit-disallowed-list` still rejects it everywhere else) | any other unit, including `rch`, `fr`, `deg` |
 | `at-rule-disallowed-list` | `container` | `@container` queries, which test a container's size and skip the unit and breakpoint rules; a later feature that needs them lifts the ban and adds its own rule for the allowed widths. `@supports` preludes are not checked on purpose: they only test support and set no values |
 | `function-disallowed-list` | `rgb`, `rgba`, `hsl`, `hsla`, `hwb`, `oklch`, `cubic-bezier`, `steps` | literal colors and easings |
@@ -61,8 +61,8 @@ The `border*` and `outline*` shorthands take the same sequence plus the line sty
 |---|---|
 | `var` | every token reference |
 | `calc` | height values over tokens (`calc(var(--fjord-space-1) * 105)`) |
-| `clamp`, `min`, `max` | fluid sizes built from tokens, as the type scale needs |
-| `url` | asset references |
+
+`clamp` and `url` are not listed: `clamp` appears only in the generated `tokens.css` and `url` only in `fonts.css`, and both files are excluded from Stylelint (`ignoreFiles`). `min` and `max` appear nowhere. Step 3 adds back what its components need (for example `min` / `clamp` for fluid sizes and the transform functions), each with its reason in the table above.
 
 | Unit | Reason |
 |---|---|

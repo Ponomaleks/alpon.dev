@@ -7,7 +7,7 @@ acs: ["AC-11"]
 files_hint: ["stylelint.config.js", "scripts/lint/stylelint.test.ts", "scripts/lint/fixtures/", "docs/features/fjord-foundation/adr/0003-enforce-token-only-styles-with-stylelint-built-in-rules.md"]
 owner: "Alexander Ponomarenko"
 estimate: "S"
-status: "todo"
+status: "done"
 ---
 
 # R33 — Cut the function allow list to var and calc
@@ -22,7 +22,7 @@ Depends on R32 only because both edit `stylelint.config.js` and ADR-0003.
 
 ## Definition of Done
 
-- [ ] First confirm that `src/styles/fonts.css` (`url`) and the generated `src/styles/tokens.css` (`clamp`) are excluded from Stylelint (`ignoreFiles`, `stylelint.config.js:100`). If either is linted, keep that function and state the reason in the ADR.
-- [ ] `function-allowed-list` is `['var', 'calc']`; fixtures show `clamp()`, `min()`, `max()` and `url()` rejected by that rule (asserted by rule name).
-- [ ] The ADR-0003 function table matches the config, `updated_at` is bumped, and a note says step 3 adds back what it needs (for example `min` / `clamp` and the transform functions), each with its reason.
-- [ ] `npm run lint` and `npm run test:unit` green
+- [x] First confirm that `src/styles/fonts.css` (`url`) and the generated `src/styles/tokens.css` (`clamp`) are excluded from Stylelint (`ignoreFiles`, `stylelint.config.js:100`). If either is linted, keep that function and state the reason in the ADR.
+- [x] `function-allowed-list` is `['var', 'calc']`; fixtures show `clamp()`, `min()`, `max()` and `url()` rejected by that rule (asserted by rule name).
+- [x] The ADR-0003 function table matches the config, `updated_at` is bumped, and a note says step 3 adds back what it needs (for example `min` / `clamp` and the transform functions), each with its reason.
+- [x] `npm run lint` and `npm run test:unit` green
