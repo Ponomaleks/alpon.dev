@@ -856,6 +856,60 @@
         "scripts/tokens/build.test.ts"
       ],
       "source": "review-2026-10-03-2 S2-16"
+    },
+    {
+      "id": "R35",
+      "title": "Complete the OQ-02 difference list, state that it is a checklist, and give the two-column layout its breakpoint",
+      "layer": "docs",
+      "deps": [],
+      "acs": [
+        "AC-07"
+      ],
+      "dod": "Spec §8 OQ-02 has one line each, with the page-design value and the built value, for: code line typography (tracking-label, inline-flex gap space-3, leading-none vs none / word spaces / leading-display), actions margin-top (space-1 vs space-2), section min-height (none vs 420px), arrow icon (18px vs --fjord-icon-sm 16px), body measure (46ch vs --fjord-measure-narrow 48ch). OQ-02 has the line: \"The current 404 is an interim page and does not follow Misc.jsx. Any difference from Misc.jsx, listed here or not, is in scope for the step 3 rebuild. The list is a checklist, not an exhaustive diff.\" and the Design match note in spec §6 points to it. OQ-02 item 2 and the roadmap step 3 row read \"two columns from 1024 (5fr / 7fr); below 1024, one column with the map under the text\". The \"ten ways\" count in screens.md and every other count of the OQ-02 items match the new list. No code or baseline changes. npm run lint and npm run test:unit green.",
+      "files_hint": [
+        "docs/features/fjord-foundation/spec.md",
+        "docs/features/fjord-foundation/screens.md",
+        "docs/roadmap.md"
+      ],
+      "source": "review-2026-10-03-3 S1-13, S1-14"
+    },
+    {
+      "id": "R36",
+      "title": "Name the source of every Not-found design value in sad.md and screens.md and sweep docs/ for stale 404 statements",
+      "layer": "docs",
+      "deps": [
+        "R35"
+      ],
+      "acs": [
+        "AC-07"
+      ],
+      "dod": "sad.md:452: the code-line phrase is rewritten to what design/handoff/site/project/site/Misc.jsx shows, read from the page design and not from the component demo. screens.md:85: 420px and the 16px gap are labelled \"component demo\", not \"design\". screens.md:81 and :112: \"max 46ch\" becomes \"--fjord-measure-narrow (48ch; page design 46ch)\". The code comment in src/pages/404.astro:2 is kept for the step 3 rebuild. Final sweep: grep docs/ for every statement about the 404 design (spec, sad, screens, ux-flows, roadmap, tracker); each one matches Misc.jsx or points to OQ-02, and the source of every value is named (page design / component demo / built). The changed lines are reported. No code or baseline changes. npm run lint and npm run test:unit green.",
+      "files_hint": [
+        "docs/features/fjord-foundation/sad.md",
+        "docs/features/fjord-foundation/screens.md",
+        "docs/features/fjord-foundation/spec.md",
+        "docs/features/fjord-foundation/ux-flows.md",
+        "docs/features/fjord-foundation/tasks/tracker.md",
+        "docs/roadmap.md"
+      ],
+      "source": "review-2026-10-03-3 S1-15, S1-16"
+    },
+    {
+      "id": "R37",
+      "title": "Match the @container ban and the breakpoint rule case-insensitively",
+      "layer": "wiring",
+      "deps": [],
+      "acs": [
+        "AC-11"
+      ],
+      "dod": "at-rule-disallowed-list uses '/^container$/i' and the breakpoint rule is keyed '/^(min-|max-)?width$/i'. Fixtures, each asserted by rule name and line: one upper-case row per rule (@CONTAINER, @media (MIN-WIDTH: 800px)) and the range forms @media (width >= 800px) and @media (WIDTH >= 800px), all rejected; if the upper-case range form is not rejected, the rule is extended until it is. An allowed breakpoint stays clean in lower and upper case. ADR-0003 notes that the rules match case-insensitively and do not depend on Prettier running first. npm run lint and npm run test:unit green.",
+      "files_hint": [
+        "stylelint.config.js",
+        "scripts/lint/stylelint.test.ts",
+        "scripts/lint/fixtures/",
+        "docs/features/fjord-foundation/adr/0003-enforce-token-only-styles-with-stylelint-built-in-rules.md"
+      ],
+      "source": "review-2026-10-03-3 S2-18"
     }
   ]
 }
