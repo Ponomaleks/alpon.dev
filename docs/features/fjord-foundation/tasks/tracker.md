@@ -19,7 +19,7 @@
 | T12 | [Verify the delivered security policy end to end and flip P-16](./t12-headers-e2e-p16.md) | tests | Alexander Ponomarenko | S | T8 | done |
 | T13 | [Verify font loading end to end and flip P-26](./t13-fonts-e2e-p26.md) | tests | Alexander Ponomarenko | M | T7 | done |
 | T14 | [Verify the Not-found page and reduced motion end to end and flip P-41](./t14-not-found-e2e-p41.md) | tests | Alexander Ponomarenko | S | T9 | done |
-| T15 | [Add axe checks in Dag and Natt and the Not-found visual baselines; capture the Natt references](./t15-a11y-visual.md) | tests | Alexander Ponomarenko | M | T9 | review |
+| T15 | [Add axe checks in Dag and Natt and the Not-found visual baselines; capture the Natt references](./t15-a11y-visual.md) | tests | Alexander Ponomarenko | M | T9 | done |
 | T16 | [Run Lighthouse on both pages with the Roboto-only runner and protect v2 and main](./t16-ci-lighthouse-protection.md) | wiring | Alexander Ponomarenko | S | T9, T10 | review |
 | R1 | [Parse built HTML with a real parser in the CSP audit and hash a CRLF-normalised bootstrap](./r01-review-fix.md) | wiring | Alexander Ponomarenko | S | — | done |
 | R2 | [Prove with a real rebuild that editing the bootstrap updates the delivered policy](./r02-review-fix.md) | tests | Alexander Ponomarenko | S | R1 | done |
@@ -32,7 +32,7 @@
 | R9 | [Make missing visual baselines fail CI and add a manual baseline workflow](./r09-review-fix.md) | wiring | Alexander Ponomarenko | S | — | done |
 | R10 | [Run Lighthouse CI against wrangler dev so the delivered headers apply](./r10-review-fix.md) | wiring | Alexander Ponomarenko | S | R9 | done |
 | R11 | [Remove the stray screenshots and ignore mangled temp paths](./r11-review-fix.md) | wiring | Alexander Ponomarenko | S | — | done |
-| R12 | [Produce the visual baselines from a labelled PR and document the local Docker fallback](./r12-review-fix.md) | wiring | Alexander Ponomarenko | S | — | review |
+| R12 | [Produce the visual baselines from a labelled PR and document the local Docker fallback](./r12-review-fix.md) | wiring | Alexander Ponomarenko | S | — | done |
 | R13 | [Require both check and visual, and record the branch-protection commands](./r13-review-fix.md) | wiring | Alexander Ponomarenko | S | R12 | done |
 | R14 | [Run the handler and style checks on every element in the CSP audit](./r14-review-fix.md) | wiring | Alexander Ponomarenko | S | — | done |
 | R15 | [Measure the font swap at phone width and assert the Mono labels and body face](./r15-review-fix.md) | tests | Alexander Ponomarenko | S | — | done |
@@ -41,8 +41,9 @@
 | R18 | [Classify scale tokens by handoff usage and reject movement tokens outside motion.css](./r18-review-fix.md) | wiring | Alexander Ponomarenko | S | — | done |
 | R19 | [Record that SEO is not asserted on the noindex Not-found page](./r19-review-fix.md) | docs | Alexander Ponomarenko | S | — | done |
 | R20 | [Make the measure tokens font-independent so text does not rewrap when the brand fonts swap in](./r20-review-fix.md) | wiring | Alexander Ponomarenko | S | — | done |
-| R21 | [Fix baseline-run concurrency, document the label and download, then run CI and the label flow](./r21-review-fix.md) | wiring | Alexander Ponomarenko | S | R20, R22 | in_progress |
+| R21 | [Fix baseline-run concurrency, document the label and download, then run CI and the label flow](./r21-review-fix.md) | wiring | Alexander Ponomarenko | S | R20, R22 | done |
 | R22 | [Audit both the scripting-off and scripting-on parse trees in the CSP audit](./r22-review-fix.md) | wiring | Alexander Ponomarenko | S | — | done |
 | R23 | [Amend ADR-0003 to match the stylelint rules added by R17](./r23-review-fix.md) | docs | Alexander Ponomarenko | S | — | done |
+| R24 | [Upload the Lighthouse reports and move upload-artifact to Node 24](./r24-review-fix.md) | wiring | Alexander Ponomarenko | S | R21 | review |
 
-**Total:** 16 tasks + 23 review follow-ups (R1–R23), ~17 person-days (S ≈ 0.5 d, M ≈ 1 d).
+**Total:** 16 tasks + 24 follow-ups (R1–R24), ~17.5 person-days (S ≈ 0.5 d, M ≈ 1 d).
