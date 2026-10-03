@@ -7,7 +7,7 @@ acs: ["AC-01", "AC-02", "AC-04"]
 files_hint: ["scripts/tokens/", "src/styles/tokens.css"]
 owner: "Alexander Ponomarenko"
 estimate: "M"
-status: "todo"
+status: "done"
 ---
 
 # T3 — Generate tokens.css from the design sources with Dag, Natt and the no-JS Natt block

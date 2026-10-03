@@ -7,7 +7,7 @@ acs: ["AC-05", "AC-06", "AC-15"]
 files_hint: ["tests/e2e/fonts.spec.ts", "tests/e2e/parity.spec.ts"]
 owner: "Alexander Ponomarenko"
 estimate: "M"
-status: "todo"
+status: "done"
 ---
 
 # T13 — Verify font loading end to end and flip P-26

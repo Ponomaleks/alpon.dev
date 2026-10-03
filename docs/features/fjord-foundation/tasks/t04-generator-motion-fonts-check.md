@@ -7,7 +7,7 @@ acs: ["AC-05", "AC-14"]
 files_hint: ["scripts/tokens/", "src/styles/tokens.css", "package.json"]
 owner: "Alexander Ponomarenko"
 estimate: "S"
-status: "todo"
+status: "done"
 ---
 
 # T4 — Extend the generator with reduced-motion tokens, fallback font stacks and --check mode

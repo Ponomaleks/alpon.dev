@@ -7,7 +7,7 @@ acs: ["AC-05", "AC-15"]
 files_hint: ["tools/fonts/", "public/fonts/", "src/styles/fonts.css"]
 owner: "Alexander Ponomarenko"
 estimate: "M"
-status: "todo"
+status: "done"
 ---
 
 # T2 — Ship the seven brand faces and their metric-matched fallback faces

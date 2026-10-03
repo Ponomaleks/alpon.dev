@@ -31,7 +31,7 @@ These come from AC-01..AC-06, AC-14 and AC-15, and the BaseLayout gives them to 
 | theme-fallback | Stored value unknown, or site storage blocked (the access throws) | Same as theme-dag or theme-natt by device preference. **No error UI.** | AC-03, sad.md §6 flow 1 `alt` |
 | no-script | Scripts turned off | Theme by device preference through the CSS-only Natt block, brand fonts, readable contrast. Identical to the theme states. | AC-04 |
 | font-fallback | Cold cache, before the brand fonts arrive, or a font file fails | Text in the metric-matched Arial/Roboto fallback. Swapping to the brand font causes no visible shift (CLS ≤ 0.02). If a font fails, the fallback simply stays. | AC-05, AC-06, AC-15 |
-| reduced-motion | `prefers-reduced-motion: reduce` | The same static page. This feature has no motion at all: no drift, parallax, arrow nudge or transitions. | AC-14 |
+| reduced-motion | `prefers-reduced-motion: reduce` | The same static page. Nothing moves in this feature: no drift, parallax or arrow nudge. The color transitions (links in `base.css`, the home-link) are declared only under `prefers-reduced-motion: no-preference`, so none runs here. | AC-14 |
 | loading | N/A: static HTML with no client data fetch, so there is no loading UI. Only fonts arrive late, and font-fallback covers that. | — | ADR-0001 (repo) |
 
 ## Screens
@@ -62,6 +62,8 @@ SCR-01 default — 390 (same structure at 834 / 1440; left-aligned, wrap max-wid
 
 ### SCR-02 — Not-found page ("Ikke funnet")
 
+> **Interim 404.** This section describes the built page only. Step 3 rewrites SCR-02 against Misc.jsx; see OQ-02.
+
 Built from the design-system `NotFound` component demo (`.fj-404`), not from the page design (see §Source, known gap). It is the feature's only visual-test surface: 390 / 834 / 1440 × Dag / Natt.
 
 | State | Trigger / condition | Components | Source-ref |
@@ -69,7 +71,7 @@ Built from the design-system `NotFound` component demo (`.fj-404`), not from the
 | default (no Published project) | Any address the site does not have. The edge returns 404 status + `404.html` with the same CSP. | `BaseLayout` (`noindex`); page-local: code line, `h1`, body, **NEW: home-link** (primary), **NEW: ridge-contours** | wireframe below |
 | with-projects | N/A: owned by step 7. With no Published project, "See projects" is **not rendered** (AC-08). | — | — |
 | theme-dag / theme-natt / theme-fallback / no-script / font-fallback / reduced-motion | See §Cross-screen states | as default | same wireframe |
-| home-link hover / focus-visible | Pointer hover, or keyboard focus | NEW: home-link. Only the color changes, through the design Button's tokens (`--fjord-color-cta-bg` → `--fjord-color-cta-hover`, text `--fjord-color-cta-text`). The focus ring is the base `:focus-visible`. No transform or arrow nudge. | wireframe below (no layout change) |
+| home-link hover / focus-visible | Pointer hover, or keyboard focus | NEW: home-link. Only the color changes, through the component demo Button's tokens (`--fjord-color-cta-bg` → `--fjord-color-cta-hover`, text `--fjord-color-cta-text`). The focus ring is the base `:focus-visible`. No transform or arrow nudge. | wireframe below (no layout change) |
 | loading | N/A: see §Cross-screen states | — | — |
 | empty | N/A: fixed static content | — | — |
 | error | N/A: this page *is* the error state of navigation (AC-07, sad.md §6 flow 2). Nothing on it can fail. | — | — |
@@ -82,26 +84,26 @@ Built from the design-system `NotFound` component demo (`.fj-404`), not from the
 - Action: "Back to home" → `/`, primary, with an arrow. The **only** action (AC-08).
 - `<meta name="robots" content="noindex">` through `BaseLayout noindex`.
 
-**Layout (built; from the component demo's `feedback.css`, not from the page design):** the section is `position: relative; overflow: hidden`, with a min-height (component demo 420px; the page design has none), content stacked at the bottom (`justify-content: flex-end`; the page design centres it), and a 16px gap (component demo; the page design has `--fjord-space-5`). See spec §8 OQ-02 items 9 and 13. The ridge sits behind the content (content at `z-index: 1`), anchored top-right at scale 1.5. All values come from tokens. A component-demo value that has no token (420px, 15px button font size, 10px gap) goes to the token/allowlist decision in `tasks`. It is never written into the page as a literal (ADR-0003).
+**Layout (built; from the component demo's `feedback.css`, not from the page design):** the section is `position: relative` and does not clip: only the ridge wrapper has `overflow: hidden`, so the home-link focus ring is not cut (review F-08; the component demo clips the whole section). It has a min-height (`calc(var(--fjord-space-1) * 105)`, the component demo's 420px; the page design has none), content stacked at the bottom (`justify-content: flex-end`; the page design centres it), and a `--fjord-space-4` gap (the component demo's 16px; the page design has `--fjord-space-5`). See spec §8 OQ-02 items 9 and 13. The ridge sits behind the content (content at `z-index: 1`), anchored top-right at 150% of the section's width and height. All values come from tokens; no component-demo value is written into the page as a literal (ADR-0003).
 
 **Ridge constraints (user decision, this run):**
 
 - A build-time inline `<svg>` with `aria-hidden="true"` and `focusable="false"`. No `<style>` inside the SVG and no `style=` attributes (the CSP audit fails the build otherwise, ADR-0002).
 - Color comes from CSS, not SVG attributes: a class on the SVG and a rule in the page stylesheet, `stroke: var(--fjord-color-contour-line)`. Presentation attributes can't take `var()`, and literal colors fail Stylelint.
-- Fixed `width`/`height` (or `aspect-ratio`), so it causes no layout shift and is never the LCP element. The container crops the ring group, and the rings' centre is off the middle of the composition (BRAND.md).
-- No drift, parallax or animation. Step 3 moves it into `components/brand/Contours` with the same markup, so the 404 baselines stay valid.
+- The SVG is absolutely positioned inside the `ridge-contours` wrapper (`inset: 0`), so it takes no space in the flow, causes no layout shift and is never the LCP element. The wrapper crops the ring group; the section does not. The rings' centre is off the middle of the composition (BRAND.md).
+- No drift, parallax or animation. Step 3 rebuilds the page per `Misc.jsx` and re-baselines the 404 visuals (spec §8 OQ-02); the page design has a map panel and no ridge background (OQ-02 items 1 and 2).
 
 **Home-link constraints (user decision, this run):**
 
-- `<a href="/">` styled page-locally to match the design's `.fj-btn--primary`: 44px height, `--fjord-radius-md`, weight 600, using the **same token names** as the design Button, so swapping in `components/ui/Button` in step 3 doesn't change the baselines.
-- The arrow is an inline SVG with `aria-hidden="true"` and `stroke="currentColor"`, a 1.5px line icon, and no `style=`.
-- Hover and focus change color only, through tokens. No hover motion in this feature.
+- `<a href="/">` styled page-locally after the component demo's `.fj-btn--primary`: `--fjord-tap-min` height (44px), `--fjord-radius-md`, `--fjord-weight-semibold`. The page design's Button differs in padding, gap, font size and arrow size (spec §8 OQ-02 items 10 and 14); step 3 replaces the link with `components/ui/Button` and re-baselines.
+- The arrow is an inline SVG with `aria-hidden="true"` and `stroke="currentColor"`, a 1.5px line icon at `--fjord-icon-sm` (16px; the page design has 18px, OQ-02 item 14), and no `style=`.
+- Hover and focus change color only, through tokens. Nothing moves; the color change is a transition only under `prefers-reduced-motion: no-preference`.
 
 ```text
 SCR-02 default — 390
 +--------------------------------------+
-|                  ╭──────────────╮    |  ridge contours: top-right, cropped by the
-|               ╭──┤ ╭────────╮   │    |  section (overflow: hidden), aria-hidden,
+|                  ╭──────────────╮    |  ridge contours: top-right, cropped by their
+|               ╭──┤ ╭────────╮   │    |  own wrapper (review F-08), aria-hidden,
 |              ╭┤  │ │  ╭──╮  │   │    |  stroke --fjord-color-contour-line
 |              │╰──┤ ╰──┴──┴──╯   │    |
 |                                      |
@@ -137,7 +139,7 @@ These are **page-local** pieces in `src/pages/404.astro` (and its page styleshee
 
 | Component | Why no existing primitive fits | Registered in design-system |
 |---|---|---|
-| NEW: home-link (page-local primary link + arrow) | The repo has no Button yet; `components/ui/Button` is a step-3 base component (spec §3). It uses the design Button's token names so step 3 can swap it in without changing the baseline. | pending (listed in docs/design-system.md): step 3 promotes it to `components/ui/Button` |
-| NEW: ridge-contours (page-local static inline SVG) | The repo has no brand components yet; `components/brand/Contours` is step 3. It is static (no parallax or drift) so this feature has no motion. | pending (listed in docs/design-system.md): step 3 promotes it to `components/brand/Contours` with the same markup |
+| NEW: home-link (page-local primary link + arrow) | The repo has no Button yet; `components/ui/Button` is a step-3 base component (spec §3). It is styled after the component demo's Button. | pending (listed in docs/design-system.md): step 3 replaces it with `components/ui/Button`, built from the page design, and re-baselines (spec §8 OQ-02) |
+| NEW: ridge-contours (page-local static inline SVG) | The repo has no brand components yet; `components/brand/Contours` is step 3. It is static (no parallax or drift) so this feature has no motion. | pending (listed in docs/design-system.md): step 3 builds `components/brand/Contours`; the page design's 404 has a map panel, not a ridge background (spec §8 OQ-02 item 1) |
 
 `BaseLayout` already exists (`src/layouts/BaseLayout.astro`). This feature extends its head contract (sad.md §8) but adds no new component.

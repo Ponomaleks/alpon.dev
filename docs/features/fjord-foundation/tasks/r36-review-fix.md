@@ -47,7 +47,7 @@ Changed lines:
 Checked and left as they are:
 
 - `spec.md:27` names both sources (component demo "404 · <requested path>", page design "404 / Ikke funnet"); both match the handoff files.
-- `spec.md:130`, `:259-263`, `ux-flows.md:85`, `:93`, `:121`, `sad.md:232` and `tasks/_epic.md:72` state the AC-07 wording of the built page, not the design; OQ-02 defers that wording to step 3.
+- `spec.md` AC-07, `spec.md` Test plan, AC-07 rows, `ux-flows.md:85`, `:93`, `:121`, `sad.md:232` and `tasks/_epic.md:72` state the AC-07 wording of the built page, not the design; OQ-02 defers that wording to step 3.
 - `screens.md:79` already points to OQ-02.
 - `docs/design-system.md:61-62`, `:100` name the component files as building blocks and say the 404 page follows the page design.
 - `tasks/tracker.md` holds task titles only.

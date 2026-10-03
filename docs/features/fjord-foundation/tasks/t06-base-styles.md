@@ -7,7 +7,7 @@ acs: ["AC-04", "AC-14"]
 files_hint: ["src/styles/base.css"]
 owner: "Alexander Ponomarenko"
 estimate: "S"
-status: "todo"
+status: "done"
 ---
 
 # T6 — Port the handoff base.css as token-only element styles

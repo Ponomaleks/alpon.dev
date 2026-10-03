@@ -7,7 +7,7 @@ acs: ["AC-09", "AC-12"]
 files_hint: ["tests/e2e/headers.spec.ts", "tests/e2e/parity.spec.ts"]
 owner: "Alexander Ponomarenko"
 estimate: "S"
-status: "todo"
+status: "done"
 ---
 
 # T12 — Verify the delivered security policy end to end and flip P-16

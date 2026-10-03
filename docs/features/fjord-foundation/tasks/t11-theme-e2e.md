@@ -7,7 +7,7 @@ acs: ["AC-01", "AC-02", "AC-03", "AC-04"]
 files_hint: ["tests/e2e/theme.spec.ts"]
 owner: "Alexander Ponomarenko"
 estimate: "M"
-status: "todo"
+status: "done"
 ---
 
 # T11 — Cover the theme matrix end to end, including blocked storage and scripts off

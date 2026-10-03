@@ -7,7 +7,7 @@ acs: ["AC-10"]
 files_hint: ["scripts/check-contrast.ts", "scripts/contrast-pairs.ts", "package.json"]
 owner: "Alexander Ponomarenko"
 estimate: "M"
-status: "todo"
+status: "done"
 ---
 
 # T5 — Add the contrast check over the generated tokens

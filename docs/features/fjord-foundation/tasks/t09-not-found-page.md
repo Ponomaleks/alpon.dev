@@ -7,7 +7,7 @@ acs: ["AC-07", "AC-08"]
 files_hint: ["src/pages/404.astro", "docs/design-system.md"]
 owner: "Alexander Ponomarenko"
 estimate: "M"
-status: "todo"
+status: "done"
 ---
 
 # T9 — Build the Fjord Not-found page (SCR-02) with the page-local home-link and ridge contours

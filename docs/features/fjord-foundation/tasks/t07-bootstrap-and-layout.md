@@ -7,7 +7,7 @@ acs: ["AC-01", "AC-02", "AC-03", "AC-06", "AC-13"]
 files_hint: ["src/scripts/theme-bootstrap.js", "src/layouts/BaseLayout.astro", "src/pages/index.astro"]
 owner: "Alexander Ponomarenko"
 estimate: "M"
-status: "todo"
+status: "done"
 ---
 
 # T7 — Add the theme bootstrap and the BaseLayout head contract, with the home placeholder on it (SCR-01)

@@ -58,7 +58,7 @@
 | R35 | [Complete the OQ-02 difference list, state that it is a checklist, and give the two-column layout its breakpoint](./r35-review-fix.md) | docs | Alexander Ponomarenko | S | — | done |
 | R36 | [Name the source of every Not-found design value in sad.md and screens.md and sweep docs/ for stale 404 statements](./r36-review-fix.md) | docs | Alexander Ponomarenko | S | R35 | done |
 | R37 | [Match the @container ban and the breakpoint rule case-insensitively](./r37-review-fix.md) | wiring | Alexander Ponomarenko | S | — | done |
-| R38 | [Make screens.md SCR-02 describe the built interim 404 only, cite the R36 spec rows by ID, and set T1-T14 to done](./r38-review-fix.md) | docs | Alexander Ponomarenko | S | — | todo |
+| R38 | [Make screens.md SCR-02 describe the built interim 404 only, cite the R36 spec rows by ID, and set T1-T14 to done](./r38-review-fix.md) | docs | Alexander Ponomarenko | S | — | done |
 | R39 | [Reject a media condition on @import in the token-only lint](./r39-review-fix.md) | wiring | Alexander Ponomarenko | S | — | done |
 
 **Total:** 16 tasks + 39 follow-ups (R1–R39), ~21 person-days (S ≈ 0.5 d, M ≈ 1 d).

@@ -7,7 +7,7 @@ acs: ["AC-06"]
 files_hint: ["scripts/check-budgets.ts", "package.json", ".github/workflows/ci.yml"]
 owner: "Alexander Ponomarenko"
 estimate: "S"
-status: "todo"
+status: "done"
 ---
 
 # T10 — Add the budget check for bootstrap, JS and font sizes

@@ -7,7 +7,7 @@ acs: ["AC-09", "AC-12"]
 files_hint: ["src/integrations/", "public/_headers", "astro.config.mjs"]
 owner: "Alexander Ponomarenko"
 estimate: "M"
-status: "todo"
+status: "done"
 ---
 
 # T8 — Generate the bootstrap hash into a single /* CSP rule with a fail-closed build integration

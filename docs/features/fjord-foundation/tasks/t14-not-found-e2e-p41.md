@@ -7,7 +7,7 @@ acs: ["AC-07", "AC-08", "AC-14"]
 files_hint: ["tests/e2e/not-found.spec.ts", "tests/e2e/parity.spec.ts"]
 owner: "Alexander Ponomarenko"
 estimate: "S"
-status: "todo"
+status: "done"
 ---
 
 # T14 — Verify the Not-found page and reduced motion end to end and flip P-41

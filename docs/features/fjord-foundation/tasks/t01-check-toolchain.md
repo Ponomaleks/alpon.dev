@@ -7,7 +7,7 @@ acs: ["AC-11"]
 files_hint: ["package.json", "package-lock.json", "vitest.config.ts", "stylelint.config.js", "scripts/lint/", ".github/workflows/ci.yml"]
 owner: "Alexander Ponomarenko"
 estimate: "M"
-status: "todo"
+status: "done"
 ---
 
 # T1 — Install the check toolchain: Vitest and Stylelint with the ADR-0003 rule set
