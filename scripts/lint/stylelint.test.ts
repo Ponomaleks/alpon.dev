@@ -65,6 +65,11 @@ describe('stylelint token-only rules (ADR-0003)', () => {
     ['container-unit.css', 'height: 20cqh', 4, 'unit-disallowed-list'],
     // Container queries bypass the unit and breakpoint rules, so the at-rule is banned (R32).
     ['container.css', '@container (min-width: 400px)', 1, 'at-rule-disallowed-list'],
+    // At-rule and media-feature names are case-insensitive in CSS; so are the rules (R37).
+    ['container-upper.css', '@CONTAINER (min-width: 400px)', 1, 'at-rule-disallowed-list'],
+    ['breakpoint-upper.css', 'MIN-WIDTH: 800px', 1, 'media-feature-name-value-allowed-list'],
+    ['breakpoint-range.css', 'width >= 800px', 1, 'media-feature-name-value-allowed-list'],
+    ['breakpoint-range-upper.css', 'WIDTH >= 800px', 1, 'media-feature-name-value-allowed-list'],
     // Allow lists: functions and units nobody listed are rejected by default.
     ['lab.css', 'lab()', 2, 'function-allowed-list'],
     ['oklab.css', 'oklab()', 2, 'function-allowed-list'],
@@ -94,6 +99,11 @@ describe('stylelint token-only rules (ADR-0003)', () => {
 
   it('passes a token-only file', async () => {
     const result = await lintFile('token-only.css');
+    expect(result.warnings).toEqual([]);
+  });
+
+  it('passes the four breakpoints in lower and upper case and in range syntax', async () => {
+    const result = await lintFile('breakpoint-allowed.css');
     expect(result.warnings).toEqual([]);
   });
 

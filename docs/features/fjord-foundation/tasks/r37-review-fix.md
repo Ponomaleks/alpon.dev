@@ -7,7 +7,7 @@ acs: ["AC-11"]
 files_hint: ["stylelint.config.js", "scripts/lint/stylelint.test.ts", "scripts/lint/fixtures/", "docs/features/fjord-foundation/adr/0003-enforce-token-only-styles-with-stylelint-built-in-rules.md"]
 owner: "Alexander Ponomarenko"
 estimate: "S"
-status: "todo"
+status: "done"
 ---
 
 # R37 — Match the @container ban and the breakpoint rule case-insensitively
@@ -26,10 +26,10 @@ Owner's decision (2026-10-03): fix the rules; do not rely on Prettier.
 
 ## Definition of Done
 
-- [ ] `at-rule-disallowed-list` uses `'/^container$/i'`.
-- [ ] The breakpoint rule (`media-feature-name-value-allowed-list`) is keyed as `'/^(min-|max-)?width$/i'`.
-- [ ] One upper-case fixture row for each rule (`@CONTAINER …`, `@media (MIN-WIDTH: 800px)`), asserted by rule name and line.
-- [ ] Range-syntax fixtures `@media (width >= 800px)` and `@media (WIDTH >= 800px)` are rejected by the breakpoint rule, asserted by rule name and line. If the upper-case range form is not rejected, the rule is extended until it is.
-- [ ] An allowed breakpoint (for example `768px`) stays clean in lower and upper case.
-- [ ] ADR-0003 notes that the rules match case-insensitively and do not depend on Prettier running first; `updated_at` is bumped if the date changes.
-- [ ] `npm run lint` and `npm run test:unit` green
+- [x] `at-rule-disallowed-list` uses `'/^container$/i'`.
+- [x] The breakpoint rule (`media-feature-name-value-allowed-list`) is keyed as `'/^(min-|max-)?width$/i'`.
+- [x] One upper-case fixture row for each rule (`@CONTAINER …`, `@media (MIN-WIDTH: 800px)`), asserted by rule name and line.
+- [x] Range-syntax fixtures `@media (width >= 800px)` and `@media (WIDTH >= 800px)` are rejected by the breakpoint rule, asserted by rule name and line. If the upper-case range form is not rejected, the rule is extended until it is.
+- [x] An allowed breakpoint (for example `768px`) stays clean in lower and upper case.
+- [x] ADR-0003 notes that the rules match case-insensitively and do not depend on Prettier running first; `updated_at` is bumped if the date changes.
+- [x] `npm run lint` and `npm run test:unit` green

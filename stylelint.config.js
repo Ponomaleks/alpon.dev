@@ -106,8 +106,9 @@ export default {
     'color-no-hex': true,
     'color-named': 'never',
     // Container queries read a container's size, which skips the unit and breakpoint rules; a
-    // feature that needs them lifts this ban and adds its own rule for the allowed widths.
-    'at-rule-disallowed-list': ['container'],
+    // feature that needs them lifts this ban and adds its own rule for the allowed widths. CSS
+    // matches at-rule and media-feature names case-insensitively, and so do these rules.
+    'at-rule-disallowed-list': ['/^container$/i'],
     // Allow lists reject any new function or unit by default; the disallowed lists below stay
     // for their clearer messages.
     'function-allowed-list': allowedFunctions,
@@ -145,9 +146,7 @@ export default {
       '/^(transition|animation)$/': [keywordEasing],
     },
     'media-feature-name-value-allowed-list': {
-      width: breakpoints,
-      'min-width': breakpoints,
-      'max-width': breakpoints,
+      '/^(min-|max-)?width$/i': breakpoints,
     },
     'declaration-property-value-allowed-list': {
       ...Object.fromEntries(tokenOnlyProperties.map((property) => [property, [tokenOnly]])),
