@@ -55,6 +55,15 @@ The site itself is a portfolio piece: code quality, accessibility and performanc
 - No layout shift from fonts (preload the 2 critical files, `font-display: swap`, metric-matched fallbacks).
 - Security headers in `public/_headers` (CSP without `unsafe-inline` scripts where possible, HSTS, Referrer-Policy, Permissions-Policy).
 
+## Review policy
+
+- Ship gate: no open critical, high or medium findings, and CI is green. Low findings go to `docs/backlog.md` by default. They become tasks only when the owner asks.
+- At most two review rounds per feature. Round 2 reviews only the diff of the fix commits. A third round happens only if round 2 finds medium or higher.
+- Hardening of lint or test rules against edge cases that no code under `src/` uses is backlog, not a finding.
+- Each fact lives in one doc. Other docs link to it by ID (AC-xx, OQ-xx, SCR-xx) and never copy values. Cite IDs, not line numbers.
+- The spec lists out-of-scope and interim surfaces up front. Review does not check them against the design.
+- Historical records (task results, past review rounds) are not edited and are not reviewed for drift.
+
 ## Architecture decisions
 
 - Portfolio projects live in separate repositories and deploy separately on subdomains (`<name>.alpon.dev`) or external URLs. This repo only presents them (`/projects/[slug]`).
