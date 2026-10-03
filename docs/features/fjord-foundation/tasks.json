@@ -771,6 +771,91 @@
         "docs/features/fjord-foundation/tasks/r20-review-fix.md"
       ],
       "source": "review-2026-10-03 S1-09"
+    },
+    {
+      "id": "R30",
+      "title": "List every Not-found design difference in OQ-02 and give the sticky action bar a roadmap step",
+      "layer": "docs",
+      "deps": [],
+      "acs": [
+        "AC-07"
+      ],
+      "dod": "spec §8 OQ-02 has one line per further difference (body copy, title scale, sticky action bar at 390, accent-coloured \"404\", spacing and alignment, button size), each with the design value and the current value; an item taken from the screenshots and not checked against design/handoff/site (Misc.jsx and the site's NotFound) is marked \"to confirm against the page design\", not dropped. The sticky action bar is named next to \"no Header or Footer\" in OQ-02 and is in the roadmap step 3 scope as part of MobileBar, together with Header/Footer. No code or baseline changes.",
+      "files_hint": [
+        "docs/features/fjord-foundation/spec.md",
+        "docs/roadmap.md"
+      ],
+      "source": "review-2026-10-03-2 S1-11"
+    },
+    {
+      "id": "R31",
+      "title": "Point the stale Not-found design statements to OQ-02 and rank the page design first in screens.md",
+      "layer": "docs",
+      "deps": [
+        "R30"
+      ],
+      "acs": [
+        "AC-07"
+      ],
+      "dod": "spec.md §1 (the code-line bullet) and sad.md §10 Design match each carry a one-line pointer (\"interim 404, see §8 OQ-02; rebuilt in step 3 per Misc.jsx\"). In screens.md the page-design files (design/handoff/site, Misc.jsx for Not-found) are listed only under the primary sources and the component demos under the secondary ones; the code-line note points to OQ-02 instead of saying the design shows \"404 · <path>\". The roadmap step 3 row says \"update AC-07 / P-41 wording to the page design\". Docs only.",
+      "files_hint": [
+        "docs/features/fjord-foundation/spec.md",
+        "docs/features/fjord-foundation/sad.md",
+        "docs/features/fjord-foundation/screens.md",
+        "docs/roadmap.md"
+      ],
+      "source": "review-2026-10-03-2 S1-12"
+    },
+    {
+      "id": "R32",
+      "title": "Ban @container in the token-only lint until a feature needs container queries",
+      "layer": "wiring",
+      "deps": [],
+      "acs": [
+        "AC-11"
+      ],
+      "dod": "stylelint.config.js has at-rule-disallowed-list: ['container']; a fixture with an @container rule fails for that rule (asserted by rule name and line). ADR-0003 has a row for it that says a later feature lifts the ban and adds its own rule for the allowed widths, and that @supports preludes are not checked on purpose (they only test support and set no values). npm run lint stays green on src/.",
+      "files_hint": [
+        "stylelint.config.js",
+        "scripts/lint/stylelint.test.ts",
+        "scripts/lint/fixtures/",
+        "docs/features/fjord-foundation/adr/0003-enforce-token-only-styles-with-stylelint-built-in-rules.md"
+      ],
+      "source": "review-2026-10-03-2 S2-14"
+    },
+    {
+      "id": "R33",
+      "title": "Cut the function allow list to var and calc",
+      "layer": "wiring",
+      "deps": [
+        "R32"
+      ],
+      "acs": [
+        "AC-11"
+      ],
+      "dod": "First confirm that src/styles/fonts.css (url) and the generated src/styles/tokens.css (clamp) are excluded from Stylelint; if either is linted, keep that function and state the reason in the ADR. Otherwise function-allowed-list is ['var', 'calc'], and fixtures show clamp(), min(), max() and url() rejected by that rule. ADR-0003's function table matches the config, updated_at is bumped, and a note says step 3 adds back what it needs (for example min/clamp and the transform functions), each with its reason. npm run lint stays green on src/.",
+      "files_hint": [
+        "stylelint.config.js",
+        "scripts/lint/stylelint.test.ts",
+        "scripts/lint/fixtures/",
+        "docs/features/fjord-foundation/adr/0003-enforce-token-only-styles-with-stylelint-built-in-rules.md"
+      ],
+      "source": "review-2026-10-03-2 S2-15"
+    },
+    {
+      "id": "R34",
+      "title": "Test the .notdef guard through the real font lookup",
+      "layer": "tests",
+      "deps": [],
+      "acs": [
+        "AC-05"
+      ],
+      "dod": "The advance lookup in scripts/tokens/sources.ts takes a code point, with a default that keeps today's behaviour (U+0030). One test loads the real font file the script reads, asks for U+4E00 and expects the .notdef error. tokens:check output is unchanged and src/styles/tokens.css is not modified.",
+      "files_hint": [
+        "scripts/tokens/sources.ts",
+        "scripts/tokens/build.test.ts"
+      ],
+      "source": "review-2026-10-03-2 S2-16"
     }
   ]
 }

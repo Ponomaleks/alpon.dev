@@ -19,5 +19,5 @@ Review round 4, S2-12. The upload step (`.github/workflows/ci.yml:79`, `:87`) us
 ## Definition of Done
 
 - [x] The Lighthouse CI step has id: lhci and the upload step runs with if: ${{ !cancelled() && steps.lhci.outcome != 'skipped' }}; include-hidden-files and if-no-files-found: error stay.
-- [ ] The next green CI run still uploads the `lighthouse` artifact (not pushed yet; verify after the push).
+- [x] The next green CI run still uploads the `lighthouse` artifact (run 37134126663 on `0ae038f`: artifact `lighthouse`, 1,888,821 bytes; verified in review round 5).
 - [x] `npm run lint` and `npm run test:unit` green
