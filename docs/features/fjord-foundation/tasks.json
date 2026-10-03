@@ -910,6 +910,39 @@
         "docs/features/fjord-foundation/adr/0003-enforce-token-only-styles-with-stylelint-built-in-rules.md"
       ],
       "source": "review-2026-10-03-3 S2-18"
+    },
+    {
+      "id": "R38",
+      "title": "Make screens.md SCR-02 describe the built interim 404 only, cite the R36 spec rows by ID, and set T1-T14 to done",
+      "layer": "docs",
+      "deps": [],
+      "acs": [
+        "AC-07"
+      ],
+      "dod": "screens.md SCR-02: the layout paragraph and the wireframe note describe the built behaviour (only the ridge wrapper clips, since F-08). The baseline claims (ridge constraint, home-link line, the two NEW-component rows) are deleted and point to spec §8 OQ-02 (step 3 rebuilds and re-baselines). SCR-02 opens with the banner \"Interim 404. This section describes the built page only. Step 3 rewrites SCR-02 against Misc.jsx; see OQ-02.\" One sweep of SCR-02: every remaining line matches src/pages/404.astro or points to OQ-02; the changed lines are reported. r36-review-fix.md: \"spec.md:259-263\" becomes \"spec.md Test plan, AC-07 rows\". The front matter of the 14 task files T1-T14 says status \"done\"; the definition-of-done boxes stay as they are; tasks.json holds no status field. No code or baseline changes. npm run lint and npm run test:unit green.",
+      "files_hint": [
+        "docs/features/fjord-foundation/screens.md",
+        "docs/features/fjord-foundation/tasks/r36-review-fix.md",
+        "docs/features/fjord-foundation/tasks/"
+      ],
+      "source": "review-2026-10-03-4 S1-17, S1-18, S1-19, S1-20"
+    },
+    {
+      "id": "R39",
+      "title": "Reject a media condition on @import in the token-only lint",
+      "layer": "wiring",
+      "deps": [],
+      "acs": [
+        "AC-11"
+      ],
+      "dod": "No @import under src/ may carry a media condition: a built-in Stylelint rule in stylelint.config.js if one can express it, otherwise a check in scripts/lint/ that runs in npm run lint or npm run test:unit; the result says which and why. A failing fixture with a conditional @import (lower-case and upper-case feature name), asserted by rule or check name, red before the change. The plain string imports in src/styles/global.css stay clean. ADR-0003 has one sentence next to the @supports note. npm run lint and npm run test:unit green.",
+      "files_hint": [
+        "stylelint.config.js",
+        "scripts/lint/stylelint.test.ts",
+        "scripts/lint/fixtures/",
+        "docs/features/fjord-foundation/adr/0003-enforce-token-only-styles-with-stylelint-built-in-rules.md"
+      ],
+      "source": "review-2026-10-03-4 S2-19"
     }
   ]
 }
