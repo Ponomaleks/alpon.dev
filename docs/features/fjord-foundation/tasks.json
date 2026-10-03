@@ -695,6 +695,82 @@
         ".github/workflows/visual-baselines.yml"
       ],
       "source": "Owner follow-up 2026-10-03 on CI run 37122773367"
+    },
+    {
+      "id": "R25",
+      "title": "Audit every script with a body as inline in the CSP audit, whatever its src or href",
+      "layer": "wiring",
+      "deps": [],
+      "acs": [
+        "AC-09",
+        "AC-12"
+      ],
+      "dod": "The CSP audit treats any <script> element (HTML or SVG namespace) with non-whitespace text content as inline, whether or not it has src, href or xlink:href: only the theme bootstrap and ld+json pass, everything else with a body fails the build. A script counts as external only when it has src / href and an empty body. The F-06 it.each gains the probes <svg><script src=\"x.js\">alert(1)</script></svg> and <script src=x.js>alert(1)</script>, both failing the audit in both parse trees.",
+      "files_hint": [
+        "src/integrations/csp.ts",
+        "src/integrations/csp.test.ts"
+      ],
+      "source": "review-2026-10-03 S2-09"
+    },
+    {
+      "id": "R26",
+      "title": "Switch the token-only lint from block lists to allow lists for functions and units",
+      "layer": "wiring",
+      "deps": [],
+      "acs": [
+        "AC-11"
+      ],
+      "dod": "stylelint.config.js uses function-allowed-list (var, calc, clamp, min, max, url, plus anything the current code genuinely needs) and unit-allowed-list (the units actually used outside tokens.css, e.g. %, the viewport units already allowed for min-height, fr, deg if needed; px only in media queries as today), so new CSS functions and units are rejected by default. The existing specific rules stay where they give a clearer error message. The ADR-0003 table lists every allowed function and unit with a reason. Fixtures under scripts/lint/fixtures/ cover lab(), oklab(), color-mix() and rch, and the existing fixtures still pass or fail as before.",
+      "files_hint": [
+        "stylelint.config.js",
+        "scripts/lint/stylelint.test.ts",
+        "scripts/lint/fixtures/",
+        "docs/features/fjord-foundation/adr/0003-enforce-token-only-styles-with-stylelint-built-in-rules.md"
+      ],
+      "source": "review-2026-10-03 S2-10"
+    },
+    {
+      "id": "R27",
+      "title": "Validate the \"0\" advance in the token generator and pin it in the test",
+      "layer": "wiring",
+      "deps": [],
+      "acs": [
+        "AC-05"
+      ],
+      "dod": "Reading the \"0\" advance throws when the glyph id is 0 (.notdef) and when the ratio is not finite or not in (0, 1]; chToEm rejects such an advance too. The unit test pins the literal 1252 / 2048 instead of repeating the implementation, and a failure-path case covers a font without \"0\" and a bad advance. tokens:check stays in sync and tokens.css is unchanged.",
+      "files_hint": [
+        "scripts/tokens/sources.ts",
+        "scripts/tokens/generate.ts",
+        "scripts/tokens/build.test.ts"
+      ],
+      "source": "review-2026-10-03 S2-11"
+    },
+    {
+      "id": "R28",
+      "title": "Upload the Lighthouse reports only when Lighthouse ran",
+      "layer": "wiring",
+      "deps": [],
+      "acs": [],
+      "dod": "The Lighthouse CI step has id: lhci and the upload step runs with if: ${{ !cancelled() && steps.lhci.outcome != 'skipped' }}; include-hidden-files and if-no-files-found: error stay. The next green CI run still uploads the `lighthouse` artifact.",
+      "files_hint": [
+        ".github/workflows/ci.yml"
+      ],
+      "source": "review-2026-10-03 S2-12"
+    },
+    {
+      "id": "R29",
+      "title": "Correct the R20 definition of done from rem to em",
+      "layer": "docs",
+      "deps": [],
+      "acs": [
+        "AC-05"
+      ],
+      "dod": "The R20 definition of done in tasks.json and tasks/r20-review-fix.md says the measures are emitted in em, matching src/styles/tokens.css.",
+      "files_hint": [
+        "docs/features/fjord-foundation/tasks.json",
+        "docs/features/fjord-foundation/tasks/r20-review-fix.md"
+      ],
+      "source": "review-2026-10-03 S1-09"
     }
   ]
 }

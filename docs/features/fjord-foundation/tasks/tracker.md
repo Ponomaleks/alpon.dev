@@ -45,5 +45,10 @@
 | R22 | [Audit both the scripting-off and scripting-on parse trees in the CSP audit](./r22-review-fix.md) | wiring | Alexander Ponomarenko | S | — | done |
 | R23 | [Amend ADR-0003 to match the stylelint rules added by R17](./r23-review-fix.md) | docs | Alexander Ponomarenko | S | — | done |
 | R24 | [Upload the Lighthouse reports and move upload-artifact to Node 24](./r24-review-fix.md) | wiring | Alexander Ponomarenko | S | R21 | done |
+| R25 | [Audit every script with a body as inline in the CSP audit, whatever its src or href](./r25-review-fix.md) | wiring | Alexander Ponomarenko | S | — | todo |
+| R26 | [Switch the token-only lint from block lists to allow lists for functions and units](./r26-review-fix.md) | wiring | Alexander Ponomarenko | S | — | todo |
+| R27 | [Validate the "0" advance in the token generator and pin it in the test](./r27-review-fix.md) | wiring | Alexander Ponomarenko | S | — | todo |
+| R28 | [Upload the Lighthouse reports only when Lighthouse ran](./r28-review-fix.md) | wiring | Alexander Ponomarenko | S | — | todo |
+| R29 | [Correct the R20 definition of done from rem to em](./r29-review-fix.md) | docs | Alexander Ponomarenko | S | — | todo |
 
-**Total:** 16 tasks + 24 follow-ups (R1–R24), ~17.5 person-days (S ≈ 0.5 d, M ≈ 1 d).
+**Total:** 16 tasks + 29 follow-ups (R1–R29), ~20 person-days (S ≈ 0.5 d, M ≈ 1 d).
