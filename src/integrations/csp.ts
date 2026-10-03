@@ -2,7 +2,8 @@
 // of every built page, then writes the theme bootstrap's sha256 into the single
 // Content-Security-Policy line of dist/_headers. It fails the build, before anything can be
 // deployed, when (in either parse tree, scripting off or on):
-//   1. a page has an inline <script> other than exactly one copy of the bootstrap
+//   1. a page has an inline <script> (any script with a body, even with src/href) other than
+//      exactly one copy of the bootstrap
 //      (non-executable application/ld+json data blocks are allowed, type compared case-insensitively);
 //   2. a page has an inline <style>, a style="…" attribute or an on*="…" handler attribute;
 //   3. the hash placeholder is missing from the policy line, or left anywhere after substitution;
@@ -56,8 +57,12 @@ function* elements(node: Node): Generator<Element> {
 const text = (element: Element) =>
   element.childNodes.map((child) => ('value' in child ? child.value : '')).join('');
 
-/** An external script: `src` on HTML, `href` / `xlink:href` on SVG. */
+/**
+ * An external script: `src` on HTML, `href` / `xlink:href` on SVG, AND an empty body. A script
+ * with a body is audited as inline whatever its attributes say (review 2026-10-03).
+ */
 const isExternal = (script: Element) =>
+  text(script).trim() === '' &&
   script.attrs.some(
     (a) => a.name === 'src' || (script.namespaceURI === html.NS.SVG && a.name === 'href'),
   );

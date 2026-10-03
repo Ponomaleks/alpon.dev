@@ -67,6 +67,14 @@ describe('applyCsp', () => {
   });
 
   it.each([
+    ['an HTML script', '<script src="/_astro/a.js"> </script>'],
+    ['an SVG script with href', '<svg><script href="/_astro/a.js"></script></svg>'],
+    ['an SVG script with xlink:href', '<svg><script xlink:href="/_astro/a.js"></script></svg>'],
+  ])('allows an external %s with an empty body', (_, script) => {
+    expect(() => run([page(script)])).not.toThrow();
+  });
+
+  it.each([
     ['an inline <style> element', '<style>p{color:red}</style>', /<style>/],
     ['a style attribute', '<p style="color:red">x</p>', /style attribute/],
     ['an onclick handler', '<button onclick="go()">x</button>', /onclick/],
@@ -117,6 +125,17 @@ describe('applyCsp', () => {
       'style= on an ld+json data block',
       '<script type="application/ld+json" style="color:red">{}</script>',
       /style attribute/,
+    ],
+    // Review 2026-10-03 R25: any script with a non-whitespace body is inline, src/href or not.
+    [
+      'an SVG <script src> that also has a body',
+      '<svg><script src="x.js">alert(1)</script></svg>',
+      /inline script/,
+    ],
+    [
+      'an HTML <script src> that also has a body',
+      '<script src=x.js>alert(1)</script>',
+      /inline script/,
     ],
     // Review 2026-10-02-3 S2-07: with scripting on (as browsers parse), <noscript> is raw text, so
     // a script hidden in <title> / <textarea> of the scripting-off tree is a real script.

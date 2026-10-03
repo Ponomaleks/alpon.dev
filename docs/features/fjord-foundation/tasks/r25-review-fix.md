@@ -7,7 +7,7 @@ acs: ["AC-09", "AC-12"]
 files_hint: ["src/integrations/csp.ts", "src/integrations/csp.test.ts"]
 owner: "Alexander Ponomarenko"
 estimate: "S"
-status: "todo"
+status: "done"
 ---
 
 # R25 — Audit every script with a body as inline in the CSP audit, whatever its src or href
@@ -20,5 +20,5 @@ The Owner chose a namespace-independent rule over per-namespace attribute logic:
 
 ## Definition of Done
 
-- [ ] The CSP audit treats any <script> element (HTML or SVG namespace) with non-whitespace text content as inline, whether or not it has src, href or xlink:href: only the theme bootstrap and ld+json pass, everything else with a body fails the build. A script counts as external only when it has src / href and an empty body. The F-06 it.each gains the probes <svg><script src="x.js">alert(1)</script></svg> and <script src=x.js>alert(1)</script>, both failing the audit in both parse trees.
-- [ ] `npm run lint` and `npm run test:unit` green
+- [x] The CSP audit treats any <script> element (HTML or SVG namespace) with non-whitespace text content as inline, whether or not it has src, href or xlink:href: only the theme bootstrap and ld+json pass, everything else with a body fails the build. A script counts as external only when it has src / href and an empty body. The F-06 it.each gains the probes <svg><script src="x.js">alert(1)</script></svg> and <script src=x.js>alert(1)</script>, both failing the audit in both parse trees.
+- [x] `npm run lint` and `npm run test:unit` green
