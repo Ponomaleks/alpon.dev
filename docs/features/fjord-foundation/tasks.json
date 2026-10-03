@@ -680,6 +680,21 @@
         "docs/features/fjord-foundation/adr/0003-enforce-token-only-styles-with-stylelint-built-in-rules.md"
       ],
       "source": "review-2026-10-02-3 S2-08"
+    },
+    {
+      "id": "R24",
+      "title": "Upload the Lighthouse reports and move upload-artifact to Node 24",
+      "layer": "wiring",
+      "deps": [
+        "R21"
+      ],
+      "acs": [],
+      "dod": "The CI Lighthouse upload sets include-hidden-files: true and if-no-files-found: error so the .lighthouseci/ reports reach the `lighthouse` artifact; every actions/upload-artifact use is v7 (runs.using node24); the next CI run shows the artifact and no Node.js 20 deprecation warning.",
+      "files_hint": [
+        ".github/workflows/ci.yml",
+        ".github/workflows/visual-baselines.yml"
+      ],
+      "source": "Owner follow-up 2026-10-03 on CI run 37122773367"
     }
   ]
 }
