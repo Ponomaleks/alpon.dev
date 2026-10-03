@@ -7,7 +7,7 @@ acs: ["AC-05"]
 files_hint: ["scripts/tokens/sources.ts", "scripts/tokens/build.test.ts"]
 owner: "Alexander Ponomarenko"
 estimate: "S"
-status: "todo"
+status: "done"
 ---
 
 # R34 — Test the .notdef guard through the real font lookup
@@ -20,7 +20,7 @@ Owner's decision (2026-10-03): fix now.
 
 ## Definition of Done
 
-- [ ] The lookup takes a code-point parameter with a default that keeps today's behaviour (U+0030).
-- [ ] One test loads the real font file the script reads, asks for U+4E00 and expects the `.notdef` error.
-- [ ] `npm run tokens:check` output is unchanged; `src/styles/tokens.css` is not modified.
-- [ ] `npm run lint` and `npm run test:unit` green
+- [x] The lookup takes a code-point parameter with a default that keeps today's behaviour (U+0030).
+- [x] One test loads the real font file the script reads, asks for U+4E00 and expects the `.notdef` error.
+- [x] `npm run tokens:check` output is unchanged; `src/styles/tokens.css` is not modified.
+- [x] `npm run lint` and `npm run test:unit` green

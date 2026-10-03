@@ -38,10 +38,11 @@ export function zeroAdvanceEm(glyphId: number, advanceWidth: number, unitsPerEm:
   return advance;
 }
 
-function zeroAdvance(path: string): number {
+/** The advance of "0" (U+0030) in the font file at `path`; `codePoint` is a seam for tests. */
+export function zeroAdvance(path: string, codePoint = 0x30): number {
   const font = create(readFileSync(path));
   if (!('glyphForCodePoint' in font)) throw new Error(`${path} is a font collection`);
-  const glyph = font.glyphForCodePoint(0x30);
+  const glyph = font.glyphForCodePoint(codePoint);
   return zeroAdvanceEm(glyph.id, glyph.advanceWidth, font.unitsPerEm);
 }
 

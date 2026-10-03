@@ -3,7 +3,13 @@ import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { create } from 'fontkitten';
 import { chToEm, generateTokens } from './generate.ts';
-import { readSources, zeroAdvanceEm, type Sources } from './sources.ts';
+import {
+  MEASURE_FONT,
+  readSources,
+  zeroAdvance as lookupZeroAdvance,
+  zeroAdvanceEm,
+  type Sources,
+} from './sources.ts';
 
 // ADR-0001 generator: tokens.css with Dag, Natt and the no-JS Natt block from one list of values
 // (AC-01, AC-02, AC-04), failing on a brand vs handoff palette conflict (AC-10).
@@ -295,6 +301,12 @@ describe('measure tokens (sad §8 Fonts, AC-05)', () => {
 
   it('fails loudly on a font without "0" (glyph id 0 is .notdef)', () => {
     expect(() => zeroAdvanceEm(0, 1024, 2048)).toThrow(/no "0"|\.notdef/);
+  });
+
+  // Review 2026-10-03-2 S2-16: through the real lookup, so a constant glyph id or a changed
+  // fontkitten result for an unmapped code point fails here. U+4E00 is not in the Latin subset.
+  it('fails loudly when the real measure font has no glyph for the code point', () => {
+    expect(() => lookupZeroAdvance(`${root}${MEASURE_FONT}`, 0x4e00)).toThrow(/no "0"|\.notdef/);
   });
 
   it.each([
