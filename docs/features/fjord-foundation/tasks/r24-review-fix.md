@@ -7,7 +7,7 @@ acs: []
 files_hint: [".github/workflows/ci.yml", ".github/workflows/visual-baselines.yml"]
 owner: "Alexander Ponomarenko"
 estimate: "S"
-status: "review"
+status: "done"
 ---
 
 # R24 — Upload the Lighthouse reports and move upload-artifact to Node 24
@@ -22,5 +22,5 @@ Owner follow-up on CI run 37122773367 (2026-10-03). The `check` job warned "No f
 ## Definition of Done
 
 - [x] The Lighthouse upload sets `include-hidden-files: true` and `if-no-files-found: error`; every `actions/upload-artifact` use is `@v7` (v7 changes: ESM internals and an opt-in `archive: false`; the default stays a zipped artifact, so `gh run download -n <name>` is unchanged).
-- [ ] The next CI run shows the `lighthouse` artifact and no Node.js 20 deprecation warning (run ID recorded).
+- [x] The next CI run shows the `lighthouse` artifact and no Node.js 20 deprecation warning: CI run 37127598180 on `641b90c` (`check` 111215989733 and `visual` 111215989782 green); artifact `lighthouse` 1,886,929 bytes (ID 11274918436); the log has no "Node.js 20" or "No files were found" line.
 - [x] `npm run lint` and `npm run test:unit` green

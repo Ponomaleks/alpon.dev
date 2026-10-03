@@ -44,6 +44,6 @@
 | R21 | [Fix baseline-run concurrency, document the label and download, then run CI and the label flow](./r21-review-fix.md) | wiring | Alexander Ponomarenko | S | R20, R22 | done |
 | R22 | [Audit both the scripting-off and scripting-on parse trees in the CSP audit](./r22-review-fix.md) | wiring | Alexander Ponomarenko | S | — | done |
 | R23 | [Amend ADR-0003 to match the stylelint rules added by R17](./r23-review-fix.md) | docs | Alexander Ponomarenko | S | — | done |
-| R24 | [Upload the Lighthouse reports and move upload-artifact to Node 24](./r24-review-fix.md) | wiring | Alexander Ponomarenko | S | R21 | review |
+| R24 | [Upload the Lighthouse reports and move upload-artifact to Node 24](./r24-review-fix.md) | wiring | Alexander Ponomarenko | S | R21 | done |
 
 **Total:** 16 tasks + 24 follow-ups (R1–R24), ~17.5 person-days (S ≈ 0.5 d, M ≈ 1 d).
