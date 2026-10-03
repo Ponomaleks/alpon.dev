@@ -7,7 +7,7 @@ acs: ["AC-07"]
 files_hint: ["docs/features/fjord-foundation/spec.md", "docs/features/fjord-foundation/screens.md", "docs/roadmap.md"]
 owner: "Alexander Ponomarenko"
 estimate: "S"
-status: "todo"
+status: "done"
 ---
 
 # R35 — Complete the OQ-02 difference list, state that it is a checklist, and give the two-column layout its breakpoint
@@ -30,10 +30,10 @@ Owner's decision (2026-10-03): fix now, docs only.
 
 ## Definition of Done
 
-- [ ] Spec §8 OQ-02 has one line per difference above (a–e), each with the page-design value and the built value.
-- [ ] OQ-02 has this line: "The current 404 is an interim page and does not follow Misc.jsx. Any difference from Misc.jsx, listed here or not, is in scope for the step 3 rebuild. The list is a checklist, not an exhaustive diff."
-- [ ] The Design match note (spec §6, `spec.md:194`) points to that line.
-- [ ] OQ-02 item 2 and the roadmap step 3 row read: "two columns from 1024 (5fr / 7fr); below 1024, one column with the map under the text".
-- [ ] The "ten ways" count in `screens.md:19` and every other count of the OQ-02 items ("Items 1–10") match the new list.
-- [ ] No code or baseline changes.
-- [ ] `npm run lint` and `npm run test:unit` green
+- [x] Spec §8 OQ-02 has one line per difference above (a–e), each with the page-design value and the built value.
+- [x] OQ-02 has this line: "The current 404 is an interim page and does not follow Misc.jsx. Any difference from Misc.jsx, listed here or not, is in scope for the step 3 rebuild. The list is a checklist, not an exhaustive diff."
+- [x] The Design match note (spec §6, `spec.md:194`) points to that line.
+- [x] OQ-02 item 2 and the roadmap step 3 row read: "two columns from 1024 (5fr / 7fr); below 1024, one column with the map under the text".
+- [x] The "ten ways" count in `screens.md:19` and every other count of the OQ-02 items ("Items 1–10") match the new list.
+- [x] No code or baseline changes.
+- [x] `npm run lint` and `npm run test:unit` green

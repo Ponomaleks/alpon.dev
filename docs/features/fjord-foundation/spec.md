@@ -191,7 +191,7 @@ Traceability:
 | Contrast | body text ≥ 4.5:1; large text, UI borders and focus ring ≥ 3:1; every semantic text/background pair in Dag and Natt | contrast check script in CI |
 | Accessibility | 0 axe violations on the not-found page and home placeholder, in Dag and Natt | axe in Playwright |
 | Visual regression | ≤ 0.1% differing pixels per screenshot against the approved baseline, not-found page at 390 / 834 / 1440 in Dag and Natt | Playwright visual tests in CI |
-| Design match | 0 undocumented differences between the not-found page and the design reference at 390 / 834 / 1440 in Dag and Natt | manual review in the PR: screenshots side by side with the listed differences |
+| Design match | 0 undocumented differences between the not-found page and the design reference at 390 / 834 / 1440 in Dag and Natt | manual review in the PR: screenshots side by side with the listed differences. For the interim Not-found page the list is a checklist, not an exhaustive diff: see the "interim page" line in §8 OQ-02 |
 
 ## 6.1 Security / privacy
 
@@ -217,7 +217,7 @@ Traceability:
 - **OQ-01 — Dag warning pair under 4.5:1** (from review 2026-10-02). `--fjord-color-warning` on `--fjord-color-warning-soft` measures 4.40:1 in Dag. It stays in the contrast manifest as a named known failure, printed on every run of the contrast check, until the design source is fixed: the Owner darkens the Dag warning color in Claude Design and re-exports, then the pair moves to the normal passing pairs. Owner: Alexander Ponomarenko. Due: before roadmap step 7 (Callout) is built.
 - **OQ-02 — The Not-found page does not match the site page design** (from the Owner's design-match check, 2026-10-03). The page was built from the design-system component demo (`design/handoff/design-system/project/components/feedback/NotFound.jsx`), but the page design is the 404 screen in `design/handoff/site` (`project/site/Misc.jsx`, which renders the site's newer `NotFound`; screenshots `design/screenshots/{dag,natt}_not_found_{390,834,1440}.png`). Differences that were not documented:
   1. The map panel is missing: grid, contour terrain, dashed route, the "You are here" pin outside the map, and the coordinates "59.91° N · 10.75° E" in mono.
-  2. Layout: the design has two columns (text left, map right); the page has one column with the ridge as a background.
+  2. Layout: the design has two columns from 1024 (5fr / 7fr); below 1024, one column with the map under the text (site `_ds` `feedback.css:41-42`); the page has one column with the ridge as a background at every width.
   3. Heading: the design says "This page is off the map."; the page says "Page not found".
   4. Code line separator: the design says "404 / Ikke funnet"; the page says "404 · Ikke funnet".
   5. Body copy: the design body starts "The link may be old, or the page has moved." ("This page is off the map." is the heading); the page body (`src/pages/404.astro:38`) starts "This page is off the map. The link may be old, …".
@@ -226,8 +226,15 @@ Traceability:
   8. Code line colour: the design colours "404" with the link colour (`.fj-eyebrow b`, site `_ds` `content.css:4`) and the rest of the line muted; the page colours the whole line muted (`404.astro:107-114`).
   9. Spacing and alignment: the design has a text gap of `--fjord-space-5`, section padding `--fjord-space-404` top and `--fjord-space-section` bottom, and `align-items: center` (site `_ds` `feedback.css:41-43`); the page has a gap of `--fjord-space-4`, padding `--fjord-space-12` and the content at the bottom of the section (`404.astro:72-80`). `--fjord-space-404` and `--fjord-space-5` are not in `src/styles/tokens.css`; step 3 adds what it needs.
   10. Button size: the design "Back to home" is the default `.fj-btn` (padding `0 --fjord-space-5`, gap `--fjord-space-3`, `--fjord-text-ui`, site `_ds` `actions.css:2`), about 170 px wide at 1440 in the screenshots; the page `.home-link` (`404.astro:138-154`) has padding `0 --fjord-space-4`, gap `--fjord-space-2` and `--fjord-text-body-sm`, about 155 px. The CSS values are confirmed in the site `_ds`; the pixel widths are to confirm against the page design in the built page.
+  11. Code line typography: the design `.fj-eyebrow` has `letter-spacing: --fjord-tracking-label`, `inline-flex` with a `--fjord-space-3` gap around the "/" and `--fjord-leading-none` (site `_ds` `content.css:3`); the page `.code` has no letter-spacing, plain word spaces and `--fjord-leading-display` (`404.astro:107-114`).
+  12. Actions offset: the design has `margin-top: --fjord-space-1` above the actions (site `_ds` `feedback.css:47`); the page has `--fjord-space-2` (`404.astro:134`).
+  13. Section min-height: the design `.fj-404` has none (site `_ds` `feedback.css:41`), only `.x-main{min-height:60vh}` on the page shell (`site/site.css:11`); the page sets 420 px (`calc(var(--fjord-space-1) * 105)`, `404.astro:78`), a value from the component demo.
+  14. Arrow icon: the design Button draws an 18 px arrow (site `_ds_bundle.js:508`); the page uses `--fjord-icon-sm`, 16 px (`404.astro:165`).
+  15. Body measure: the design has `max-width: 46ch` (site `_ds` `feedback.css:45`); the page has `--fjord-measure-narrow`, 48ch (`404.astro:124`).
 
-  Intentional and already documented (§1 Traceability, `screens.md`): the requested path is not echoed (the design's "Nothing lives at /path" is omitted), no "See projects" until step 7, no Header, Footer or sticky action bar (the design's "View CV / Get in touch" at 390) until step 3. Decision: do not rebuild in this feature. Items 1–10 go to the PR's design-deviation list, and roadmap step 3 rebuilds the page per the site design and re-baselines the 404 visuals. AC-07's wording ("Page not found", "404 · Ikke funnet") and P-41 are updated by the step 3 spec. Owner: Alexander Ponomarenko. Due: step 3 (Base components).
+  The current 404 is an interim page and does not follow Misc.jsx. Any difference from Misc.jsx, listed here or not, is in scope for the step 3 rebuild. The list is a checklist, not an exhaustive diff.
+
+  Intentional and already documented (§1 Traceability, `screens.md`): the requested path is not echoed (the design's "Nothing lives at /path" is omitted), no "See projects" until step 7, no Header, Footer or sticky action bar (the design's "View CV / Get in touch" at 390) until step 3. Decision: do not rebuild in this feature. Items 1–15 go to the PR's design-deviation list, and roadmap step 3 rebuilds the page per the site design and re-baselines the 404 visuals. AC-07's wording ("Page not found", "404 · Ikke funnet") and P-41 are updated by the step 3 spec. Owner: Alexander Ponomarenko. Due: step 3 (Base components).
 
 ## Test plan
 

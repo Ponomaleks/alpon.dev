@@ -16,7 +16,7 @@ updated_at: "2026-10-03"
 
 - **Tool:** code (from `docs/design-system.md`).
 - **File:** inline wireframes below.
-- **Page design (primary reference):** SCR-02 is the 404 screen of the site design: `design/handoff/site/project/site/Misc.jsx` (not-found screen), `design/handoff/site/alpon.dev standalone.html`, screenshots `design/screenshots/{dag,natt}_not_found_{390,834,1440}.png`. SCR-01 is a temporary placeholder with no page design; Home (`site/Home.jsx`) replaces it in step 4. **Known gap:** the SCR-02 manifest below was written from the component demo, not from the page design, and differs from it in ten ways (map panel, two-column layout, heading, code line separator, body copy, title scale, sticky action bar, code line colour, spacing, button size); see spec §8 OQ-02. It is kept as built and is rewritten from the page design in step 3.
+- **Page design (primary reference):** SCR-02 is the 404 screen of the site design: `design/handoff/site/project/site/Misc.jsx` (not-found screen), `design/handoff/site/alpon.dev standalone.html`, screenshots `design/screenshots/{dag,natt}_not_found_{390,834,1440}.png`. SCR-01 is a temporary placeholder with no page design; Home (`site/Home.jsx`) replaces it in step 4. **Known gap:** the SCR-02 manifest below was written from the component demo, not from the page design, and differs from it in fifteen ways (map panel, layout, heading, code line separator, body copy, title scale, sticky action bar, code line colour, spacing, button size, code line typography, actions offset, section min-height, arrow size, body measure); see spec §8 OQ-02. It is kept as built and is rewritten from the page design in step 3.
 - **Component references (secondary, building blocks):** `design/handoff/design-system/project/components/feedback/NotFound.jsx` + `feedback.css` (`.fj-404*`), `components/brand/Contours.jsx` (`ridge`) and `components/actions/actions.css` (`.fj-btn--primary`). The page-design files (`Misc.jsx`, the standalone HTML) are listed only under the primary reference above.
 - **Inventory:** `docs/design-system.md` §Component inventory. Only `BaseLayout` is built in the repo; the page-local pieces below are registered there as pending, and step 3 promotes them to `components/ui/Button` and `components/brand/Contours`.
 
@@ -77,12 +77,12 @@ Built from the design-system `NotFound` component demo (`.fj-404`), not from the
 **Content (AC-07, spec §1 design differences):**
 
 - Code line: `404 · Ikke funnet` in the mono label style (`.fj-404__code`). "Ikke funnet" is wrapped in `lang="no"` (sad.md §8). The requested path is **never** shown (interim 404, see spec §8 OQ-02: the page design reads "404 / Ikke funnet" with the "404" in the link colour).
-- Title `h1`: "Page not found" (`.fj-404__title`, display size).
-- Body: "This page is off the map. The link may be old, or the page has moved." (the component demo's default; the page design's body omits the first sentence, see spec §8 OQ-02 item 5; `.fj-404__body`, lead size, muted, max 46ch).
+- Title `h1`: "Page not found" (`.fj-404__title`, display size; the component demo's default; the page design says "This page is off the map." at h1 size, see spec §8 OQ-02 items 3 and 6).
+- Body: "This page is off the map. The link may be old, or the page has moved." (the component demo's default; the page design's body omits the first sentence, see spec §8 OQ-02 item 5; `.fj-404__body`, lead size, muted, `--fjord-measure-narrow` (48ch; page design 46ch)).
 - Action: "Back to home" → `/`, primary, with an arrow. The **only** action (AC-08).
 - `<meta name="robots" content="noindex">` through `BaseLayout noindex`.
 
-**Layout (from `feedback.css`):** the section is `position: relative; overflow: hidden`, with a min-height (design 420px), content stacked at the bottom (`justify-content: flex-end`), and a 16px gap. The ridge sits behind the content (content at `z-index: 1`), anchored top-right at scale 1.5. All values come from tokens. A design value that has no token (420px, 15px button font size, 10px gap) goes to the token/allowlist decision in `tasks`. It is never written into the page as a literal (ADR-0003).
+**Layout (built; from the component demo's `feedback.css`, not from the page design):** the section is `position: relative; overflow: hidden`, with a min-height (component demo 420px; the page design has none), content stacked at the bottom (`justify-content: flex-end`; the page design centres it), and a 16px gap (component demo; the page design has `--fjord-space-5`). See spec §8 OQ-02 items 9 and 13. The ridge sits behind the content (content at `z-index: 1`), anchored top-right at scale 1.5. All values come from tokens. A component-demo value that has no token (420px, 15px button font size, 10px gap) goes to the token/allowlist decision in `tasks`. It is never written into the page as a literal (ADR-0003).
 
 **Ridge constraints (user decision, this run):**
 
@@ -109,7 +109,7 @@ SCR-02 default — 390
 |  Page not                            |
 |  found                    (h1, display)
 |  This page is off the map. The link  |
-|  may be old, or the page has moved.  |  lead, muted, ≤ 46ch
+|  may be old, or the page has moved.  |  lead, muted, --fjord-measure-narrow (48ch; page design 46ch)
 |                                      |
 |  [ Back to home  → ]     (primary)   |  44px, the only action
 +--------------------------------------+

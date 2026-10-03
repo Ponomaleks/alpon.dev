@@ -55,8 +55,8 @@
 | R32 | [Ban @container in the token-only lint until a feature needs container queries](./r32-review-fix.md) | wiring | Alexander Ponomarenko | S | — | done |
 | R33 | [Cut the function allow list to var and calc](./r33-review-fix.md) | wiring | Alexander Ponomarenko | S | R32 | done |
 | R34 | [Test the .notdef guard through the real font lookup](./r34-review-fix.md) | tests | Alexander Ponomarenko | S | — | done |
-| R35 | [Complete the OQ-02 difference list, state that it is a checklist, and give the two-column layout its breakpoint](./r35-review-fix.md) | docs | Alexander Ponomarenko | S | — | todo |
-| R36 | [Name the source of every Not-found design value in sad.md and screens.md and sweep docs/ for stale 404 statements](./r36-review-fix.md) | docs | Alexander Ponomarenko | S | R35 | todo |
+| R35 | [Complete the OQ-02 difference list, state that it is a checklist, and give the two-column layout its breakpoint](./r35-review-fix.md) | docs | Alexander Ponomarenko | S | — | done |
+| R36 | [Name the source of every Not-found design value in sad.md and screens.md and sweep docs/ for stale 404 statements](./r36-review-fix.md) | docs | Alexander Ponomarenko | S | R35 | done |
 | R37 | [Match the @container ban and the breakpoint rule case-insensitively](./r37-review-fix.md) | wiring | Alexander Ponomarenko | S | — | done |
 
 **Total:** 16 tasks + 37 follow-ups (R1–R37), ~20 person-days (S ≈ 0.5 d, M ≈ 1 d).
