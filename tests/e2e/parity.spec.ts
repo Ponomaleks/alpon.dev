@@ -92,7 +92,11 @@ test.describe('home page', () => {
   test.fixme('P-22 copy-email button copies and confirms "Kopiert"', async () => {});
   test.fixme('P-23 "Save contact" downloads the vCard', async () => {});
   test.fixme('P-24 head meta, Open Graph and JSON-LD Person', async () => {});
-  test.fixme('P-25 skip link is the first focusable element', async () => {});
+  test('P-25 skip link is the first focusable element', async ({ page }) => {
+    await page.goto('/');
+    await page.keyboard.press('Tab');
+    await expect(page.getByRole('link', { name: 'Skip to content' })).toBeFocused();
+  });
   test('P-26 Schibsted Grotesk 400 and 600 are preloaded', async ({ page }) => {
     await page.goto('/');
     const preloads = page.locator('link[rel="preload"][as="font"][type="font/woff2"][crossorigin]');
@@ -124,4 +128,9 @@ test.describe('404', () => {
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex');
     await expect(page.getByRole('link', { name: 'Back to home' })).toHaveAttribute('href', '/');
   });
+});
+
+test.describe('Not in the stub: Shell links', () => {
+  test.fixme('P-50 Shell contact links reach the contact place', async () => {});
+  test.fixme('P-51 Shell CV links reach the CV page', async () => {});
 });
