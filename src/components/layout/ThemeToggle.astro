@@ -80,6 +80,11 @@ const options = [
     cursor: pointer;
   }
 
+  /* On spruce the sunken tint lifts the track; lichen text there is 4.28:1, so use the full text color. */
+  :global(.fjord-on-spruce) .theme-toggle__segment {
+    color: var(--fjord-color-text);
+  }
+
   .theme-toggle__segment:hover {
     color: var(--fjord-color-text);
   }
