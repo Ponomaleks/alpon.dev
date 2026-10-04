@@ -134,7 +134,7 @@ test.describe('Not-found faces once the brand fonts load', () => {
   // Runs in both projects, so at phone (Pixel 7) and desktop width.
   for (const [selector, family] of [
     ['.code', 'JetBrains Mono'],
-    ['main p', 'Schibsted Grotesk'],
+    ['main .body', 'Schibsted Grotesk'],
   ] as const) {
     test(`${selector} is drawn in ${family}`, async ({ page }) => {
       await page.goto('/does-not-exist');

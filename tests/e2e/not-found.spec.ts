@@ -1,31 +1,57 @@
 import { expect, test, type Page } from '@playwright/test';
 
-// SCR-02 end to end (AC-07, AC-08) and reduced motion on both pages (AC-14).
+// SCR-02 end to end (AC-17, AC-18, AC-19) and reduced motion on both pages (AC-14).
 
 test.describe('Not-found page', () => {
-  test('an unknown address gets a 404 and the Fjord Not-found page', async ({ page }) => {
+  test('an unknown address gets a 404 and the SCR-02 content (AC-17)', async ({ page }) => {
     const response = await page.goto('/this/does-not-exist');
     expect(response?.status()).toBe(404);
-    await expect(page.locator('.code')).toHaveText('404 · Ikke funnet');
-    await expect(page.locator('main [lang="no"]')).toHaveText('Ikke funnet');
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Page not found');
-    await expect(page.locator('main p')).toHaveText(
-      'This page is off the map. The link may be old, or the page has moved.',
-    );
+    const main = page.locator('main');
+    await expect(main.locator('[lang="no"]')).toHaveText('Ikke funnet');
+    await expect(main.getByText('404 / Ikke funnet')).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('This page is off the map.');
+    await expect(main.getByText('The link may be old, or the page has moved.')).toBeVisible();
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex');
+    await expect(page.getByText(/Page not found/)).toHaveCount(0);
   });
 
-  test('"Back to home" is the only action and leads home (AC-08)', async ({ page }) => {
+  test('"Back to home" is the only primary action, with an arrow, and leads home (AC-17, AC-18)', async ({
+    page,
+  }) => {
     await page.goto('/does-not-exist');
     const links = page.locator('main').getByRole('link');
     await expect(links).toHaveCount(1);
+    await expect(page.locator('main button')).toHaveCount(0);
     await expect(links).toHaveAttribute('href', '/');
     await expect(links).toHaveAccessibleName('Back to home');
+    await expect(links.locator('svg')).toHaveCount(1);
     await expect(page.getByText(/see projects/i)).toHaveCount(0);
     await expect(page.locator('a[href^="/projects"]')).toHaveCount(0);
     await links.click();
     await expect(page).toHaveURL(/\/$/);
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Alexander Ponomarenko');
+  });
+
+  test('has no closing band and does not echo the address (AC-17)', async ({ page }) => {
+    await page.goto('/does-not-exist');
+    await expect(page.getByText('Let’s build something good together.')).toHaveCount(0);
+    await expect(page.getByText('/does-not-exist')).toHaveCount(0);
+  });
+
+  test('the map panel is decoration: hidden from assistive technology (AC-19)', async ({
+    page,
+  }) => {
+    await page.goto('/does-not-exist');
+    const panel = page.locator('main .terrain');
+    await expect(panel).toHaveCount(1);
+    await expect(panel).toHaveAttribute('aria-hidden', 'true');
+    await expect(page.locator('main')).toMatchAriaSnapshot(`
+      - paragraph: 404 / Ikke funnet
+      - heading "This page is off the map." [level=1]
+      - paragraph: The link may be old, or the page has moved.
+      - link "Back to home":
+        - /url: /
+    `);
   });
 
   test('a crafted address with markup is never echoed back or executed', async ({ page }) => {
@@ -43,6 +69,40 @@ test.describe('Not-found page', () => {
       expect(html).not.toContain(fragment);
     expect(dialogs).toEqual([]);
   });
+});
+
+test.describe('layout and the bar (AC-17)', () => {
+  for (const [width, columns] of [
+    [390, false],
+    [834, false],
+    [1440, true],
+  ] as const) {
+    test(`at ${width}px the text and the map are ${columns ? 'in two columns' : 'stacked'}`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto('/does-not-exist');
+      const text = await page.getByRole('heading', { level: 1 }).boundingBox();
+      const map = await page.locator('main .terrain').boundingBox();
+      if (!text || !map) throw new Error('the heading or the map panel has no box');
+      if (columns) {
+        expect(map.x).toBeGreaterThanOrEqual(text.x + text.width - 1);
+        expect(map.width).toBeGreaterThan(text.width);
+      } else {
+        expect(map.y).toBeGreaterThanOrEqual(text.y + text.height - 1);
+      }
+    });
+
+    test(`at ${width}px the sticky bar is ${width < 768 ? 'shown' : 'absent'}`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto('/does-not-exist');
+      const bar = page.locator('.mobile-bar');
+      if (width < 768) await expect(bar).toBeVisible();
+      else await expect(bar).toBeHidden();
+    });
+  }
 });
 
 for (const width of [390, 1440]) {

@@ -70,7 +70,7 @@ Note: CLAUDE.md plans `/cv`, `/cv/en`, `/cv/no` as CV pages later. The spec that
 | Id | Behaviour | Test |
 |---|---|---|
 | P-40 | Unknown path returns status 404 | active |
-| P-41 | 404 page shows "404 · Ikke funnet", has `noindex` and a link back to `/` | active |
+| P-41 | 404 page shows "404 / Ikke funnet", has `noindex` and a link back to `/` | active |
 
 ## Not in the stub (Release 1 adds these, listed for the release gate)
 

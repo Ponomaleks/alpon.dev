@@ -1,59 +1,30 @@
 ---
-// SCR-02 Fjord Not-found page (fjord-foundation screens.md), built from the design's NotFound
-// (.fj-404). Page-local pieces until step 3 promotes them: home-link (→ components/ui/Button)
-// and ridge-contours (→ components/brand/Contours), with the same token names and markup.
-// The requested address is never shown back (AC-07); "See projects" waits for a Published
-// project (AC-08, step 7).
-import { contourData } from '../../design/handoff/design-system/project/components/brand/contourData.js';
+// SCR-02 Not-found page, built from the design's NotFound (.fj-404): a code line, the headline,
+// one primary action and the map panel. The requested address is never shown back (AC-07);
+// "See projects" waits for a Published project (AC-08).
 import BaseLayout from '../layouts/BaseLayout.astro';
-
-// The design's ridge, anchored top-right: flipped on both axes from its natural low-left place.
-const ridgePaths: string[] = contourData.ridge;
+import TerrainMap from '../components/brand/TerrainMap.astro';
+import Button from '../components/ui/Button.astro';
 ---
 
-<BaseLayout title="Ikke funnet · alpon.dev" description="Page not found." noindex>
+<BaseLayout title="Ikke funnet · alpon.dev" description="Page not found." noindex ctaBand={false}>
   <div class="wrap">
     <section class="not-found" aria-labelledby="not-found-title">
-      <div class="ridge-contours" aria-hidden="true">
-        <svg
-          class="ridge"
-          viewBox={contourData.viewBox}
-          preserveAspectRatio="xMaxYMin slice"
-          aria-hidden="true"
-          focusable="false"
-        >
-          <g transform="translate(85 55) scale(-1 -1)" fill="none" stroke-width="1">
-            {ridgePaths.map((d) => (
-              <path d={d} vector-effect="non-scaling-stroke" />
-            ))}
-          </g>
-        </svg>
+      <div class="text">
+        <p class="code">
+          404 / <span lang="no">Ikke funnet</span>
+        </p>
+        <h1 class="title" id="not-found-title">
+          This page is off the map.
+        </h1>
+        <p class="body">The link may be old, or the page has moved.</p>
+        <div class="actions">
+          <Button href="/" arrow>
+            Back to home
+          </Button>
+        </div>
       </div>
-      <span class="code">
-        404 · <span lang="no">Ikke funnet</span>
-      </span>
-      <h1 class="title" id="not-found-title">
-        Page not found
-      </h1>
-      <p class="body">This page is off the map. The link may be old, or the page has moved.</p>
-      <div class="actions">
-        <a class="home-link" href="/">
-          Back to home
-          <svg
-            class="arrow"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            aria-hidden="true"
-            focusable="false"
-          >
-            <path d="M5 12h14"></path>
-            <path d="m12 5 7 7-7 7"></path>
-          </svg>
-        </a>
-      </div>
+      <TerrainMap />
     </section>
   </div>
 </BaseLayout>
@@ -66,57 +37,62 @@ const ridgePaths: string[] = contourData.ridge;
     padding: 0 var(--fjord-grid-margin);
   }
 
-  /* .fj-404: content stacked at the bottom of a min-height section, the ridge behind it. */
-  /* No overflow clipping here: the ridge clips itself, and the home-link focus ring sits flush
-     with the left edge (review F-08). */
+  /* .fj-404: stacked below 1024, 5 / 7 columns from 1024 with the text centred vertically.
+     Flex weights instead of the design's grid fr tracks, which the token-only Stylelint rules
+     do not allow. */
   .not-found {
-    position: relative;
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
-    gap: var(--fjord-space-4);
-    min-height: calc(var(--fjord-space-1) * 105);
-    padding: var(--fjord-space-12) 0;
+    justify-content: center;
+    gap: var(--fjord-space-12);
+    padding: var(--fjord-space-404) 0 var(--fjord-space-section);
   }
 
-  .not-found > :not(.ridge-contours) {
-    position: relative;
-    z-index: 1;
+  .not-found > * {
+    min-width: 0;
   }
 
-  /* ridge-contours: static, no drift or parallax (screens.md ridge constraints). */
-  .ridge-contours {
-    position: absolute;
-    inset: 0;
-    overflow: hidden;
-    pointer-events: none;
-    z-index: 0;
+  @media (min-width: 1024px) {
+    .not-found {
+      flex-direction: row;
+      align-items: center;
+      gap: var(--fjord-space-16);
+    }
+
+    .not-found > .text {
+      flex: 5 1 0;
+    }
+
+    .not-found > :global(.terrain) {
+      flex: 7 1 0;
+    }
   }
 
-  .ridge {
-    position: absolute;
-    top: 0;
-    right: 0;
-    display: block;
-    width: 150%;
-    height: 150%;
-    overflow: visible;
-    stroke: var(--fjord-color-contour-line);
+  .text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--fjord-space-5);
   }
 
   .code {
+    margin: 0;
     font-family: var(--fjord-font-mono);
     font-size: var(--fjord-text-mono-label);
     font-weight: var(--fjord-weight-medium);
-    line-height: var(--fjord-leading-display);
-    font-variant-numeric: var(--fjord-numeric);
+    line-height: var(--fjord-leading-none);
+    letter-spacing: var(--fjord-tracking-label);
+    font-variant-numeric: tabular-nums;
     color: var(--fjord-color-text-muted);
   }
 
   .title {
-    font-size: var(--fjord-text-display);
-    letter-spacing: var(--fjord-tracking-display);
-    line-height: var(--fjord-leading-display);
+    margin: 0;
+    font-size: var(--fjord-text-h1);
+    font-weight: var(--fjord-weight-semibold);
+    letter-spacing: var(--fjord-tracking-heading);
+    line-height: var(--fjord-leading-heading);
+    text-wrap: balance;
   }
 
   .body {
@@ -124,55 +100,13 @@ const ridgePaths: string[] = contourData.ridge;
     max-width: var(--fjord-measure-narrow);
     color: var(--fjord-color-text-muted);
     font-size: var(--fjord-text-lead);
-    line-height: var(--fjord-leading-mono);
+    line-height: var(--fjord-leading-normal);
   }
 
   .actions {
     display: flex;
     flex-wrap: wrap;
     gap: var(--fjord-space-3);
-    margin-top: var(--fjord-space-2);
-  }
-
-  /* home-link: the design's .fj-btn.fj-btn--primary with an arrow, same token names. */
-  .home-link {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--fjord-space-2);
-    height: var(--fjord-tap-min);
-    padding: 0 var(--fjord-space-4);
-    border: var(--fjord-border-width) solid transparent;
-    border-radius: var(--fjord-radius-md);
-    background-color: var(--fjord-color-cta-bg);
-    color: var(--fjord-color-cta-text);
-    font-family: var(--fjord-font-sans);
-    font-size: var(--fjord-text-body-sm);
-    font-weight: var(--fjord-weight-semibold);
-    line-height: var(--fjord-leading-display);
-    text-decoration: none;
-    white-space: nowrap;
-  }
-
-  .home-link:hover,
-  .home-link:focus-visible {
-    background-color: var(--fjord-color-cta-hover);
-    color: var(--fjord-color-cta-text);
-  }
-
-  .arrow {
-    flex: none;
-    width: var(--fjord-icon-sm);
-    height: var(--fjord-icon-sm);
-    stroke-width: var(--fjord-icon-stroke);
-  }
-
-  /* Color only, and only for visitors who did not ask for reduced motion (AC-14). */
-  @media (prefers-reduced-motion: no-preference) {
-    .home-link {
-      transition-property: background-color, color;
-      transition-duration: var(--fjord-duration-200);
-      transition-timing-function: var(--fjord-ease-out);
-    }
+    margin-top: var(--fjord-space-1);
   }
 </style>
