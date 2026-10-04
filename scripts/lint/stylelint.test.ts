@@ -130,6 +130,11 @@ describe('stylelint token-only rules (ADR-0003)', () => {
     expect(result.warnings).toEqual([]);
   });
 
+  it('passes @view-transition with navigation and token-timed view-transition groups (AC-32)', async () => {
+    const result = await lintFile('view-transition.css');
+    expect(result.warnings).toEqual([]);
+  });
+
   it('passes the four breakpoints in lower and upper case and in range syntax', async () => {
     const result = await lintFile('breakpoint-allowed.css');
     expect(result.warnings).toEqual([]);

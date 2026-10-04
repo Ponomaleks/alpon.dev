@@ -95,6 +95,19 @@ const links = [
     position: static;
   }
 
+  /* Own transition group so the header stays still while the page cross-fades (AC-32). The live
+     header only: a sample would repeat the name, and a name must be unique on the page. */
+  .header[data-header] {
+    view-transition-name: site-header;
+  }
+
+  /* The group is not animated: no cross-fade, no morph, so the header does not move. */
+  :global(::view-transition-group(site-header)),
+  :global(::view-transition-old(site-header)),
+  :global(::view-transition-new(site-header)) {
+    animation: none;
+  }
+
   .header[data-scrolled] {
     border-block-end-color: var(--fjord-color-border);
   }

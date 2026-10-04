@@ -1,0 +1,14 @@
+@view-transition {
+  navigation: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @view-transition {
+    navigation: none;
+  }
+}
+
+::view-transition-group(root) {
+  animation-duration: var(--fjord-duration-320);
+  animation-timing-function: var(--fjord-ease-out);
+}
