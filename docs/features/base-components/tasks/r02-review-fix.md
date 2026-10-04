@@ -7,7 +7,7 @@ acs: ["AC-04", "AC-25"]
 files_hint: ["src/components/layout/MobileMenu.astro", "tests/e2e/menu.spec.ts"]
 owner: "Alexander Ponomarenko"
 estimate: "S"
-status: "todo"
+status: "done"
 ---
 
 # R2 — Let the mobile menu scroll when the viewport is shorter than its content
@@ -18,9 +18,13 @@ Review round 1 ([review-2026-10-04](../_review/review-2026-10-04.md)), S2-02. `d
 
 ## Definition of Done
 
-- [ ] The dialog has `overflow-y: auto` and `overscroll-behavior: contain`; horizontal overflow stays hidden.
-- [ ] The panel content has a minimum height of the full dialog height, so the contacts, theme switch and "Get in touch" stay at the bottom when there is room and scroll when there is not.
-- [ ] e2e at 667x375: "Get in touch" is scrolled into view and activated.
-- [ ] e2e at 390x844: the bottom block is still at the bottom of the panel.
-- [ ] Both e2e tests were run in a real browser (`npm run test`), not only reasoned from the code.
-- [ ] `npm run lint` and `npm run test:unit` green
+- [x] The dialog has `overflow-y: auto` and `overscroll-behavior: contain`; horizontal overflow stays hidden.
+- [x] The panel content has a minimum height of the full dialog height, so the contacts, theme switch and "Get in touch" stay at the bottom when there is room and scroll when there is not.
+- [x] e2e at 667x375: "Get in touch" is scrolled into view and activated.
+- [x] e2e at 390x844: the bottom block is still at the bottom of the panel.
+- [x] Both e2e tests were run in a real browser (`npm run test`), not only reasoned from the code.
+- [x] `npm run lint` and `npm run test:unit` green
+
+## Notes
+
+- Result: commit 0c47bd3. No min-height wrapper was added: the dialog is a full-height flex column and the bottom block has `margin-block-start: auto`, which keeps it at the bottom when there is room and lets the dialog scroll when there is not. Both e2e tests (667x375 and 390x844) pass in a browser.

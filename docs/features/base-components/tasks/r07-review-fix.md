@@ -7,7 +7,7 @@ acs: ["AC-32"]
 files_hint: ["docs/features/base-components/spec.md", "docs/features/base-components/sad.md", "docs/features/base-components/tasks/t14-view-transitions.md", "docs/features/base-components/tasks.json"]
 owner: "Alexander Ponomarenko"
 estimate: "S"
-status: "todo"
+status: "done"
 ---
 
 # R7 — Record the built-CSS method as the accepted verification of AC-32
@@ -18,7 +18,11 @@ Review round 1 ([review-2026-10-04](../_review/review-2026-10-04.md)), S1-05. Sp
 
 ## Definition of Done
 
-- [ ] The spec §1 change log records the decision with its date and reason.
-- [ ] The "own tests with motion allowed" sentence in spec §1 and the Testing row of sad §8 no longer claim a motion-allowed test for AC-32; AC-29 keeps its own test if it is stable.
-- [ ] T14's definition of done (`tasks/t14-view-transitions.md` and `tasks.json`) names the built-CSS and computed `view-transition-name` checks.
-- [ ] `npm run lint` and `npm run test:unit` green
+- [x] The spec §1 change log records the decision with its date and reason.
+- [x] The "own tests with motion allowed" sentence in spec §1 and the Testing row of sad §8 no longer claim a motion-allowed test for AC-32; AC-29 keeps its own test if it is stable.
+- [x] T14's definition of done (`tasks/t14-view-transitions.md` and `tasks.json`) names the built-CSS and computed `view-transition-name` checks.
+- [x] `npm run lint` and `npm run test:unit` green
+
+## Notes
+
+- Result: commit 99cfa66 (from the lane B worktree).
