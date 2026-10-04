@@ -1,0 +1,481 @@
+{
+  "slug": "base-components",
+  "tasks": [
+    {
+      "id": "T1",
+      "title": "Point the token generator at the site copy of the design system and emit the new tokens",
+      "layer": "wiring",
+      "deps": [],
+      "acs": [
+        "AC-26"
+      ],
+      "dod": "scripts/tokens/build.test.ts proves the generator reads design/handoff/site/project/_ds/, that every declaration tokens.css had before keeps its value, and that the layer, space-5, not-found space, UI text size, compact header height and Toast duration tokens are emitted; npm run tokens:check and npm run check:contrast pass.",
+      "files_hint": [
+        "scripts/tokens/",
+        "src/styles/tokens.css",
+        "docs/features/fjord-foundation/adr/0001-pair-a-validating-theme-bootstrap-with-generated-natt-blocks.md"
+      ]
+    },
+    {
+      "id": "T2",
+      "title": "Extend the token-only allow lists for the Shell styles, one recorded entry per form",
+      "layer": "wiring",
+      "deps": [
+        "T1"
+      ],
+      "acs": [
+        "AC-26"
+      ],
+      "dod": "scripts/lint/stylelint.test.ts has, for every new allow-list entry, one fixture that passes and one that is rejected with file and line (color-mix() with a literal colour, a raw number inside an allowed function, ch, an unknown --fjord-* token); each entry is recorded in fjord-foundation ADR-0003 with its reason and what it still rejects.",
+      "files_hint": [
+        "stylelint.config.js",
+        "scripts/lint/",
+        "docs/features/fjord-foundation/adr/0003-enforce-token-only-styles-with-stylelint-built-in-rules.md"
+      ]
+    },
+    {
+      "id": "T3",
+      "title": "Add src/data/contact.ts and the contact check against the vCard and the last-updated date",
+      "layer": "domain",
+      "deps": [],
+      "acs": [
+        "AC-15",
+        "AC-16"
+      ],
+      "dod": "scripts/check-contact.test.ts proves the check passes on the repo, fails naming the field when contact.ts and public/alexander-ponomarenko.vcf differ, and fails showing the value and the rule for a lastUpdated that is not a real calendar date or lies in the future; the check runs inside npm run lint.",
+      "files_hint": [
+        "src/data/contact.ts",
+        "scripts/check-contact.ts",
+        "scripts/check-contact.test.ts",
+        "package.json"
+      ]
+    },
+    {
+      "id": "T4",
+      "title": "Build Icon, Button, Link and IconButton with all interactive states",
+      "layer": "ui",
+      "deps": [
+        "T2"
+      ],
+      "acs": [
+        "AC-25"
+      ],
+      "dod": "src/components/ui/actions.test.ts renders the four components and asserts the variants of the screens.md Styleguide rows Button, Link, IconButton and Icon, the data-demo-state selectors next to each pseudo-class, aria-hidden icons from the typed map and rel on external links; Stylelint reports 0 findings on the four files.",
+      "files_hint": [
+        "src/components/ui/Icon.astro",
+        "src/components/ui/Button.astro",
+        "src/components/ui/Link.astro",
+        "src/components/ui/IconButton.astro",
+        "src/components/ui/actions.test.ts"
+      ]
+    },
+    {
+      "id": "T5",
+      "title": "Build Badge, Tag, Stat and SectionHeader with Eyebrow",
+      "layer": "ui",
+      "deps": [
+        "T2"
+      ],
+      "acs": [
+        "AC-25",
+        "AC-21"
+      ],
+      "dod": "src/components/ui/content.test.ts renders the variants of the screens.md Styleguide rows Badge, Tag, Stat and SectionHeader and asserts that Stat prints its final number in the HTML with no script; Stylelint reports 0 findings on the four files.",
+      "files_hint": [
+        "src/components/ui/Badge.astro",
+        "src/components/ui/Tag.astro",
+        "src/components/ui/Stat.astro",
+        "src/components/ui/SectionHeader.astro",
+        "src/components/ui/content.test.ts"
+      ]
+    },
+    {
+      "id": "T6",
+      "title": "Build Contours, the Terrain map panel and Wordmark",
+      "layer": "ui",
+      "deps": [
+        "T2",
+        "T4"
+      ],
+      "acs": [
+        "AC-17",
+        "AC-19"
+      ],
+      "dod": "src/components/brand/brand.test.ts asserts that Contours (ridge, corner) and the whole TerrainMap panel are aria-hidden inline SVG with class-based token colours and no style attribute, that the panel has the 4 × 4 grid, dashed route, pin with \"You are here\" and the coordinates label, and that Wordmark links to / in its default and on-spruce variants.",
+      "files_hint": [
+        "src/components/brand/Contours.astro",
+        "src/components/brand/TerrainMap.astro",
+        "src/components/brand/Wordmark.astro",
+        "src/components/brand/brand.test.ts"
+      ]
+    },
+    {
+      "id": "T7",
+      "title": "Build ThemeToggle, the theme script and the scripts-off gate",
+      "layer": "ui",
+      "deps": [
+        "T2"
+      ],
+      "acs": [
+        "AC-10",
+        "AC-11",
+        "AC-12",
+        "AC-29"
+      ],
+      "dod": "src/scripts/shell/theme.test.ts proves that only dag and natt are applied and stored, that a storage error is swallowed while the theme still changes, that aria-pressed is synced on every live switch and never on a sample, and that startViewTransition is used only when it exists, motion is allowed and the switch is not inside the menu dialog; base.css hides [data-needs-script] under :root:not([data-theme]).",
+      "files_hint": [
+        "src/scripts/shell/theme.ts",
+        "src/scripts/shell/theme.test.ts",
+        "src/components/layout/ThemeToggle.astro",
+        "src/styles/base.css"
+      ]
+    },
+    {
+      "id": "T8",
+      "title": "Build Toast, its polite live region and the fjord:toast script",
+      "layer": "ui",
+      "deps": [
+        "T4"
+      ],
+      "acs": [
+        "AC-30",
+        "AC-28"
+      ],
+      "dod": "src/scripts/shell/toast.test.ts proves that a fjord:toast event writes message, meta and lang into the role=\"status\" region, that focus does not move, that the Toast is removed after the Toast duration, and that a second event replaces the first; the style lifts the region above a bar that is not inert and uses only motion tokens.",
+      "files_hint": [
+        "src/components/ui/Toast.astro",
+        "src/scripts/shell/toast.ts",
+        "src/scripts/shell/toast.test.ts"
+      ]
+    },
+    {
+      "id": "T9",
+      "title": "Build SkipLink, CtaBand and Footer from the contact data",
+      "layer": "ui",
+      "deps": [
+        "T3",
+        "T4",
+        "T6"
+      ],
+      "acs": [
+        "AC-13",
+        "AC-14",
+        "AC-20"
+      ],
+      "dod": "src/components/layout/static-parts.test.ts asserts the footer content of AC-14 read from contact.ts (lang=\"no\" on the Residence and on \"Sist oppdatert\", <time>, rel=\"noopener noreferrer\", coordinates with two decimals, build-time year), the CtaBand copy with a primary \"Get in touch\" and a \"Download CV\" that has download and follows cvLang, and a SkipLink that targets #main.",
+      "files_hint": [
+        "src/components/layout/SkipLink.astro",
+        "src/components/layout/CtaBand.astro",
+        "src/components/layout/Footer.astro",
+        "src/components/layout/static-parts.test.ts"
+      ]
+    },
+    {
+      "id": "T10",
+      "title": "Build Header with its variants, the scroll border script and the one-primary rule",
+      "layer": "ui",
+      "deps": [
+        "T4",
+        "T6",
+        "T7"
+      ],
+      "acs": [
+        "AC-01",
+        "AC-02",
+        "AC-03",
+        "AC-23"
+      ],
+      "dod": "src/components/layout/header.test.ts asserts the header-compact and header-wide content of screens.md, no \"Projects\" and no search, aria-current on the link named by current, the on-spruce variant, the forced secondary call to action and the menu button behind the scripts-off gate; src/scripts/shell/header.test.ts proves the sentinel observer sets and removes data-scrolled.",
+      "files_hint": [
+        "src/components/layout/Header.astro",
+        "src/scripts/shell/header.ts",
+        "src/scripts/shell/header.test.ts",
+        "src/components/layout/header.test.ts"
+      ]
+    },
+    {
+      "id": "T11",
+      "title": "Build the mobile menu panel as a native modal dialog (SCR-03)",
+      "layer": "ui",
+      "deps": [
+        "T3",
+        "T10"
+      ],
+      "acs": [
+        "AC-04",
+        "AC-05",
+        "AC-02",
+        "AC-28"
+      ],
+      "dod": "src/scripts/shell/menu.test.ts proves open through showModal, close on any link click including a same-page link without sending focus back to the button (G-1), close when the 768 media query matches, and no close on a theme change; src/components/layout/menu.test.ts asserts the SCR-03 \"open\" content from contact.ts, no \"Projects\" and no search, and the scroll-lock rule.",
+      "files_hint": [
+        "src/components/layout/MobileMenu.astro",
+        "src/scripts/shell/menu.ts",
+        "src/scripts/shell/menu.test.ts",
+        "src/components/layout/menu.test.ts"
+      ]
+    },
+    {
+      "id": "T12",
+      "title": "Build the Sticky action bar and its scroll script",
+      "layer": "ui",
+      "deps": [
+        "T4"
+      ],
+      "acs": [
+        "AC-07",
+        "AC-08",
+        "AC-09"
+      ],
+      "dod": "src/scripts/shell/action-bar.test.ts proves the G-5 thresholds (a change under 8 px is ignored, down sets inert, up removes it, within 40 px of the top the bar is shown), that the bar is never made inert while focus is inside it (G-4) and that nothing happens under reduced motion; src/components/layout/bar.test.ts asserts \"View CV\" (secondary, file icon) and \"Get in touch\" (primary) with the contact.ts targets and the bar hook.",
+      "files_hint": [
+        "src/components/layout/MobileBar.astro",
+        "src/scripts/shell/action-bar.ts",
+        "src/scripts/shell/action-bar.test.ts",
+        "src/components/layout/bar.test.ts"
+      ]
+    },
+    {
+      "id": "T13",
+      "title": "Compose the Shell in BaseLayout from page options and keep the existing suites green",
+      "layer": "wiring",
+      "deps": [
+        "T8",
+        "T9",
+        "T10",
+        "T11",
+        "T12"
+      ],
+      "acs": [
+        "AC-24",
+        "AC-06",
+        "AC-07",
+        "AC-13",
+        "AC-30"
+      ],
+      "dod": "src/layouts/BaseLayout.test.ts builds fixture pages and asserts the order skip link, header, <main id=\"main\" tabindex=\"-1\">, band, footer, bar, Toast region, each page option of sad §5 (current, headerVariant, headerCta, mobileBar, ctaBand, cvLang) with its default, and the unchanged head contract; npm run build and the existing e2e and axe suites pass with the Shell on / and on the Not-found page.",
+      "files_hint": [
+        "src/layouts/BaseLayout.astro",
+        "src/layouts/BaseLayout.test.ts",
+        "src/layouts/fixtures/",
+        "src/styles/base.css",
+        "src/pages/index.astro",
+        "src/pages/_404.test.ts",
+        "tests/e2e/not-found.spec.ts",
+        "tests/e2e/smoke.spec.ts",
+        "tests/a11y/smoke.spec.ts"
+      ]
+    },
+    {
+      "id": "T14",
+      "title": "Add cross-document page transitions with a still header",
+      "layer": "ui",
+      "deps": [
+        "T13"
+      ],
+      "acs": [
+        "AC-32",
+        "AC-28"
+      ],
+      "dod": "tests/e2e/transitions.spec.ts, run with motion allowed, follows a site link and observes a view transition whose header group does not animate, and with reduced motion observes no transition and the new page open; the lint test confirms @view-transition passes the token-only rules.",
+      "files_hint": [
+        "src/styles/base.css",
+        "src/components/layout/Header.astro",
+        "tests/e2e/transitions.spec.ts",
+        "scripts/lint/"
+      ]
+    },
+    {
+      "id": "T15",
+      "title": "Rebuild the Not-found page to its page design (SCR-02) and reword P-41",
+      "layer": "ui",
+      "deps": [
+        "T13"
+      ],
+      "acs": [
+        "AC-17",
+        "AC-18",
+        "AC-19"
+      ],
+      "dod": "tests/e2e/not-found.spec.ts asserts a 404 status with the SCR-02 content (code line \"404 / Ikke funnet\" with lang=\"no\", h1 \"This page is off the map.\", the body, one primary \"Back to home\" with an arrow as the only action inside main, no \"See projects\", no echoed path, noindex, no closing band, the bar below 768), two columns from 1024 and stacked below, and an accessibility snapshot of main without the map panel; P-41 in parity.spec.ts and docs/stub-parity.md uses the new wording and passes.",
+      "files_hint": [
+        "src/pages/404.astro",
+        "src/pages/_404.test.ts",
+        "tests/e2e/not-found.spec.ts",
+        "tests/e2e/parity.spec.ts",
+        "docs/stub-parity.md"
+      ]
+    },
+    {
+      "id": "T16",
+      "title": "Build the Styleguide page with the base component sections (SCR-04)",
+      "layer": "ui",
+      "deps": [
+        "T5",
+        "T13"
+      ],
+      "acs": [
+        "AC-21",
+        "AC-22"
+      ],
+      "dod": "src/pages/_styleguide.test.ts asserts that dist/styleguide.html has noindex, the real header and footer, no real bar and no real band, and one data-section block for each of Button, Link, IconButton, Icon, Badge, Tag, Stat, SectionHeader, Toast (sample), Contours, Terrain map and Wordmark with the states of screens.md; tests/e2e/styleguide.spec.ts proves no built page and no sitemap entry links to /styleguide.",
+      "files_hint": [
+        "src/pages/styleguide.astro",
+        "src/pages/_styleguide.test.ts",
+        "tests/e2e/styleguide.spec.ts"
+      ]
+    },
+    {
+      "id": "T17",
+      "title": "Add the Shell samples and the Toast trigger to the Styleguide",
+      "layer": "ui",
+      "deps": [
+        "T16"
+      ],
+      "acs": [
+        "AC-21"
+      ],
+      "dod": "src/pages/_styleguide.test.ts asserts the sections Skip link, Theme switch, Header variants (default, bordered, on spruce, secondary call to action, one with a current link), Mobile menu panel (static sample, no dialog), Sticky action bar and Closing band, each marked data-sample; tests/e2e/styleguide.spec.ts proves \"Show toast\" shows the real Toast, that the real theme switch changes the page while sample switches keep their fixed selection, and that \"Show toast\" is not displayed with scripts off.",
+      "files_hint": [
+        "src/pages/styleguide.astro",
+        "src/pages/_styleguide.test.ts",
+        "tests/e2e/styleguide.spec.ts"
+      ]
+    },
+    {
+      "id": "T18",
+      "title": "Verify the Shell end to end, flip P-25 and open P-50 and P-51",
+      "layer": "tests",
+      "deps": [
+        "T13"
+      ],
+      "acs": [
+        "AC-01",
+        "AC-02",
+        "AC-03",
+        "AC-06",
+        "AC-13",
+        "AC-14",
+        "AC-20",
+        "AC-24",
+        "AC-25",
+        "AC-31"
+      ],
+      "dod": "tests/e2e/shell.spec.ts passes for the header at 390, 834 and 1440, the scroll border, the skip link as first Tab stop that moves focus to main, the footer facts, the band downloads, every Shell control at least 44 × 44 at 390, CV and contact reachable with scripts off, and the rule that a Visitor page without the bar links to the CV from its own content; in parity.spec.ts P-25 is a passing test and P-50 and P-51 are test.fixme, mirrored in docs/stub-parity.md.",
+      "files_hint": [
+        "tests/e2e/shell.spec.ts",
+        "tests/e2e/parity.spec.ts",
+        "docs/stub-parity.md"
+      ]
+    },
+    {
+      "id": "T19",
+      "title": "Verify the mobile menu and the theme switch end to end",
+      "layer": "tests",
+      "deps": [
+        "T13"
+      ],
+      "acs": [
+        "AC-04",
+        "AC-05",
+        "AC-10",
+        "AC-11",
+        "AC-12",
+        "AC-29"
+      ],
+      "dod": "tests/e2e/menu.spec.ts passes for open with focus on the first link and the page behind inert and not scrollable, close by Escape and by the close button with focus back on the menu button, close by a link to another page and by a same-page link, close on resize to 768, and a theme change that leaves the panel open; tests/e2e/theme-switch.spec.ts passes for the 6 stored × device combinations with 0 wrong selections, persistence to the next page from its first frame, blocked storage with no error, no switch with scripts off, and the cross-fade only with motion allowed.",
+      "files_hint": [
+        "tests/e2e/menu.spec.ts",
+        "tests/e2e/theme-switch.spec.ts"
+      ]
+    },
+    {
+      "id": "T20",
+      "title": "Verify the Sticky action bar, the one-primary rule, the Toast position and reduced motion",
+      "layer": "tests",
+      "deps": [
+        "T15"
+      ],
+      "acs": [
+        "AC-07",
+        "AC-08",
+        "AC-09",
+        "AC-23",
+        "AC-28",
+        "AC-30"
+      ],
+      "dod": "tests/e2e/action-bar.spec.ts passes for the bar below 768 only, the clearance of the last line and of the focused element, hide and return with motion allowed with inert actions out of the focus order, and a bar that keeps its position with scripts off or reduced motion; tests/e2e/primary-count.spec.ts counts at most 1 primary in main and 2 on screen on / and the Not-found page at 390, 834 and 1440 and in the three 390 states of spec §6; tests/e2e/reduced-motion.spec.ts shows no transform change for menu, skip link, bar and Toast, and a Toast dispatched at 390 sits above the bar.",
+      "files_hint": [
+        "tests/e2e/action-bar.spec.ts",
+        "tests/e2e/primary-count.spec.ts",
+        "tests/e2e/reduced-motion.spec.ts"
+      ]
+    },
+    {
+      "id": "T21",
+      "title": "Add axe checks for the three pages and the open menu, and the Styleguide and Not-found visual baselines",
+      "layer": "tests",
+      "deps": [
+        "T15",
+        "T17"
+      ],
+      "acs": [
+        "AC-21",
+        "AC-04",
+        "AC-17"
+      ],
+      "dod": "tests/a11y reports 0 axe violations on /, the Not-found page and /styleguide in Dag and Natt and on / with the menu panel open; tests/visual/styleguide.spec.ts captures one screenshot per data-section and tests/visual/not-found.spec.ts the full page, at 390 / 834 / 1440 in Dag and Natt with the copyright year masked, and FJORD_VISUAL=compare passes in CI against Linux baselines written by the visual-baselines workflow.",
+      "files_hint": [
+        "tests/a11y/",
+        "tests/visual/",
+        ".github/workflows/ci.yml",
+        ".github/workflows/visual-baselines.yml"
+      ]
+    },
+    {
+      "id": "T22",
+      "title": "Extend the budget and contrast checks and prove the security policy is unchanged",
+      "layer": "tests",
+      "deps": [
+        "T15",
+        "T17"
+      ],
+      "acs": [
+        "AC-27",
+        "AC-17"
+      ],
+      "dod": "scripts/check-budgets.test.ts proves the check fails, naming file and size, when the Shell scripts of a page exceed 5 KB gzip together or 404.html exceeds 20 KB gzip, and npm run check:budgets passes on dist; scripts/contrast-pairs.ts lists every pair the new components use in Dag, Natt and on spruce and npm run check:contrast passes; tests/e2e/headers.spec.ts shows an injected inline script and inline style refused on a page with the Shell while the theme switch still works, with tests/contracts/csp.contract.json unchanged.",
+      "files_hint": [
+        "scripts/check-budgets.ts",
+        "scripts/check-budgets.test.ts",
+        "scripts/contrast-pairs.ts",
+        "scripts/check-contrast.test.ts",
+        "tests/e2e/headers.spec.ts"
+      ]
+    },
+    {
+      "id": "T23",
+      "title": "Close the cross-document pointers and register the built components",
+      "layer": "docs",
+      "deps": [
+        "T14",
+        "T18",
+        "T19",
+        "T20",
+        "T21",
+        "T22"
+      ],
+      "acs": [
+        "AC-17",
+        "AC-18",
+        "AC-21"
+      ],
+      "dod": "fjord-foundation spec AC-07 and AC-08 hold only the one-line \"superseded by base-components AC-17 / AC-18\" pointer, its §3 transitions line points to AC-29 and AC-32 and §8 OQ-02 is closed; backlog B-01 is done; docs/design-system.md has a row with the file path for every item marked \"new\" in spec §1.1 including SkipLink and no row for home-link or ridge-contours; npm run lint is green.",
+      "files_hint": [
+        "docs/features/fjord-foundation/spec.md",
+        "docs/backlog.md",
+        "docs/design-system.md"
+      ]
+    }
+  ]
+}
