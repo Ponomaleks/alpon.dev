@@ -277,7 +277,7 @@
         "AC-32",
         "AC-28"
       ],
-      "dod": "tests/e2e/transitions.spec.ts, run with motion allowed, follows a site link and observes a view transition whose header group does not animate, and with reduced motion observes no transition and the new page open; the lint test confirms @view-transition passes the token-only rules.",
+      "dod": "checks of the built CSS (src/styles/view-transitions.test.ts: @view-transition navigation auto with motion allowed, none under reduce) and of the computed view-transition-name of the header (tests/e2e/transitions.spec.ts), and navigation works with reduce; the lint test confirms @view-transition passes the token-only rules.",
       "files_hint": [
         "src/styles/base.css",
         "src/components/layout/Header.astro",

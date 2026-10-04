@@ -37,7 +37,8 @@ Traceability:
 - Change log, 2026-10-04 (design stage, decided by the Owner): §1.3 gained D-13, the header's scroll border appears only where scripts run. Nothing else changed.
 - Change log, 2026-10-04 (implement stage, decided by the Owner): AC-26 now states the targeted token rules of ADR-0004 instead of allow lists; the §6 Contrast row gates text, control boundaries and the focus ring, and only reports decorative `aria-hidden` lines; the arrow and icon nudges of the page design stay where motion is allowed (`screens.md` interactive states, AC-28 for reduced motion); text widths may use math on a measure token. Nothing else changed.
 - Change log, 2026-10-04 (design match, decided by the Owner): the header is 64 high below 768 with a 17 px wordmark and a 36 px "Get in touch"; the theme switch is 38 high; these keep a 44 px target through an overlay (D-08). Footer text links are as high as their line, so AC-25 and the §6 Touch targets row name that exception. The page keeps one bottom reserve for the Sticky action bar (the footer's), not two. Nothing else changed.
-- The e2e suite runs with reduced motion emulated, so page and theme transitions never make it unstable; AC-29 and AC-32 have their own tests with motion allowed.
+- Change log, 2026-10-04 (review round 1, decided by the Owner): AC-32 is verified by checks of the built CSS (`src/styles/view-transitions.test.ts`) and of the computed `view-transition-name` (`tests/e2e/transitions.spec.ts`), not by a motion-allowed browser test of the page transition, because that browser test was a race in Chromium and a flaky test must not sit in a required check. Nothing else changed.
+- The e2e suite runs with reduced motion emulated, so page and theme transitions never make it unstable; AC-29 has its own test with motion allowed; AC-32 is verified by checks of the built CSS (see the change log above).
 
 ### 1.1 New or extended
 

@@ -24,7 +24,7 @@ AC-32, AC-28 ([spec §5](../spec.md)); [sad §4 pillar 6, §11 View Transitions 
 
 ## Definition of Done
 
-- [ ] `tests/e2e/transitions.spec.ts` with `reducedMotion: "no-preference"` on Chromium: `pagereveal` carries a `viewTransition` after a link from `/`; with `reduce` it carries none; navigation works in both
+- [ ] `tests/e2e/transitions.spec.ts` with `reducedMotion: "no-preference"` on Chromium: the built CSS carries `@view-transition { navigation: auto }` with motion allowed and `navigation: none` under `reduce` (`src/styles/view-transitions.test.ts`), and the header's computed `view-transition-name` is set (`tests/e2e/transitions.spec.ts`); navigation works with `reduce`
 - [ ] Same spec: the header has a `view-transition-name` and the name is unique on the page
 - [ ] `scripts/lint/stylelint.test.ts`: `@view-transition` with `navigation` passes; if it needed an allow-list entry, the row and rejecting fixture exist (T2 rule)
 - [ ] `npm run lint` and `npm run test:unit` green
