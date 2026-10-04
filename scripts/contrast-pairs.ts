@@ -49,13 +49,15 @@ export const PAIRS: Pair[] = [
   pair('text-muted', 'bg-raised', 'text', ALL),
   pair('text-muted', 'bg-sunken', 'text', PAGE),
   pair('text', 'selection', 'text', PAGE),
-  pair('text', 'accent-soft', 'text', PAGE),
+  pair('text', 'accent-soft', 'text', ALL),
   // Links.
   pair('link', 'bg', 'text', ALL),
   pair('link', 'bg-raised', 'text', ALL),
   pair('link-hover', 'bg', 'text', ALL),
   // Inverse grounds, the primary CTA and floating UI.
   pair('text-inverse', 'bg-inverse', 'text', PAGE),
+  // The on-spruce wordmark (footer, header, menu panel) takes the inverse colour on the spruce ground.
+  pair('text-inverse', 'bg', 'text', ['on-spruce']),
   pair('cta-text', 'cta-bg', 'text', ALL),
   pair('cta-text', 'cta-hover', 'text', ALL),
   pair('tooltip-text', 'tooltip-bg', 'text', PAGE),
@@ -81,7 +83,7 @@ export const PAIRS: Pair[] = [
   pair('warning', 'bg-raised', 'text', PAGE),
   pair('link', 'bg-sunken', 'text', PAGE),
   pair('focus-ring', 'bg-sunken', 'ui', PAGE),
-  pair('focus-ring', 'accent-soft', 'ui', PAGE),
+  pair('focus-ring', 'accent-soft', 'ui', ALL),
   // TerrainMap .terrain__trail: the dashed route where it crosses the sunken map frame. The panel
   // is aria-hidden decoration and no control has a strong border on a sunken ground.
   pair('border-strong', 'bg-sunken', 'decorative', PAGE),

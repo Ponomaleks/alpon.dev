@@ -185,6 +185,18 @@ describe('MobileMenu: SCR-03 open content (AC-04)', () => {
   });
 });
 
+describe('MobileMenu: on spruce, as the page design (AC-04, AC-21)', () => {
+  for (const name of ['plain', 'sample']) {
+    it(`the ${name} panel root carries fjord-on-spruce and its Contours the spruce tone`, () => {
+      const html = made(name);
+      const root = html.match(/<(?:dialog|div)\b[^>]*class="[^"]*\bmenu\b[^"]*"[^>]*>/)?.[0] ?? '';
+      expect(classesOf(root)).toContain('fjord-on-spruce');
+      const wrap = html.match(/<div\b[^>]*class="[^"]*\bcontours\b[^"]*"[^>]*>/)?.[0] ?? '';
+      expect(classesOf(wrap)).toContain('contours--spruce');
+    });
+  }
+});
+
 describe('MobileMenu: sample variant (SCR-04)', () => {
   it('renders the same content as a static block, not a <dialog>', () => {
     const html = made('sample');

@@ -141,12 +141,50 @@ test.describe('mobile menu at 390', () => {
       await expect(
         dialog.getByRole('button', { name: theme === 'dag' ? 'Light' : 'Dark' }),
       ).toHaveAttribute('aria-pressed', 'true');
-      const colors = await dialog.evaluate((el) => {
-        const style = getComputedStyle(el);
-        return { bg: style.backgroundColor, fg: style.color };
+      // The page design puts the sheet on spruce (fj-sheet fjord-on-spruce): --fjord-spruce in
+      // Dag, --fjord-spruce-deep in Natt, snow text. Token values are read from the page.
+      const colors = await dialog.evaluate(
+        (el, token) => {
+          const probe = (prop: 'backgroundColor' | 'color', value: string) => {
+            const p = document.createElement('i');
+            p.style[prop] = value;
+            document.body.append(p);
+            const out = getComputedStyle(p)[prop];
+            p.remove();
+            return out;
+          };
+          const style = getComputedStyle(el);
+          return {
+            bg: style.backgroundColor,
+            fg: style.color,
+            ground: probe('backgroundColor', `var(${token})`),
+            snow: probe('color', 'var(--fjord-snow)'),
+          };
+        },
+        theme === 'dag' ? '--fjord-spruce' : '--fjord-spruce-deep',
+      );
+      expect(colors.bg).toBe(colors.ground);
+      expect(colors.fg).toBe(colors.snow);
+
+      // The theme switch inside the panel: pill shape, selected segment clearly distinct.
+      const sw = await dialog.getByRole('group', { name: 'Theme' }).evaluate((el) => {
+        const probe = document.createElement('i');
+        probe.style.borderTopLeftRadius = 'var(--fjord-radius-pill)';
+        document.body.append(probe);
+        const pill = getComputedStyle(probe).borderTopLeftRadius;
+        probe.remove();
+        const buttons = [...el.querySelectorAll('button')];
+        const on = buttons.find((b) => b.getAttribute('aria-pressed') === 'true');
+        const off = buttons.find((b) => b.getAttribute('aria-pressed') !== 'true');
+        return {
+          pill,
+          radius: getComputedStyle(el).borderTopLeftRadius,
+          onBg: on ? getComputedStyle(on).backgroundColor : '',
+          offBg: off ? getComputedStyle(off).backgroundColor : '',
+        };
       });
-      expect(colors.bg).toBe(theme === 'dag' ? 'rgb(243, 244, 240)' : 'rgb(17, 26, 23)');
-      expect(colors.fg).not.toBe(colors.bg);
+      expect(sw.radius).toBe(sw.pill);
+      expect(sw.onBg).not.toBe(sw.offBg);
       expect(errors).toEqual([]);
       expect(consoleErrors).toEqual([]);
     });
