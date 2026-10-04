@@ -8,10 +8,10 @@
 | T1 | [Point the token generator at the site copy of the design system and emit the new tokens](./t01-token-source-site-copy.md) | wiring | Alexander Ponomarenko | M | — | done |
 | T2 | [Extend the token-only allow lists for the Shell styles, one recorded entry per form](./t02-stylelint-allow-lists.md) | wiring | Alexander Ponomarenko | M | T1 | done |
 | T3 | [Add src/data/contact.ts and the contact check against the vCard and the last-updated date](./t03-contact-data-and-check.md) | domain | Alexander Ponomarenko | S | — | done |
-| T4 | [Build Icon, Button, Link and IconButton with all interactive states](./t04-action-components.md) | ui | Alexander Ponomarenko | M | T2 | todo |
-| T5 | [Build Badge, Tag, Stat and SectionHeader with Eyebrow](./t05-content-components.md) | ui | Alexander Ponomarenko | S | T2 | todo |
+| T4 | [Build Icon, Button, Link and IconButton with all interactive states](./t04-action-components.md) | ui | Alexander Ponomarenko | M | T2 | done |
+| T5 | [Build Badge, Tag, Stat and SectionHeader with Eyebrow](./t05-content-components.md) | ui | Alexander Ponomarenko | S | T2 | done |
 | T6 | [Build Contours, the Terrain map panel and Wordmark](./t06-brand-components.md) | ui | Alexander Ponomarenko | M | T2, T4 | todo |
-| T7 | [Build ThemeToggle, the theme script and the scripts-off gate](./t07-theme-toggle.md) | ui | Alexander Ponomarenko | M | T2 | todo |
+| T7 | [Build ThemeToggle, the theme script and the scripts-off gate](./t07-theme-toggle.md) | ui | Alexander Ponomarenko | M | T2 | done |
 | T8 | [Build Toast, its polite live region and the fjord:toast script](./t08-toast.md) | ui | Alexander Ponomarenko | S | T4 | todo |
 | T9 | [Build SkipLink, CtaBand and Footer from the contact data](./t09-static-shell-parts.md) | ui | Alexander Ponomarenko | M | T3, T4, T6 | todo |
 | T10 | [Build Header with its variants, the scroll border script and the one-primary rule](./t10-header.md) | ui | Alexander Ponomarenko | M | T4, T6, T7 | todo |
