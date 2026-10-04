@@ -41,7 +41,7 @@ target_surfaces: [web-frontend]  # declared in §4 — read (never re-derived) b
 - Token-only styles are enforced by Stylelint 17.16.0 with allow lists (fjord-foundation ADR-0003). Today: functions `var`, `calc`; units `%`, viewport heights on height properties, `px` only in width media features; breakpoints 360 / 768 / 1024 / 1440 px; `@container` rejected; `color-mix()`, `ch` and `env()` rejected; `:has()` and `@supports` pass. New entries go through AC-26.
 - Theme invariant from fjord-foundation ADR-0001: with scripts on, the bootstrap always sets `data-theme` to `dag` or `natt` before the first frame; with scripts off it is never set. Storage key `fjord-theme`.
 - Zero client JS by default; interactivity is vanilla TS in Astro `<script>` (repo ADR-0002). No React, no UI kit, no QR or icon library.
-- Test toolchain: Playwright 1.63.0 (projects desktop and mobile, against `wrangler dev` on `dist/`), `@axe-core/playwright` 4.13.0, Vitest 5.0.3 for pure logic, Lighthouse CI 0.15.1. Vitest was added by fjord-foundation; the `CLAUDE.md` line "No unit-test runner yet" is out of date (backlog B-02). Visual baselines are Linux only.
+- Test toolchain: Playwright 1.63.0 (projects desktop and mobile, against `wrangler dev` on `dist/`), `@axe-core/playwright` 4.13.0, Vitest 5.0.3 for pure logic, Lighthouse CI 0.15.1. Vitest was added by fjord-foundation (`npm run test:unit`). Visual baselines are Linux only.
 
 **Organisational.**
 - Single maintainer (the Owner); size S, route quick. No fixed date, but this is roadmap wave 2 and the only step in it: Home (step 4) and CV (step 5) are blocked until it lands.

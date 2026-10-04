@@ -116,5 +116,5 @@ tools/             sources for the OG image, contours and CV previews (not deplo
 - Do not add dependencies without explaining why in the PR. Prefer platform features (CSS, View Transitions, native `<dialog>`, `popover`).
 - Commands: `npm run dev`, `npm run build`, `npm run preview` (`wrangler dev` on `dist/`, production routing), `npm run test` (Playwright e2e + axe against `wrangler dev`), `npm run lint` (`astro check` + ESLint + Prettier check), `npm run format`, `npm run lhci` (Lighthouse CI on `dist/`, run after a build).
 - Parity gate: `main` serves the stub until v2 reaches parity. `tests/e2e/parity.spec.ts` mirrors `docs/stub-parity.md`; the feature spec that builds an item flips its `test.fixme` to `test`. v2 goes to `main` only when no `test.fixme` is left.
-- No unit-test runner yet: add Vitest (with a PR explanation) when a feature has pure logic worth unit-testing.
+- Unit tests: Vitest (`npm run test:unit`, added by fjord-foundation) runs the pure logic in `scripts/`, `src/` and `tools/` from `*.test.ts` files next to the code. `tests/` stays Playwright only.
 - Astro 6 and Cloudflare Workers features change fast. Before using an API or config option, check the Astro Docs MCP and Cloudflare Docs MCP instead of relying on memory.
