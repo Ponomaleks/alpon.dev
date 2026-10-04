@@ -35,7 +35,7 @@ const options = [
 </div>
 
 <script>
-  import { switchTheme } from '../../scripts/shell/theme';
+  import { isTheme, switchTheme, syncPressed } from '../../scripts/shell/theme';
 
   // `localStorage` is read when a theme is saved, inside the saving try/catch: with storage
   // blocked, reading it throws, and that must not break the page on load (AC-11).
@@ -46,6 +46,10 @@ const options = [
       return localStorage;
     },
   };
+
+  // Expose the theme already set on <html> as the pressed segment from load (AC-12).
+  const current = document.documentElement.dataset.theme;
+  if (isTheme(current)) syncPressed(current, document);
 
   for (const button of document.querySelectorAll<HTMLButtonElement>('[data-theme-button]')) {
     button.addEventListener('click', () => switchTheme(button.dataset.themeValue, button, env));
