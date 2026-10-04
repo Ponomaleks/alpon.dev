@@ -34,6 +34,7 @@ Traceability:
   - Header call to action below 768: no extra script. The Sticky action bar's script already sets the bar's state; the header style follows it with one CSS rule (`:has()`).
   - Allow list: `color-mix()` enters only with Fjord token arguments (`var()`), never a literal colour. `ch` needs an explanation before it enters, because fjord-foundation moved the measure tokens from `ch` to `em`; if a measure token covers the need, `ch` stays rejected. Every new entry gets its reason in ADR-0003.
 - Change log, 2026-10-04 (ux-flows stage, decided by the Owner): AC-24 gained the rule for leaving out the Sticky action bar; AC-21 and the `/styleguide` row of §1.1 now say which Shell parts the Styleguide uses for real and which it shows as samples; D-12 says that the menu button is not shown with scripts off if the menu mechanism needs a script. Nothing else changed.
+- Change log, 2026-10-04 (design stage, decided by the Owner): §1.3 gained D-13, the header's scroll border appears only where scripts run. Nothing else changed.
 - The e2e suite runs with reduced motion emulated, so page and theme transitions never make it unstable; AC-29 and AC-32 have their own tests with motion allowed.
 
 ### 1.1 New or extended
@@ -87,6 +88,7 @@ Decided by the Owner; they go to the PR's design-difference list as they are.
 | D-10 | "Sist oppdatert 2026-09-30", year from the clock | date from the contact data, year set at build | real values, no script |
 | D-11 | Sticky action bar slides away on scroll down | same with scripts on; stays in place with scripts off or reduced motion | AC-09 |
 | D-12 | Mobile menu is a modal dialog driven by script | mechanism chosen at the design stage, platform features first; a dialog is acceptable. If the mechanism needs a script, the menu button is not shown with scripts off, for the same reason as D-09 | Owner decision; AC-04 to AC-06 are the contract |
+| D-13 | Header gains its bottom border on scroll, driven by script in the prototype | same with scripts on; with scripts off the header has no scroll border | one mechanism in every browser (design ADR-0003); the border is a visual cue and navigation does not depend on it. AC-03 is read with this row |
 
 Not a difference: the coordinates printed on the Not-found map stay "59.91° N · 10.75° E". They are decoration, hidden from assistive technology, and are not a location fact; the single-source rule for contact data does not cover them.
 

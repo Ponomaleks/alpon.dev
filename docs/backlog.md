@@ -5,3 +5,4 @@ Low-severity findings and small clean-ups that do not block a feature. They are 
 | # | Item | Where | Source | When |
 |---|---|---|---|---|
 | B-01 | Drop "with the same token names and markup" from the header comment: step 3 rebuilds the page per `Misc.jsx` (fjord-foundation spec §8 OQ-02). | `src/pages/404.astro`, front-matter comment | fjord-foundation review round 8, S1-21 | Step 3 (Base components), with the 404 rebuild |
+| B-02 | Replace "No unit-test runner yet: add Vitest …" with the current state: Vitest runs the pure logic in `scripts/` and `src/` (`npm run test:unit`). | `CLAUDE.md`, Workflow | base-components design, critic pass | When `CLAUDE.md` is next edited |

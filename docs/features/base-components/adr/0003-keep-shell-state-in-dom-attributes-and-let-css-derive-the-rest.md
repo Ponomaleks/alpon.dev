@@ -26,13 +26,12 @@ Several Shell parts react to the same facts: the header call to action changes s
 
 ## Considered options
 
-1. **State attributes set by small per-component scripts, everything else in CSS** — each script sets one attribute (`data-theme`, `open`, `inert`, `data-scrolled`); styles derive the rest, including the header action through `:has()` and the scripts-off gate through `:root:not([data-theme])`.
-2. **One Shell controller script** — a single module holds the state in memory and writes classes on every part that depends on it (header action, toast offset, both theme switches), and reveals script-only controls by removing `hidden`.
-3. **CSS only where possible** — scroll-driven animations for the header border and the bar, the `scripting` media feature for the gate; a script remains for the theme, the menu and browsers without scroll-driven animations.
+1. **State attributes set by small per-component scripts, everything else in CSS** — each script sets one state attribute (`data-theme`, `open`, `inert`, `data-scrolled`) and, for the theme, its `aria-pressed` mirror; styles derive the rest, including the header action through `:has()` and the scripts-off gate through `:root:not([data-theme])`.
+2. **CSS only where possible** — scroll-driven animations for the header border and the bar, the `scripting` media feature for the gate; a script remains for the theme, the menu and browsers without scroll-driven animations.
 
 ## Decision outcome
 
-**Chosen:** Option 1. The DOM attribute is the single place a state lives, so two parts cannot disagree, a later step can drive the same attribute from its own script, and tests assert one attribute. The gate reuses an invariant that already exists and is set before the first frame, so script-only controls are right from the first frame with no layout shift and no new mechanism. Option 2 couples every part to one script and reveals controls late. Option 3 leaves two code paths per behaviour to test, and the bar's `inert` state (AC-08) needs a script in any case.
+**Chosen:** Option 1. The DOM attribute is the single place a state lives, so two parts cannot disagree, a later step can drive the same attribute from its own script, and tests assert one attribute. The gate reuses an invariant that already exists and is set before the first frame, so script-only controls are right from the first frame with no layout shift and no new mechanism. Option 2 leaves two code paths per behaviour to test, and the bar's `inert` state (AC-08) needs a script in any case.
 
 ## Consequences
 
@@ -43,7 +42,8 @@ Several Shell parts react to the same facts: the header call to action changes s
 
 **Negative**
 - If the bootstrap ran but an external Shell script failed to load, the theme switch and the menu button are shown and do nothing (SAD §11).
-- With scripts off the header has no scroll border; the static state is the header without a border.
+- With scripts off the header has no scroll border; the static state is the header without a border (spec §1.3 D-13).
+- A single controller script that writes classes on every dependent part was not weighed as an option: the Owner's note in spec §1 already rules out a script for the header action.
 - Styles depend on `:has()`; a browser without it keeps the header action secondary below 768 on pages with the bar, which still satisfies one primary per screen.
 
 **Neutral**
