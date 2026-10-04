@@ -28,5 +28,13 @@
 | T21 | [Add axe checks for the three pages and the open menu, and the Styleguide and Not-found visual baselines](./t21-axe-and-visual.md) | tests | Alexander Ponomarenko | M | T15, T17 | done |
 | T22 | [Extend the budget and contrast checks and prove the security policy is unchanged](./t22-budgets-contrast-policy.md) | tests | Alexander Ponomarenko | M | T15, T17 | done |
 | T23 | [Close the cross-document pointers and register the built components](./t23-docs-pointers-inventory.md) | docs | Alexander Ponomarenko | S | T14, T18, T19, T20, T21, T22 | done |
+| R1 | [Put the mobile menu panel on spruce, as the page design has it](./r01-review-fix.md) | ui | Alexander Ponomarenko | S | — | todo |
+| R2 | [Let the mobile menu scroll when the viewport is shorter than its content](./r02-review-fix.md) | ui | Alexander Ponomarenko | S | R1 | todo |
+| R3 | [Move focus to the link target after a same-page menu link (G-1)](./r03-review-fix.md) | ui | Alexander Ponomarenko | S | R2 | todo |
+| R4 | [Show hover and focus demo states for theme-switch segments and header links on the Styleguide](./r04-review-fix.md) | ui | Alexander Ponomarenko | S | R1 | todo |
+| R5 | [Compare the Work region with the vCard ADR locality in the contact check](./r05-review-fix.md) | domain | Alexander Ponomarenko | S | — | todo |
+| R6 | [Verify keyboard activation and the 44 px targets of the open menu end to end](./r06-review-fix.md) | tests | Alexander Ponomarenko | S | R3 | todo |
+| R7 | [Record the built-CSS method as the accepted verification of AC-32](./r07-review-fix.md) | docs | Alexander Ponomarenko | S | — | todo |
+| R8 | [Re-apply the stored theme when a page comes back from the back/forward cache](./r08-review-fix.md) | ui | Alexander Ponomarenko | S | — | todo |
 
-**Total:** 23 tasks, ~20.5 person-days (S = half a day, M = one day).
+**Total:** 23 tasks + 8 review follow-ups (R1–R8), ~24.5 person-days (S = half a day, M = one day).

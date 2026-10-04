@@ -476,6 +476,150 @@
         "docs/backlog.md",
         "docs/design-system.md"
       ]
+    },
+    {
+      "id": "R1",
+      "title": "Put the mobile menu panel on spruce, as the page design has it",
+      "layer": "ui",
+      "deps": [],
+      "acs": [
+        "AC-04",
+        "AC-21"
+      ],
+      "dod": "The menu panel (live dialog and Styleguide sample) is on spruce in Dag and Natt through the existing on-spruce variants of the components (fjord-on-spruce, Contours tone=\"spruce\", the 17 px wordmark); no new colour is introduced. It shows snow text, a light primary \"Get in touch\" with arrow and spruce-tone contours. The on-spruce theme switch inside the panel has the corrected pill shape and a clearly visible selected segment. scripts/contrast-pairs.ts lists every pair the panel renders on spruce, and npm run check:contrast passes with no new known failure. tests/e2e/menu.spec.ts asserts the spruce ground and snow text in Dag and Natt; axe with the panel open stays at zero violations in both themes. The six styleguide-mobile-menu-panel-* baselines are regenerated through the visual-baselines PR label, not locally. npm run lint and npm run test:unit are green.",
+      "files_hint": [
+        "src/components/layout/MobileMenu.astro",
+        "src/components/layout/ThemeToggle.astro",
+        "src/components/brand/Wordmark.astro",
+        "scripts/contrast-pairs.ts",
+        "tests/e2e/menu.spec.ts",
+        "src/components/layout/menu.test.ts"
+      ],
+      "source": "review-2026-10-04 S2-01"
+    },
+    {
+      "id": "R2",
+      "title": "Let the mobile menu scroll when the viewport is shorter than its content",
+      "layer": "ui",
+      "deps": [
+        "R1"
+      ],
+      "acs": [
+        "AC-04",
+        "AC-25"
+      ],
+      "dod": "The dialog has overflow-y: auto and overscroll-behavior: contain; horizontal overflow stays hidden. The panel content has a minimum height of the full dialog height, so the contacts, theme switch and \"Get in touch\" stay at the bottom when there is room and scroll when there is not. e2e at 667x375: \"Get in touch\" is scrolled into view and activated. e2e at 390x844: the bottom block is still at the bottom of the panel. Both e2e tests were run in a real browser (npm run test), not only reasoned from the code. npm run lint and npm run test:unit are green.",
+      "files_hint": [
+        "src/components/layout/MobileMenu.astro",
+        "tests/e2e/menu.spec.ts"
+      ],
+      "source": "review-2026-10-04 S2-02"
+    },
+    {
+      "id": "R3",
+      "title": "Move focus to the link target after a same-page menu link (G-1)",
+      "layer": "ui",
+      "deps": [
+        "R2"
+      ],
+      "acs": [
+        "AC-05"
+      ],
+      "dod": "After dialog.close() for a same-page link, the script focuses the hash target and lets it scroll into view; it adds tabindex=\"-1\" only when the target is not focusable. Links to other pages behave as before. The fake-close unit test is replaced by one that checks the real order: close first, then focus the target. e2e: after the same-page \"Contact\" link, document.activeElement is the link target itself. The e2e was run in a real browser (npm run test). npm run lint and npm run test:unit are green.",
+      "files_hint": [
+        "src/scripts/shell/menu.ts",
+        "src/scripts/shell/menu.test.ts",
+        "src/components/layout/MobileMenu.astro",
+        "tests/e2e/menu.spec.ts"
+      ],
+      "source": "review-2026-10-04 S2-03"
+    },
+    {
+      "id": "R4",
+      "title": "Show hover and focus demo states for theme-switch segments and header links on the Styleguide",
+      "layer": "ui",
+      "deps": [
+        "R1"
+      ],
+      "acs": [
+        "AC-21"
+      ],
+      "dod": "ThemeToggle.astro and Header.astro carry [data-demo-state] selectors beside their :hover and :focus-visible rules. The Styleguide Theme switch section shows a hover and a focus segment sample; the Header variants section shows a hover and a focus header-link sample. src/pages/_styleguide.test.ts asserts the new samples. The styleguide-theme-switch-* and styleguide-header-variants-* baselines are regenerated through the visual-baselines PR label. npm run lint and npm run test:unit are green.",
+      "files_hint": [
+        "src/components/layout/ThemeToggle.astro",
+        "src/components/layout/Header.astro",
+        "src/pages/styleguide.astro",
+        "src/pages/_styleguide.test.ts"
+      ],
+      "source": "review-2026-10-04 S1-01"
+    },
+    {
+      "id": "R5",
+      "title": "Compare the Work region with the vCard ADR locality in the contact check",
+      "layer": "domain",
+      "deps": [],
+      "acs": [
+        "AC-15"
+      ],
+      "dod": "The check compares the locality part of workRegion (\"Oslo\") with the ADR locality in public/alexander-ponomarenko.vcf and names the field workRegion on mismatch. scripts/check-contact.test.ts has a failing-case row for the region. sad §8 notes that the QR vCard has no ADR line, so the region check covers the .vcf only. npm run lint and npm run test:unit are green.",
+      "files_hint": [
+        "scripts/check-contact.ts",
+        "scripts/check-contact.test.ts",
+        "docs/features/base-components/sad.md"
+      ],
+      "source": "review-2026-10-04 S1-02"
+    },
+    {
+      "id": "R6",
+      "title": "Verify keyboard activation and the 44 px targets of the open menu end to end",
+      "layer": "tests",
+      "deps": [
+        "R3"
+      ],
+      "acs": [
+        "AC-25"
+      ],
+      "dod": "One e2e at 390: the menu button opens the panel with Enter, a theme segment is toggled with Space, and the close button closes the panel with Space. The 44 x 44 box-plus-overlay loop also runs over #mobile-menu :is(a[href], button) with the panel open at 390. npm run lint and npm run test:unit are green.",
+      "files_hint": [
+        "tests/e2e/shell.spec.ts",
+        "tests/e2e/menu.spec.ts"
+      ],
+      "source": "review-2026-10-04 S1-03, S1-04"
+    },
+    {
+      "id": "R7",
+      "title": "Record the built-CSS method as the accepted verification of AC-32",
+      "layer": "docs",
+      "deps": [],
+      "acs": [
+        "AC-32"
+      ],
+      "dod": "The spec §1 change log records the decision with its date and reason. The \"own tests with motion allowed\" sentence in spec §1 and the Testing row of sad §8 no longer claim a motion-allowed test for AC-32; AC-29 keeps its own test if it is stable. T14's definition of done (tasks/t14-view-transitions.md and tasks.json) names the built-CSS and computed view-transition-name checks. npm run lint and npm run test:unit are green.",
+      "files_hint": [
+        "docs/features/base-components/spec.md",
+        "docs/features/base-components/sad.md",
+        "docs/features/base-components/tasks/t14-view-transitions.md",
+        "docs/features/base-components/tasks.json"
+      ],
+      "source": "review-2026-10-04 S1-05"
+    },
+    {
+      "id": "R8",
+      "title": "Re-apply the stored theme when a page comes back from the back/forward cache",
+      "layer": "ui",
+      "deps": [],
+      "acs": [
+        "AC-10",
+        "AC-11"
+      ],
+      "dod": "src/scripts/shell/theme.ts: on pageshow with event.persisted, the script re-reads the stored theme with the same validation as the bootstrap (only dag or natt), sets data-theme and syncs aria-pressed on every live switch. With blocked storage the handler does nothing and throws nothing (unit test). e2e: choose Dark on /styleguide, go Back to /, the page is Natt and both switches agree. The test takes the two pages as parameters, so steps 4 and 5 are covered without editing the Shell. npm run lint and npm run test:unit are green.",
+      "files_hint": [
+        "src/scripts/shell/theme.ts",
+        "src/scripts/shell/theme.test.ts",
+        "src/components/layout/ThemeToggle.astro",
+        "tests/e2e/theme-switch.spec.ts"
+      ],
+      "source": "review-2026-10-04 S2-04"
     }
   ]
 }
