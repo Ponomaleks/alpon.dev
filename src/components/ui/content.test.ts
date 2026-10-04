@@ -151,6 +151,24 @@ describe('Stat row layout (design .fj-stats)', () => {
   });
 });
 
+describe('measures (design ch widths, written with the measure tokens)', () => {
+  const rule = (file: string, cls: string) =>
+    readFileSync(`${dir}${file}`, 'utf8').match(new RegExp(`\\.${cls}\\s*\\{([^}]*)\\}`))?.[1] ??
+    '';
+
+  it('limits the Stat label to 24ch: half of the narrow measure', () => {
+    expect(rule('Stat.astro', 'stat__label')).toMatch(
+      /max-width:\s*calc\(var\(--fjord-measure-narrow\) \/ 2\)/,
+    );
+  });
+
+  it('limits the SectionHeader lead to 60ch: five quarters of the narrow measure', () => {
+    expect(rule('SectionHeader.astro', 'sechead__lead')).toMatch(
+      /max-width:\s*calc\(var\(--fjord-measure-narrow\) \* 5 \/ 4\)/,
+    );
+  });
+});
+
 describe('SectionHeader', () => {
   it.each(['h1', 'h2', 'h3'])('renders the heading level it is given (%s)', async (as) => {
     const html = await render('SectionHeader', { as, title: 'Projects' });

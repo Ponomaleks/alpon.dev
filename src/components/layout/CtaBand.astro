@@ -42,7 +42,7 @@ const cvHref = cvLang === 'no' ? contact.links.cvNo : contact.links.cvEn;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: var(--fjord-space-5);
+    gap: var(--fjord-space-7);
     max-width: calc(var(--fjord-content-max) + 2 * var(--fjord-grid-margin));
     margin: 0 auto;
     padding: 0 var(--fjord-grid-margin);
@@ -55,12 +55,15 @@ const cvHref = cvLang === 'no' ? contact.links.cvNo : contact.links.cvEn;
     font-weight: var(--fjord-weight-semibold);
     letter-spacing: var(--fjord-tracking-heading);
     line-height: var(--fjord-leading-heading);
+    /* The design's 16ch: a third of the 48ch narrow measure. */
+    max-width: calc(var(--fjord-measure-narrow) / 3);
     text-wrap: balance;
   }
 
   .fj-band__body {
-    margin: 0;
-    max-width: var(--fjord-measure);
+    margin: calc(-1 * var(--fjord-space-2)) 0 0;
+    /* The design's 52ch; the narrow measure (48ch) is the closest token. */
+    max-width: var(--fjord-measure-narrow);
     font-size: var(--fjord-text-lead);
     line-height: var(--fjord-leading-normal);
     color: var(--fjord-color-text-muted);
@@ -70,6 +73,5 @@ const cvHref = cvLang === 'no' ? contact.links.cvNo : contact.links.cvEn;
     display: flex;
     flex-wrap: wrap;
     gap: var(--fjord-space-3);
-    margin-block-start: var(--fjord-space-2);
   }
 </style>

@@ -96,7 +96,8 @@ const stats: StatItem[] = items ?? (single.value === undefined ? [] : [single as
     color: var(--fjord-color-text-muted);
   }
   .stat__label {
-    max-width: calc(var(--fjord-space-32) * 2);
+    /* The design's 24ch: half of the 48ch narrow measure. */
+    max-width: calc(var(--fjord-measure-narrow) / 2);
     font-size: var(--fjord-text-ui);
     line-height: var(--fjord-leading-ui);
     color: var(--fjord-color-text);

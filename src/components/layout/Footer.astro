@@ -64,6 +64,8 @@ const year = new Date().getFullYear();
 
   .fj-footer__slogan {
     grid-column: 1 / -1;
+    /* The design's 18ch: three eighths of the 48ch narrow measure. */
+    max-width: calc(var(--fjord-measure-narrow) * 3 / 8);
     margin: 0;
     font-size: var(--fjord-text-h3);
     font-weight: var(--fjord-weight-semibold);

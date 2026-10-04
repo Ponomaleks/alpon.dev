@@ -203,6 +203,34 @@ describe('Footer (AC-14)', () => {
   });
 });
 
+describe('measures (design ch widths, written with the measure tokens)', () => {
+  const measured = /max-width:\s*(?:calc\()?var\(--fjord-measure-narrow\)/;
+
+  it('limits the band title to 16ch: a third of the narrow measure', () => {
+    expect(bodiesOf('fj-band__title')[0]).toMatch(
+      /max-width:\s*calc\(var\(--fjord-measure-narrow\)\s*\/\s*3\)/,
+    );
+  });
+
+  it('limits the band body to the narrow measure and pulls it up as the design does', () => {
+    const [body = ''] = bodiesOf('fj-band__body');
+    expect(body).toMatch(/max-width:\s*var\(--fjord-measure-narrow\)/);
+    expect(body).toMatch(/margin:\s*calc\([^;)]*var\(--fjord-space-2\)[^;]*\)\s*0\s*0/);
+    expect(bodiesOf('fj-band__in')[0]).toMatch(/gap:\s*var\(--fjord-space-7\)/);
+    expect(bodiesOf('fj-band__actions')[0]).not.toMatch(/margin/);
+  });
+
+  it('limits the footer slogan to 18ch: three eighths of the narrow measure', () => {
+    expect(bodiesOf('fj-footer__slogan')[0]).toMatch(measured);
+    expect(bodiesOf('fj-footer__slogan')[0]).toMatch(/max-width:\s*calc\(/);
+  });
+
+  it('writes no width in ch', () => {
+    for (const cls of ['fj-band__title', 'fj-band__body', 'fj-footer__slogan'])
+      expect(bodiesOf(cls).join(';')).not.toMatch(/\dch\b/);
+  });
+});
+
 describe('Footer layout (design .fj-footer grid)', () => {
   it('is the 4 / 8 / 12-column grid of the design', () => {
     const [box = ''] = bodiesOf('fj-footer__in');

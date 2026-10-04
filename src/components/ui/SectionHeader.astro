@@ -68,7 +68,8 @@ const { as: Heading = 'h2', title, index, eyebrow, lead, size = 'md' } = Astro.p
     font-size: var(--fjord-text-h3);
   }
   .sechead__lead {
-    max-width: calc(var(--fjord-space-32) * 5);
+    /* The design's 60ch: five quarters of the 48ch narrow measure. */
+    max-width: calc(var(--fjord-measure-narrow) * 5 / 4);
     margin: 0;
     font-size: var(--fjord-text-lead);
     line-height: var(--fjord-leading-normal);
