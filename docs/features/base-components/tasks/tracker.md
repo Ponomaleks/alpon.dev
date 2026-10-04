@@ -25,8 +25,8 @@
 | T18 | [Verify the Shell end to end, flip P-25 and open P-50 and P-51](./t18-shell-e2e-parity.md) | tests | Alexander Ponomarenko | M | T13 | done |
 | T19 | [Verify the mobile menu and the theme switch end to end](./t19-menu-theme-e2e.md) | tests | Alexander Ponomarenko | M | T13 | done |
 | T20 | [Verify the Sticky action bar, the one-primary rule, the Toast position and reduced motion](./t20-bar-primary-motion-e2e.md) | tests | Alexander Ponomarenko | M | T15 | done |
-| T21 | [Add axe checks for the three pages and the open menu, and the Styleguide and Not-found visual baselines](./t21-axe-and-visual.md) | tests | Alexander Ponomarenko | M | T15, T17 | todo |
-| T22 | [Extend the budget and contrast checks and prove the security policy is unchanged](./t22-budgets-contrast-policy.md) | tests | Alexander Ponomarenko | M | T15, T17 | todo |
-| T23 | [Close the cross-document pointers and register the built components](./t23-docs-pointers-inventory.md) | docs | Alexander Ponomarenko | S | T14, T18, T19, T20, T21, T22 | todo |
+| T21 | [Add axe checks for the three pages and the open menu, and the Styleguide and Not-found visual baselines](./t21-axe-and-visual.md) | tests | Alexander Ponomarenko | M | T15, T17 | done |
+| T22 | [Extend the budget and contrast checks and prove the security policy is unchanged](./t22-budgets-contrast-policy.md) | tests | Alexander Ponomarenko | M | T15, T17 | done |
+| T23 | [Close the cross-document pointers and register the built components](./t23-docs-pointers-inventory.md) | docs | Alexander Ponomarenko | S | T14, T18, T19, T20, T21, T22 | done |
 
 **Total:** 23 tasks, ~20.5 person-days (S = half a day, M = one day).
