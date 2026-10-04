@@ -1,0 +1,38 @@
+---
+// Skip link (AC-13): first focusable element, off-screen until focused, hidden again on blur.
+// Page design: .x-skip in site.css. The target is the <main id="main"> of the layout.
+---
+
+<a class="skip-link" href="#main">
+  Skip to content
+</a>
+
+<style>
+  .skip-link {
+    position: fixed;
+    inset-inline-start: var(--fjord-space-3);
+    inset-block-start: var(--fjord-space-3);
+    translate: 0 calc(-1 * var(--fjord-space-20));
+    z-index: var(--fjord-z-skip);
+    padding: var(--fjord-space-3) var(--fjord-space-4);
+    border-radius: var(--fjord-radius-md);
+    background-color: var(--fjord-color-bg-raised);
+    color: var(--fjord-color-text);
+    border: var(--fjord-border-width) solid var(--fjord-color-border);
+    box-shadow: var(--fjord-shadow-float);
+    font-weight: var(--fjord-weight-medium);
+    text-decoration: none;
+  }
+
+  .skip-link:focus-visible {
+    translate: 0 0;
+    outline: var(--fjord-focus-width) solid var(--fjord-color-focus-ring);
+    outline-offset: var(--fjord-focus-offset);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .skip-link {
+      transition: translate var(--fjord-duration-200) var(--fjord-ease-out);
+    }
+  }
+</style>

@@ -1,0 +1,75 @@
+---
+import Button from '../ui/Button.astro';
+import Contours from '../brand/Contours.astro';
+import { contact } from '../../data/contact';
+
+// Closing band on spruce (AC-20), copy and structure from the page design (App.jsx, CtaBand in
+// the design system). One primary button; "Download CV" follows the CV language. Static contours.
+interface Props {
+  cvLang?: 'en' | 'no';
+}
+
+const { cvLang = 'en' } = Astro.props;
+const cvHref = cvLang === 'no' ? contact.links.cvNo : contact.links.cvEn;
+---
+
+<section class="fj-band fjord-on-spruce">
+  <Contours variant="ridge" anchor="bottom-right" tone="spruce" />
+  <div class="fj-band__in">
+    <h2 class="fj-band__title">Let’s build something good together.</h2>
+    <p class="fj-band__body">If your team is hiring in the Oslo area, I’d like to hear about it.</p>
+    <div class="fj-band__actions">
+      <Button size="lg" href={contact.links.contact} arrow>
+        Get in touch
+      </Button>
+      <a class="fj-btn fj-btn--secondary fj-btn--lg" href={cvHref} download>
+        Download CV
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .fj-band {
+    position: relative;
+    overflow: hidden;
+    padding: var(--fjord-space-section) 0;
+  }
+
+  .fj-band__in {
+    position: relative;
+    z-index: var(--fjord-z-raised);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--fjord-space-5);
+    max-width: calc(var(--fjord-content-max) + 2 * var(--fjord-grid-margin));
+    margin: 0 auto;
+    padding: 0 var(--fjord-grid-margin);
+    box-sizing: border-box;
+  }
+
+  .fj-band__title {
+    margin: 0;
+    font-size: var(--fjord-text-h1);
+    font-weight: var(--fjord-weight-semibold);
+    letter-spacing: var(--fjord-tracking-heading);
+    line-height: var(--fjord-leading-heading);
+    text-wrap: balance;
+  }
+
+  .fj-band__body {
+    margin: 0;
+    max-width: var(--fjord-measure);
+    font-size: var(--fjord-text-lead);
+    line-height: var(--fjord-leading-normal);
+    color: var(--fjord-color-text-muted);
+  }
+
+  .fj-band__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--fjord-space-3);
+    margin-block-start: var(--fjord-space-2);
+  }
+</style>
