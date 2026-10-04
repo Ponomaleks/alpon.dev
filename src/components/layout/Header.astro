@@ -1,0 +1,202 @@
+---
+import Icon from '../ui/Icon.astro';
+import Button from '../ui/Button.astro';
+import Wordmark from '../brand/Wordmark.astro';
+import ThemeToggle from './ThemeToggle.astro';
+import { contact } from '../../data/contact';
+
+// Sticky site header (AC-01, AC-02, AC-03, AC-23). Below 768: wordmark, "Get in touch" and the
+// menu button; from 768: wordmark, links, theme switch and "Get in touch" with an arrow. The call
+// to action is styled by CSS only (one primary, hook H-2); `cta="secondary"` forces the outlined
+// style. `sample` renders an in-flow header for the Styleguide with no scroll sentinel.
+interface Props {
+  current?: 'cv' | 'contact';
+  variant?: 'on-spruce';
+  cta?: 'auto' | 'secondary';
+  sample?: boolean;
+}
+
+const { current, variant, cta = 'auto', sample = false } = Astro.props;
+const links = [
+  { key: 'cv', label: 'CV', href: contact.links.cv },
+  { key: 'contact', label: 'Contact', href: contact.links.contact },
+] as const;
+---
+
+{!sample && <div class="header-sentinel" data-header-sentinel aria-hidden="true"></div>}
+<header
+  class:list={['header', { 'fjord-on-spruce': variant === 'on-spruce' }]}
+  data-header={sample ? undefined : ''}
+  data-variant={variant}
+  data-cta={cta === 'secondary' ? 'secondary' : undefined}
+  data-sample={sample ? '' : undefined}
+>
+  <div class="header__in">
+    <Wordmark onSpruce={variant === 'on-spruce'} />
+    <nav class="header__nav" aria-label="Primary">
+      {links.map((link) => (
+        <a href={link.href} aria-current={current === link.key ? 'page' : undefined}>
+          {link.label}
+        </a>
+      ))}
+    </nav>
+    <div class="header__end">
+      <div class="header__theme">
+        <ThemeToggle />
+      </div>
+      <span class="header__cta">
+        <Button href={contact.links.contact} arrow>
+          Get in touch
+        </Button>
+      </span>
+      <button
+        type="button"
+        class="fj-iconbtn header__menu"
+        aria-label="Open menu"
+        aria-controls="mobile-menu"
+        aria-expanded="false"
+        data-needs-script
+      >
+        <Icon name="menu" />
+      </button>
+    </div>
+  </div>
+</header>
+
+<script>
+  import { observeHeader } from '../../scripts/shell/header';
+
+  const header = document.querySelector('[data-header]');
+  const sentinel = document.querySelector('[data-header-sentinel]');
+  if (header && sentinel && 'IntersectionObserver' in window) observeHeader(header, sentinel);
+</script>
+
+<style>
+  .header-sentinel {
+    position: absolute;
+    inset-block-start: 0;
+    inline-size: var(--fjord-border-width);
+    block-size: var(--fjord-border-width);
+    pointer-events: none;
+  }
+
+  .header {
+    position: sticky;
+    inset-block-start: 0;
+    z-index: var(--fjord-z-header);
+    background-color: color-mix(in srgb, var(--fjord-color-bg) 94%, transparent);
+    border-block-end: var(--fjord-border-width) solid transparent;
+  }
+
+  .header[data-sample] {
+    position: static;
+  }
+
+  .header[data-scrolled] {
+    border-block-end-color: var(--fjord-color-border);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .header {
+      transition: border-color var(--fjord-duration-200) var(--fjord-ease-out);
+    }
+  }
+
+  .header__in {
+    display: flex;
+    align-items: center;
+    gap: var(--fjord-space-5);
+    box-sizing: border-box;
+    block-size: var(--fjord-header-height-compact);
+    max-inline-size: calc(var(--fjord-content-max) + 2 * var(--fjord-grid-margin));
+    margin-inline: auto;
+    padding-inline: var(--fjord-space-4);
+  }
+
+  .header__nav,
+  .header__theme {
+    display: none;
+  }
+
+  .header__nav {
+    gap: var(--fjord-space-1);
+  }
+
+  .header__nav a {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--fjord-tap-min);
+    padding-inline: var(--fjord-space-3);
+    font-size: var(--fjord-text-ui);
+    font-weight: var(--fjord-weight-medium);
+    color: var(--fjord-color-text-muted);
+    text-decoration: none;
+    border-radius: var(--fjord-radius-sm);
+  }
+
+  .header__nav a:hover {
+    color: var(--fjord-color-text);
+  }
+
+  .header__nav a[aria-current='page'] {
+    color: var(--fjord-color-text);
+    border-radius: 0;
+    border-block-end: var(--fjord-border-width) solid var(--fjord-color-text);
+  }
+
+  .header__nav a:focus-visible {
+    outline: var(--fjord-focus-width) solid var(--fjord-color-focus-ring);
+    outline-offset: 0;
+  }
+
+  .header__end {
+    display: flex;
+    align-items: center;
+    gap: var(--fjord-space-3);
+    margin-inline-start: auto;
+  }
+
+  /* No arrow in the compact header. */
+  .header__cta :global(.fj-btn__arrow) {
+    display: none;
+  }
+
+  /* Secondary while the page has a bar that is not inert (H-2, AC-23), or when forced. */
+  @media (width < 768px) {
+    :global(:root:has([data-shell-bar]:not([inert]))) .header__cta :global(.fj-btn) {
+      background-color: transparent;
+      color: var(--fjord-color-text);
+      border-color: var(--fjord-color-border-strong);
+    }
+  }
+
+  .header[data-cta='secondary'] .header__cta :global(.fj-btn) {
+    background-color: transparent;
+    color: var(--fjord-color-text);
+    border-color: var(--fjord-color-border-strong);
+  }
+
+  @media (min-width: 768px) {
+    .header__in {
+      gap: var(--fjord-space-8);
+      block-size: var(--fjord-header-height);
+      padding-inline: var(--fjord-grid-margin);
+    }
+
+    .header__nav {
+      display: flex;
+    }
+
+    .header__theme {
+      display: block;
+    }
+
+    .header__menu {
+      display: none;
+    }
+
+    .header__cta :global(.fj-btn__arrow) {
+      display: inline-flex;
+    }
+  }
+</style>
