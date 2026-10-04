@@ -358,16 +358,17 @@ sequenceDiagram
 | AC-15, AC-16, AC-26, AC-31 | Not runtime: build-time checks and the release gate |
 | AC-27 | Not runtime in this feature's code: browser enforcement of the unchanged policy, drawn in the fjord-foundation SAD §6 "Policy refuses an injected script" |
 
-**Gaps the flows revealed (listed, not decided).**
+**Gaps the flows revealed.** Items 1 to 6 and 9 were decided by the Owner on 2026-10-04 (screens stage; screens.md §Decided gaps G-1 to G-7 carries them into the state tables). Items 7 and 8 are observations and need no decision.
 
-1. Mobile menu, branch `a link to a place on the current page`: closing a modal returns focus to the menu button by default, while the page moves to the target. AC-05 fixes focus only for Escape and the close button, so where focus is after a same-page link is unspecified.
-2. Mobile menu, branch `the screen becomes 768 or wider`: the menu button is not displayed at that width, so focus cannot return to it. No AC covers this branch at all (ux-flows Design input), so `plan-tests` has no criterion to test it against.
-3. Mobile menu and critical flow 2 together: nothing says whether the page behind the open panel can scroll. If it can, the bar script may set or remove `inert` under the open panel, and the header action style changes behind it.
-4. Critical flow 2, `sets inert on the bar`: if keyboard focus is on a bar action at that moment, focus is dropped. AC-08 says the actions cannot receive focus while off screen and does not say where existing focus goes.
-5. Critical flow 2: the scroll distance or direction change that hides and returns the bar is not specified anywhere (spec, ux-flows, SAD); neither is the state at the very end of the page.
-6. Critical flow 1, branch `sets data-theme inside a view transition` taken from inside the open panel: a cross-fade while a modal is open is not covered by an AC or by a test in §10.
+1. Mobile menu, branch `a link to a place on the current page`: AC-05 fixes focus only for Escape and the close button. **Decided (G-1):** the panel closes and focus goes to the link target, not back to the menu button.
+2. Mobile menu, branch `the screen becomes 768 or wider`: the menu button is not displayed at that width, so focus cannot return to it, and no AC covers the branch. **Decided (G-2):** platform default focus, no extra logic.
+3. Mobile menu and critical flow 2 together: nothing said whether the page behind the open panel can scroll. **Decided (G-3):** page scroll is locked while the dialog is open with one CSS rule, `html:has(dialog[open]) { overflow: hidden }`, so the bar state cannot change under the panel.
+4. Critical flow 2, `sets inert on the bar`: focus on a bar action would be dropped. **Decided (G-4):** the script does not hide the bar while focus is inside it.
+5. Critical flow 2: the scroll distance that hides and returns the bar was not specified. **Decided (G-5):** the prototype's threshold: a scroll change smaller than 8 px is ignored, and within 40 px of the top of the page the bar is always shown.
+6. Critical flow 1, branch `sets data-theme inside a view transition` taken from inside the open panel. **Decided (G-6):** a theme change inside the open panel is instant, with no cross-fade; the cross-fade of AC-29 applies to the header switch.
 7. Critical flows 1 and 2 use the `design` container names as participants, while the Mobile menu flow uses the generic vocabulary; they were left as drawn.
 8. No new participant and no persist step beyond the Visitor's own stored Theme choice: nothing for `data-model`, no contract for `api`.
+9. Styleguide with scripts off (raised by `screens`): the "Show toast" control cannot work. **Decided (G-7):** it is hidden by the scripts-off gate, like the other script-only controls.
 
 ## 7. Deployment view
 
