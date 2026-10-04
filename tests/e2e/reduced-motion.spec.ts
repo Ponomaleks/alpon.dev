@@ -110,3 +110,30 @@ test('a Toast fades without sliding, sits above the bar, is polite and goes away
 
   await expect(page.locator('[role="status"] .toast')).toHaveCount(0, { timeout: 8000 });
 });
+
+const NUDGED = '.fj-btn__arrow, .fj-link__icon';
+const transforms = (page: Page) =>
+  page.locator(NUDGED).evaluateAll((els) => els.map((el) => getComputedStyle(el).transform));
+
+test('the arrow and icon nudges stay still, also on hover and in the hover samples (AC-28)', async ({
+  page,
+}) => {
+  await page.goto('/styleguide');
+  const all = await transforms(page);
+  expect(all.length).toBeGreaterThan(0);
+  expect(new Set(all)).toEqual(new Set(['none']));
+
+  await page.goto('/does-not-exist');
+  const home = page.locator('main a.fj-btn');
+  await home.hover();
+  await expect(home.locator('.fj-btn__arrow')).toHaveCSS('transform', 'none');
+});
+
+test.describe('with motion allowed', () => {
+  test.use({ reducedMotion: 'no-preference' });
+
+  test('the hover samples do nudge, so the reduced-motion check is not vacuous', async ({ page }) => {
+    await page.goto('/styleguide');
+    expect((await transforms(page)).some((value) => value !== 'none')).toBe(true);
+  });
+});

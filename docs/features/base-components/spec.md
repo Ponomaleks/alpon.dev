@@ -35,6 +35,7 @@ Traceability:
   - Token-only check: `color-mix()` takes only Fjord token arguments (`var()`), never a literal colour. The allow-list method this note first described is replaced by ADR-0004 (Owner decision, 2026-10-04).
 - Change log, 2026-10-04 (ux-flows stage, decided by the Owner): AC-24 gained the rule for leaving out the Sticky action bar; AC-21 and the `/styleguide` row of §1.1 now say which Shell parts the Styleguide uses for real and which it shows as samples; D-12 says that the menu button is not shown with scripts off if the menu mechanism needs a script. Nothing else changed.
 - Change log, 2026-10-04 (design stage, decided by the Owner): §1.3 gained D-13, the header's scroll border appears only where scripts run. Nothing else changed.
+- Change log, 2026-10-04 (implement stage, decided by the Owner): AC-26 now states the targeted token rules of ADR-0004 instead of allow lists; the §6 Contrast row gates text, control boundaries and the focus ring, and only reports decorative `aria-hidden` lines; the arrow and icon nudges of the page design stay where motion is allowed (`screens.md` interactive states, AC-28 for reduced motion); text widths may use math on a measure token. Nothing else changed.
 - The e2e suite runs with reduced motion emulated, so page and theme transitions never make it unstable; AC-29 and AC-32 have their own tests with motion allowed.
 
 ### 1.1 New or extended
@@ -349,9 +350,9 @@ Not a difference: the coordinates printed on the Not-found map stay "59.91° N �
 
 ### AC-26 (US-12) — domain invariant
 
-**Given** the Owner writes a style that uses a function, a unit or a breakpoint form outside the recorded allow list, or a Fjord token that the token generator does not produce
+**Given** the Owner writes a style that has a colour literal in any property, a value that is not a Fjord token on an enforced property (colour, spacing, type size, radius, transition and animation duration and easing), a breakpoint outside the four, or a Fjord token that the token generator does not produce
 **When** the checks run
-**Then** they fail and point to the file and line, because Fjord tokens stay the only source of visual values; each allowed function, unit and breakpoint form is recorded with its reason and with what it must still reject, and a raw number inside an allowed function still fails
+**Then** they fail and point to the file and line, because Fjord tokens stay the only source of these values; the enforced properties, the accepted forms and the accepted gaps are recorded in ADR-0004, and a number with a unit inside a math function on an enforced property still fails
 
 ### AC-27 (US-13) — authorization
 
@@ -402,7 +403,7 @@ Not a difference: the coordinates printed on the Not-found map stay "59.91° N �
 | Primary buttons | page content ≤ 1, visible screen ≤ 2, at 390 / 834 / 1440, on every page except the Styleguide; at 390 the count is taken in three states: bar on screen (header action secondary), bar scrolled away (header action primary, bar actions not focusable), and scripts off or reduced motion (bar on screen, header action secondary) | e2e count (AC-23) |
 | Visual regression | ≤ 0.1 % differing pixels per screenshot; the Styleguide is captured per component section, not as one page; Not-found page full page; all at 390 / 834 / 1440 in Dag and Natt; the copyright year is masked | Playwright visual tests in CI |
 | Design match | 0 differences between the Not-found page and `design/screenshots/` at 390 / 834 / 1440 in Dag and Natt other than those listed in §1.3 | manual review in the PR, screenshots side by side |
-| Contrast | every text and background pair the new components use, in Dag, Natt and on spruce: body ≥ 4.5:1; large text, borders and focus ring ≥ 3:1 | contrast check script in CI |
+| Contrast | every text and background pair the new components render, in Dag, Natt and on spruce: body ≥ 4.5:1; large text, control boundaries (the outline that identifies a Button, input or switch) and the focus ring ≥ 3:1; decorative, `aria-hidden` lines that identify no control (dividers, hairlines, the map route) are measured and reported, not gated | contrast check script in CI |
 | Token-only styles | 0 findings over all page and component styles | Stylelint in CI |
 | Wrong selection on the theme switch | 0 across the 6 combinations (stored Dag / Natt / none × device light / dark) | e2e test |
 
