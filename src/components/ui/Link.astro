@@ -1,0 +1,63 @@
+---
+import Icon from './Icon.astro';
+
+interface Props {
+  href: string;
+  /** Leaves the site: adds the arrow icon and rel="noopener noreferrer". */
+  external?: boolean;
+  /** Forces a state for the Styleguide (hook H-4). */
+  'data-demo-state'?: 'hover' | 'focus' | 'active';
+}
+
+const { href, external = false, 'data-demo-state': demoState } = Astro.props;
+---
+
+<a
+  class:list={['fj-link', external && 'fj-link--external']}
+  href={href}
+  rel={external ? 'noopener noreferrer' : undefined}
+  data-demo-state={demoState}
+>
+  <slot />
+  {external && <Icon name="arrow-up-right" />}
+</a>
+
+<style is:global>
+  .fj-link {
+    color: var(--fjord-color-link);
+    text-decoration: underline;
+    text-decoration-thickness: var(--fjord-border-width);
+    text-underline-offset: var(--fjord-space-1);
+    text-decoration-color: var(--fjord-color-border-strong);
+  }
+
+  .fj-link--external {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--fjord-space-1-5);
+    font-weight: var(--fjord-weight-medium);
+  }
+
+  .fj-link:hover,
+  .fj-link:active,
+  .fj-link[data-demo-state='hover'],
+  .fj-link[data-demo-state='active'] {
+    color: var(--fjord-color-link-hover);
+    text-decoration-color: currentColor;
+  }
+
+  .fj-link:focus-visible,
+  .fj-link[data-demo-state='focus'] {
+    outline: var(--fjord-focus-width) solid var(--fjord-color-focus-ring);
+    outline-offset: var(--fjord-focus-offset);
+    border-radius: var(--fjord-radius-xs);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .fj-link {
+      transition:
+        color var(--fjord-duration-200) var(--fjord-ease-out),
+        text-decoration-color var(--fjord-duration-200) var(--fjord-ease-out);
+    }
+  }
+</style>
