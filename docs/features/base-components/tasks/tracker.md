@@ -17,7 +17,7 @@
 | T10 | [Build Header with its variants, the scroll border script and the one-primary rule](./t10-header.md) | ui | Alexander Ponomarenko | M | T4, T6, T7 | done |
 | T11 | [Build the mobile menu panel as a native modal dialog (SCR-03)](./t11-mobile-menu.md) | ui | Alexander Ponomarenko | M | T3, T10 | done |
 | T12 | [Build the Sticky action bar and its scroll script](./t12-sticky-action-bar.md) | ui | Alexander Ponomarenko | M | T4 | done |
-| T13 | [Compose the Shell in BaseLayout from page options and keep the existing suites green](./t13-base-layout-shell.md) | wiring | Alexander Ponomarenko | M | T8, T9, T10, T11, T12 | todo |
+| T13 | [Compose the Shell in BaseLayout from page options and keep the existing suites green](./t13-base-layout-shell.md) | wiring | Alexander Ponomarenko | M | T8, T9, T10, T11, T12 | done |
 | T14 | [Add cross-document page transitions with a still header](./t14-view-transitions.md) | ui | Alexander Ponomarenko | S | T13 | todo |
 | T15 | [Rebuild the Not-found page to its page design (SCR-02) and reword P-41](./t15-not-found-rebuild.md) | ui | Alexander Ponomarenko | M | T13 | todo |
 | T16 | [Build the Styleguide page with the base component sections (SCR-04)](./t16-styleguide-base-sections.md) | ui | Alexander Ponomarenko | M | T5, T13 | todo |
