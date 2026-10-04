@@ -1,0 +1,93 @@
+---
+// Two variants. Default: the one polite live region that BaseLayout renders; scripts fill it
+// through the fjord:toast event (src/scripts/shell/toast.ts). `sample`: a static Toast for the
+// Styleguide, not a live region.
+interface Props {
+  sample?: boolean;
+  message?: string;
+  meta?: string;
+  lang?: string;
+}
+
+const { sample = false, message, meta, lang } = Astro.props;
+---
+
+{sample ? (
+  <span class="toast">
+    <span lang={lang}>{message}</span>
+    {meta && <span class="toast__meta">{meta}</span>}
+  </span>
+) : (
+  <div class="toast-region" role="status" data-toast-region></div>
+)}
+
+<script>
+  import { initToast } from '../../scripts/shell/toast';
+
+  const raw = getComputedStyle(document.documentElement).getPropertyValue('--fjord-duration-toast');
+  initToast({ document, duration: parseFloat(raw) });
+</script>
+
+<style>
+  .toast,
+  .toast-region :global(.toast) {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--fjord-space-3);
+    box-sizing: border-box;
+    min-block-size: var(--fjord-tap-min);
+    max-inline-size: 100%;
+    padding: var(--fjord-space-3) var(--fjord-space-4);
+    border-radius: var(--fjord-radius-md);
+    background-color: var(--fjord-color-tooltip-bg);
+    color: var(--fjord-color-tooltip-text);
+    box-shadow: var(--fjord-shadow-float);
+    font-family: var(--fjord-font-sans);
+    font-size: var(--fjord-text-ui-sm);
+    font-weight: var(--fjord-weight-medium);
+    line-height: var(--fjord-leading-ui);
+  }
+
+  .toast__meta,
+  .toast-region :global(.toast__meta) {
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-mono-sm);
+    font-weight: var(--fjord-weight-regular);
+    line-height: var(--fjord-leading-none);
+    opacity: var(--fjord-opacity-soft);
+  }
+
+  .toast-region {
+    position: fixed;
+    z-index: var(--fjord-z-toast);
+    inset-inline: 0;
+    padding-inline: var(--fjord-space-4);
+    bottom: var(--fjord-space-6);
+    display: flex;
+    justify-content: center;
+    pointer-events: none;
+  }
+
+  .toast-region :global(.toast) {
+    pointer-events: auto;
+    animation: toast-in var(--fjord-duration-320) var(--fjord-ease-out);
+  }
+
+  /* Hook H-2: a Sticky action bar that is not inert is on screen below 768; lift above it. */
+  :global(:root:has([data-shell-bar]:not([inert]))) .toast-region {
+    bottom: var(--fjord-space-24);
+  }
+
+  @media (min-width: 768px) {
+    :global(:root:has([data-shell-bar]:not([inert]))) .toast-region {
+      bottom: var(--fjord-space-6);
+    }
+  }
+
+  @keyframes toast-in {
+    from {
+      opacity: 0;
+      margin-block-start: var(--fjord-reveal-rise);
+    }
+  }
+</style>
