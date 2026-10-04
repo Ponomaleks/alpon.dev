@@ -4,6 +4,8 @@ import { describe, expect, it } from 'vitest';
 import { create } from 'fontkitten';
 import { chToEm, generateTokens } from './generate.ts';
 import {
+  HANDOFF_DIR,
+  HANDOFF_PROJECT,
   MEASURE_FONT,
   readSources,
   zeroAdvance as lookupZeroAdvance,
@@ -355,5 +357,78 @@ describe('measure tokens (sad §8 Fonts, AC-05)', () => {
     const rootBlock = block(generateTokens({ ...real(), zeroAdvance: 0.5 }), ':root');
     expect(value(rootBlock, '--fjord-measure')).toBe('33em');
     expect(value(rootBlock, '--fjord-measure-narrow')).toBe('24em');
+  });
+});
+
+// base-components T1 (AC-26, ADR-0001 of that feature): the generator reads the site copy of the
+// design system and only adds declarations; no value that tokens.css had before changes.
+describe('site copy of the design system (base-components AC-26)', () => {
+  /** Every declaration as `selector path | property` -> value, with at-rule nesting in the key. */
+  function flatten(css: string): Map<string, string> {
+    const out = new Map<string, string>();
+    const stack: string[] = [];
+    let buffer = '';
+    for (const ch of css.replace(/\/\*[\s\S]*?\*\//g, '')) {
+      if (ch === '{') {
+        stack.push(buffer.trim().replace(/\s+/g, ' '));
+        buffer = '';
+      } else if (ch === '}') {
+        stack.pop();
+        buffer = '';
+      } else if (ch === ';') {
+        const colon = buffer.indexOf(':');
+        out.set(
+          `${stack.join(' > ')} | ${buffer.slice(0, colon).trim()}`,
+          buffer.slice(colon + 1).trim(),
+        );
+        buffer = '';
+      } else buffer += ch;
+    }
+    return out;
+  }
+
+  it('reads the token and usage files under design/handoff/site/project/_ds/', () => {
+    expect(HANDOFF_PROJECT).toMatch(/^design\/handoff\/site\/project\/_ds\//);
+    expect(HANDOFF_PROJECT).not.toContain('handoff/design-system/');
+    expect(HANDOFF_DIR).toBe(`${HANDOFF_PROJECT}/tokens`);
+  });
+
+  it('keeps every declaration of the previous tokens.css with its value (added declarations only)', () => {
+    const before = flatten(
+      readFileSync(`${root}scripts/tokens/fixtures/tokens-before-base-components.css`, 'utf8'),
+    );
+    const after = flatten(generateTokens(real()));
+    expect(before.size).toBeGreaterThan(100);
+    const changed = [...before]
+      .filter(([key, v]) => after.get(key) !== v)
+      .map(([key, v]) => `${key}: ${v} -> ${after.get(key) ?? '(missing)'}`);
+    expect(changed).toEqual([]);
+  });
+
+  it('emits the layer, space, UI text size, header and Toast duration tokens', () => {
+    const rootBody = block(generateTokens(real()), ':root');
+    const z = declarations(rootBody)
+      .map(([p]) => p)
+      .filter((p) => p.startsWith('--fjord-z-'));
+    expect(z).toEqual(
+      expect.arrayContaining([
+        '--fjord-z-base',
+        '--fjord-z-header',
+        '--fjord-z-toast',
+        '--fjord-z-skip',
+      ]),
+    );
+    expect(value(rootBody, '--fjord-z-toast')).toBe('60');
+    expect(value(rootBody, '--fjord-space-5')).toBe('20px');
+    expect(value(rootBody, '--fjord-space-404')).toBe('clamp(40px, 6vw, 112px)');
+    expect(value(rootBody, '--fjord-text-ui')).toBe('15px');
+    expect(value(rootBody, '--fjord-text-ui-sm')).toBe('14px');
+    expect(value(rootBody, '--fjord-header-height-compact')).toBe('60px');
+    expect(value(rootBody, '--fjord-duration-toast')).toBe('4000ms');
+  });
+
+  it('both Natt blocks stay identical', () => {
+    const css = generateTokens(real());
+    expect(declarations(noJsBlock(css))).toEqual(declarations(nattBlock(css)));
   });
 });

@@ -7,6 +7,9 @@ import { BRAND_FILE, HANDOFF_DIR, MEASURE_FONT, type Sources } from './sources.t
 const NATT = '[data-theme="natt"]';
 const DAG = '[data-theme="dag"]';
 const ON_SPRUCE = '.fjord-on-spruce';
+const NATT_ON_SPRUCE = `${NATT} ${ON_SPRUCE}`;
+/** Contour and terrain line colours are named tokens in the handoff and inlined where used. */
+const LINE_TOKEN_REF = /var\((--fjord-(?:contour|terrain)-line-[a-z-]+)\)/g;
 const NO_JS_NATT = '@media (prefers-color-scheme: dark)';
 const REDUCED_MOTION = 'prefers-reduced-motion';
 const REDUCE = '@media (prefers-reduced-motion: reduce)';
@@ -19,6 +22,8 @@ const DISTANCE = new Set(['rise', 'slide', 'parallax']);
  * `calc(1 + var(--x))` makes it a delta, reset to 0. Any other use fails the build.
  */
 const SCALE = 'scale';
+/** Durations are times, not distances: only the count-up one is reset (a `parallax` duration stays). */
+const DURATION_PREFIX = '--fjord-duration-';
 /** A number with an optional unit: anything else cannot be reset safely, so the build fails. */
 const PLAIN_NUMBER = /^-?(?:\d+\.?\d*|\.\d+)[a-z%]*$/i;
 /** The stat count-up duration: counters show their final value under reduced motion. */
@@ -79,7 +84,9 @@ class DeclarationList {
 function collect(sheets: Stylesheet[], selector: string): DeclarationList {
   const list = new DeclarationList();
   for (const sheet of sheets)
-    for (const rule of sheet.rules) if (rule.selector === selector) list.addAll(rule.declarations);
+    for (const rule of sheet.rules)
+      if (rule.selector.split(',').some((single) => single.trim() === selector))
+        list.addAll(rule.declarations);
   return list;
 }
 
@@ -121,7 +128,9 @@ const segments = (property: string) => property.slice('--fjord-'.length).split('
 const isScale = (property: string) => segments(property).at(-1) === SCALE;
 /** A rise/slide/parallax distance or a scale token: reduced motion resets it. */
 const isMovement = (property: string) =>
-  isScale(property) || segments(property).some((segment) => DISTANCE.has(segment));
+  isScale(property) ||
+  (!property.startsWith(DURATION_PREFIX) &&
+    segments(property).some((segment) => DISTANCE.has(segment)));
 
 /** Movement tokens are reset only from motion.css, so one declared elsewhere fails the build. */
 function assertMovementInMotion(files: [file: string, sheet: Stylesheet][]) {
@@ -168,6 +177,14 @@ function reducedMotion(
   return [...reduce, [COUNT_UP, zero(COUNT_UP, countUp)]];
 }
 
+/** Replaces `var(--fjord-contour-line-*)` with the value of that :root token. */
+function inlineLineTokens(declarations: Declaration[], root: DeclarationList): Declaration[] {
+  return declarations.map(([property, value]) => [
+    property,
+    value.replace(LINE_TOKEN_REF, (ref, token: string) => root.get(token) ?? ref),
+  ]);
+}
+
 function rule(selector: string, declarations: Declaration[], indent = ''): string {
   const body = declarations.map(([p, v]) => `${indent}  ${p}: ${v};`).join('\n');
   return `${indent}${selector} {\n${body}\n${indent}}`;
@@ -194,6 +211,7 @@ export function generateTokens(sources: Sources): string {
 
   const root = collect(sheets, ':root');
   applyBrandPalette(root, sources.brand);
+  for (const [property, value] of inlineLineTokens(root.entries(), root)) root.set(property, value);
   for (const [token, generic] of FONT_STACKS) {
     const handoff = root.get(token);
     if (handoff === undefined) throw new Error(`${token} is missing from the handoff typography`);
@@ -206,9 +224,9 @@ export function generateTokens(sources: Sources): string {
     root.set(token, chToEm(handoff, sources.zeroAdvance));
   }
 
-  const natt = collect(sheets, NATT).entries();
+  const natt = inlineLineTokens(collect(sheets, NATT).entries(), root);
   // Dag resets a subtree to light: its own block plus the Dag value of everything Natt changes.
-  const dag = collect(sheets, DAG);
+  const dag = new DeclarationList().addAll(inlineLineTokens(collect(sheets, DAG).entries(), root));
   for (const [property] of natt)
     if (!dag.has(property)) dag.set(property, root.get(property) ?? 'initial');
 
@@ -222,7 +240,8 @@ export function generateTokens(sources: Sources): string {
     rule(DAG, dag.entries()),
     rule(NATT, natt),
     `${NO_JS_NATT} {\n${rule(':root:not([data-theme])', natt, '  ')}\n}`,
-    rule(ON_SPRUCE, collect(sheets, ON_SPRUCE).entries()),
+    rule(ON_SPRUCE, inlineLineTokens(collect(sheets, ON_SPRUCE).entries(), root)),
+    rule(NATT_ON_SPRUCE, collect(sheets, NATT_ON_SPRUCE).entries()),
     ...responsive.map(
       (media) =>
         `${media.query} {\n${media.rules.map((r) => rule(r.selector, r.declarations, '  ')).join('\n')}\n}`,

@@ -1,0 +1,277 @@
+/* Fjord tokens — generated — do not edit.
+   Sources: design/handoff/design-system/project/tokens/{colors,spacing,typography,motion}.css, design/brand/tokens.json
+   and the "0" advance in design/brand/fonts/SchibstedGrotesk-Regular.ttf (measures, ch to em).
+   Regenerate: node scripts/tokens/build.ts (fjord-foundation ADR-0001). */
+
+:root {
+  --fjord-stone: #F3F4F0;
+  --fjord-spruce: #24493D;
+  --fjord-accent: #2E5E4E;
+  --fjord-ink: #1B2421;
+  --fjord-muted: #5E6B65;
+  --fjord-snow: #EEF2EE;
+  --fjord-lichen: #BFD3C9;
+  --fjord-contour: #9CC3B2;
+  --fjord-spruce-deep: #1A362D;
+  --fjord-night: #111A17;
+  --fjord-color-bg: var(--fjord-stone);
+  --fjord-color-bg-raised: #FFFFFF;
+  --fjord-color-bg-sunken: #E9ECE6;
+  --fjord-color-bg-inverse: var(--fjord-spruce);
+  --fjord-color-text: var(--fjord-ink);
+  --fjord-color-text-muted: var(--fjord-muted);
+  --fjord-color-text-inverse: var(--fjord-snow);
+  --fjord-color-link: var(--fjord-accent);
+  --fjord-color-link-hover: var(--fjord-spruce);
+  --fjord-color-focus-ring: var(--fjord-accent);
+  --fjord-color-border: #D6DDD8;
+  --fjord-color-border-strong: #7E8C85;
+  --fjord-color-contour-line: rgba(46, 94, 78, .13);
+  --fjord-color-selection: #DCE8E2;
+  --fjord-color-accent-soft: #DCE8E2;
+  --fjord-color-cta-bg: var(--fjord-spruce);
+  --fjord-color-cta-text: var(--fjord-snow);
+  --fjord-color-cta-hover: var(--fjord-accent);
+  --fjord-color-success: #2F6B4F;
+  --fjord-color-warning: #8A6420;
+  --fjord-color-danger: #9A3F35;
+  --fjord-color-success-soft: #DDEBE2;
+  --fjord-color-warning-soft: #F1E8D6;
+  --fjord-color-danger-soft: #F2E0DC;
+  --fjord-color-scrim: rgba(27, 36, 33, .32);
+  --fjord-color-tooltip-bg: var(--fjord-ink);
+  --fjord-color-tooltip-text: var(--fjord-snow);
+  --fjord-photo-filter: saturate(.72) contrast(.97) sepia(.06);
+  color-scheme: light;
+  --fjord-space-1: 4px;
+  --fjord-space-2: 8px;
+  --fjord-space-3: 12px;
+  --fjord-space-4: 16px;
+  --fjord-space-6: 24px;
+  --fjord-space-8: 32px;
+  --fjord-space-12: 48px;
+  --fjord-space-16: 64px;
+  --fjord-space-24: 96px;
+  --fjord-space-32: 128px;
+  --fjord-space-section: clamp(64px, 44px + 5.5556vw, 128px);
+  --fjord-space-block: clamp(32px, 25.3333px + 1.8519vw, 48px);
+  --fjord-bp-sm: 360px;
+  --fjord-bp-md: 768px;
+  --fjord-bp-lg: 1024px;
+  --fjord-bp-xl: 1440px;
+  --fjord-grid-columns: 4;
+  --fjord-grid-gutter: 16px;
+  --fjord-grid-margin: 16px;
+  --fjord-content-max: 1200px;
+  --fjord-radius-sm: 4px;
+  --fjord-radius-md: 8px;
+  --fjord-radius-lg: 16px;
+  --fjord-radius-pill: 999px;
+  --fjord-radius-qr: 6%;
+  --fjord-border-width: 1px;
+  --fjord-focus-width: 2px;
+  --fjord-focus-offset: 2px;
+  --fjord-shadow-float: 0 1px 2px rgba(27, 36, 33, .06), 0 12px 32px -8px rgba(27, 36, 33, .18);
+  --fjord-icon-sm: 16px;
+  --fjord-icon-md: 20px;
+  --fjord-icon-lg: 24px;
+  --fjord-icon-stroke: 1.5;
+  --fjord-header-height: 64px;
+  --fjord-tap-min: 44px;
+  --fjord-font-sans: "Schibsted Grotesk", "Schibsted Grotesk Fallback Arial", "Schibsted Grotesk Fallback Roboto", sans-serif;
+  --fjord-font-mono: "JetBrains Mono", "JetBrains Mono Fallback Arial", "JetBrains Mono Fallback Roboto", monospace;
+  --fjord-weight-regular: 400;
+  --fjord-weight-medium: 500;
+  --fjord-weight-semibold: 600;
+  --fjord-weight-bold: 700;
+  --fjord-text-display: clamp(2.75rem, 1.8333rem + 4.0741vw, 5.5rem);
+  --fjord-text-h1: clamp(2.25rem, 1.7500rem + 2.2222vw, 3.75rem);
+  --fjord-text-h2: clamp(1.75rem, 1.4167rem + 1.4815vw, 2.75rem);
+  --fjord-text-h3: clamp(1.375rem, 1.2083rem + 0.7407vw, 1.875rem);
+  --fjord-text-h4: clamp(1.125rem, 1.0417rem + 0.3704vw, 1.375rem);
+  --fjord-text-lead: clamp(1.1875rem, 1.1042rem + 0.3704vw, 1.4375rem);
+  --fjord-text-body: clamp(1rem, 0.9583rem + 0.1852vw, 1.125rem);
+  --fjord-text-body-sm: clamp(0.875rem, 0.8542rem + 0.0926vw, 0.9375rem);
+  --fjord-text-caption: clamp(0.7813rem, 0.7708rem + 0.0463vw, 0.8125rem);
+  --fjord-text-stat: clamp(2.5rem, 2.0000rem + 2.2222vw, 4rem);
+  --fjord-text-mono-label: clamp(0.75rem, 0.7292rem + 0.0926vw, 0.8125rem);
+  --fjord-text-mono-sm: clamp(0.7188rem, 0.7083rem + 0.0463vw, 0.75rem);
+  --fjord-leading-display: 1.02;
+  --fjord-leading-heading: 1.12;
+  --fjord-leading-snug: 1.35;
+  --fjord-leading-body: 1.6;
+  --fjord-leading-mono: 1.5;
+  --fjord-tracking-display: -0.02em;
+  --fjord-tracking-heading: -0.01em;
+  --fjord-tracking-body: 0;
+  --fjord-tracking-mono: 0;
+  --fjord-tracking-label: 0.02em;
+  --fjord-measure: 40.348em;
+  --fjord-measure-narrow: 29.344em;
+  --fjord-numeric: tabular-nums;
+  --fjord-duration-120: 120ms;
+  --fjord-duration-200: 200ms;
+  --fjord-duration-320: 320ms;
+  --fjord-duration-560: 560ms;
+  --fjord-duration-1200: 1200ms;
+  --fjord-duration-drift: 32s;
+  --fjord-ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --fjord-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --fjord-ease-linear: linear;
+  --fjord-reveal-rise: 10px;
+  --fjord-reveal-stagger: 50ms;
+  --fjord-parallax-max: 10px;
+  --fjord-duration-fade: 200ms;
+}
+
+[data-theme="dag"] {
+  --fjord-color-bg: var(--fjord-stone);
+  --fjord-color-bg-raised: #FFFFFF;
+  --fjord-color-bg-sunken: #E9ECE6;
+  --fjord-color-bg-inverse: var(--fjord-spruce);
+  --fjord-color-text: var(--fjord-ink);
+  --fjord-color-text-muted: var(--fjord-muted);
+  --fjord-color-text-inverse: var(--fjord-snow);
+  --fjord-color-link: var(--fjord-accent);
+  --fjord-color-link-hover: var(--fjord-spruce);
+  --fjord-color-focus-ring: var(--fjord-accent);
+  --fjord-color-border: #D6DDD8;
+  --fjord-color-border-strong: #7E8C85;
+  --fjord-color-contour-line: rgba(46, 94, 78, .13);
+  --fjord-color-selection: #DCE8E2;
+  --fjord-color-accent-soft: #DCE8E2;
+  --fjord-color-cta-bg: var(--fjord-spruce);
+  --fjord-color-cta-text: var(--fjord-snow);
+  --fjord-color-cta-hover: var(--fjord-accent);
+  --fjord-color-success: #2F6B4F;
+  --fjord-color-warning: #8A6420;
+  --fjord-color-danger: #9A3F35;
+  --fjord-color-success-soft: #DDEBE2;
+  --fjord-color-warning-soft: #F1E8D6;
+  --fjord-color-danger-soft: #F2E0DC;
+  --fjord-color-scrim: rgba(27, 36, 33, .32);
+  --fjord-color-tooltip-bg: var(--fjord-ink);
+  --fjord-color-tooltip-text: var(--fjord-snow);
+  --fjord-photo-filter: saturate(.72) contrast(.97) sepia(.06);
+  color-scheme: light;
+  color: var(--fjord-color-text);
+  --fjord-shadow-float: 0 1px 2px rgba(27, 36, 33, .06), 0 12px 32px -8px rgba(27, 36, 33, .18);
+}
+
+[data-theme="natt"] {
+  --fjord-color-bg: #111A17;
+  --fjord-color-bg-raised: #17231F;
+  --fjord-color-bg-sunken: #0C1311;
+  --fjord-color-bg-inverse: var(--fjord-spruce-deep);
+  --fjord-color-text: var(--fjord-snow);
+  --fjord-color-text-muted: var(--fjord-lichen);
+  --fjord-color-text-inverse: var(--fjord-snow);
+  --fjord-color-link: #86BFA9;
+  --fjord-color-link-hover: #B5D4C6;
+  --fjord-color-focus-ring: #9CC3B2;
+  --fjord-color-border: #2B3A34;
+  --fjord-color-border-strong: #6B7F77;
+  --fjord-color-contour-line: rgba(156, 195, 178, .18);
+  --fjord-color-selection: #2B4A3F;
+  --fjord-color-accent-soft: #1F3530;
+  --fjord-color-cta-bg: #9CC3B2;
+  --fjord-color-cta-text: #111A17;
+  --fjord-color-cta-hover: #B5D4C6;
+  --fjord-color-success: #8CC7A5;
+  --fjord-color-warning: #D9B26A;
+  --fjord-color-danger: #E0998F;
+  --fjord-color-success-soft: #173026;
+  --fjord-color-warning-soft: #2E2716;
+  --fjord-color-danger-soft: #33201D;
+  --fjord-color-scrim: rgba(6, 10, 9, .6);
+  --fjord-color-tooltip-bg: var(--fjord-snow);
+  --fjord-color-tooltip-text: var(--fjord-ink);
+  --fjord-photo-filter: saturate(.66) brightness(.9) contrast(.98);
+  color-scheme: dark;
+  color: var(--fjord-color-text);
+  --fjord-shadow-float: 0 1px 2px rgba(0,0,0,.3), 0 16px 40px -8px rgba(0,0,0,.55);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --fjord-color-bg: #111A17;
+    --fjord-color-bg-raised: #17231F;
+    --fjord-color-bg-sunken: #0C1311;
+    --fjord-color-bg-inverse: var(--fjord-spruce-deep);
+    --fjord-color-text: var(--fjord-snow);
+    --fjord-color-text-muted: var(--fjord-lichen);
+    --fjord-color-text-inverse: var(--fjord-snow);
+    --fjord-color-link: #86BFA9;
+    --fjord-color-link-hover: #B5D4C6;
+    --fjord-color-focus-ring: #9CC3B2;
+    --fjord-color-border: #2B3A34;
+    --fjord-color-border-strong: #6B7F77;
+    --fjord-color-contour-line: rgba(156, 195, 178, .18);
+    --fjord-color-selection: #2B4A3F;
+    --fjord-color-accent-soft: #1F3530;
+    --fjord-color-cta-bg: #9CC3B2;
+    --fjord-color-cta-text: #111A17;
+    --fjord-color-cta-hover: #B5D4C6;
+    --fjord-color-success: #8CC7A5;
+    --fjord-color-warning: #D9B26A;
+    --fjord-color-danger: #E0998F;
+    --fjord-color-success-soft: #173026;
+    --fjord-color-warning-soft: #2E2716;
+    --fjord-color-danger-soft: #33201D;
+    --fjord-color-scrim: rgba(6, 10, 9, .6);
+    --fjord-color-tooltip-bg: var(--fjord-snow);
+    --fjord-color-tooltip-text: var(--fjord-ink);
+    --fjord-photo-filter: saturate(.66) brightness(.9) contrast(.98);
+    color-scheme: dark;
+    color: var(--fjord-color-text);
+    --fjord-shadow-float: 0 1px 2px rgba(0,0,0,.3), 0 16px 40px -8px rgba(0,0,0,.55);
+  }
+}
+
+.fjord-on-spruce {
+  --fjord-color-bg: var(--fjord-spruce);
+  --fjord-color-bg-raised: #2B5446;
+  --fjord-color-text: var(--fjord-snow);
+  --fjord-color-text-muted: var(--fjord-lichen);
+  --fjord-color-link: var(--fjord-snow);
+  --fjord-color-link-hover: #FFFFFF;
+  --fjord-color-focus-ring: var(--fjord-contour);
+  --fjord-color-border: rgba(191, 211, 201, .22);
+  --fjord-color-border-strong: rgba(191, 211, 201, .6);
+  --fjord-color-contour-line: rgba(156, 195, 178, .28);
+  --fjord-color-accent-soft: rgba(191, 211, 201, .12);
+  --fjord-color-cta-bg: var(--fjord-stone);
+  --fjord-color-cta-text: var(--fjord-spruce);
+  --fjord-color-cta-hover: #FFFFFF;
+  color-scheme: dark;
+  background-color: var(--fjord-color-bg);
+  color: var(--fjord-color-text);
+}
+
+@media (min-width: 768px) {
+  :root {
+    --fjord-grid-columns: 8;
+    --fjord-grid-gutter: 24px;
+    --fjord-grid-margin: 32px;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --fjord-grid-columns: 12;
+    --fjord-grid-gutter: 24px;
+    --fjord-grid-margin: 48px;
+    --fjord-header-height: 72px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Deliberate deviation from the handoff motion.css (fjord-foundation sad §8 Motion): every
+     movement distance and the count-up duration collapse to 0, scale factors reset to 1, scale deltas to 0;
+     --fjord-duration-fade keeps opacity fades; other durations stay as they are. */
+  :root {
+    --fjord-reveal-rise: 0px;
+    --fjord-parallax-max: 0px;
+    --fjord-duration-1200: 0ms;
+  }
+}

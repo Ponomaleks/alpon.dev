@@ -21,3 +21,5 @@ scripts/lint/fixtures/container-upper.css
 scripts/lint/fixtures/breakpoint-upper.css
 scripts/lint/fixtures/breakpoint-range-upper.css
 scripts/lint/fixtures/breakpoint-allowed.css
+# Verbatim copy of the previous tokens.css, compared by build.test.ts.
+scripts/tokens/fixtures/tokens-before-base-components.css

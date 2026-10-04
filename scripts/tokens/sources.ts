@@ -8,7 +8,7 @@ const TOKEN_FILES = ['colors', 'spacing', 'typography', 'motion'] as const;
 
 export interface Sources {
   /**
-   * design/handoff/design-system/project/tokens/*.css, in cascade order, plus `usage`: every
+   * design/handoff/site/project/_ds/<bundle>/tokens/*.css, in cascade order, plus `usage`: every
    * other handoff CSS file (base, components), where tokens are used, e.g. inside scale().
    */
   handoff: Record<(typeof TOKEN_FILES)[number] | 'usage', string>;
@@ -21,7 +21,8 @@ export interface Sources {
   zeroAdvance: number;
 }
 
-export const HANDOFF_PROJECT = 'design/handoff/design-system/project';
+export const HANDOFF_PROJECT =
+  'design/handoff/site/project/_ds/fjord-design-system-44c954ec-c46f-4ba1-8ea8-f72f1cb07b3d';
 export const HANDOFF_DIR = `${HANDOFF_PROJECT}/tokens`;
 export const BRAND_FILE = 'design/brand/tokens.json';
 export const MEASURE_FONT = 'design/brand/fonts/SchibstedGrotesk-Regular.ttf';
