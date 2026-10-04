@@ -39,7 +39,7 @@ Fjord tokens are the only allowed source of color, font, space, radius, duration
 |---|---|---|
 | `color-no-hex` | `true` | `#24493D` |
 | `color-named` | `"never"` | `red`, `white` |
-| `function-allowed-list` | `var`, `calc` (see below) | any other function, including `lab()`, `oklab()`, `color-mix()` |
+| `function-allowed-list` | `var`, `calc` (see below) | any other function, including `lab()`, `oklab()` |
 | `unit-allowed-list` | `%`, `vh`, `svh`, `lvh`, `dvh`, `px` (`px` is listed only because the rule cannot scope it to media features; `unit-disallowed-list` still rejects it everywhere else) | any other unit, including `rch`, `fr`, `deg` |
 | `at-rule-disallowed-list` | `/^container$/i` | `@container` queries, which test a container's size and skip the unit and breakpoint rules; a later feature that needs them lifts the ban and adds its own rule for the allowed widths. `@supports` preludes are not checked on purpose: they only test support and set no values. An `@import` prelude is checked outside Stylelint, see "Conditional @import" below |
 | `function-disallowed-list` | `rgb`, `rgba`, `hsl`, `hsla`, `hwb`, `oklch`, `cubic-bezier`, `steps` | literal colors and easings |
@@ -65,8 +65,18 @@ The `border*` and `outline*` shorthands take the same sequence plus the line sty
 |---|---|
 | `var` | every token reference |
 | `calc` | height values over tokens (`calc(var(--fjord-space-1) * 105)`) |
+| `color-mix` | tinted surfaces and borders from two tokens (base-components AC-26, sad §8). Arguments are an interpolation space and `var(--fjord-*)` / `transparent` colours with optional percentages. Still rejected: a literal colour inside it (`#fff`, `rgb()`, `red`), an undeclared `--fjord-*` token, a raw number outside a percentage. It is allowed only in the token-sequence properties above. This replaces the foundation rule that rejected every `color-mix()` |
 
 `clamp` and `url` are not listed: `clamp` appears only in the generated `tokens.css` and `url` only in `fonts.css`, and both files are excluded from Stylelint (`ignoreFiles`). `min` and `max` appear nowhere. Step 3 adds back what its components need (for example `min` / `clamp` for fluid sizes and the transform functions), each with its reason in the table above.
+
+Audited for the Shell styles (base-components T2, AC-26) and not needed, so they stay rejected or unchecked:
+
+| Candidate | Decision |
+|---|---|
+| `ch` | not needed: a measure token covers it; `unit-disallowed-list` still rejects it |
+| `env()` | not needed: no safe-area inset in the Shell styles; `function-allowed-list` still rejects it |
+| `@supports` | not needed: its preludes are not checked on purpose (see the `at-rule-disallowed-list` row) |
+| reduced-motion media feature | not needed: `prefers-reduced-motion` is not a width feature, so the breakpoint rule does not touch it |
 
 | Unit | Reason |
 |---|---|

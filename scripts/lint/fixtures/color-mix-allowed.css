@@ -1,0 +1,4 @@
+.a {
+  background-color: color-mix(in srgb, var(--fjord-color-bg) 50%, var(--fjord-color-text));
+  border-color: color-mix(in srgb, var(--fjord-color-text), transparent);
+}

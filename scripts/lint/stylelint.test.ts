@@ -73,12 +73,35 @@ describe('stylelint token-only rules (ADR-0003)', () => {
     // Allow lists: functions and units nobody listed are rejected by default.
     ['lab.css', 'lab()', 2, 'function-allowed-list'],
     ['oklab.css', 'oklab()', 2, 'function-allowed-list'],
-    ['color-mix.css', 'color-mix() on background', 2, 'function-allowed-list'],
     ['clamp.css', 'clamp()', 2, 'function-allowed-list'],
     ['min.css', 'min()', 2, 'function-allowed-list'],
     ['max.css', 'max()', 2, 'function-allowed-list'],
     ['url.css', 'url()', 2, 'function-allowed-list'],
     ['rch.css', '20rch', 2, 'unit-allowed-list'],
+    // AC-26: color-mix() enters with var() arguments only; everything else stays rejected.
+    ['color-mix-literal.css', 'hex inside color-mix()', 2, 'color-no-hex'],
+    ['color-mix-literal.css', 'rgb() inside color-mix()', 3, 'function-disallowed-list'],
+    ['color-mix-literal.css', 'named colour inside color-mix()', 4, 'color-named'],
+    [
+      'color-mix-unknown-token.css',
+      'unknown token inside color-mix()',
+      2,
+      'declaration-property-value-disallowed-list',
+    ],
+    [
+      'calc-raw-number.css',
+      'raw number in calc() on margin-top',
+      2,
+      'declaration-property-value-allowed-list',
+    ],
+    [
+      'calc-raw-number.css',
+      'raw numbers in calc() on padding-top',
+      3,
+      'declaration-property-value-allowed-list',
+    ],
+    ['ch.css', '60ch', 2, 'unit-disallowed-list'],
+    ['ch.css', '60ch (not in the unit allow list)', 2, 'unit-allowed-list'],
     // Tokens that tokens.css does not declare.
     [
       'unknown-token.css',
@@ -99,6 +122,11 @@ describe('stylelint token-only rules (ADR-0003)', () => {
 
   it('passes a token-only file', async () => {
     const result = await lintFile('token-only.css');
+    expect(result.warnings).toEqual([]);
+  });
+
+  it('passes color-mix() with var() arguments only (AC-26)', async () => {
+    const result = await lintFile('color-mix-allowed.css');
     expect(result.warnings).toEqual([]);
   });
 

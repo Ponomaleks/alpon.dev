@@ -24,7 +24,14 @@ const sequence = (/** @type {string[]} */ extra) => {
   const term = String.raw`(?:var\(--fjord-[a-z0-9-]+\)|${[...keywords, ...extra].join('|')})`;
   return new RegExp(String.raw`^${term}(?:\s+${term})*$`);
 };
-const tokenOnly = sequence([]);
+
+/**
+ * color-mix() over tokens only (AC-26): an interpolation space, then two or more
+ * `var(--fjord-*)` / `transparent` colours, each with an optional percentage. A literal colour,
+ * or a number outside a percentage, does not match.
+ */
+const colorMix = String.raw`color-mix\(\s*in\s+[a-z0-9-]+(?:\s+(?:shorter|longer|increasing|decreasing)\s+hue)?(?:\s*,\s*(?:var\(--fjord-[a-z0-9-]+\)|transparent)(?:\s+\d+(?:\.\d+)?%)?){2,}\s*\)`;
+const tokenOnly = sequence([colorMix]);
 
 /** Border and outline shorthands: tokens plus the line styles (no thin / medium / thick). */
 const lineShorthand = sequence(['solid', 'dashed', 'dotted', 'double']);
@@ -90,7 +97,7 @@ const breakpoints = ['360px', '768px', '1024px', '1440px'];
  * in the generated tokens.css and url() in fonts.css, both excluded below; a function is added
  * back only when real code under src/ needs it.
  */
-const allowedFunctions = ['var', 'calc'];
+const allowedFunctions = ['var', 'calc', 'color-mix'];
 
 /**
  * The only units styles may use: percentages, the viewport heights (see above) and px for the
