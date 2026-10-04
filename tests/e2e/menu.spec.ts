@@ -114,6 +114,23 @@ test.describe('mobile menu at 390', () => {
     );
   });
 
+  test('after a same-page link focus is on the link target itself, not the menu button (G-1, AC-05)', async ({
+    page,
+  }) => {
+    await open(page, '/');
+    await openMenu(page);
+    await panel(page)
+      .getByRole('link', { name: /Contact/ })
+      .click();
+    await expect(panel(page)).toBeHidden();
+    await expect(page).toHaveURL(/\/#contact$/);
+    await expect(menuButton(page)).not.toBeFocused();
+    const active = await page.evaluate(() => document.activeElement?.id ?? null);
+    expect(active, 'document.activeElement should be the element with id "contact"').toBe(
+      'contact',
+    );
+  });
+
   test('closes when the width reaches 768', async ({ page }) => {
     await open(page);
     await openMenu(page);
