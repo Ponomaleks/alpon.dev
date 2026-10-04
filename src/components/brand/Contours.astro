@@ -1,0 +1,51 @@
+---
+// Static topographic contour lines, decoration only (drift and parallax are a later step).
+// Two variants: a ridge across the width and a corner fan. Colour comes from the contour token
+// through a class; the svg is hidden from assistive technology.
+interface Props {
+  variant?: 'ridge' | 'corner';
+}
+
+const { variant = 'ridge' } = Astro.props;
+
+const ridge = [
+  'M0 150C80 130 150 160 240 120S380 70 480 100 600 140 600 140',
+  'M0 120C80 100 150 130 240 90S380 40 480 70 600 110 600 110',
+  'M0 90C80 70 150 100 240 60S380 10 480 40 600 80 600 80',
+  'M0 60C80 40 150 70 240 30S380-20 480 10 600 50 600 50',
+];
+const corner = [
+  'M200 0C200 60 140 120 70 140 30 150 0 150 0 150',
+  'M200 0C200 90 150 170 80 190 40 200 0 200 0 200',
+  'M200 0C200 120 160 220 90 240 50 250 0 250 0 250',
+];
+const lines = variant === 'ridge' ? ridge : corner;
+const viewBox = variant === 'ridge' ? '0 0 600 180' : '0 0 200 260';
+---
+
+<svg
+  class="contours"
+  data-variant={variant}
+  viewBox={viewBox}
+  preserveAspectRatio="xMidYMid slice"
+  fill="none"
+  aria-hidden="true"
+  focusable="false"
+>
+  {lines.map((d) => (
+    <path class="contours__line" d={d}></path>
+  ))}
+</svg>
+
+<style>
+  .contours {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  .contours__line {
+    stroke: var(--fjord-color-contour-line);
+    stroke-width: var(--fjord-border-width);
+    vector-effect: non-scaling-stroke;
+  }
+</style>

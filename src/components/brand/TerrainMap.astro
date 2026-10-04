@@ -1,0 +1,84 @@
+---
+// "Not found" map panel (SCR-02): framed terrain at 4:3 with a 4 x 4 grid, a dashed route that
+// leaves the frame, and a pin with its label and coordinates outside the frame. Pure decoration,
+// so the whole panel is hidden from assistive technology.
+const grid = [1, 2, 3];
+---
+
+<div class="terrain" aria-hidden="true">
+  <svg
+    class="terrain__frame"
+    viewBox="0 0 400 300"
+    fill="none"
+    aria-hidden="true"
+    focusable="false"
+  >
+    <g data-part="grid" data-grid="4x4">
+      {grid.map((i) => (
+        <path class="terrain__grid" d={`M${i * 100} 0V300`} />
+      ))}
+      {grid.map((i) => (
+        <path class="terrain__grid" d={`M0 ${i * 75}H400`} />
+      ))}
+    </g>
+    <path class="terrain__relief" d="M0 230C70 200 120 240 200 190S340 120 400 150"></path>
+    <path class="terrain__relief" d="M0 260C80 230 140 270 220 220S350 160 400 190"></path>
+    <path class="terrain__relief" d="M0 200C60 170 110 210 190 160S330 90 400 120"></path>
+    <path
+      data-part="route"
+      class="terrain__route"
+      d="M60 250C120 210 180 190 240 130S340 90 400 70"
+    ></path>
+    <circle data-part="pin" class="terrain__pin" cx="60" cy="250" r="5"></circle>
+  </svg>
+  <p class="terrain__label">
+    <span class="terrain__pin-label">You are here</span>
+    <span class="terrain__coords">59.91° N · 10.75° E</span>
+  </p>
+</div>
+
+<style>
+  .terrain {
+    display: grid;
+    gap: var(--fjord-space-3);
+  }
+  .terrain__frame {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    border: var(--fjord-border-width) solid var(--fjord-color-border);
+    border-radius: var(--fjord-radius-md);
+    background-color: var(--fjord-color-bg-raised);
+  }
+  .terrain__grid {
+    stroke: var(--fjord-color-border);
+    stroke-width: var(--fjord-border-width);
+    vector-effect: non-scaling-stroke;
+  }
+  .terrain__relief {
+    stroke: var(--fjord-color-contour-line);
+    stroke-width: var(--fjord-border-width);
+    vector-effect: non-scaling-stroke;
+  }
+  .terrain__route {
+    stroke: var(--fjord-color-text-muted);
+    stroke-width: var(--fjord-border-width);
+    stroke-dasharray: 6 6;
+    vector-effect: non-scaling-stroke;
+  }
+  .terrain__pin {
+    fill: var(--fjord-color-link);
+  }
+  .terrain__label {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--fjord-space-2) var(--fjord-space-4);
+    margin: 0;
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-mono-label);
+    color: var(--fjord-color-text-muted);
+  }
+  .terrain__pin-label {
+    color: var(--fjord-color-link);
+  }
+</style>

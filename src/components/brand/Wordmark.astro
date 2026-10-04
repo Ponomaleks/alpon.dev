@@ -1,0 +1,33 @@
+---
+// The "alpon.dev" wordmark as a link home. `onSpruce` is for placement on the dark spruce
+// surface (footer), where the text takes the inverse colour.
+interface Props {
+  onSpruce?: boolean;
+}
+
+const { onSpruce = false } = Astro.props;
+---
+
+<a class:list={['wordmark', { 'wordmark--on-spruce': onSpruce }]} href="/">
+  alpon.dev
+</a>
+
+<style>
+  .wordmark {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--fjord-space-12);
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-ui-lg);
+    font-weight: var(--fjord-weight-bold);
+    color: var(--fjord-color-text);
+    text-decoration: none;
+  }
+  .wordmark--on-spruce {
+    color: var(--fjord-color-text-inverse);
+  }
+  .wordmark:focus-visible {
+    outline: var(--fjord-focus-width) solid var(--fjord-color-focus-ring);
+    outline-offset: var(--fjord-focus-offset);
+  }
+</style>
