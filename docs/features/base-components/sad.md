@@ -274,6 +274,101 @@ sequenceDiagram
     Shell-->>Recruiter: the CV address or the contact place opens
 ```
 
+### Mobile menu
+
+US-02 · AC-04, AC-05, AC-06 (and the menu side of AC-02, AC-10, AC-28). Added by `sequences`; runs in the Recruiter's browser below 768 on SCR-01, SCR-02 or SCR-04. `<ui>` is the rendered page with the Shell, `<service>` the static edge.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as <user>
+    participant UI as <ui>
+    participant S as <service>
+
+    Note over U,UI: Precondition: screen below 768, the page carries the Shell
+    U->>S: opens a page
+    S-->>UI: page with the Shell
+    alt scripts disabled
+        UI-->>U: no menu button is shown, the Sticky action bar offers View CV and Get in touch
+    else scripts enabled
+        UI-->>U: header shows the wordmark, the menu button and Get in touch
+        U->>UI: activates the menu button
+        UI->>UI: opens the menu panel as a modal over the page (SCR-03)
+        alt reduced motion
+            UI-->>U: the panel appears instantly or with a fade
+        else motion allowed
+            UI-->>U: the panel moves in
+        end
+        UI-->>U: focus is on the first link and the page behind cannot be reached
+        Note over U,UI: The panel holds CV, Contact, email, phone, the Work region, the theme switch and Get in touch, with no Projects and no search
+        alt Escape or the close button
+            UI->>UI: closes the panel
+            UI-->>U: focus returns to the menu button
+        else a link to another page or address
+            UI->>UI: closes the panel
+            UI->>S: requests the target
+            S-->>UI: the target page
+        else a link to a place on the current page
+            UI->>UI: closes the panel
+            UI-->>U: the page moves to that place
+        else the theme switch in the panel
+            UI->>UI: changes the theme as in critical flow 1 and leaves the panel open
+            UI-->>U: the panel is readable in the new theme and both theme switches agree
+        else the screen becomes 768 or wider
+            UI->>UI: closes the panel
+            UI-->>U: the header shows its links and theme switch
+        end
+    end
+    Note over U,UI: Postcondition: the panel is closed or still open by choice, and the CV and contact were reachable on every path
+```
+
+**Scope of this stage.** By the Owner's instruction, `sequences` covers three flows only: the theme switch (critical flow 1), the Sticky action bar with the header action (critical flow 2), both drawn by `design` and left as they were, and the mobile menu above. Everything else is a single render step, a build-time check or browser enforcement and is not drawn; the tables say where each is shown instead.
+
+**Coverage (spec §4 → flows).**
+
+| User story | Flow(s) |
+|---|---|
+| US-02 Navigate on a phone | Mobile menu |
+| US-03 Keep the two main actions at hand | Critical flow 2 |
+| US-04 Switch the theme | Critical flow 1; Mobile menu, branch `the theme switch in the panel` |
+| US-01 Find the way from the header | Not drawn (scope): only its header-action state is in critical flow 2; the rest is ux-flows Flow US-01 |
+| US-13 A Shell that needs no trust | Scripts-off branches of all three flows; the policy half is not drawn (browser enforcement) |
+| US-14 Calm for reduced motion | Reduced-motion branches of all three flows; skip link, Toast and page links are not drawn (scope) |
+| US-05, US-06, US-07, US-08, US-09, US-10 | Not drawn (scope): single render steps, see ux-flows Flows US-05 to US-10 |
+| US-11, US-12 | Not runtime: build-time checks (ux-flows "Out of scope") |
+
+**Coverage (spec §5 → flows).**
+
+| AC | Shown in |
+|---|---|
+| AC-04 | Mobile menu, steps from `activates the menu button` to `focus is on the first link` |
+| AC-05 | Mobile menu, branches `Escape or the close button`, `a link to another page or address`, `a link to a place on the current page` |
+| AC-06 | Mobile menu, branch `scripts disabled`; critical flow 2, branch `scripts disabled or reduced motion` |
+| AC-07 | Critical flow 2, first two steps (bar shown below 768). "Never covers the last lines or the focused element" is not drawn: a layout rule, §8 Sticky action bar clearance |
+| AC-08 | Critical flow 2, branch `scripts enabled and motion allowed` |
+| AC-09 | Critical flow 2, branch `scripts disabled or reduced motion` |
+| AC-10 | Critical flow 1, `chooses the other theme` to `stores dag or natt`; Mobile menu, branch `the theme switch in the panel` |
+| AC-11 | Critical flow 1, branches `storage blocked` and `scripts disabled` |
+| AC-12 | Critical flow 1, steps before `chooses the other theme` |
+| AC-23 | Critical flow 2, the header action in every branch. The count itself is an e2e check |
+| AC-29 | Critical flow 1, branch `page transitions supported and motion allowed` and its `else` |
+| AC-02 | Partly: Mobile menu, note on the panel content. Header side not drawn (scope), ux-flows Flow US-01 |
+| AC-28 | Partly: reduced-motion branches of the three flows. Skip link, Toast and header border not drawn (scope), ux-flows Flow US-14 |
+| AC-01, AC-03, AC-13, AC-14, AC-17 to AC-22, AC-24, AC-25, AC-30, AC-32 | Not drawn (scope): single render or one-step behaviour, see the ux-flows AC coverage table |
+| AC-15, AC-16, AC-26, AC-31 | Not runtime: build-time checks and the release gate |
+| AC-27 | Not runtime in this feature's code: browser enforcement of the unchanged policy, drawn in the fjord-foundation SAD §6 "Policy refuses an injected script" |
+
+**Gaps the flows revealed (listed, not decided).**
+
+1. Mobile menu, branch `a link to a place on the current page`: closing a modal returns focus to the menu button by default, while the page moves to the target. AC-05 fixes focus only for Escape and the close button, so where focus is after a same-page link is unspecified.
+2. Mobile menu, branch `the screen becomes 768 or wider`: the menu button is not displayed at that width, so focus cannot return to it. No AC covers this branch at all (ux-flows Design input), so `plan-tests` has no criterion to test it against.
+3. Mobile menu and critical flow 2 together: nothing says whether the page behind the open panel can scroll. If it can, the bar script may set or remove `inert` under the open panel, and the header action style changes behind it.
+4. Critical flow 2, `sets inert on the bar`: if keyboard focus is on a bar action at that moment, focus is dropped. AC-08 says the actions cannot receive focus while off screen and does not say where existing focus goes.
+5. Critical flow 2: the scroll distance or direction change that hides and returns the bar is not specified anywhere (spec, ux-flows, SAD); neither is the state at the very end of the page.
+6. Critical flow 1, branch `sets data-theme inside a view transition` taken from inside the open panel: a cross-fade while a modal is open is not covered by an AC or by a test in §10.
+7. Critical flows 1 and 2 use the `design` container names as participants, while the Mobile menu flow uses the generic vocabulary; they were left as drawn.
+8. No new participant and no persist step beyond the Visitor's own stored Theme choice: nothing for `data-model`, no contract for `api`.
+
 ## 7. Deployment view
 
 <!-- N/A: reuses the existing deployment unit, no infra change -->
