@@ -131,6 +131,37 @@ test.describe('mobile menu at 390', () => {
     );
   });
 
+  test('works from the keyboard: Enter opens, Space toggles a theme segment, Space closes (R6, AC-25)', async ({
+    page,
+  }) => {
+    await open(page);
+    const button = menuButton(page);
+    await button.focus();
+    await page.keyboard.press('Enter');
+    await expect(panel(page)).toBeVisible();
+    await expect(button).toHaveAttribute('aria-expanded', 'true');
+
+    const dialog = panel(page);
+    const segments = dialog.getByRole('group', { name: 'Theme' }).getByRole('button');
+    const idle = segments.and(page.locator('[aria-pressed="false"]'));
+    await expect(idle).toHaveCount(1);
+    const idleName = (await idle.getAttribute('aria-label')) ?? (await idle.textContent());
+    const expected = /dark/i.test(idleName ?? '') ? 'natt' : 'dag';
+    await idle.focus();
+    await page.keyboard.press('Space');
+    await expect(page.locator('html')).toHaveAttribute('data-theme', expected);
+    await expect(idle).toHaveCount(1);
+    await expect(segments.and(page.locator('[aria-pressed="true"]'))).toHaveCount(1);
+    await expect(dialog).toBeVisible();
+
+    const close = dialog.getByRole('button', { name: 'Close menu' });
+    await close.focus();
+    await page.keyboard.press('Space');
+    await expect(dialog).toBeHidden();
+    await expect(button).toHaveAttribute('aria-expanded', 'false');
+    await expect(button).toBeFocused();
+  });
+
   test('closes when the width reaches 768', async ({ page }) => {
     await open(page);
     await openMenu(page);

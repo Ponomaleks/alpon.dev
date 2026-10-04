@@ -178,6 +178,38 @@ for (const { name, path, band } of pages) {
       expect(small).toEqual([]);
     });
 
+    test('every control in the open mobile menu has a touch target of at least 44 x 44 at 390 (AC-25)', async ({
+      page,
+    }) => {
+      await open(page, path, widths.phone);
+      await page.locator('header').getByRole('button', { name: 'Open menu' }).click();
+      await expect(page.locator('dialog#mobile-menu')).toBeVisible();
+      // Same measurement as the loop above: the control's box, widened by its overlay (D-08).
+      // The only AC-25 exception is footer text links, and the menu has none.
+      const small: string[] = [];
+      const controls = await page.locator('#mobile-menu :is(a[href], button)').all();
+      expect(controls.length).toBeGreaterThanOrEqual(6);
+      for (const control of controls) {
+        if (!(await control.isVisible())) continue;
+        const target = await control.evaluate((el) => {
+          const box = el.getBoundingClientRect();
+          const overlay = getComputedStyle(el, '::before');
+          const has = overlay.content !== 'none' && overlay.position === 'absolute';
+          return {
+            width: Math.max(box.width, has ? parseFloat(overlay.width) : 0),
+            height: Math.max(box.height, has ? parseFloat(overlay.height) : 0),
+          };
+        });
+        if (target.width < 44 || target.height < 44) {
+          const label =
+            ((await control.textContent()) ?? '').trim() ||
+            (await control.getAttribute('aria-label'));
+          small.push(`menu "${label}" ${Math.round(target.width)}x${Math.round(target.height)}`);
+        }
+      }
+      expect(small).toEqual([]);
+    });
+
     test('footer text links keep 24 px between their centres (AC-25, WCAG 2.5.8 spacing)', async ({
       page,
     }) => {
