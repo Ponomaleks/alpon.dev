@@ -1,0 +1,69 @@
+---
+// Availability (open / talking / employed) and status (live / progress / archived) as two
+// variants of one component. The label text is always printed; the dot is decoration only.
+interface Props {
+  kind?: 'availability' | 'status';
+  status: 'open' | 'talking' | 'employed' | 'live' | 'progress' | 'archived';
+  /** Label text; when omitted the default slot is the label. */
+  label?: string;
+  /** Availability only: a short note after the label, e.g. "Oslo area". */
+  detail?: string;
+}
+
+const { kind = 'availability', status, label, detail } = Astro.props;
+---
+
+<span class="badge" data-kind={kind} data-status={status}>
+  <span class="badge__dot" aria-hidden="true"></span>
+  {label !== undefined ? label : <slot />}
+  {detail && (
+    <>
+      <span class="badge__sep" aria-hidden="true">
+        ·
+      </span>
+      <span class="badge__detail">{detail}</span>
+    </>
+  )}
+</span>
+
+<style>
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--fjord-space-3);
+    height: var(--fjord-space-8);
+    padding: 0 var(--fjord-space-3);
+    border: var(--fjord-border-width) solid var(--fjord-color-border);
+    border-radius: var(--fjord-radius-pill);
+    background-color: var(--fjord-color-bg-raised);
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-mono-label);
+    font-weight: var(--fjord-weight-medium);
+    line-height: var(--fjord-leading-none);
+    color: var(--fjord-color-text);
+    white-space: nowrap;
+  }
+  .badge__dot {
+    width: var(--fjord-space-2);
+    height: var(--fjord-space-2);
+    flex: none;
+    border-radius: var(--fjord-radius-round);
+    background-color: currentColor;
+    color: var(--fjord-color-success);
+  }
+  .badge[data-status='open'] .badge__dot {
+    outline: var(--fjord-border-width) solid currentColor;
+    outline-offset: var(--fjord-space-0-5);
+  }
+  .badge[data-status='talking'] .badge__dot,
+  .badge[data-status='progress'] .badge__dot {
+    color: var(--fjord-color-warning);
+  }
+  .badge[data-status='employed'] .badge__dot,
+  .badge[data-status='archived'] .badge__dot {
+    color: var(--fjord-color-text-muted);
+  }
+  .badge__sep {
+    color: var(--fjord-color-text-muted);
+  }
+</style>

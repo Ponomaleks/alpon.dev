@@ -1,0 +1,93 @@
+---
+// Final number and label, printed in the HTML. Static, no script and no animation (AC-25).
+interface StatItem {
+  value: string | number;
+  prefix?: string;
+  suffix?: string;
+  unit?: string;
+  label: string;
+  context?: string;
+}
+interface Props extends Partial<StatItem> {
+  /** A row of stats; when given, the single-stat props are ignored. */
+  items?: StatItem[];
+  compact?: boolean;
+}
+
+const { items, compact = false, ...single } = Astro.props;
+const stats: StatItem[] = items ?? (single.value === undefined ? [] : [single as StatItem]);
+---
+
+<ul class:list={['stats', { 'stats--compact': compact, 'stats--row': items !== undefined }]}>
+  {stats.map((s) => (
+    <li class="stat">
+      <span class="stat__value">
+        {`${s.prefix ?? ''}${s.value}${s.suffix ?? ''}`}
+        {s.unit && <small>{s.unit}</small>}
+      </span>
+      <span class="stat__label">{s.label}</span>
+      {s.context && <span class="stat__ctx">{s.context}</span>}
+    </li>
+  ))}
+</ul>
+
+<style>
+  .stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--fjord-space-8) var(--fjord-grid-gutter);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .stat {
+    display: flex;
+    flex: 1 1 100%;
+    flex-direction: column;
+    gap: var(--fjord-space-3);
+    min-width: 0;
+    padding-top: var(--fjord-space-4);
+    border-top: var(--fjord-border-width) solid var(--fjord-color-border-strong);
+  }
+  .stats--row .stat {
+    flex-basis: calc((100% - var(--fjord-grid-gutter)) / 2);
+  }
+  @media (min-width: 1024px) {
+    .stats--row .stat {
+      flex-basis: calc((100% - 3 * var(--fjord-grid-gutter)) / 4);
+    }
+  }
+  .stat__value {
+    font-size: var(--fjord-text-stat);
+    font-weight: var(--fjord-weight-medium);
+    letter-spacing: var(--fjord-tracking-display);
+    line-height: var(--fjord-leading-none);
+    font-variant-numeric: tabular-nums;
+    color: var(--fjord-color-text);
+    white-space: nowrap;
+  }
+  .stats--compact .stat__value {
+    font-size: var(--fjord-text-h2);
+  }
+  .stat__value small {
+    margin-left: var(--fjord-space-1);
+    font-size: var(--fjord-text-h3);
+    font-weight: var(--fjord-weight-medium);
+    letter-spacing: var(--fjord-tracking-body);
+    color: var(--fjord-color-text-muted);
+  }
+  .stat__label {
+    max-width: calc(var(--fjord-space-32) * 2);
+    font-size: var(--fjord-text-ui);
+    line-height: var(--fjord-leading-ui);
+    color: var(--fjord-color-text);
+  }
+  .stat__ctx {
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-mono-sm);
+    font-weight: var(--fjord-weight-regular);
+    line-height: var(--fjord-leading-ui);
+    font-variant-numeric: tabular-nums;
+    color: var(--fjord-color-text-muted);
+  }
+</style>

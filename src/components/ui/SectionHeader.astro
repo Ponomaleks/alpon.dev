@@ -1,0 +1,78 @@
+---
+// Section heading at the level it is given, with an optional Eyebrow (index and label) and lead.
+interface Props {
+  as?: 'h1' | 'h2' | 'h3';
+  title: string;
+  /** Eyebrow number, e.g. "01". */
+  index?: string;
+  eyebrow?: string;
+  lead?: string;
+  size?: 'sm' | 'md' | 'lg';
+}
+
+const { as: Heading = 'h2', title, index, eyebrow, lead, size = 'md' } = Astro.props;
+---
+
+<header class="sechead" data-size={size}>
+  {(index || eyebrow) && (
+    <p class="eyebrow">
+      {index && <b>{index}</b>}
+      {index && eyebrow && <i aria-hidden="true">/</i>}
+      {eyebrow && <span>{eyebrow}</span>}
+    </p>
+  )}
+  <Heading class="sechead__title">{title}</Heading>
+  {lead && <p class="sechead__lead">{lead}</p>}
+</header>
+
+<style>
+  .sechead {
+    display: flex;
+    flex-direction: column;
+    gap: var(--fjord-space-4);
+    max-width: calc(var(--fjord-space-32) * 6);
+  }
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--fjord-space-3);
+    margin: 0;
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-mono-label);
+    font-weight: var(--fjord-weight-medium);
+    line-height: var(--fjord-leading-none);
+    letter-spacing: var(--fjord-tracking-label);
+    font-variant-numeric: tabular-nums;
+    color: var(--fjord-color-text-muted);
+  }
+  .eyebrow b {
+    font-weight: var(--fjord-weight-medium);
+    color: var(--fjord-color-link);
+  }
+  .eyebrow i {
+    font-style: normal;
+    opacity: var(--fjord-opacity-muted);
+  }
+  .sechead__title {
+    margin: 0;
+    font-size: var(--fjord-text-h2);
+    font-weight: var(--fjord-weight-semibold);
+    letter-spacing: var(--fjord-tracking-heading);
+    line-height: var(--fjord-leading-heading);
+    text-wrap: balance;
+  }
+  .sechead[data-size='lg'] .sechead__title {
+    font-size: var(--fjord-text-h1);
+  }
+  .sechead[data-size='sm'] .sechead__title {
+    font-size: var(--fjord-text-h3);
+  }
+  .sechead__lead {
+    max-width: calc(var(--fjord-space-32) * 5);
+    margin: 0;
+    font-size: var(--fjord-text-lead);
+    line-height: var(--fjord-leading-normal);
+    color: var(--fjord-color-text-muted);
+    text-wrap: pretty;
+  }
+</style>
