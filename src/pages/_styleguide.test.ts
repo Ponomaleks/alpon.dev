@@ -16,7 +16,9 @@ afterAll(() => site?.cleanup());
 const html = () => readFileSync(join(site.out, 'styleguide.html'), 'utf8');
 const section = (name: string) =>
   html().match(
-    new RegExp(String.raw`<section\b[^>]*data-section="${name}"[^>]*>([\s\S]*?)</section>`),
+    new RegExp(
+      String.raw`<section\b[^>]*data-section="${name}"[^>]*>([\s\S]*?)(?=<section\b[^>]*data-section=|</main>)`,
+    ),
   )?.[1] ?? '';
 
 const SECTIONS = [
@@ -32,6 +34,12 @@ const SECTIONS = [
   'Contours',
   'Terrain map',
   'Wordmark',
+  'Skip link',
+  'Theme switch',
+  'Header variants',
+  'Mobile menu panel',
+  'Sticky action bar',
+  'Closing band',
 ];
 
 describe('built styleguide.html (SCR-04)', () => {
@@ -48,7 +56,9 @@ describe('built styleguide.html (SCR-04)', () => {
 
   it('has no real bar and no real band (AC-21)', () => {
     expect(html()).not.toContain('data-shell-bar');
-    expect(html()).not.toMatch(/<section class="fj-band\b/);
+    // only the closing-band samples (each wrapped in data-sample) may exist, never a real band
+    const bands = html().match(/<section class="fj-band\b/g) ?? [];
+    expect(bands).toHaveLength(section('Closing band').match(/<div data-sample/g)?.length ?? 0);
   });
 
   it.each(SECTIONS)('has one data-section block for %s', (name) => {
@@ -98,6 +108,72 @@ describe('built styleguide.html (SCR-04)', () => {
 
   it('shows the Wordmark default and on spruce', () => {
     expect(section('Wordmark')).toContain('fjord-on-spruce');
+  });
+});
+
+const opening = (tag: string, name: string) =>
+  [...section(name).matchAll(new RegExp(String.raw`<${tag}\b[^>]*>`, 'g'))].map((m) => m[0]);
+
+describe('Shell samples (AC-21, SCR-04)', () => {
+  it('shows the skip link sample in the flow, marked as a sample', () => {
+    const s = section('Skip link');
+    expect(s).toContain('Skip to content');
+    expect(s).toMatch(/data-sample/);
+  });
+
+  it('shows the theme switch with Light selected and with Dark selected, both fixed', () => {
+    const s = section('Theme switch');
+    expect(s.match(/data-sample/g)?.length).toBe(2);
+    expect(s).toContain('data-selected="dag"');
+    expect(s).toContain('data-selected="natt"');
+    expect(s).not.toContain('data-needs-script');
+  });
+
+  it('shows five sample headers: default, bordered, on spruce, secondary cta, current link', () => {
+    const headers = opening('header', 'Header variants');
+    expect(headers).toHaveLength(5);
+    for (const h of headers) expect(h).toContain('data-sample');
+    expect(headers.filter((h) => h.includes('data-scrolled'))).toHaveLength(1);
+    expect(headers.filter((h) => h.includes('data-variant="on-spruce"'))).toHaveLength(1);
+    expect(headers.filter((h) => h.includes('data-cta="secondary"'))).toHaveLength(1);
+    expect(section('Header variants').match(/aria-current="page"/g)).toHaveLength(1);
+    expect(section('Header variants')).not.toContain('data-header-sentinel');
+  });
+
+  it('shows the mobile menu panel as a static sample with a current link, no dialog', () => {
+    const s = section('Mobile menu panel');
+    expect(s).toMatch(/class="[^"]*menu--sample/);
+    expect(s).toContain('data-sample');
+    expect(s).toContain('aria-current="page"');
+    expect(s).not.toMatch(/<dialog\b/);
+    expect(html().match(/<dialog\b/g) ?? []).toHaveLength(1);
+  });
+
+  it('shows the sticky action bar sample, not the live bar', () => {
+    const s = section('Sticky action bar');
+    expect(s).toMatch(/class="[^"]*mobile-bar/);
+    expect(s).toContain('data-sample');
+    expect(s).toContain('View CV');
+    expect(s).not.toContain('data-shell-bar');
+  });
+
+  it('shows the closing band as samples: default and on spruce', () => {
+    const s = section('Closing band');
+    expect((s.match(/fj-band\b/g) ?? []).length).toBeGreaterThanOrEqual(2);
+    expect(s).toContain('Let’s build something good together.');
+    expect(s).toContain('data-sample');
+  });
+
+  it('marks every sample root with data-sample', () => {
+    for (const name of [
+      'Skip link',
+      'Theme switch',
+      'Header variants',
+      'Mobile menu panel',
+      'Sticky action bar',
+      'Closing band',
+    ])
+      expect(section(name)).toContain('data-sample');
   });
 });
 

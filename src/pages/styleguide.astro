@@ -12,6 +12,13 @@ import Tag from '../components/ui/Tag.astro';
 import Stat from '../components/ui/Stat.astro';
 import SectionHeader from '../components/ui/SectionHeader.astro';
 import Toast from '../components/ui/Toast.astro';
+import SkipLink from '../components/layout/SkipLink.astro';
+import ThemeToggle from '../components/layout/ThemeToggle.astro';
+import Header from '../components/layout/Header.astro';
+import MobileMenu from '../components/layout/MobileMenu.astro';
+import MobileBar from '../components/layout/MobileBar.astro';
+import CtaBand from '../components/layout/CtaBand.astro';
+import { contact } from '../data/contact';
 import Contours from '../components/brand/Contours.astro';
 import TerrainMap from '../components/brand/TerrainMap.astro';
 import Wordmark from '../components/brand/Wordmark.astro';
@@ -203,6 +210,59 @@ const stateLabel = { hover: 'Hover', focus: 'Focus', active: 'Pressed' } as cons
         </div>
       </div>
     </section>
+
+    <section data-section="Skip link" class="sg__section">
+      <h2>Skip link</h2>
+      <p>Shown in the flow; the real one is off-screen until focused.</p>
+      <div class="sg__row">
+        <SkipLink sample />
+      </div>
+    </section>
+
+    <section data-section="Theme switch" class="sg__section">
+      <h2>Theme switch</h2>
+      <div class="sg__row">
+        <ThemeToggle sample="dag" />
+        <ThemeToggle sample="natt" />
+      </div>
+    </section>
+
+    <section data-section="Header variants" class="sg__section">
+      <h2>Header variants</h2>
+      <div class="sg__stack">
+        <Header sample />
+        <Header sample scrolled />
+        <Header sample variant="on-spruce" />
+        <Header sample cta="secondary" />
+        <Header sample current="cv" />
+      </div>
+    </section>
+
+    <section data-section="Mobile menu panel" class="sg__section">
+      <h2>Mobile menu panel</h2>
+      <div class="sg__phone">
+        <MobileMenu sample current="cv" />
+      </div>
+    </section>
+
+    <section data-section="Sticky action bar" class="sg__section">
+      <h2>Sticky action bar</h2>
+      <div class="sg__phone sg__phone--bar">
+        <MobileBar sample cvHref={contact.links.cvEn} contactHref={contact.links.contact} />
+      </div>
+    </section>
+
+    <section data-section="Closing band" class="sg__section">
+      <h2>Closing band</h2>
+      <div class="sg__stack">
+        <div data-sample>
+          <CtaBand />
+        </div>
+        <div data-sample>
+          <CtaBand cvLang="no" />
+        </div>
+      </div>
+    </section>
   </div>
 </BaseLayout>
 
@@ -260,6 +320,24 @@ const stateLabel = { hover: 'Hover', focus: 'Focus', active: 'Pressed' } as cons
     max-inline-size: var(--fjord-measure-narrow);
     aspect-ratio: 16 / 10;
     border: var(--fjord-border-width) solid var(--fjord-color-border);
+  }
+
+  .sg__stack {
+    display: grid;
+    gap: var(--fjord-space-6);
+  }
+
+  .sg__phone {
+    position: relative;
+    overflow: hidden;
+    inline-size: 100%;
+    max-inline-size: calc(var(--fjord-space-24) * 4);
+    block-size: calc(var(--fjord-space-32) * 5);
+    border: var(--fjord-border-width) solid var(--fjord-color-border);
+  }
+
+  .sg__phone--bar {
+    block-size: var(--fjord-space-32);
   }
 
   .sg__map {

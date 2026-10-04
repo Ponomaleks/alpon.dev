@@ -25,7 +25,9 @@ const { sample = false, message, meta, lang } = Astro.props;
   import { initToast } from '../../scripts/shell/toast';
 
   const raw = getComputedStyle(document.documentElement).getPropertyValue('--fjord-duration-toast');
-  initToast({ document, duration: parseFloat(raw) });
+  // The built CSS may serialise 4000ms as "4s": read the unit, the Toast wants milliseconds.
+  const value = parseFloat(raw);
+  initToast({ document, duration: raw.trim().endsWith('ms') ? value : value * 1000 });
 </script>
 
 <style>

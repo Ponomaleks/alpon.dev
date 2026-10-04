@@ -1,9 +1,15 @@
 ---
 // Skip link (AC-13): first focusable element, off-screen until focused, hidden again on blur.
 // Page design: .x-skip in site.css. The target is the <main id="main"> of the layout.
+// `sample` renders it in the flow, always visible, for the Styleguide.
+interface Props {
+  sample?: boolean;
+}
+
+const { sample = false } = Astro.props;
 ---
 
-<a class="skip-link" href="#main">
+<a class="skip-link" href="#main" data-sample={sample ? '' : undefined}>
   Skip to content
 </a>
 
@@ -22,6 +28,12 @@
     box-shadow: var(--fjord-shadow-float);
     font-weight: var(--fjord-weight-medium);
     text-decoration: none;
+  }
+
+  .skip-link[data-sample] {
+    position: static;
+    translate: 0 0;
+    display: inline-block;
   }
 
   .skip-link:focus-visible {

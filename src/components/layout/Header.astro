@@ -14,9 +14,11 @@ interface Props {
   variant?: 'on-spruce';
   cta?: 'auto' | 'secondary';
   sample?: boolean;
+  /** Sample only: shows the bordered, scrolled state without a script. */
+  scrolled?: boolean;
 }
 
-const { current, variant, cta = 'auto', sample = false } = Astro.props;
+const { current, variant, cta = 'auto', sample = false, scrolled = false } = Astro.props;
 const links = [
   { key: 'cv', label: 'CV', href: contact.links.cv },
   { key: 'contact', label: 'Contact', href: contact.links.contact },
@@ -30,6 +32,7 @@ const links = [
   data-variant={variant}
   data-cta={cta === 'secondary' ? 'secondary' : undefined}
   data-sample={sample ? '' : undefined}
+  data-scrolled={sample && scrolled ? '' : undefined}
 >
   <div class="header__in">
     <Wordmark onSpruce={variant === 'on-spruce'} />
