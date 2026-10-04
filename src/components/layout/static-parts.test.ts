@@ -1,5 +1,13 @@
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -15,6 +23,7 @@ const layoutDir = join(repo, 'src/components/layout');
 const layout = (name: string) => join(layoutDir, name).replaceAll('\\', '/');
 let out = '';
 let page = '';
+let css = '';
 
 const fixture = `---
 import SkipLink from '${layout('SkipLink.astro')}';
@@ -69,6 +78,14 @@ export default {
 ${build.stdout}
 ${build.stderr}`);
   page = readFileSync(join(out, 'dist', 'static-fixture.html'), 'utf8');
+  const assets = join(out, 'dist', '_astro');
+  const sheets = existsSync(assets)
+    ? readdirSync(assets)
+        .filter((f) => f.endsWith('.css'))
+        .map((f) => readFileSync(join(assets, f), 'utf8'))
+    : [];
+  const inline = [...page.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/g)].map((m) => m[1] ?? '');
+  css = [...sheets, ...inline].join('\n');
 }, 180_000);
 
 afterAll(() => {
@@ -92,6 +109,11 @@ const text = (html: string) =>
     .replace(/\s+/g, ' ');
 const anchorTo = (html: string, href: string) =>
   anchors(html).find((a) => a.includes(`href="${href}"`));
+/** The bodies of every built rule whose selector starts with the class, in source order. */
+const bodiesOf = (cls: string) =>
+  [...css.matchAll(new RegExp(`\\.${cls}(?![-\\w])[^{},]*\\{([^}]*)\\}`, 'g'))].map(
+    (m) => m[1] ?? '',
+  );
 
 describe('SkipLink (AC-13)', () => {
   it('is an <a href="#main"> reading "Skip to content"', () => {
@@ -178,6 +200,30 @@ describe('Footer (AC-14)', () => {
     expect(html()).toMatch(
       new RegExp(`<time\\b[^>]*\\bdatetime="${contact.lastUpdated}"[^>]*>[^<]*\\d`),
     );
+  });
+});
+
+describe('Footer layout (design .fj-footer grid)', () => {
+  it('is the 4 / 8 / 12-column grid of the design', () => {
+    const [box = ''] = bodiesOf('fj-footer__in');
+    expect(box).toMatch(/display:\s*grid/);
+    expect(box).toMatch(
+      /grid-template-columns:\s*repeat\(var\(--fjord-grid-columns\),\s*minmax\(0,\s*1fr\)\)/,
+    );
+  });
+
+  it('spans the slogan and base line over the whole grid and each column over four tracks', () => {
+    expect(bodiesOf('fj-footer__slogan')[0]).toMatch(/grid-column:\s*1\s*\/\s*-1/);
+    expect(bodiesOf('fj-footer__base')[0]).toMatch(/grid-column:\s*1\s*\/\s*-1/);
+    expect(bodiesOf('fj-footer__col')[0]).toMatch(/grid-column:\s*span 4/);
+  });
+
+  it('gives the slogan and each column three of twelve tracks from 1024', () => {
+    expect(css).toMatch(
+      /min-width:\s*1024px[^{]*\{[^@]*\.fj-footer__slogan[^{]*\{[^}]*grid-column:\s*span 3/,
+    );
+    expect(bodiesOf('fj-footer__col').join(';')).toMatch(/grid-column:\s*span 3/);
+    expect(bodiesOf('fj-footer__col').join(';')).not.toMatch(/flex-basis|flex:\s*\d/);
   });
 });
 

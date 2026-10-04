@@ -53,8 +53,8 @@ const year = new Date().getFullYear();
   .fj-footer__in {
     position: relative;
     z-index: var(--fjord-z-raised);
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(var(--fjord-grid-columns), minmax(0, 1fr));
     gap: var(--fjord-space-8) var(--fjord-grid-gutter);
     max-width: calc(var(--fjord-content-max) + 2 * var(--fjord-grid-margin));
     margin: 0 auto;
@@ -63,7 +63,7 @@ const year = new Date().getFullYear();
   }
 
   .fj-footer__slogan {
-    flex: 0 0 100%;
+    grid-column: 1 / -1;
     margin: 0;
     font-size: var(--fjord-text-h3);
     font-weight: var(--fjord-weight-semibold);
@@ -77,7 +77,7 @@ const year = new Date().getFullYear();
   }
 
   .fj-footer__col {
-    flex: 0 0 100%;
+    grid-column: span 4;
     display: flex;
     flex-direction: column;
     gap: var(--fjord-space-1-5);
@@ -122,7 +122,7 @@ const year = new Date().getFullYear();
   }
 
   .fj-footer__base {
-    flex: 0 0 100%;
+    grid-column: 1 / -1;
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
@@ -137,23 +137,19 @@ const year = new Date().getFullYear();
     font-variant-numeric: tabular-nums;
   }
 
-  /* Tablet: two columns of the 8-column grid. */
+  /* The grid has 4 / 8 / 12 tracks (--fjord-grid-columns): a column spans four of them, so one
+     per row below 768 and two per row from 768. The bar no longer needs the room below. */
   @media (min-width: 768px) {
     .fj-footer {
       padding-block-end: var(--fjord-space-8);
     }
-
-    .fj-footer__col {
-      flex-basis: calc((100% - var(--fjord-grid-gutter)) / 2);
-    }
   }
 
-  /* Wide: slogan and the three columns share one row, three of twelve grid columns each. */
+  /* Wide: slogan and the three columns share one row, three of twelve tracks each. */
   @media (min-width: 1024px) {
     .fj-footer__slogan,
     .fj-footer__col {
-      flex: 1 1 0;
-      min-width: 0;
+      grid-column: span 3;
     }
   }
 </style>

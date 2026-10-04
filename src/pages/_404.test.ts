@@ -39,6 +39,22 @@ describe('built 404.html (SCR-02)', () => {
     expect(rule).toMatch(/color:\s*var\(--fjord-color-link\)/);
   });
 
+  it('lays text and map out as the design grid: one column, then 5fr / 7fr from 1024', () => {
+    const assets = join(site.out, '_astro');
+    const css = readdirSync(assets)
+      .filter((f) => f.endsWith('.css'))
+      .map((f) => readFileSync(join(assets, f), 'utf8'))
+      .join('\n');
+    const bodies = [...css.matchAll(/\.not-found(?![-\w])[^{},]*\{([^}]*)\}/g)].map((m) => m[1]);
+    expect(bodies[0]).toMatch(/display:\s*grid/);
+    expect(bodies[0]).toMatch(/grid-template-columns:\s*minmax\(0,\s*1fr\)/);
+    expect(bodies[0]).toMatch(/align-items:\s*center/);
+    expect(bodies.join(';')).toMatch(
+      /grid-template-columns:\s*minmax\(0,\s*5fr\)\s+minmax\(0,\s*7fr\)/,
+    );
+    expect(css).not.toMatch(/flex:\s*[57]\b/);
+  });
+
   it('has the h1 "This page is off the map." and the design body copy', () => {
     expect(body()).toMatch(/<h1[^>]*>\s*This page is off the map\.\s*<\/h1>/);
     expect(text()).toContain('The link may be old, or the page has moved.');

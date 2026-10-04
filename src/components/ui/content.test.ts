@@ -125,6 +125,32 @@ describe('Stat (AC-25: final number in the page, no count-up)', () => {
   });
 });
 
+describe('Stat row layout (design .fj-stats)', () => {
+  const src = () => readFileSync(`${dir}Stat.astro`, 'utf8');
+
+  it('is the design grid: two columns, then --fj-n columns (4 by default) from 1024', () => {
+    expect(src()).toMatch(/\.stats\s*\{[^}]*display:\s*grid/);
+    expect(src()).toMatch(/grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)/);
+    expect(src()).toMatch(
+      /min-width:\s*1024px[\s\S]*grid-template-columns:\s*repeat\(var\(--fj-n,\s*4\),\s*minmax\(0,\s*1fr\)\)/,
+    );
+    expect(src()).not.toMatch(/flex-basis|flex-wrap/);
+  });
+
+  it('takes the column count from the number of items through a data attribute, not a style attribute', async () => {
+    const html = await render('Stat', {
+      items: [
+        { value: '1', label: 'One' },
+        { value: '2', label: 'Two' },
+        { value: '3', label: 'Three' },
+      ],
+    });
+    expect(html).toMatch(/<ul\b[^>]*data-count="3"/);
+    expect(html.replace(/<style[\s\S]*?<\/style>/g, '')).not.toMatch(/\sstyle=/);
+    expect(src()).toMatch(/\[data-count='3'\]\s*\{\s*--fj-n:\s*3/);
+  });
+});
+
 describe('SectionHeader', () => {
   it.each(['h1', 'h2', 'h3'])('renders the heading level it is given (%s)', async (as) => {
     const html = await render('SectionHeader', { as, title: 'Projects' });

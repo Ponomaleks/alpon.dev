@@ -68,15 +68,12 @@ const { cvHref, contactHref, sample = false } = Astro.props;
     inset-inline: 0;
     inset-block-end: 0;
     z-index: var(--fjord-z-actionbar);
-    display: flex;
-    gap: var(--fjord-space-3);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--fjord-space-2);
     padding: var(--fjord-space-3) var(--fjord-space-4);
     background-color: var(--fjord-color-bg-raised);
     border-block-start: var(--fjord-border-width) solid var(--fjord-color-border);
-  }
-
-  .mobile-bar > :global(.fj-btn) {
-    flex: 1 1 0;
   }
 
   .mobile-bar[data-sample] {

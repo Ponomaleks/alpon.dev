@@ -18,7 +18,10 @@ const { items, compact = false, ...single } = Astro.props;
 const stats: StatItem[] = items ?? (single.value === undefined ? [] : [single as StatItem]);
 ---
 
-<ul class:list={['stats', { 'stats--compact': compact, 'stats--row': items !== undefined }]}>
+<ul
+  class:list={['stats', { 'stats--compact': compact, 'stats--row': items !== undefined }]}
+  data-count={items?.length}
+>
   {stats.map((s) => (
     <li class="stat">
       <span class="stat__value">
@@ -33,29 +36,45 @@ const stats: StatItem[] = items ?? (single.value === undefined ? [] : [single as
 
 <style>
   .stats {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--fjord-space-8) var(--fjord-grid-gutter);
     margin: 0;
     padding: 0;
     list-style: none;
   }
+  /* A row is the design grid (.fj-stats): two columns, then one per item from 1024. The design
+     sets the count with a style attribute, which the CSP forbids; data-count carries it here. */
+  .stats--row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  @media (min-width: 1024px) {
+    .stats--row {
+      grid-template-columns: repeat(var(--fj-n, 4), minmax(0, 1fr));
+    }
+  }
+  .stats[data-count='1'] {
+    --fj-n: 1;
+  }
+  .stats[data-count='2'] {
+    --fj-n: 2;
+  }
+  .stats[data-count='3'] {
+    --fj-n: 3;
+  }
+  .stats[data-count='5'] {
+    --fj-n: 5;
+  }
+  .stats[data-count='6'] {
+    --fj-n: 6;
+  }
   .stat {
     display: flex;
-    flex: 1 1 100%;
     flex-direction: column;
     gap: var(--fjord-space-3);
     min-width: 0;
     padding-top: var(--fjord-space-4);
     border-top: var(--fjord-border-width) solid var(--fjord-color-border-strong);
-  }
-  .stats--row .stat {
-    flex-basis: calc((100% - var(--fjord-grid-gutter)) / 2);
-  }
-  @media (min-width: 1024px) {
-    .stats--row .stat {
-      flex-basis: calc((100% - 3 * var(--fjord-grid-gutter)) / 4);
-    }
   }
   .stat__value {
     font-size: var(--fjord-text-stat);

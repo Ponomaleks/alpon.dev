@@ -113,6 +113,18 @@ describe('MobileBar: live', () => {
   });
 });
 
+describe('MobileBar: layout (design .fj-actionbar)', () => {
+  const source = () => readFileSync(join(repo, 'src/components/layout/MobileBar.astro'), 'utf8');
+  const bar = () => source().match(/\.mobile-bar\s*\{([^}]*)\}/)?.[1] ?? '';
+
+  it('is the two-column grid of the design', () => {
+    expect(bar()).toMatch(/display:\s*grid/);
+    expect(bar()).toMatch(/grid-template-columns:\s*1fr 1fr/);
+    expect(bar()).toMatch(/gap:\s*var\(--fjord-space-2\)/);
+    expect(source()).not.toMatch(/flex:\s*1 1 0/);
+  });
+});
+
 describe('MobileBar: sample', () => {
   it('is not the live bar: no hook, marked as a sample, still two actions', () => {
     const html = made('sample');

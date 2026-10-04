@@ -37,34 +37,19 @@ import Button from '../components/ui/Button.astro';
     padding: 0 var(--fjord-grid-margin);
   }
 
-  /* .fj-404: stacked below 1024, 5 / 7 columns from 1024 with the text centred vertically.
-     Flex weights instead of the design's grid fr tracks, which the token-only Stylelint rules
-     do not allow. */
+  /* .fj-404: one column below 1024, 5 / 7 columns from 1024 with the text centred vertically. */
   .not-found {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: center;
     gap: var(--fjord-space-12);
     padding: var(--fjord-space-404) 0 var(--fjord-space-section);
   }
 
-  .not-found > * {
-    min-width: 0;
-  }
-
   @media (min-width: 1024px) {
     .not-found {
-      flex-direction: row;
-      align-items: center;
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
       gap: var(--fjord-space-16);
-    }
-
-    .not-found > .text {
-      flex: 5 1 0;
-    }
-
-    .not-found > :global(.terrain) {
-      flex: 7 1 0;
     }
   }
 
