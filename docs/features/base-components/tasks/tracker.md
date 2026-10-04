@@ -6,7 +6,7 @@
 | # | Task | Layer | Owner | Estimate | Blocked by | Status |
 |---|---|---|---|---|---|---|
 | T1 | [Point the token generator at the site copy of the design system and emit the new tokens](./t01-token-source-site-copy.md) | wiring | Alexander Ponomarenko | M | — | done |
-| T2 | [Extend the token-only allow lists for the Shell styles, one recorded entry per form](./t02-stylelint-allow-lists.md) | wiring | Alexander Ponomarenko | M | T1 | todo |
+| T2 | [Extend the token-only allow lists for the Shell styles, one recorded entry per form](./t02-stylelint-allow-lists.md) | wiring | Alexander Ponomarenko | M | T1 | done |
 | T3 | [Add src/data/contact.ts and the contact check against the vCard and the last-updated date](./t03-contact-data-and-check.md) | domain | Alexander Ponomarenko | S | — | done |
 | T4 | [Build Icon, Button, Link and IconButton with all interactive states](./t04-action-components.md) | ui | Alexander Ponomarenko | M | T2 | todo |
 | T5 | [Build Badge, Tag, Stat and SectionHeader with Eyebrow](./t05-content-components.md) | ui | Alexander Ponomarenko | S | T2 | todo |
