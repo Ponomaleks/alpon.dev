@@ -19,7 +19,11 @@ const { href, external = false, 'data-demo-state': demoState } = Astro.props;
   data-demo-state={demoState}
 >
   <slot />
-  {external && <Icon name="arrow-up-right" />}
+  {external && (
+    <span class="fj-link__icon">
+      <Icon name="arrow-up-right" />
+    </span>
+  )}
 </a>
 
 <style is:global>
@@ -27,15 +31,26 @@ const { href, external = false, 'data-demo-state': demoState } = Astro.props;
     color: var(--fjord-color-link);
     text-decoration: underline;
     text-decoration-thickness: var(--fjord-border-width);
-    text-underline-offset: var(--fjord-space-1);
-    text-decoration-color: var(--fjord-color-border-strong);
+    text-underline-offset: 0.22em;
+    text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
   }
 
+  /* No underline at rest: a line in the text colour grows from the left on hover and focus. */
   .fj-link--external {
     display: inline-flex;
     align-items: center;
     gap: var(--fjord-space-1-5);
+    padding-bottom: var(--fjord-space-0-5);
     font-weight: var(--fjord-weight-medium);
+    text-decoration: none;
+    background-image: linear-gradient(currentColor, currentColor);
+    background-position: 0 100%;
+    background-size: 0 var(--fjord-border-width);
+    background-repeat: no-repeat;
+  }
+
+  .fj-link__icon {
+    display: inline-flex;
   }
 
   .fj-link:hover,
@@ -44,6 +59,13 @@ const { href, external = false, 'data-demo-state': demoState } = Astro.props;
   .fj-link[data-demo-state='active'] {
     color: var(--fjord-color-link-hover);
     text-decoration-color: currentColor;
+  }
+
+  .fj-link--external:hover,
+  .fj-link--external:focus-visible,
+  .fj-link--external[data-demo-state='hover'],
+  .fj-link--external[data-demo-state='focus'] {
+    background-size: 100% var(--fjord-border-width);
   }
 
   .fj-link:focus-visible,
@@ -58,6 +80,21 @@ const { href, external = false, 'data-demo-state': demoState } = Astro.props;
       transition:
         color var(--fjord-duration-200) var(--fjord-ease-out),
         text-decoration-color var(--fjord-duration-200) var(--fjord-ease-out);
+    }
+
+    .fj-link--external {
+      transition:
+        background-size var(--fjord-duration-200) var(--fjord-ease-out),
+        color var(--fjord-duration-200) var(--fjord-ease-out);
+    }
+
+    .fj-link__icon {
+      transition: transform var(--fjord-duration-200) var(--fjord-ease-out);
+    }
+
+    .fj-link--external:hover .fj-link__icon,
+    .fj-link--external[data-demo-state='hover'] .fj-link__icon {
+      transform: translate(var(--fjord-space-0-5), calc(-1 * var(--fjord-space-0-5)));
     }
   }
 </style>

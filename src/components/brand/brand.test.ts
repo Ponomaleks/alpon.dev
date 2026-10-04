@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { getViteConfig } from 'astro/config';
 import { experimental_AstroContainer as AstroContainer } from 'astro/container';
 import { createServer, type ViteDevServer } from 'vite';
@@ -7,6 +9,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 // Each component is rendered on its own with the Astro container, through a Vite server that
 // carries the Astro plugin (the .astro files are not plain modules).
 
+const dir = fileURLToPath(new URL('./', import.meta.url));
 let server: ViteDevServer;
 let container: AstroContainer;
 
@@ -64,11 +67,18 @@ describe('TerrainMap panel', () => {
 
   it('has the 4 x 4 grid, a dashed route, the pin, its label and the coordinates', async () => {
     const html = markup(await render('TerrainMap'));
-    expect(html).toMatch(/data-grid="4x4"|data-part="grid"/);
-    // 4 x 4 cells are drawn by 3 vertical and 3 horizontal inner lines (25 / 50 / 75 %)
-    const gridLines = html.match(/<line\b[^>]*data-grid-line="[vh]"[^>]*>/g) ?? [];
-    expect(gridLines.filter((l) => l.includes('data-grid-line="v"'))).toHaveLength(3);
-    expect(gridLines.filter((l) => l.includes('data-grid-line="h"'))).toHaveLength(3);
+    // 4 x 4 cells, drawn as in the design: one empty span with two gradient layers at 25 % steps
+    expect(html).toMatch(/<span\b[^>]*data-part="grid"[^>]*data-grid="4x4"[^>]*><\/span>/);
+    expect(html).not.toMatch(/<line\b/);
+    const source = readFileSync(`${dir}TerrainMap.astro`, 'utf8');
+    const grid = source.match(/\.terrain__grid\s*\{([^}]*)\}/)?.[1] ?? '';
+    expect(grid.match(/linear-gradient\(/g)).toHaveLength(2);
+    expect(grid).toMatch(/linear-gradient\(\s*90deg,/);
+    expect(grid).toMatch(/background-size:\s*25% 25%/);
+    // the route starts at 30 % of the panel, as in the design, with no offset workaround
+    const trail = source.match(/\.terrain__trail\s*\{([^}]*)\}/)?.[1] ?? '';
+    expect(trail).toMatch(/left:\s*30%/);
+    expect(trail).not.toMatch(/translate|right:/);
     // the frame holds a generated contour map (one long path), as in the design
     expect(html).toMatch(/data-part="relief"[^>]*\sd="M[^"]{5000,}"/);
     expect(html).toMatch(/data-part="route"[^>]*stroke-dasharray="4 5"/);

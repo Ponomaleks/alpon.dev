@@ -201,6 +201,13 @@ describe('Header: built CSS', () => {
     expect(css).toMatch(/:has\(\s*\[data-shell-bar\]:not\(\[inert\]\)/);
   });
 
+  it('marks the current link with the inset line of the design, not a border', () => {
+    const marker =
+      css.match(/\.header__nav[^{},]*\[aria-current=["']?page["']?\][^{},]*\{([^}]*)\}/)?.[1] ?? '';
+    expect(marker).toMatch(/box-shadow:\s*inset 0 calc\([^;]*var\(--fjord-border-width\)[^;]*\) 0/);
+    expect(marker).not.toMatch(/border-(block-end|bottom)\s*:/);
+  });
+
   it('styles the scroll border from data-scrolled (AC-03)', () => {
     expect(css).toMatch(/\[data-scrolled\]/);
   });

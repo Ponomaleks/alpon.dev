@@ -258,12 +258,63 @@ describe('interactive states in the built CSS', () => {
     );
   });
 
-  it('no hover, focus-demo or active rule moves anything with transform', () => {
+  it('hover and pressed never move the control itself: only the arrow and the link icon nudge', () => {
     const stateRules = rules().filter(([sel]) =>
       /:hover|:active|\[data-demo-state=(hover|active)\]/.test(sel),
     );
     expect(stateRules.length).toBeGreaterThan(0);
-    for (const [sel, body] of stateRules) expect(`${sel} { ${body} }`).not.toMatch(/transform\s*:/);
+    for (const [sel, body] of stateRules) {
+      if (!/transform\s*:/.test(body)) continue;
+      for (const part of sel.split(','))
+        expect(part.trim(), `${sel} { ${body} }`).toMatch(/\s\.(fj-btn__arrow|fj-link__icon)$/);
+    }
+    const pressed = stateRules.filter(([sel]) => /:active|\[data-demo-state=active\]/.test(sel));
+    for (const [sel, body] of pressed) expect(`${sel} { ${body} }`).not.toMatch(/transform\s*:/);
+  });
+
+  it('the button arrow nudges with transform, as in the design, on hover and keyboard focus', () => {
+    const nudge = rules().find(([sel]) => sel.includes('.fj-btn:hover .fj-btn__arrow'));
+    expect(nudge?.[0]).toContain('.fj-btn:focus-visible .fj-btn__arrow');
+    // The build may shorten translateX(x) to translate(x).
+    expect(nudge?.[1]).toMatch(/transform:\s*translateX?\(var\(--fjord-space-0-5\)\)/);
+    const arrow = rules().filter(([sel]) => sel.includes('.fj-btn__arrow'));
+    for (const [sel, body] of arrow) expect(`${sel} { ${body} }`).not.toMatch(/\bleft\s*:/);
+    expect(arrow.map(([, b]) => b).join(';')).toMatch(
+      /transition:\s*transform var\(--fjord-duration-200\) var\(--fjord-ease-out\)/,
+    );
+    const off = rules().find(([sel]) => sel.includes('[aria-disabled=true] .fj-btn__arrow'));
+    expect(off?.[1]).toMatch(/transform:\s*none/);
+  });
+
+  it('the external link draws its underline on hover and nudges its icon up and right', () => {
+    const base = rules().find(([sel]) => sel === '.fj-link--external');
+    expect(base?.[1]).toMatch(/text-decoration:\s*none/);
+    expect(base?.[1]).toMatch(/linear-gradient\(currentcolor,\s*currentcolor\)/i);
+    const grown = rules().find(([sel]) => sel.includes('.fj-link--external:hover'));
+    expect(grown?.[0]).toContain('.fj-link--external:focus-visible');
+    expect(grown?.[1]).toMatch(/background-size:\s*100% /);
+    const nudge = rules().find(([sel]) => sel.includes('.fj-link--external:hover .fj-link__icon'));
+    expect(nudge?.[1]).toMatch(
+      /transform:\s*translate\(var\(--fjord-space-0-5\),\s*calc\([^;]*var\(--fjord-space-0-5\)[^;]*\)\)/,
+    );
+  });
+
+  it('the link underline follows the design: offset in em, colour mixed from the text colour', () => {
+    const link = rules().find(([sel]) => sel === '.fj-link');
+    expect(link?.[1]).toMatch(/text-underline-offset:\s*0?\.22em/);
+    expect(link?.[1]).toMatch(/text-decoration-color:\s*color-mix\(in srgb,\s*currentcolor 45%/i);
+  });
+
+  it('nothing moves outside a no-preference guard (AC-28)', () => {
+    const guarded =
+      /@media[^{]*prefers-reduced-motion:\s*no-preference[^{]*\{(?:[^{}]*\{[^{}]*\})*\s*\}/g;
+    expect(css).toMatch(guarded);
+    const outside = css.replace(guarded, '');
+    const moving = [...outside.matchAll(/([^{}]+)\{([^{}]*)\}/g)].filter(
+      ([, sel = '', body = '']) =>
+        /\.fj-(btn|iconbtn|link)/.test(sel) && /transform\s*:|transition\s*:/.test(body),
+    );
+    expect(moving.map(([rule]) => rule)).toEqual([]);
   });
 
   it('keyboard focus shows the Fjord ring', () => {

@@ -203,6 +203,22 @@ describe('Footer (AC-14)', () => {
   });
 });
 
+describe('SkipLink and footer links (design form)', () => {
+  it('hides the skip link above the page with top, as the design does, and shows it on focus', () => {
+    const [base = ''] = bodiesOf('skip-link');
+    expect(base).toMatch(/top:\s*calc\([^;]*var\(--fjord-space-16\)[^;]*\)/);
+    expect(bodiesOf('skip-link').join(';')).not.toMatch(/(?<![-\w])translate\s*:/);
+    const shown = css.match(/\.skip-link[^{},]*:focus-visible\{([^}]*)\}/)?.[1] ?? '';
+    expect(shown).toMatch(/top:\s*var\(--fjord-space-3\)/);
+    expect(shown).toMatch(/outline:[^;]*var\(--fjord-color-focus-ring\)/);
+  });
+
+  it('offsets the footer link underline by 0.2em, as the design does', () => {
+    const hover = css.match(/\.fj-footer__col[^{},]*a[^{},]*:hover\{([^}]*)\}/)?.[1] ?? '';
+    expect(hover).toMatch(/text-underline-offset:\s*0?\.2em/);
+  });
+});
+
 describe('measures (design ch widths, written with the measure tokens)', () => {
   const measured = /max-width:\s*(?:calc\()?var\(--fjord-measure-narrow\)/;
 

@@ -331,7 +331,8 @@ const stateLabel = { hover: 'Hover', focus: 'Focus', active: 'Pressed' } as cons
     position: relative;
     overflow: hidden;
     inline-size: 100%;
-    max-inline-size: calc(var(--fjord-space-24) * 4);
+    /* The phone width of the page design (screens.md SCR-04). */
+    max-inline-size: 390px;
     block-size: calc(var(--fjord-space-32) * 5);
     border: var(--fjord-border-width) solid var(--fjord-color-border);
   }

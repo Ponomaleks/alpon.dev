@@ -29,20 +29,7 @@ const relief =
         vector-effect="non-scaling-stroke"
       ></path>
     </svg>
-    <svg
-      class="terrain__grid"
-      data-part="grid"
-      data-grid="4x4"
-      aria-hidden="true"
-      focusable="false"
-    >
-      <line data-grid-line="v" x1="25%" y1="0" x2="25%" y2="100%"></line>
-      <line data-grid-line="v" x1="50%" y1="0" x2="50%" y2="100%"></line>
-      <line data-grid-line="v" x1="75%" y1="0" x2="75%" y2="100%"></line>
-      <line data-grid-line="h" x1="0" y1="25%" x2="100%" y2="25%"></line>
-      <line data-grid-line="h" x1="0" y1="50%" x2="100%" y2="50%"></line>
-      <line data-grid-line="h" x1="0" y1="75%" x2="100%" y2="75%"></line>
-    </svg>
+    <span class="terrain__grid" data-part="grid" data-grid="4x4"></span>
     <span class="terrain__coord">59.91° N · 10.75° E</span>
   </div>
   <svg
@@ -82,8 +69,7 @@ const relief =
     background-color: var(--fjord-color-bg-sunken);
     color: var(--fjord-color-contour-line);
   }
-  .terrain__map,
-  .terrain__grid {
+  .terrain__map {
     position: absolute;
     inset: 0;
     display: block;
@@ -91,8 +77,19 @@ const relief =
     height: 100%;
   }
   .terrain__grid {
-    stroke: var(--fjord-color-border);
-    stroke-width: var(--fjord-border-width);
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(
+        var(--fjord-color-border) var(--fjord-border-width),
+        transparent var(--fjord-border-width)
+      ),
+      linear-gradient(
+        90deg,
+        var(--fjord-color-border) var(--fjord-border-width),
+        transparent var(--fjord-border-width)
+      );
+    background-size: 25% 25%;
     opacity: var(--fjord-opacity-muted);
     pointer-events: none;
   }
@@ -108,11 +105,10 @@ const relief =
   }
   .terrain__trail {
     position: absolute;
-    right: 0;
+    left: 30%;
     top: var(--fjord-space-2);
     width: calc(70% + var(--fjord-space-2));
     height: 60%;
-    translate: var(--fjord-space-2);
     color: var(--fjord-color-border-strong);
     overflow: visible;
   }

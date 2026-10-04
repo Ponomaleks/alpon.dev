@@ -178,6 +178,11 @@ describe('Shell samples (AC-21, SCR-04)', () => {
 });
 
 describe('src/pages/styleguide.astro', () => {
+  it('frames the phone samples at the 390 width of the page design', () => {
+    const source = readFileSync(join(repo, 'src/pages/styleguide.astro'), 'utf8');
+    expect(source).toMatch(/\.sg__phone\s*\{[^}]*max-inline-size:\s*390px/);
+  });
+
   it('has zero Stylelint findings', async () => {
     const { results } = await stylelint.lint({
       files: join(repo, 'src/pages/styleguide.astro'),

@@ -44,6 +44,7 @@ const { kind = 'availability', status, label, detail } = Astro.props;
     white-space: nowrap;
   }
   .badge__dot {
+    position: relative;
     width: var(--fjord-space-2);
     height: var(--fjord-space-2);
     flex: none;
@@ -51,9 +52,13 @@ const { kind = 'availability', status, label, detail } = Astro.props;
     background-color: currentColor;
     color: var(--fjord-color-success);
   }
-  .badge[data-status='open'] .badge__dot {
-    outline: var(--fjord-border-width) solid currentColor;
-    outline-offset: var(--fjord-space-0-5);
+  .badge[data-status='open'] .badge__dot::after {
+    content: '';
+    position: absolute;
+    inset: calc(-1 * var(--fjord-space-1));
+    border: var(--fjord-border-width) solid currentColor;
+    border-radius: var(--fjord-radius-round);
+    opacity: var(--fjord-opacity-faint);
   }
   .badge[data-status='talking'] .badge__dot,
   .badge[data-status='progress'] .badge__dot {

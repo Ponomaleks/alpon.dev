@@ -72,6 +72,36 @@ describe('Badge (availability and status variants of one component)', () => {
   });
 });
 
+describe('Badge ring and Toast rise (design form)', () => {
+  const src = (file: string) => readFileSync(`${dir}${file}`, 'utf8');
+
+  it('draws the "open" ring as the design does: a faint bordered ::after around the dot', () => {
+    const ring =
+      src('Badge.astro').match(/\[data-status='open'\] \.badge__dot::after\s*\{([^}]*)\}/)?.[1] ??
+      '';
+    expect(ring).toMatch(/inset:\s*calc\(-1 \* var\(--fjord-space-1\)\)/);
+    expect(ring).toMatch(/border:\s*var\(--fjord-border-width\) solid currentColor/);
+    expect(ring).toMatch(/opacity:\s*var\(--fjord-opacity-faint\)/);
+    expect(src('Badge.astro')).not.toMatch(/outline/);
+  });
+
+  it('the Toast rises with transform by a token distance, and only fades under reduced motion', () => {
+    const toast = src('Toast.astro');
+    const rise = toast.match(/@keyframes toast-in\s*\{([\s\S]*?\})\s*\}/)?.[1] ?? '';
+    expect(rise).toMatch(/transform:\s*translateY\(var\(--fjord-space-2\)\)/);
+    expect(rise).not.toMatch(/margin/);
+    const fade = toast.match(/@keyframes toast-fade\s*\{([\s\S]*?\})\s*\}/)?.[1] ?? '';
+    expect(fade).toMatch(/opacity:\s*0/);
+    expect(fade).not.toMatch(/transform|translate|margin/);
+    expect(toast).toMatch(
+      /prefers-reduced-motion: no-preference\)\s*\{[^@]*animation:\s*toast-in var\(--fjord-duration-320\) var\(--fjord-ease-out\)/,
+    );
+    expect(toast).toMatch(
+      /prefers-reduced-motion: reduce\)\s*\{[^@]*animation:\s*toast-fade var\(--fjord-duration-120\) var\(--fjord-ease-linear\)/,
+    );
+  });
+});
+
 describe('Tag', () => {
   it('renders a single tag with its text', async () => {
     const html = await render('Tag', {}, 'TypeScript');

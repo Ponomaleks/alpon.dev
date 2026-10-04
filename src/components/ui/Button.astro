@@ -140,13 +140,11 @@ const classes = [
   }
 
   .fj-btn__arrow {
-    position: relative;
-    left: 0;
     display: inline-flex;
   }
 
   /* Reduced motion = fades only: colour transitions and the arrow nudge only without it. The
-     nudge moves by offset, not transform, so hover and pressed change colour only. */
+     control itself never moves; hover and pressed change its colours only. */
   @media (prefers-reduced-motion: no-preference) {
     .fj-btn {
       transition:
@@ -156,16 +154,19 @@ const classes = [
     }
 
     .fj-btn__arrow {
-      transition: left var(--fjord-duration-200) var(--fjord-ease-out);
+      transition: transform var(--fjord-duration-200) var(--fjord-ease-out);
     }
 
     .fj-btn:hover .fj-btn__arrow,
-    .fj-btn[data-demo-state='hover'] .fj-btn__arrow {
-      left: var(--fjord-space-0-5);
+    .fj-btn:focus-visible .fj-btn__arrow,
+    .fj-btn[data-demo-state='hover'] .fj-btn__arrow,
+    .fj-btn[data-demo-state='focus'] .fj-btn__arrow {
+      transform: translateX(var(--fjord-space-0-5));
     }
 
+    .fj-btn:disabled .fj-btn__arrow,
     .fj-btn[aria-disabled='true'] .fj-btn__arrow {
-      left: 0;
+      transform: none;
     }
   }
 </style>

@@ -66,18 +66,23 @@ const { sample = false, message, meta, lang } = Astro.props;
     padding-inline: var(--fjord-space-4);
     bottom: var(--fjord-space-6);
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--fjord-space-2);
     pointer-events: none;
   }
 
   .toast-region :global(.toast) {
     pointer-events: auto;
-    animation: toast-in var(--fjord-duration-320) var(--fjord-ease-out);
   }
 
-  /* Hook H-2: a Sticky action bar that is not inert is on screen below 768; lift above it. */
+  /* Hook H-2: a Sticky action bar that is not inert is on screen below 768; keep the design's
+     offset above it. The bar is one button (tap-min) high plus its padding and top border. */
   :global(:root:has([data-shell-bar]:not([inert]))) .toast-region {
-    bottom: var(--fjord-space-24);
+    bottom: calc(
+      var(--fjord-tap-min) + 2 * var(--fjord-space-3) + var(--fjord-border-width) +
+        var(--fjord-space-6)
+    );
   }
 
   @media (min-width: 768px) {
@@ -86,10 +91,36 @@ const { sample = false, message, meta, lang } = Astro.props;
     }
   }
 
+  /* The design's fjord-rise with motion allowed; a fade only when reduced. */
   @keyframes toast-in {
     from {
       opacity: 0;
-      margin-block-start: var(--fjord-reveal-rise);
+      transform: translateY(var(--fjord-space-2));
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes toast-fade {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .toast-region :global(.toast) {
+      animation: toast-in var(--fjord-duration-320) var(--fjord-ease-out);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .toast-region :global(.toast) {
+      animation: toast-fade var(--fjord-duration-120) var(--fjord-ease-linear);
     }
   }
 </style>

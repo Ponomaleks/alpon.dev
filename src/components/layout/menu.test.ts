@@ -207,6 +207,17 @@ describe('MobileMenu: built CSS (G-3, AC-28)', () => {
     for (const arg of translates) expect(arg).toMatch(/var\(--fjord-/);
   });
 
+  it('slides in with transform, as the design sheet does, by a token distance', () => {
+    const slide = cssOnly.match(/@keyframes menu-in\s*\{([^}]*)\}/)?.[1] ?? '';
+    expect(slide).toMatch(/transform:\s*translateY\(calc\([^;]*var\(--fjord-space-2\)/);
+    expect(slide).not.toMatch(/(?<![-\w])translate\s*:/);
+  });
+
+  it('spaces the contact lines as the design does', () => {
+    const contacts = cssOnly.match(/\.menu__contacts\s*\{([^}]*)\}/)?.[1] ?? '';
+    expect(contacts).toMatch(/gap:\s*var\(--fjord-space-1-5\)/);
+  });
+
   it('moves only inside a no-preference or a reduced-motion guard', () => {
     expect(css).toMatch(/dialog\[open\]|\.menu\[open\]|\[open\]/);
     expect(css).toMatch(/prefers-reduced-motion/);

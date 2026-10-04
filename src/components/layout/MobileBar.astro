@@ -82,12 +82,12 @@ const { cvHref, contactHref, sample = false } = Astro.props;
 
   @media (prefers-reduced-motion: no-preference) {
     .mobile-bar {
-      transition: translate var(--fjord-duration-320) var(--fjord-ease-out);
+      transition: transform var(--fjord-duration-320) var(--fjord-ease-out);
     }
   }
 
   .mobile-bar[inert] {
-    translate: 0 100%;
+    transform: translateY(calc(100% + var(--fjord-space-2)));
   }
 
   @media (min-width: 768px) {

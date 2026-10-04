@@ -123,6 +123,16 @@ describe('MobileBar: layout (design .fj-actionbar)', () => {
     expect(bar()).toMatch(/gap:\s*var\(--fjord-space-2\)/);
     expect(source()).not.toMatch(/flex:\s*1 1 0/);
   });
+
+  it('slides away with transform, as in the design, under a no-preference guard', () => {
+    expect(source()).toMatch(
+      /\.mobile-bar\[inert\]\s*\{\s*transform:\s*translateY\(calc\(100% \+ var\(--fjord-space-2\)\)\)/,
+    );
+    expect(source()).toMatch(
+      /prefers-reduced-motion: no-preference\)\s*\{\s*\.mobile-bar\s*\{\s*transition:\s*transform var\(--fjord-duration-320\) var\(--fjord-ease-out\)/,
+    );
+    expect(source()).not.toMatch(/(?<![-\w])translate\s*:/);
+  });
 });
 
 describe('MobileBar: sample', () => {

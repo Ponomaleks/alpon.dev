@@ -16,9 +16,8 @@ const { sample = false } = Astro.props;
 <style>
   .skip-link {
     position: fixed;
-    inset-inline-start: var(--fjord-space-3);
-    inset-block-start: var(--fjord-space-3);
-    translate: 0 calc(-1 * var(--fjord-space-20));
+    left: var(--fjord-space-3);
+    top: calc(-1 * var(--fjord-space-16));
     z-index: var(--fjord-z-skip);
     padding: var(--fjord-space-3) var(--fjord-space-4);
     border-radius: var(--fjord-radius-md);
@@ -32,19 +31,18 @@ const { sample = false } = Astro.props;
 
   .skip-link[data-sample] {
     position: static;
-    translate: 0 0;
     display: inline-block;
   }
 
   .skip-link:focus-visible {
-    translate: 0 0;
+    top: var(--fjord-space-3);
     outline: var(--fjord-focus-width) solid var(--fjord-color-focus-ring);
     outline-offset: var(--fjord-focus-offset);
   }
 
   @media (prefers-reduced-motion: no-preference) {
     .skip-link {
-      transition: translate var(--fjord-duration-200) var(--fjord-ease-out);
+      transition: top var(--fjord-duration-200) var(--fjord-ease-out);
     }
   }
 </style>
