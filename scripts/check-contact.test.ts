@@ -25,6 +25,25 @@ describe('contact.ts against the vCard (AC-15)', () => {
     expect(problems.join('\n')).toContain(field);
   });
 
+  it('passes Oslo, Norge against ADR locality Oslo', () => {
+    const only = 'ADR;TYPE=WORK:;;;Oslo;;;Norway';
+    const problems = checkContact({ ...contact, workRegion: 'Oslo, Norge' }, only, TODAY);
+    expect(problems.join('\n')).not.toContain('workRegion');
+  });
+
+  it('fails and names workRegion with both values when the ADR locality differs', () => {
+    const other = vcf.replace('ADR;TYPE=WORK:;;;Oslo;;;Norway', 'ADR;TYPE=WORK:;;;Bergen;;;Norway');
+    const msg = checkContact(contact, other, TODAY).join('\n');
+    expect(msg).toContain('workRegion');
+    expect(msg).toContain('Oslo');
+    expect(msg).toContain('Bergen');
+  });
+
+  it('reports workRegion when the vCard has no ADR line', () => {
+    const none = vcf.replace(/^ADR.*\r?\n/m, '');
+    expect(checkContact(contact, none, TODAY).join('\n')).toContain('workRegion');
+  });
+
   it('keeps the residence coordinates at two decimals at most', () => {
     const decimals = (n: number) => (String(n).split('.')[1] ?? '').length;
     expect(decimals(contact.residence.lat)).toBeLessThanOrEqual(2);

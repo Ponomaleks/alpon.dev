@@ -6,7 +6,10 @@
 import { readFileSync } from 'node:fs';
 import { contact, type Contact } from '../src/data/contact.ts';
 
-type Fields = Pick<Contact, 'email' | 'phone' | 'linkedin' | 'github' | 'lastUpdated'>;
+type Fields = Pick<
+  Contact,
+  'email' | 'phone' | 'linkedin' | 'github' | 'workRegion' | 'lastUpdated'
+>;
 
 /** Values of the vCard lines whose name (with parameters) starts with `prefix`. */
 function vcfValues(vcf: string, prefix: RegExp): string[] {
@@ -30,6 +33,16 @@ export function checkLastUpdated(value: string, today: Date): string[] {
   return [];
 }
 
+/** The locality of workRegion (text before the first comma) against the ADR locality (4th component). */
+function checkWorkRegion(workRegion: string, vcfText: string): string[] {
+  const locality = workRegion.split(',', 1)[0]?.trim() ?? '';
+  const found = vcfValues(vcfText, /^ADR[;:]/i).map((v) => (v.split(';')[3] ?? '').trim());
+  if (found.includes(locality)) return [];
+  return [
+    `workRegion: contact.ts has "${workRegion}" (locality "${locality}"), vCard ADR has ${found.map((f) => `"${f}"`).join(', ') || 'nothing'}`,
+  ];
+}
+
 export function checkContact(c: Fields, vcfText: string, today: Date): string[] {
   const problems: string[] = [];
   const expect = (field: string, value: string, found: string[]) => {
@@ -42,6 +55,7 @@ export function checkContact(c: Fields, vcfText: string, today: Date): string[] 
   expect('phone', c.phone, vcfValues(vcfText, /^TEL[;:]/i));
   expect('linkedin', c.linkedin, vcfValues(vcfText, /^item\d+\.URL:/i));
   expect('github', c.github, vcfValues(vcfText, /^item\d+\.URL:/i));
+  problems.push(...checkWorkRegion(c.workRegion, vcfText));
   return [...problems, ...checkLastUpdated(c.lastUpdated, today)];
 }
 
