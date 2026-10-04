@@ -15,6 +15,8 @@ afterAll(() => site?.cleanup());
 
 const html = () => readFileSync(join(site.out, '404.html'), 'utf8');
 const body = () => html().match(/<body[^>]*>([\s\S]*)<\/body>/)?.[1] ?? '';
+// The Shell (header, footer, bar) has its own links; the page's content is what is inside main.
+const content = () => body().match(/<main\b[^>]*>([\s\S]*?)<\/main>/)?.[1] ?? '';
 const text = () =>
   body()
     .replace(/<svg[\s\S]*?<\/svg>/g, '')
@@ -23,6 +25,13 @@ const text = () =>
     .trim();
 const css = () =>
   [...html().matchAll(/<link rel="stylesheet" href="([^"]+)"/g)]
+    .map(([, href]) => readFileSync(join(site.out, href ?? ''), 'utf8'))
+    .join('\n');
+
+// The page's own stylesheet (Astro names it after the page); the Shell bundle has its own
+// motion (Toast) and is not the ridge's or the page content's.
+const pageCss = () =>
+  [...html().matchAll(/<link rel="stylesheet" href="([^"]*\/404\.[^"/]+\.css)"/g)]
     .map(([, href]) => readFileSync(join(site.out, href ?? ''), 'utf8'))
     .join('\n');
 
@@ -39,8 +48,8 @@ describe('built 404.html (SCR-02)', () => {
     expect(body().match(/<h1\b/g)).toHaveLength(1);
   });
 
-  it('offers exactly one action, "Back to home", linking to /', () => {
-    const links = [...body().matchAll(/<a\b([^>]*)>([\s\S]*?)<\/a>/g)];
+  it('offers exactly one action inside main, "Back to home", linking to /', () => {
+    const links = [...content().matchAll(/<a\b([^>]*)>([\s\S]*?)<\/a>/g)];
     expect(links).toHaveLength(1);
     expect(links[0]?.[1]).toMatch(/href="\/"/);
     expect(
@@ -54,6 +63,7 @@ describe('built 404.html (SCR-02)', () => {
   it('never offers "See projects" or a projects path (AC-08)', () => {
     expect(text()).not.toMatch(/see projects/i);
     expect(body()).not.toMatch(/href="\/projects/);
+    expect(content()).not.toMatch(/href="\/projects/);
   });
 
   it('asks search engines not to index it', () => {
@@ -69,12 +79,13 @@ describe('built 404.html (SCR-02)', () => {
     expect(ridge).toContain('aria-hidden="true"');
     expect(ridge).toContain('focusable="false"');
     expect(css()).toMatch(/stroke:\s*var\(--fjord-color-contour-line\)/);
-    // The base.css reduced-motion guard sets animation-iteration-count; nothing animates.
-    expect(css()).not.toMatch(/@keyframes|animation(-name)?\s*:/);
+    // The base.css reduced-motion guard sets animation-iteration-count; nothing on the page animates.
+    expect(pageCss()).toMatch(/\.ridge/);
+    expect(pageCss()).not.toMatch(/@keyframes|animation(-name)?\s*:/);
   });
 
   it('draws the arrow as a hidden currentColor line icon sized and stroked from icon tokens', () => {
-    const arrow = body().match(/<a\b[\s\S]*?(<svg\b[^>]*>)/)?.[1] ?? '';
+    const arrow = content().match(/<a\b[\s\S]*?(<svg\b[^>]*>)/)?.[1] ?? '';
     expect(arrow).toContain('aria-hidden="true"');
     expect(arrow).toContain('stroke="currentColor"');
     // No literal size or stroke in the markup, where Stylelint cannot see it (review F-14).

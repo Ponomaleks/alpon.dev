@@ -5,15 +5,41 @@
 import stylesheet from '../styles/global.css?url';
 import themeBootstrapSource from '../scripts/theme-bootstrap.js?raw';
 import { normaliseNewlines } from '../scripts/newlines.ts';
+import { contact } from '../data/contact';
+import SkipLink from '../components/layout/SkipLink.astro';
+import Header from '../components/layout/Header.astro';
+import MobileMenu from '../components/layout/MobileMenu.astro';
+import CtaBand from '../components/layout/CtaBand.astro';
+import Footer from '../components/layout/Footer.astro';
+import MobileBar from '../components/layout/MobileBar.astro';
+import Toast from '../components/ui/Toast.astro';
 
 interface Props {
   title: string;
   description: string;
   lang?: 'en' | 'no';
   noindex?: boolean;
+  // Page options (base-components sad §5): every one is optional and has a default.
+  current?: 'cv' | 'contact';
+  headerVariant?: 'default' | 'on-spruce';
+  headerCta?: 'auto' | 'secondary';
+  mobileBar?: boolean;
+  ctaBand?: boolean;
+  cvLang?: 'en' | 'no';
 }
 
-const { title, description, lang = 'en', noindex = false } = Astro.props;
+const {
+  title,
+  description,
+  lang = 'en',
+  noindex = false,
+  current,
+  headerVariant = 'default',
+  headerCta = 'auto',
+  mobileBar = true,
+  ctaBand = true,
+  cvLang = 'en',
+} = Astro.props;
 // The same LF text the CSP integration hashes (ADR-0002).
 const themeBootstrap = normaliseNewlines(themeBootstrapSource);
 ---
@@ -46,6 +72,19 @@ const themeBootstrap = normaliseNewlines(themeBootstrapSource);
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   </head>
   <body>
-    <slot />
+    <SkipLink />
+    <Header
+      current={current}
+      variant={headerVariant === 'on-spruce' ? 'on-spruce' : undefined}
+      cta={headerCta}
+    />
+    <MobileMenu current={current} />
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    {ctaBand && <CtaBand cvLang={cvLang} />}
+    <Footer />
+    {mobileBar && <MobileBar cvHref={contact.links.cv} contactHref={contact.links.contact} />}
+    <Toast />
   </body>
 </html>

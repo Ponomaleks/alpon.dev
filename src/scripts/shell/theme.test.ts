@@ -15,7 +15,7 @@ type Button = {
 
 function button(theme: string, opts: { sample?: boolean; inDialog?: boolean } = {}): Button {
   const attrs: Record<string, string> = {};
-  const dataset: Record<string, string> = { theme };
+  const dataset: Record<string, string> = { themeValue: theme };
   return {
     dataset,
     attrs,

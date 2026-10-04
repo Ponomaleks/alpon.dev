@@ -38,11 +38,20 @@ for (const path of ['/', '/does-not-exist']) {
   });
 }
 
-test('home requests only the two critical files', async ({ page }) => {
+// The Shell uses Schibsted Grotesk 500 (navigation) and JetBrains Mono 400 and 500 (labels).
+const SHELL_FACES = [
+  '/fonts/jetbrains-mono-400.woff2',
+  '/fonts/jetbrains-mono-500.woff2',
+  '/fonts/schibsted-grotesk-500.woff2',
+];
+
+test('home requests the two critical files and only the weights the Shell uses', async ({
+  page,
+}) => {
   const requested = trackFonts(page);
   await page.goto('/');
   await page.evaluate(() => document.fonts.ready);
-  expect([...new Set(requested)].sort()).toEqual(CRITICAL);
+  expect([...new Set(requested)].sort()).toEqual([...CRITICAL, ...SHELL_FACES].sort());
 });
 
 test('a weight is fetched only once the page uses it', async ({ page }) => {

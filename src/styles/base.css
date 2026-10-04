@@ -94,3 +94,23 @@ pre {
 :root:not([data-theme]) [data-needs-script] {
   display: none;
 }
+
+/* Sticky action bar clearance (AC-07, hook H-2): below 768 a page that has the bar keeps its last
+   lines and any focused element clear of it; from 768 the bar is hidden and the reserve is reset. */
+:root:has([data-shell-bar]) {
+  scroll-padding-bottom: var(--fjord-space-24);
+}
+
+:root:has([data-shell-bar]) body {
+  padding-bottom: var(--fjord-space-24);
+}
+
+@media (min-width: 768px) {
+  :root:has([data-shell-bar]) {
+    scroll-padding-bottom: 0;
+  }
+
+  :root:has([data-shell-bar]) body {
+    padding-bottom: 0;
+  }
+}

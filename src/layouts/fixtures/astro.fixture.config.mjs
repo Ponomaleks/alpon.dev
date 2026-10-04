@@ -24,6 +24,10 @@ export default {
             pattern: '/fixture-no',
             entrypoint: new URL('./NorwegianPage.astro', import.meta.url),
           });
+          injectRoute({
+            pattern: '/fixture-opt/[name]',
+            entrypoint: new URL('./OptionsPage.astro', import.meta.url),
+          });
         },
       },
     },

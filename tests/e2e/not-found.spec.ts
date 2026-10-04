@@ -7,7 +7,7 @@ test.describe('Not-found page', () => {
     const response = await page.goto('/this/does-not-exist');
     expect(response?.status()).toBe(404);
     await expect(page.locator('.code')).toHaveText('404 · Ikke funnet');
-    await expect(page.locator('[lang="no"]')).toHaveText('Ikke funnet');
+    await expect(page.locator('main [lang="no"]')).toHaveText('Ikke funnet');
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Page not found');
     await expect(page.locator('main p')).toHaveText(
       'This page is off the map. The link may be old, or the page has moved.',
@@ -17,7 +17,7 @@ test.describe('Not-found page', () => {
 
   test('"Back to home" is the only action and leads home (AC-08)', async ({ page }) => {
     await page.goto('/does-not-exist');
-    const links = page.getByRole('link');
+    const links = page.locator('main').getByRole('link');
     await expect(links).toHaveCount(1);
     await expect(links).toHaveAttribute('href', '/');
     await expect(links).toHaveAccessibleName('Back to home');
@@ -58,8 +58,11 @@ for (const width of [390, 1440]) {
 
     test('shows its whole keyboard focus ring: no ancestor clips it', async ({ page }) => {
       await page.goto('/does-not-exist');
+      // The skip link now comes first in the tab order; reach the link by keyboard, then focus it
+      // so the ring is the :focus-visible one.
       await page.keyboard.press('Tab');
       const link = page.getByRole('link', { name: 'Back to home' });
+      await link.focus();
       await expect(link).toBeFocused();
       const clippedBy = await link.evaluate((element) => {
         const style = getComputedStyle(element);
@@ -118,8 +121,9 @@ test.describe('reduced motion', () => {
     }) => {
       await page.goto(path);
       for (const link of await page.getByRole('link').all()) {
-        await link.hover();
+        // Focus first: the skip link is off screen until it has focus and cannot be hovered.
         await link.focus();
+        await link.hover();
       }
       expect(await page.evaluate(() => document.getAnimations().length)).toBe(0);
       expect(await movingTransitions(page)).toEqual([]);

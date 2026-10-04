@@ -32,7 +32,7 @@ export function isTheme(value: unknown): value is Theme {
 export function syncPressed(theme: Theme, doc: Pick<ThemeDocument, 'querySelectorAll'>): void {
   for (const button of doc.querySelectorAll('[data-theme-button]')) {
     if (button.closest('[data-sample]')) continue;
-    button.setAttribute('aria-pressed', String(button.dataset.theme === theme));
+    button.setAttribute('aria-pressed', String(button.dataset.themeValue === theme));
   }
 }
 
