@@ -1,0 +1,273 @@
+---
+// SCR-04 Styleguide (base-components screens.md): an Owner page, noindex, linked from nowhere and
+// not in the sitemap (AC-22). The real Header and Footer come from BaseLayout; everything else is a
+// static sample inside one section, with forced states (data-demo-state) and `disabled` (AC-21).
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Button from '../components/ui/Button.astro';
+import Link from '../components/ui/Link.astro';
+import IconButton from '../components/ui/IconButton.astro';
+import Icon, { type IconName } from '../components/ui/Icon.astro';
+import Badge from '../components/ui/Badge.astro';
+import Tag from '../components/ui/Tag.astro';
+import Stat from '../components/ui/Stat.astro';
+import SectionHeader from '../components/ui/SectionHeader.astro';
+import Toast from '../components/ui/Toast.astro';
+import Contours from '../components/brand/Contours.astro';
+import TerrainMap from '../components/brand/TerrainMap.astro';
+import Wordmark from '../components/brand/Wordmark.astro';
+
+const iconNames: IconName[] = [
+  'arrow-right',
+  'arrow-up-right',
+  'menu',
+  'x',
+  'file-text',
+  'map-pin',
+];
+const states = ['hover', 'focus', 'active'] as const;
+const stateLabel = { hover: 'Hover', focus: 'Focus', active: 'Pressed' } as const;
+---
+
+<BaseLayout
+  title="Styleguide · alpon.dev"
+  description="Base components of alpon.dev in every state."
+  noindex
+  mobileBar={false}
+  ctaBand={false}
+>
+  <div class="sg">
+    <h1>Styleguide</h1>
+
+    <section data-section="Button" class="sg__section">
+      <h2>Button</h2>
+      <div class="sg__row">
+        <Button arrow>Primary</Button>
+        {states.map((s) => (
+          <Button arrow data-demo-state={s}>
+            {stateLabel[s]}
+          </Button>
+        ))}
+        <Button arrow disabled>
+          Disabled
+        </Button>
+      </div>
+      <div class="sg__row">
+        <Button variant="secondary">Secondary</Button>
+        {states.map((s) => (
+          <Button variant="secondary" data-demo-state={s}>
+            {stateLabel[s]}
+          </Button>
+        ))}
+        <Button variant="secondary" disabled>
+          Disabled
+        </Button>
+      </div>
+      <div class="sg__row">
+        <Button size="lg" arrow>
+          Large
+        </Button>
+        <Button icon="file-text" variant="secondary">
+          With icon
+        </Button>
+        <Button href="/" variant="secondary">
+          As link
+        </Button>
+      </div>
+      <div class="sg__block">
+        <Button block size="lg" arrow>
+          Block
+        </Button>
+      </div>
+    </section>
+
+    <section data-section="Link" class="sg__section">
+      <h2>Link</h2>
+      <div class="sg__row">
+        <Link href="/">Default</Link>
+        {states.map((s) => (
+          <Link href="/" data-demo-state={s}>
+            {stateLabel[s]}
+          </Link>
+        ))}
+        <Link href="https://github.com/" external>
+          GitHub
+        </Link>
+      </div>
+    </section>
+
+    <section data-section="IconButton" class="sg__section">
+      <h2>IconButton</h2>
+      <div class="sg__row">
+        <IconButton icon="menu" label="Menu" />
+        {states.map((s) => (
+          <IconButton icon="menu" label={`Menu, ${stateLabel[s]}`} data-demo-state={s} />
+        ))}
+        <IconButton icon="menu" label="Menu, disabled" disabled />
+      </div>
+    </section>
+
+    <section data-section="Icon" class="sg__section">
+      <h2>Icon</h2>
+      <ul class="sg__row sg__icons">
+        {iconNames.map((name) => (
+          <li>
+            <Icon name={name} />
+            <code>{name}</code>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <section data-section="Badge" class="sg__section">
+      <h2>Badge</h2>
+      <div class="sg__row">
+        <Badge status="open" label="Open to work" detail="Oslo area" />
+        <Badge status="talking" label="In talks" />
+        <Badge status="employed" label="Employed" />
+      </div>
+      <div class="sg__row">
+        <Badge kind="status" status="live" label="Live" />
+        <Badge kind="status" status="progress" label="In progress" />
+        <Badge kind="status" status="archived" label="Archived" />
+      </div>
+    </section>
+
+    <section data-section="Tag" class="sg__section">
+      <h2>Tag</h2>
+      <div class="sg__row">
+        <Tag>TypeScript</Tag>
+      </div>
+      <Tag items={['Astro', 'TypeScript', 'Node.js', 'PostgreSQL', 'Playwright', 'Cloudflare']} />
+      <Tag plain items={['Astro', 'TypeScript', 'Node.js']} />
+    </section>
+
+    <section data-section="Stat" class="sg__section">
+      <h2>Stat</h2>
+      <Stat
+        items={[
+          { value: '[placeholder]', label: 'Years of experience' },
+          { value: '[placeholder]', label: 'Projects shipped' },
+        ]}
+      />
+    </section>
+
+    <section data-section="SectionHeader" class="sg__section">
+      <h2>SectionHeader</h2>
+      <SectionHeader
+        as="h3"
+        size="lg"
+        index="01"
+        eyebrow="Work"
+        title="Large with eyebrow and lead"
+        lead="A short lead under the heading."
+      />
+      <SectionHeader as="h3" size="md" title="Medium, no eyebrow" />
+      <SectionHeader as="h3" size="sm" index="02" eyebrow="About" title="Small with eyebrow" />
+    </section>
+
+    <section data-section="Toast" class="sg__section">
+      <h2>Toast</h2>
+      <div class="sg__row">
+        <Toast sample message="Kopiert" meta="alpon@example.com" lang="no" />
+        <span data-needs-script id="sg-show-toast">
+          <Button variant="secondary">Show toast</Button>
+        </span>
+      </div>
+    </section>
+
+    <section data-section="Contours" class="sg__section">
+      <h2>Contours</h2>
+      <div class="sg__row">
+        <div class="sg__frame">
+          <Contours variant="ridge" />
+        </div>
+        <div class="sg__frame">
+          <Contours variant="corner" />
+        </div>
+      </div>
+    </section>
+
+    <section data-section="Terrain map" class="sg__section">
+      <h2>Terrain map</h2>
+      <div class="sg__map">
+        <TerrainMap />
+      </div>
+    </section>
+
+    <section data-section="Wordmark" class="sg__section">
+      <h2>Wordmark</h2>
+      <div class="sg__row">
+        <Wordmark />
+        <div class="sg__spruce fjord-on-spruce">
+          <Wordmark onSpruce />
+        </div>
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<script>
+  document.getElementById('sg-show-toast')?.addEventListener('click', () => {
+    document.dispatchEvent(
+      new CustomEvent('fjord:toast', {
+        detail: { message: 'Kopiert', meta: 'Sample', lang: 'no' },
+      }),
+    );
+  });
+</script>
+
+<style>
+  .sg {
+    max-width: var(--fjord-content-max);
+    padding: var(--fjord-space-section) var(--fjord-grid-margin);
+  }
+
+  h1 {
+    margin: 0 0 var(--fjord-space-8);
+    font-size: var(--fjord-text-h1);
+  }
+
+  .sg__section {
+    padding-block: var(--fjord-space-8);
+    border-top: var(--fjord-border-width) solid var(--fjord-color-border);
+  }
+
+  h2 {
+    margin: 0 0 var(--fjord-space-6);
+    font-size: var(--fjord-text-h3);
+  }
+
+  .sg__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--fjord-space-4);
+    margin: 0 0 var(--fjord-space-4);
+    padding: 0;
+    list-style: none;
+  }
+
+  .sg__icons li {
+    display: flex;
+    align-items: center;
+    gap: var(--fjord-space-2);
+  }
+
+  .sg__frame {
+    position: relative;
+    overflow: hidden;
+    inline-size: 100%;
+    max-inline-size: var(--fjord-measure-narrow);
+    aspect-ratio: 16 / 10;
+    border: var(--fjord-border-width) solid var(--fjord-color-border);
+  }
+
+  .sg__map {
+    max-inline-size: var(--fjord-measure);
+  }
+
+  .sg__spruce {
+    padding: var(--fjord-space-4) var(--fjord-space-6);
+    background-color: var(--fjord-color-bg);
+  }
+</style>
