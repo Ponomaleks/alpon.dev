@@ -95,6 +95,10 @@ const Root = sample ? 'div' : 'dialog';
     max-block-size: none;
     margin: 0;
     border: 0;
+    /* Scrolls when the viewport is shorter than the content; the foot stays at the bottom otherwise. */
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
   }
 
   dialog.menu[open],

@@ -205,3 +205,56 @@ test.describe('mobile menu at 390', () => {
     await context.close();
   });
 });
+
+// R2 (review S2-02, AC-04, AC-25): the panel scrolls when the viewport is shorter than its
+// content, and keeps the bottom block at the bottom when there is room.
+test.describe('mobile menu scrolling (R2)', () => {
+  test('on a short viewport the Visitor can scroll to "Get in touch" and activate it', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 667, height: 375 });
+    await page.goto('/');
+    await openMenu(page);
+    const dialog = panel(page);
+    const cta = dialog.getByRole('link', { name: 'Get in touch' });
+
+    // A real wheel gesture over the panel, as a Visitor would scroll; no programmatic scroll.
+    await page.mouse.move(333, 200);
+    await page.mouse.wheel(0, 2000);
+    await expect
+      .poll(() => dialog.evaluate((el) => el.scrollTop), {
+        message: 'the dialog should scroll when its content is taller than the viewport',
+      })
+      .toBeGreaterThan(0);
+
+    const box = await cta.boundingBox();
+    if (!box) throw new Error('"Get in touch" has no bounding box');
+    expect(box.y).toBeGreaterThanOrEqual(0);
+    expect(box.y + box.height).toBeLessThanOrEqual(375);
+
+    await cta.click();
+    await expect(page).toHaveURL(/\/#contact$/);
+    await expect(panel(page)).toBeHidden();
+  });
+
+  test('on a tall viewport the bottom block stays at the bottom of the panel', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/');
+    await openMenu(page);
+    const dialog = panel(page);
+    const m = await dialog.evaluate((el) => {
+      const d = el.getBoundingClientRect();
+      const foot = el.querySelector('.menu__foot');
+      if (!foot) throw new Error('.menu__foot is missing');
+      const f = foot.getBoundingClientRect();
+      return {
+        gap: d.bottom - f.bottom,
+        padding: parseFloat(getComputedStyle(el).paddingBottom),
+        scrolls: el.scrollHeight > el.clientHeight + 1,
+      };
+    });
+    expect(m.scrolls).toBe(false);
+    expect(m.gap).toBeGreaterThanOrEqual(0);
+    expect(m.gap).toBeLessThanOrEqual(m.padding + 1);
+  });
+});
