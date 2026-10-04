@@ -26,3 +26,4 @@ Review round 1 ([review-2026-10-04](../_review/review-2026-10-04.md)), S2-04. `d
 ## Notes
 
 - Result: commit a81e636. Chromium under Playwright reloads on Back instead of restoring from the back/forward cache, so the e2e also dispatches a synthetic persisted `pageshow` to exercise the handler in a browser.
+- Accepted as built by the Owner (2026-10-05). A true back/forward cache restore is checked by hand once on the preview deployment: choose Dark on one page, press Back, the earlier page is Natt.

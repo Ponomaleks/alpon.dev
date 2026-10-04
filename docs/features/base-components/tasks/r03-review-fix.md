@@ -27,3 +27,4 @@ Review round 1 ([review-2026-10-04](../_review/review-2026-10-04.md)), S2-03. sc
 ## Notes
 
 - Result: commit 99481a4. `/#contact` had no target on the home placeholder, so `id="contact"` was added to the `.home` wrapper in `src/pages/index.astro` (outside the files hint). Step 4 moves it to the real contact section.
+- Accepted as built by the Owner (2026-10-05).

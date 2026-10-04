@@ -28,3 +28,4 @@ Review round 1 ([review-2026-10-04](../_review/review-2026-10-04.md)), S2-02. `d
 ## Notes
 
 - Result: commit 0c47bd3. No min-height wrapper was added: the dialog is a full-height flex column and the bottom block has `margin-block-start: auto`, which keeps it at the bottom when there is room and lets the dialog scroll when there is not. Both e2e tests (667x375 and 390x844) pass in a browser.
+- Accepted as built by the Owner (2026-10-05).
