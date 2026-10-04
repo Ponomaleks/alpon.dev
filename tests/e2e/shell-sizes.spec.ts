@@ -1,8 +1,9 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 
-// Sizes of the Shell taken from the page design (design system Header, .fj-btn--sm, .fj-seg,
+// Sizes of the Shell that CSS fixes, taken from the page design (design system Header, .fj-btn--sm, .fj-seg,
 // .fj-footer, .fj-band and site.css). Where the design draws a control lower than 44 px, the
 // touch target is kept by an invisible overlay (spec D-08), which shell.spec.ts measures.
+// Nothing here depends on how a font is rendered: text wrapping is left to the visual baselines.
 
 const open = async (page: Page, width: number, path = '/') => {
   await page.setViewportSize({ width, height: 844 });
@@ -14,13 +15,6 @@ const height = async (target: Locator) => {
   if (!box) throw new Error('element has no box');
   return box.height;
 };
-
-const lines = (target: Locator) =>
-  target.evaluate((el) => {
-    const range = document.createRange();
-    range.selectNodeContents(el);
-    return new Set([...range.getClientRects()].map((rect) => Math.round(rect.top))).size;
-  });
 
 test.describe('header at 390', () => {
   test('is 64 high with a 17 px wordmark and a 36 px "Get in touch"', async ({ page }) => {
@@ -69,12 +63,3 @@ test.describe('footer at 390', () => {
     expect(Math.abs(gap)).toBeLessThan(1);
   });
 });
-
-// At 390 and narrower the title cannot fit two lines at its 36 px size (the design's 16ch is wider
-// than the column there), so two lines are required from 414.
-for (const width of [414, 834, 1440]) {
-  test(`the closing band title takes two lines at ${width}`, async ({ page }) => {
-    await open(page, width);
-    expect(await lines(page.locator('.fj-band__title'))).toBe(2);
-  });
-}
