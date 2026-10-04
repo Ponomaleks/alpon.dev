@@ -16,9 +16,11 @@ interface Props {
   sample?: boolean;
   /** Sample only: shows the bordered, scrolled state without a script. */
   scrolled?: boolean;
+  /** Sample only: forces the hover or focus look on the first header link (AC-21). */
+  linkState?: 'hover' | 'focus';
 }
 
-const { current, variant, cta = 'auto', sample = false, scrolled = false } = Astro.props;
+const { current, variant, cta = 'auto', sample = false, scrolled = false, linkState } = Astro.props;
 const links = [
   { key: 'cv', label: 'CV', href: contact.links.cv },
   { key: 'contact', label: 'Contact', href: contact.links.contact },
@@ -37,8 +39,12 @@ const links = [
   <div class="header__in">
     <Wordmark onSpruce={variant === 'on-spruce'} />
     <nav class="header__nav" aria-label="Primary">
-      {links.map((link) => (
-        <a href={link.href} aria-current={current === link.key ? 'page' : undefined}>
+      {links.map((link, i) => (
+        <a
+          href={link.href}
+          aria-current={current === link.key ? 'page' : undefined}
+          data-demo-state={sample && i === 0 ? linkState : undefined}
+        >
           {link.label}
         </a>
       ))}
@@ -155,7 +161,8 @@ const links = [
     border-radius: var(--fjord-radius-sm);
   }
 
-  .header__nav a:hover {
+  .header__nav a:hover,
+  :global(.header__nav a[data-demo-state='hover']) {
     color: var(--fjord-color-text);
   }
 
@@ -165,7 +172,8 @@ const links = [
     box-shadow: inset 0 calc(-1 * var(--fjord-border-width)) 0 var(--fjord-color-text);
   }
 
-  .header__nav a:focus-visible {
+  .header__nav a:focus-visible,
+  :global(.header__nav a[data-demo-state='focus']) {
     outline: var(--fjord-focus-width) solid var(--fjord-color-focus-ring);
     outline-offset: 0;
   }

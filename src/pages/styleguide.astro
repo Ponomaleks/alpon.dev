@@ -239,16 +239,16 @@ const stateLabel = { hover: 'Hover', focus: 'Focus', active: 'Pressed' } as cons
     <section data-section="Theme switch" class="sg__section">
       <h2>Theme switch</h2>
       <div class="sg__row">
-        <ThemeToggle sample="dag" />
-        <ThemeToggle sample="natt" />
+        <ThemeToggle sample="dag" demoState="hover" />
+        <ThemeToggle sample="natt" demoState="focus" />
       </div>
     </section>
 
     <section data-section="Header variants" class="sg__section">
       <h2>Header variants</h2>
       <div class="sg__stack">
-        <Header sample />
-        <Header sample scrolled />
+        <Header sample linkState="hover" />
+        <Header sample scrolled linkState="focus" />
         <Header sample variant="on-spruce" />
         <Header sample cta="secondary" />
         <Header sample current="cv" />

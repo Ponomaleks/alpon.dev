@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import stylelint from 'stylelint';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
@@ -174,6 +174,36 @@ describe('Shell samples (AC-21, SCR-04)', () => {
       'Closing band',
     ])
       expect(section(name)).toContain('data-sample');
+  });
+});
+
+describe('Hover and focus demo states of shell controls (AC-21, SCR-04)', () => {
+  const css = () => {
+    const dir = join(site.out, '_astro');
+    return readdirSync(dir)
+      .filter((f) => f.endsWith('.css'))
+      .map((f) => readFileSync(join(dir, f), 'utf8'))
+      .join('\n');
+  };
+
+  it('shows a hover and a focus theme switch segment sample', () => {
+    const s = section('Theme switch');
+    expect(s).toMatch(/<button\b[^>]*data-demo-state="hover"/);
+    expect(s).toMatch(/<button\b[^>]*data-demo-state="focus"/);
+  });
+
+  it('shows a hover and a focus header link sample', () => {
+    const s = section('Header variants');
+    expect(s).toMatch(/<a\b[^>]*data-demo-state="hover"/);
+    expect(s).toMatch(/<a\b[^>]*data-demo-state="focus"/);
+  });
+
+  it('carries [data-demo-state] selectors for segments and header links in the built CSS', () => {
+    const c = css();
+    expect(c).toMatch(/\.theme-toggle__segment[^{}]*\[data-demo-state=["']?hover["']?\]/);
+    expect(c).toMatch(/\.theme-toggle__segment[^{}]*\[data-demo-state=["']?focus["']?\]/);
+    expect(c).toMatch(/\.header__nav a\[data-demo-state=["']?hover["']?\]/);
+    expect(c).toMatch(/\.header__nav a\[data-demo-state=["']?focus["']?\]/);
   });
 });
 

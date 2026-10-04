@@ -1,12 +1,14 @@
 ---
 // Theme switch: two buttons in a group (AC-10, AC-12). The selected segment is styled from
 // `data-theme` on <html>, so it is right before any script runs. `sample` renders a fixed
-// selection for the styleguide and never reacts (hook H-3).
+// selection for the styleguide and never reacts (hook H-3). `demoState` forces the hover or
+// focus look on the segment that is not selected (sample only, AC-21).
 interface Props {
   sample?: 'dag' | 'natt';
+  demoState?: 'hover' | 'focus';
 }
 
-const { sample } = Astro.props;
+const { sample, demoState } = Astro.props;
 const options = [
   { value: 'dag', label: 'Light' },
   { value: 'natt', label: 'Dark' },
@@ -28,6 +30,7 @@ const options = [
       data-theme-button
       data-theme-value={option.value}
       aria-pressed={sample ? sample === option.value : undefined}
+      data-demo-state={sample && sample !== option.value ? demoState : undefined}
     >
       {option.label}
     </button>
@@ -92,8 +95,15 @@ const options = [
     inset: min(0px, calc((100% - var(--fjord-tap-min)) / 2));
   }
 
-  .theme-toggle__segment:hover {
+  .theme-toggle__segment:hover,
+  .theme-toggle__segment[data-demo-state='hover'] {
     color: var(--fjord-color-text);
+  }
+
+  .theme-toggle__segment:focus-visible,
+  .theme-toggle__segment[data-demo-state='focus'] {
+    outline: var(--fjord-focus-width) solid var(--fjord-color-focus-ring);
+    outline-offset: 0;
   }
 
   /* Selected from the theme itself (live) or from data-selected (sample). */
