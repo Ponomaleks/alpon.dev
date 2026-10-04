@@ -132,7 +132,9 @@ test('the arrow and icon nudges stay still, also on hover and in the hover sampl
 test.describe('with motion allowed', () => {
   test.use({ reducedMotion: 'no-preference' });
 
-  test('the hover samples do nudge, so the reduced-motion check is not vacuous', async ({ page }) => {
+  test('the hover samples do nudge, so the reduced-motion check is not vacuous', async ({
+    page,
+  }) => {
     await page.goto('/styleguide');
     expect((await transforms(page)).some((value) => value !== 'none')).toBe(true);
   });
