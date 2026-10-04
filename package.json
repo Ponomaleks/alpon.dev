@@ -13,10 +13,11 @@
     "preview": "wrangler dev",
     "test": "playwright test",
     "test:unit": "vitest run",
-    "lint": "npm run tokens:check && npm run check:contrast && astro check && eslint . && prettier --check . && stylelint \"src/**/*.{css,astro}\" --allow-empty-input",
+    "lint": "npm run tokens:check && npm run check:contrast && npm run check:contact && astro check && eslint . && prettier --check . && stylelint \"src/**/*.{css,astro}\" --allow-empty-input",
     "tokens:build": "node scripts/tokens/build.ts",
     "tokens:check": "node scripts/tokens/build.ts --check",
     "check:contrast": "node scripts/check-contrast.ts",
+    "check:contact": "node scripts/check-contact.ts",
     "check:budgets": "node scripts/check-budgets.ts",
     "format": "prettier --write .",
     "lhci": "lhci autorun"
