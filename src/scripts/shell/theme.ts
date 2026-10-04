@@ -59,3 +59,26 @@ export function switchTheme(value: unknown, source: ThemeButton, env: ThemeEnv):
     // Storage blocked: the theme still changes for this page (AC-11), no error UI.
   }
 }
+
+/**
+ * A page restored from the back/forward cache does not re-run scripts, so the theme chosen on
+ * another page is re-applied from storage (AC-10, AC-11). Same validation as the head bootstrap.
+ */
+export function restoreStoredTheme(
+  event: { persisted: boolean },
+  env: {
+    document: Pick<ThemeDocument, 'documentElement' | 'querySelectorAll'>;
+    storage: { getItem(key: string): string | null };
+  },
+): void {
+  if (!event.persisted) return;
+  let stored: string | null;
+  try {
+    stored = env.storage.getItem(STORAGE_KEY);
+  } catch {
+    return;
+  }
+  if (!isTheme(stored)) return;
+  env.document.documentElement.dataset.theme = stored;
+  syncPressed(stored, env.document);
+}

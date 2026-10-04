@@ -265,3 +265,75 @@ test.describe('cross-fade with motion allowed (AC-29)', () => {
     await context.close();
   });
 });
+
+// R8 / S2-04: after choosing Dark on another page, Back to a page restored from the
+// back/forward cache must show the stored theme. Pages are parameters so the Shell's other
+// pages are covered without editing this test.
+test.describe('back/forward cache restore (R8)', () => {
+  test.use({ colorScheme: 'light' });
+
+  const PAIRS: ReadonlyArray<readonly [string, string]> = [['/', '/styleguide']];
+
+  for (const [from, to] of PAIRS) {
+    test(`Dark on ${to}, Back to ${from}: ${from} is Natt and both switches agree`, async ({
+      page,
+    }, testInfo) => {
+      const problems = watch(page);
+      await page.setViewportSize({ width: 1440, height: 900 });
+      await page.goto(from);
+      await expect(page.locator('html')).toHaveAttribute('data-theme', 'dag');
+      // Mark the document: a surviving marker after Back proves a bfcache restore, not a reload.
+      await page.evaluate(() => {
+        (window as unknown as { __restored: boolean }).__restored = true;
+        window.addEventListener('pageshow', (e) => {
+          (window as unknown as { __persisted: boolean }).__persisted = e.persisted;
+        });
+      });
+
+      await page.goto(to);
+      await page.getByRole('banner').getByRole('button', { name: 'Dark' }).click();
+      await expect(page.locator('html')).toHaveAttribute('data-theme', 'natt');
+      expect(await page.evaluate(() => localStorage.getItem('fjord-theme'))).toBe('natt');
+
+      await page.goBack();
+      await page.waitForURL((url) => url.pathname.replace(/\/$/, '') === from.replace(/\/$/, ''));
+      const restored = await page.evaluate(
+        () => (window as unknown as { __restored?: boolean }).__restored === true,
+      );
+      testInfo.annotations.push({
+        type: 'bfcache',
+        description: restored
+          ? 'restored from bfcache (document survived)'
+          : 'NOT restored from bfcache (page reloaded); synthetic pageshow used',
+      });
+
+      if (restored) {
+        // Real bfcache restore: the page is stale until the pageshow handler runs.
+        await expect(page.locator('html')).toHaveAttribute('data-theme', 'natt');
+      } else {
+        // Chromium under Playwright did not restore from bfcache: the reload already shows
+        // Natt, so exercise the handler path with a synthetic persisted pageshow instead.
+        await page.evaluate(() => {
+          document.documentElement.dataset.theme = 'dag';
+          for (const b of document.querySelectorAll<HTMLElement>('[data-theme-button]'))
+            b.setAttribute('aria-pressed', String(b.dataset.themeValue === 'dag'));
+          localStorage.setItem('fjord-theme', 'natt');
+          window.dispatchEvent(new PageTransitionEvent('pageshow', { persisted: true }));
+        });
+        await expect(page.locator('html')).toHaveAttribute('data-theme', 'natt');
+      }
+      expect(await pressed(page, 'header')).toEqual(['natt']);
+      expect(await pressed(page, '#mobile-menu')).toEqual(['natt']);
+      expect(problems).toEqual([]);
+    });
+  }
+
+  test('a synthetic non-persisted pageshow leaves the page as it is', async ({ page }) => {
+    await page.goto('/');
+    await page.evaluate(() => {
+      localStorage.setItem('fjord-theme', 'natt');
+      window.dispatchEvent(new PageTransitionEvent('pageshow', { persisted: false }));
+    });
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dag');
+  });
+});

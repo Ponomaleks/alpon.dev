@@ -38,7 +38,7 @@ const options = [
 </div>
 
 <script>
-  import { isTheme, switchTheme, syncPressed } from '../../scripts/shell/theme';
+  import { isTheme, restoreStoredTheme, switchTheme, syncPressed } from '../../scripts/shell/theme';
 
   // `localStorage` is read when a theme is saved, inside the saving try/catch: with storage
   // blocked, reading it throws, and that must not break the page on load (AC-11).
@@ -49,6 +49,9 @@ const options = [
       return localStorage;
     },
   };
+
+  // A page restored from the back/forward cache keeps the old theme: re-apply the stored one.
+  window.addEventListener('pageshow', (event) => restoreStoredTheme(event, env));
 
   // Expose the theme already set on <html> as the pressed segment from load (AC-12).
   const current = document.documentElement.dataset.theme;

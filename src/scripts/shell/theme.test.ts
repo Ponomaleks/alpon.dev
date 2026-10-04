@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it, vi } from 'vitest';
-import { isTheme, switchTheme, syncPressed } from './theme';
+import { isTheme, restoreStoredTheme, switchTheme, syncPressed } from './theme';
 
 // AC-10, AC-11, AC-12, AC-29 (sad §6 critical flow 1, G-6). Pure functions with injected
 // document, storage and media query; the component <script> only wires click events.
@@ -195,5 +195,67 @@ describe('base.css scripts-off gate (AC-11, H-1)', () => {
     expect(css).toMatch(
       /:root:not\(\[data-theme\]\)\s*\[data-needs-script\][^{]*\{[^}]*display:\s*none/,
     );
+  });
+});
+
+// R8 / S2-04: a page restored from the back/forward cache does not re-run scripts, so the
+// pageshow handler re-reads the stored theme. Contract: restoreStoredTheme(event, env) with
+// env = { document, storage: { getItem } }; same validation as the head bootstrap.
+describe('restoreStoredTheme (pageshow from bfcache)', () => {
+  function restoreSetup(storage: { value?: string | null; throws?: boolean }, initial = 'dag') {
+    const dataset: Record<string, string> = { theme: initial };
+    const live = [button('dag'), button('natt'), button('dag'), button('natt')];
+    const sample = [button('dag', { sample: true }), button('natt', { sample: true })];
+    const env = {
+      document: {
+        documentElement: { dataset },
+        querySelectorAll: () => [...live, ...sample],
+      },
+      storage: {
+        getItem: (key: string) => {
+          if (storage.throws) throw new Error('SecurityError: storage blocked');
+          return key === 'fjord-theme' ? (storage.value ?? null) : null;
+        },
+      },
+    };
+    return { env, dataset, live, sample };
+  }
+
+  it('persisted with stored natt: sets data-theme and aria-pressed on every live switch', () => {
+    const { env, dataset, live, sample } = restoreSetup({ value: 'natt' });
+    restoreStoredTheme({ persisted: true }, env as Env);
+    expect(dataset.theme).toBe('natt');
+    expect(live.map((b) => b.attrs['aria-pressed'])).toEqual(['false', 'true', 'false', 'true']);
+    for (const b of sample) expect(b.attrs['aria-pressed']).toBeUndefined();
+  });
+
+  it('persisted with stored dag over a natt page: switches back to dag', () => {
+    const { env, dataset, live } = restoreSetup({ value: 'dag' }, 'natt');
+    restoreStoredTheme({ persisted: true }, env as Env);
+    expect(dataset.theme).toBe('dag');
+    expect(live.map((b) => b.attrs['aria-pressed'])).toEqual(['true', 'false', 'true', 'false']);
+  });
+
+  it('not persisted (a normal load): does nothing', () => {
+    const { env, dataset, live } = restoreSetup({ value: 'natt' });
+    restoreStoredTheme({ persisted: false }, env as Env);
+    expect(dataset.theme).toBe('dag');
+    for (const b of live) expect(b.attrs['aria-pressed']).toBeUndefined();
+  });
+
+  it('an invalid or missing stored value does nothing', () => {
+    for (const value of ['DAG', 'dark', '', ' natt', null]) {
+      const { env, dataset, live } = restoreSetup({ value });
+      restoreStoredTheme({ persisted: true }, env as Env);
+      expect(dataset.theme, String(value)).toBe('dag');
+      for (const b of live) expect(b.attrs['aria-pressed']).toBeUndefined();
+    }
+  });
+
+  it('blocked storage: does nothing and throws nothing', () => {
+    const { env, dataset, live } = restoreSetup({ throws: true });
+    expect(() => restoreStoredTheme({ persisted: true }, env as Env)).not.toThrow();
+    expect(dataset.theme).toBe('dag');
+    for (const b of live) expect(b.attrs['aria-pressed']).toBeUndefined();
   });
 });
