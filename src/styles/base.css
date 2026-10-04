@@ -78,9 +78,12 @@ a:hover {
 
 /* Cross-document page transitions (AC-32, AC-28): progressive enhancement, no client router. The
    page cross-fades with motion tokens; the header has its own name and stays still (Header.astro).
-   Reduced motion turns the transition off entirely, so the new page simply opens. */
-@view-transition {
-  navigation: auto;
+   The opt-in applies only when motion is allowed; reduced motion turns the transition off
+   entirely, so the new page simply opens. */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
 }
 
 ::view-transition-group(root) {
