@@ -65,6 +65,13 @@ describe('TerrainMap panel', () => {
   it('has the 4 x 4 grid, a dashed route, the pin, its label and the coordinates', async () => {
     const html = markup(await render('TerrainMap'));
     expect(html).toMatch(/data-grid="4x4"|data-part="grid"/);
+    // 4 x 4 cells are drawn by 3 vertical and 3 horizontal inner lines (25 / 50 / 75 %)
+    const gridLines = html.match(/<line\b[^>]*data-grid-line="[vh]"[^>]*>/g) ?? [];
+    expect(gridLines.filter((l) => l.includes('data-grid-line="v"'))).toHaveLength(3);
+    expect(gridLines.filter((l) => l.includes('data-grid-line="h"'))).toHaveLength(3);
+    // the frame holds a generated contour map (one long path), as in the design
+    expect(html).toMatch(/data-part="relief"[^>]*\sd="M[^"]{5000,}"/);
+    expect(html).toMatch(/data-part="route"[^>]*stroke-dasharray="4 5"/);
     expect(html).toMatch(/data-part="route"/);
     expect(html).toMatch(/data-part="pin"/);
     expect(html).toContain('You are here');
@@ -79,7 +86,14 @@ describe('Wordmark', () => {
   ])('links to / with an accessible name in the %s variant', async (_n, props) => {
     const html = markup(await render('Wordmark', props));
     expect(html).toMatch(/<a\b[^>]*href="\/"/);
-    expect(text(html)).toContain('alpon.dev');
+    expect(html.replace(/<[^>]+>/g, '')).toContain('alpon.dev');
+  });
+
+  it('keeps "alpon.dev" as one word with ".dev" in its own accent element', async () => {
+    const html = markup(await render('Wordmark'));
+    // tags removed without inserting spaces: the text reads "alpon.dev"
+    expect(html.replace(/<[^>]+>/g, '').replace(/\s+/g, '')).toBe('alpon.dev');
+    expect(html).toMatch(/alpon<span\b[^>]*>\.dev<\/span>/);
   });
 
   it('on spruce differs from the default', async () => {

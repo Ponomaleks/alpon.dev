@@ -1,6 +1,7 @@
 ---
-// The "alpon.dev" wordmark as a link home. `onSpruce` is for placement on the dark spruce
-// surface (footer), where the text takes the inverse colour.
+// The "alpon.dev" wordmark as a link home: "alpon" plus an accent ".dev" (site copy of the
+// design system, Wordmark). `onSpruce` is for placement on the dark spruce surface (footer),
+// where the text takes the inverse colour and the accent a lichen tint.
 interface Props {
   onSpruce?: boolean;
 }
@@ -8,23 +9,39 @@ interface Props {
 const { onSpruce = false } = Astro.props;
 ---
 
-<a class:list={['wordmark', { 'wordmark--on-spruce': onSpruce }]} href="/">
-  alpon.dev
+<a
+  class:list={['wordmark', { 'wordmark--on-spruce': onSpruce }]}
+  href="/"
+  aria-label="alpon.dev, home"
+>
+  alpon<span>.dev</span>
 </a>
 
 <style>
   .wordmark {
     display: inline-flex;
-    align-items: center;
-    min-height: var(--fjord-space-12);
+    align-items: baseline;
     font-family: var(--fjord-font-mono);
     font-size: var(--fjord-text-ui-lg);
-    font-weight: var(--fjord-weight-bold);
+    font-weight: var(--fjord-weight-medium);
+    letter-spacing: var(--fjord-tracking-body);
+    line-height: var(--fjord-leading-none);
     color: var(--fjord-color-text);
     text-decoration: none;
+    white-space: nowrap;
   }
-  .wordmark--on-spruce {
+  .wordmark span {
+    color: var(--fjord-color-link);
+  }
+  .wordmark:hover {
+    color: var(--fjord-color-text);
+  }
+  .wordmark--on-spruce,
+  .wordmark--on-spruce:hover {
     color: var(--fjord-color-text-inverse);
+  }
+  .wordmark--on-spruce span {
+    color: var(--fjord-lichen);
   }
   .wordmark:focus-visible {
     outline: var(--fjord-focus-width) solid var(--fjord-color-focus-ring);
