@@ -21,7 +21,7 @@ Review round 1 ([review-2026-10-04](../_review/review-2026-10-04.md)), S1-01. sc
 - [x] `ThemeToggle.astro` and `Header.astro` carry `[data-demo-state]` selectors beside their `:hover` and `:focus-visible` rules.
 - [x] The Styleguide Theme switch section shows a hover and a focus segment sample; the Header variants section shows a hover and a focus header-link sample.
 - [x] `src/pages/_styleguide.test.ts` asserts the new samples.
-- [ ] The `styleguide-theme-switch-*` and `styleguide-header-variants-*` baselines are regenerated through the `visual-baselines` PR label.
+- [x] The `styleguide-theme-switch-*` and `styleguide-header-variants-*` baselines are regenerated through the `visual-baselines` PR label.
 - [x] `npm run lint` and `npm run test:unit` green
 
 ## Notes

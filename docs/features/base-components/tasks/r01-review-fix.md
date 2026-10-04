@@ -22,7 +22,7 @@ Review round 1 ([review-2026-10-04](../_review/review-2026-10-04.md)), S2-01. Th
 - [x] The on-spruce theme switch inside the panel has the corrected pill shape and a clearly visible selected segment.
 - [x] `scripts/contrast-pairs.ts` lists every pair the panel renders on spruce, and `npm run check:contrast` passes with no new known failure.
 - [x] `tests/e2e/menu.spec.ts` asserts the spruce ground and snow text in Dag and Natt; axe with the panel open stays at zero violations in both themes.
-- [ ] The six `styleguide-mobile-menu-panel-*` baselines are regenerated through the `visual-baselines` PR label, not locally.
+- [x] The six `styleguide-mobile-menu-panel-*` baselines are regenerated through the `visual-baselines` PR label, not locally.
 - [x] `npm run lint` and `npm run test:unit` green
 
 ## Notes
