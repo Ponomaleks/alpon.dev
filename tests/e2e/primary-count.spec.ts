@@ -88,8 +88,10 @@ test.describe('the three states at 390 (AC-23)', () => {
       await scrollAway(page);
       const bar = page.locator('[data-shell-bar]');
       await expect(bar).toHaveAttribute('inert', '');
+      // With motion allowed the header action fades from transparent to the filled style, so the
+      // filled background is not there on the frame the bar turns inert: wait for it.
+      await expect.poll(async () => (await counts(page)).headerPrimary).toBe(true);
       const c = await counts(page);
-      expect(c.headerPrimary).toBe(true);
       expect(c.main).toBeLessThanOrEqual(1);
       expect(c.screen).toBeLessThanOrEqual(2);
       expect(await bar.evaluate((el: HTMLElement) => el.inert)).toBe(true);
