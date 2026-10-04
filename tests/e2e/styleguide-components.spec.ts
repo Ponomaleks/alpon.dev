@@ -122,3 +122,24 @@ for (const theme of ['dag', 'natt'] as const) {
     }
   });
 }
+
+test.describe('Wordmark on spruce', () => {
+  test('the whole wordmark is snow, ".dev" included, as in the page design', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/styleguide');
+    const wordmark = page.locator('[data-section="Wordmark"] .fjord-on-spruce .wordmark');
+    await expect(wordmark).toHaveCount(1);
+    const colours = await wordmark.evaluate((el) => {
+      const probe = document.createElement('i');
+      probe.style.color = 'var(--fjord-snow)';
+      el.append(probe);
+      const snow = getComputedStyle(probe).color;
+      probe.remove();
+      const dev = el.querySelector('span');
+      if (!dev) throw new Error('the wordmark has no ".dev" span');
+      return { snow, text: getComputedStyle(el).color, dev: getComputedStyle(dev).color };
+    });
+    expect(colours.text).toBe(colours.snow);
+    expect(colours.dev).toBe(colours.snow);
+  });
+});

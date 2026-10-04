@@ -1,7 +1,7 @@
 ---
 // The "alpon.dev" wordmark as a link home: "alpon" plus an accent ".dev" (site copy of the
-// design system, Wordmark). `onSpruce` is for placement on the dark spruce surface (footer),
-// where the text takes the inverse colour and the accent a lichen tint.
+// design system, Wordmark). `onSpruce` is for placement on the dark spruce surface (menu panel, on-spruce header),
+// where the whole wordmark, ".dev" included, takes the inverse colour, as in the page design.
 interface Props {
   onSpruce?: boolean;
 }
@@ -46,11 +46,9 @@ const { onSpruce = false } = Astro.props;
     color: var(--fjord-color-text);
   }
   .wordmark--on-spruce,
-  .wordmark--on-spruce:hover {
-    color: var(--fjord-color-text-inverse);
-  }
+  .wordmark--on-spruce:hover,
   .wordmark--on-spruce span {
-    color: var(--fjord-lichen);
+    color: var(--fjord-color-text-inverse);
   }
   .wordmark:focus-visible {
     outline: var(--fjord-focus-width) solid var(--fjord-color-focus-ring);
