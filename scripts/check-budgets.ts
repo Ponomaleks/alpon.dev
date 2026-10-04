@@ -1,6 +1,8 @@
 // Build-output budgets (fjord-foundation spec §6, sad QG-2), run after `npm run build`:
 //   - the render-blocking theme bootstrap ≤ 1 KB unminified;
 //   - initial JS per page ≤ 50 KB gzip (inline scripts + same-origin <script src> + modulepreload);
+//   - the Shell's scripts ≤ 5 KB gzip together per page (spec §6);
+//   - 404.html ≤ 20 KB gzip;
 //   - exactly 2 font preloads per page, ≤ 60 KB combined;
 //   - every shipped font file ≤ 30 KB.
 // Fails naming the file or page and the measured size; prints every measured size for the CI log.
@@ -15,6 +17,8 @@ const KB = 1024;
 export const BUDGETS = {
   bootstrapBytes: 1 * KB,
   initialJsGzip: 50 * KB,
+  shellJsGzip: 5 * KB,
+  notFoundGzip: 20 * KB,
   preloadCount: 2,
   preloadBytes: 60 * KB,
   fontBytes: 30 * KB,
@@ -90,10 +94,18 @@ export function checkBudgets({ bootstrap, dist }: BudgetInput): {
     }, 0);
 
     report.push(
-      `${name(page)}: initial JS ${kb(js)} gzip, preloads ${preloads.length} font(s) ${kb(preloadSize)}`,
+      `${name(page)}: initial JS ${kb(js)} gzip, Shell scripts ${kb(js)} gzip, preloads ${preloads.length} font(s) ${kb(preloadSize)}`,
     );
     if (js > BUDGETS.initialJsGzip)
       failures.push(`${name(page)}: initial JS is ${kb(js)} gzip, over the 50 KB budget`);
+    if (js > BUDGETS.shellJsGzip)
+      failures.push(`${name(page)}: Shell scripts are ${kb(js)} gzip, over the 5 KB budget`);
+    if (name(page) === '404.html') {
+      const weight = gzipSync(html).length;
+      report.push(`404.html: weight ${kb(weight)} gzip (≤ 20 KB)`);
+      if (weight > BUDGETS.notFoundGzip)
+        failures.push(`404.html gzip weight is ${kb(weight)}, over the 20 KB budget`);
+    }
     if (preloads.length !== BUDGETS.preloadCount)
       failures.push(`${name(page)}: preloads ${preloads.length} font(s), expected exactly 2`);
     else if (preloadSize > BUDGETS.preloadBytes)

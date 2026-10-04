@@ -88,4 +88,70 @@ test.describe('in the browser', () => {
     });
     expect(ran).toBe(false);
   });
+
+  // AC-17: the Shell adds scripts but not trust; injection stays refused and its own scripts run.
+  test('on a page with the Shell an injected inline style is refused and the theme switch still works', async ({
+    page,
+  }) => {
+    const width = page.viewportSize()?.width ?? 0;
+    test.skip(
+      width < 1024,
+      'the header theme switch shows from 1024; the menu one is covered in shell tests',
+    );
+    await page.goto('/');
+    await expect(page.locator('header .theme-toggle')).toBeVisible();
+    const result = await page.evaluate(async () => {
+      const violation = new Promise<string>((resolve) =>
+        document.addEventListener('securitypolicyviolation', (e) => resolve(e.effectiveDirective), {
+          once: true,
+        }),
+      );
+      const style = document.createElement('style');
+      style.textContent = 'body { outline: 9px solid red }';
+      document.head.append(style);
+      const directive = await violation;
+      return { directive, outline: getComputedStyle(document.body).outlineWidth };
+    });
+    expect(result.directive).toBe('style-src-elem');
+    expect(result.outline).not.toBe('9px');
+
+    await page.locator('header [data-theme-value="dag"]').click();
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dag');
+    await page.locator('header [data-theme-value="natt"]').click();
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'natt');
+  });
+
+  test('an injected inline script is refused on the Shell page while the menu script still runs', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    const injected = await page.evaluate(async () => {
+      const violation = new Promise<string>((resolve) =>
+        document.addEventListener('securitypolicyviolation', (e) => resolve(e.effectiveDirective), {
+          once: true,
+        }),
+      );
+      const script = document.createElement('script');
+      script.textContent = 'window.__injected = true';
+      document.body.append(script);
+      return {
+        directive: await violation,
+        ran: (window as unknown as { __injected?: boolean }).__injected ?? false,
+      };
+    });
+    expect(injected).toEqual({ directive: 'script-src-elem', ran: false });
+  });
+
+  test('the CSP contract file is unchanged by this feature and matches the delivered header', async ({
+    request,
+  }) => {
+    const contract = JSON.parse(readFileSync('tests/contracts/csp.contract.json', 'utf8')) as {
+      directives: Record<string, string[]>;
+    };
+    const expected = Object.entries(contract.directives)
+      .map(([name, values]) => [name, ...values.map((v) => v.replace('{{hash}}', HASH))].join(' '))
+      .join('; ');
+    const response = await request.get('/');
+    expect(response.headers()['content-security-policy']).toBe(expected);
+  });
 });

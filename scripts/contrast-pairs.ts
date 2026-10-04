@@ -66,6 +66,17 @@ export const PAIRS: Pair[] = [
   pair('focus-ring', 'bg-raised', 'ui', PAGE),
   pair('border-strong', 'bg', 'ui', ALL),
   pair('border-strong', 'bg-raised', 'ui', PAGE),
+  // Base components: Badge status text, ghost Button hover, links and buttons on the band and
+  // footer ground, text on the inverse ground, focus ring and borders on sunken and soft grounds.
+  pair('success', 'bg-raised', 'text', PAGE),
+  pair('warning', 'bg-raised', 'text', PAGE),
+  pair('text-muted', 'accent-soft', 'text', PAGE),
+  pair('link', 'bg-sunken', 'text', PAGE),
+  pair('text-muted', 'bg-inverse', 'text', PAGE),
+  pair('focus-ring', 'bg-sunken', 'ui', PAGE),
+  pair('focus-ring', 'accent-soft', 'ui', PAGE),
+  pair('border-strong', 'bg-sunken', 'ui', PAGE),
+  pair('border-strong', 'accent-soft', 'ui', PAGE),
 ];
 
 export interface KnownFailure {
@@ -82,5 +93,29 @@ export const KNOWN_FAILURES: KnownFailure[] = [
     bg: c('warning-soft'),
     theme: 'Dag',
     note: 'known failure, fix before step 7 Callout',
+  },
+  {
+    fg: c('text-muted'),
+    bg: c('accent-soft'),
+    theme: 'Dag',
+    note: 'known failure (4.43:1), report to the Owner: token fix in the design source',
+  },
+  {
+    fg: c('text-muted'),
+    bg: c('bg-inverse'),
+    theme: 'Dag',
+    note: 'known failure (1.80:1, the inverse ground is dark in Dag), report to the Owner: token fix in the design source',
+  },
+  {
+    fg: c('border-strong'),
+    bg: c('bg-sunken'),
+    theme: 'Dag',
+    note: 'known failure (2.95:1), report to the Owner: token fix in the design source',
+  },
+  {
+    fg: c('border-strong'),
+    bg: c('accent-soft'),
+    theme: 'Dag',
+    note: 'known failure (2.79:1), report to the Owner: token fix in the design source',
   },
 ];

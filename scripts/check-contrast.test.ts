@@ -67,11 +67,12 @@ describe('checkContrast', () => {
   it('reports the Dag warning pair as a named known failure, not a failure (spec §8 OQ-01)', () => {
     const { failures, known } = checkContrast(tokens());
     expect(failures).toEqual([]);
-    expect(known).toEqual([
+    // Other base-component pairs are named known failures too (T22); this one stays listed.
+    expect(known).toContainEqual(
       expect.stringMatching(
         /^--fjord-color-warning on --fjord-color-warning-soft · Dag · 4\.40:1 \(needs 4\.5:1\) · known failure, fix before step 7 Callout$/,
       ),
-    ]);
+    );
   });
 
   it('fails once a known failure passes, so the pair moves to the normal pairs', () => {
@@ -82,7 +83,7 @@ describe('checkContrast', () => {
     );
     expect(fixed).not.toBe(tokens());
     const { failures, known } = checkContrast(fixed);
-    expect(known).toEqual([]);
+    expect(known.filter((k) => k.includes('--fjord-color-warning on'))).toEqual([]);
     expect(failures).toContainEqual(
       expect.stringMatching(
         /known failure --fjord-color-warning on --fjord-color-warning-soft · Dag now passes/,
@@ -95,6 +96,42 @@ describe('checkContrast', () => {
       (p) => p.fg === '--fjord-color-focus-ring' && p.bg === '--fjord-color-bg',
     );
     expect(ring?.kind).toBe('ui');
+  });
+});
+
+// AC-27: the pairs the Shell and base components use that the foundation manifest did not list.
+describe('base-component pairs', () => {
+  const NEW: [string, string, 'text' | 'ui', string[]][] = [
+    ['success', 'bg-raised', 'text', ['Dag', 'Natt']], // Badge --success
+    ['warning', 'bg-raised', 'text', ['Dag', 'Natt']], // Badge --warning
+    ['text-muted', 'accent-soft', 'text', ['Dag', 'Natt']], // ghost Button hover
+    ['link', 'bg-sunken', 'text', ['Dag', 'Natt']], // links in the band and footer
+    ['focus-ring', 'bg-sunken', 'ui', ['Dag', 'Natt']], // Tag, band
+    ['focus-ring', 'accent-soft', 'ui', ['Dag', 'Natt']], // Button hover
+    ['border-strong', 'bg-sunken', 'ui', ['Dag', 'Natt']], // secondary Button on the band
+    ['border-strong', 'accent-soft', 'ui', ['Dag', 'Natt']], // secondary Button hover
+    ['text-muted', 'bg-inverse', 'text', ['Dag', 'Natt']],
+  ];
+
+  it.each(NEW)('lists %s on %s as a %s pair', (fg, bg, kind, themes) => {
+    const found = PAIRS.find(
+      (p) => p.fg === `--fjord-color-${fg}` && p.bg === `--fjord-color-${bg}`,
+    );
+    expect(found?.kind).toBe(kind);
+    expect(found?.themes).toEqual(expect.arrayContaining(themes as never[]));
+  });
+
+  it('measures every new pair in each of its themes', () => {
+    const { measured } = checkContrast(tokens());
+    for (const [fg, bg, , themes] of NEW)
+      for (const theme of themes)
+        expect(
+          measured.find(
+            (m) =>
+              m.fg === `--fjord-color-${fg}` && m.bg === `--fjord-color-${bg}` && m.theme === theme,
+          ),
+          `${fg} on ${bg} · ${theme}`,
+        ).toBeDefined();
   });
 });
 
