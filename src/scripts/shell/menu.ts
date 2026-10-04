@@ -25,7 +25,7 @@ export function initMenu(dialog: MenuDialog, button: MenuButton, mq: WidthQuery)
     if (typeof dialog.showModal !== 'function') return;
     dialog.showModal();
     button.setAttribute('aria-expanded', 'true');
-    dialog.querySelector('.menu__nav a')?.focus();
+    dialog.querySelector('[data-menu-nav] a')?.focus();
   });
 
   dialog.addEventListener('click', (event) => {

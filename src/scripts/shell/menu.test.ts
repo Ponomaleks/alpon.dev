@@ -24,7 +24,10 @@ function setup(opts: { showModal?: boolean } = {}) {
       dialog.open = false;
       for (const fn of listeners.get('close') ?? []) fn({ type: 'close' });
     },
-    querySelector: () => firstLink,
+    // The wordmark link is the first <a> in the panel; the opening focus must go to the first
+    // navigation link, which only the [data-menu-nav] hook selects.
+    querySelector: (selector: string) =>
+      selector.includes('data-menu-nav') ? firstLink : wordmark,
   };
   if (hasShowModal)
     dialog.showModal = () => {
@@ -32,6 +35,7 @@ function setup(opts: { showModal?: boolean } = {}) {
       dialog.open = true;
     };
 
+  const wordmark = { focus: () => focused.push('wordmark') };
   const firstLink = { focus: () => focused.push('first-link') };
   const attrs = new Map<string, string>([['aria-expanded', 'false']]);
   const buttonListeners = new Map<string, Listener[]>();
@@ -78,7 +82,7 @@ describe('initMenu', () => {
     expect(t.attrs.get('aria-expanded')).toBe('true');
   });
 
-  it('puts focus on the first link after opening', () => {
+  it('puts focus on the first navigation link, not the wordmark, after opening', () => {
     const t = setup();
     t.clickButton();
     expect(t.focused).toEqual(['first-link']);

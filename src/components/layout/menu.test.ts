@@ -15,6 +15,7 @@ const layout = (name: string) => join(repo, 'src/components/layout', name).repla
 let out = '';
 let page = '';
 let css = '';
+let cssOnly = '';
 
 const fixture = `---
 import MobileMenu from '${layout('MobileMenu.astro')}';
@@ -74,7 +75,11 @@ ${build.stderr}`);
   } catch {
     files = [];
   }
-  css = page + files.map((f) => readFileSync(join(assets, f), 'utf8')).join('\n');
+  const sheets = files.map((f) => readFileSync(join(assets, f), 'utf8')).join('\n');
+  const inline = [...page.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/g)].map((m) => m[1] ?? '');
+  css = page + sheets;
+  // Only stylesheets and <style> contents: SVG attributes such as transform="translate(...)" are not CSS.
+  cssOnly = [sheets, ...inline].join('\n');
 }, 180_000);
 
 afterAll(() => {
@@ -89,6 +94,7 @@ function made(name: string): string {
   if (!m) throw new Error(`fixture case ${name} is missing from the built page`);
   return m[1] ?? '';
 }
+const SVG_TAG = /<svg\b[^>]*>/;
 const anchors = (html: string) => [...html.matchAll(/<a\b[^>]*>[\s\S]*?<\/a>/g)].map((m) => m[0]);
 const text = (html: string) => html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
 const classesOf = (tag: string) => (tag.match(/\bclass="([^"]*)"/)?.[1] ?? '').split(/\s+/);
@@ -105,20 +111,43 @@ describe('MobileMenu: SCR-03 open content (AC-04)', () => {
     expect(made('plain')).toMatch(/<button\b[^>]*aria-label="Close menu"/);
   });
 
-  it('has the numbered links "01 CV" and "02 Contact" first, to the contact.ts targets', () => {
-    const [cv, contactLink] = anchors(made('plain'));
+  it('has the wordmark link to "/" at the top of the panel, before the navigation', () => {
+    const html = made('plain');
+    const [first] = anchors(html);
+    expect(first).toContain('href="/"');
+    expect(first).toMatch(/class="[^"]*wordmark/);
+    expect(text(first ?? '')).toMatch(/alpon\s*\.dev/);
+    expect(html.indexOf('wordmark')).toBeLessThan(html.indexOf('menu__nav'));
+  });
+
+  it('has the numbered navigation links "01 CV" and "02 Contact" first, to the contact.ts targets', () => {
+    const html = made('plain');
+    const nav = html.match(/<[a-z]+\b[^>]*data-menu-nav[^>]*>([\s\S]*?)<\/(?:ul|nav)>/)?.[1] ?? '';
+    const [cv, contactLink] = anchors(nav);
     expect(text(cv ?? '')).toMatch(/01\s*CV/);
     expect(cv).toContain(`href="${contact.links.cv}"`);
     expect(text(contactLink ?? '')).toMatch(/02\s*Contact/);
     expect(contactLink).toContain(`href="${contact.links.contact}"`);
+    expect(anchors(nav)).toHaveLength(2);
+  });
+
+  it('has the ridge Contours at the bottom left, hidden from assistive technology', () => {
+    const html = made('plain');
+    const wrap = html.match(/<div\b[^>]*class="[^"]*\bcontours\b[^"]*"[^>]*>/)?.[0] ?? '';
+    expect(wrap).toMatch(/data-variant="ridge"/);
+    expect(wrap).toMatch(/contours--bottom-left/);
+    expect(wrap).toMatch(/aria-hidden="true"/);
+    const svg = html.match(SVG_TAG)?.[0] ?? '';
+    expect(svg).toMatch(/viewBox="0 0 85 55"/);
+    expect(svg).toMatch(/aria-hidden="true"/);
   });
 
   it('has email and phone as links with the contact.ts values, after the numbered links', () => {
     const all = anchors(made('plain'));
     const mail = all.findIndex((a) => a.includes(`href="mailto:${contact.email}"`));
     const tel = all.findIndex((a) => a.includes(`href="tel:${contact.phone.replaceAll(' ', '')}"`));
-    expect(mail).toBeGreaterThan(1);
-    expect(tel).toBeGreaterThan(1);
+    expect(mail).toBeGreaterThan(2);
+    expect(tel).toBeGreaterThan(2);
     expect(text(all[mail] ?? '')).toContain(contact.email);
     expect(text(all[tel] ?? '')).toContain(contact.phone);
   });
@@ -172,7 +201,7 @@ describe('MobileMenu: built CSS (G-3, AC-28)', () => {
   });
 
   it('has no slide distance outside a motion token (translate uses a var)', () => {
-    const translates = [...css.matchAll(/translate(?:[XY]|3d)?\(([^)]*)\)/g)].map(
+    const translates = [...cssOnly.matchAll(/translate(?:[XY]|3d)?\(([^)]*)\)/g)].map(
       (m) => m[1] ?? '',
     );
     for (const arg of translates) expect(arg).toMatch(/var\(--fjord-/);

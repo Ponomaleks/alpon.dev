@@ -2,14 +2,14 @@
 import IconButton from '../ui/IconButton.astro';
 import Button from '../ui/Button.astro';
 import ThemeToggle from './ThemeToggle.astro';
+import Wordmark from '../brand/Wordmark.astro';
+import Contours from '../brand/Contours.astro';
 import { contact } from '../../data/contact';
 
 // Mobile menu panel (SCR-03; AC-04, AC-05, AC-02, AC-28; ADR-0002): a native modal <dialog> below
 // 768, opened by the header button (menu.ts). `current` marks a link; `sample` renders the same
-// content as a static block for the Styleguide (SCR-04), with no <dialog>. The wordmark is plain
-// text here: the first link in the panel must be "01 CV", which also takes the opening focus.
-// The ridge Contours are left out: their SVG transform attribute reads as a translate() with
-// literal numbers to the T11 CSS check (reported, see the T11 handover).
+// content as a static block for the Styleguide (SCR-04), with no <dialog>.
+// The wordmark link sits above the nav; the opening focus goes to the first nav link (data-menu-nav).
 interface Props {
   current?: 'cv' | 'contact';
   sample?: boolean;
@@ -29,13 +29,12 @@ const Root = sample ? 'div' : 'dialog';
   aria-label={sample ? undefined : 'Menu'}
   data-sample={sample ? '' : undefined}
 >
+  <Contours variant="ridge" anchor="bottom-left" />
   <div class="menu__top">
-    <span class="menu__brand">
-      alpon<span>.dev</span>
-    </span>
+    <Wordmark />
     <IconButton icon="x" label="Close menu" />
   </div>
-  <ul class="menu__nav">
+  <ul class="menu__nav" data-menu-nav>
     {links.map((link, i) => (
       <li>
         <a href={link.href} aria-current={current === link.key ? 'page' : undefined}>
@@ -80,7 +79,7 @@ const Root = sample ? 'div' : 'dialog';
     overflow: hidden;
   }
 
-  .menu > * {
+  .menu > :not(.contours) {
     position: relative;
     z-index: var(--fjord-z-raised);
   }
@@ -116,16 +115,6 @@ const Root = sample ? 'div' : 'dialog';
     align-items: center;
     justify-content: space-between;
     block-size: var(--fjord-header-height-compact);
-  }
-
-  .menu__brand {
-    font-size: var(--fjord-text-ui-lg);
-    font-weight: var(--fjord-weight-semibold);
-    letter-spacing: var(--fjord-tracking-heading);
-  }
-
-  .menu__brand span {
-    color: var(--fjord-color-link);
   }
 
   .menu__nav {
