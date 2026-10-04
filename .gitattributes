@@ -1,2 +1,14 @@
+# Text files are LF in the repository and in every working copy, whatever core.autocrlf says:
+# Prettier checks for LF, and a CRLF checkout on Windows made it fail on untouched files.
+* text=auto eol=lf
+
 # The theme bootstrap is inlined and hashed into the CSP (fjord-foundation ADR-0002): keep LF.
 src/scripts/*.js text eol=lf
+
+# Binary files are never converted.
+*.png binary
+*.jpg binary
+*.webp binary
+*.pdf binary
+*.woff2 binary
+*.ttf binary
