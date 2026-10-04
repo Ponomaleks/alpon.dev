@@ -40,6 +40,9 @@ const ALL: Theme[] = ['Dag', 'Natt', 'on-spruce'];
 export const PAIRS: Pair[] = [
   // Body and secondary text on every ground.
   pair('text', 'bg', 'text', ALL),
+  // The selected segment of the theme switch: the text colour as fill, the page ground as label.
+  pair('bg', 'text', 'text', ALL),
+  pair('text', 'bg-raised', 'ui', ALL),
   pair('text', 'bg-raised', 'text', ALL),
   pair('text', 'bg-sunken', 'text', PAGE),
   pair('text-muted', 'bg', 'text', ALL),

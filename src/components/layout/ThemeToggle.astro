@@ -57,32 +57,31 @@ const options = [
 </script>
 
 <style>
+  /* The design's segmented control (.fj-seg): a pill track with pill segments, mono labels, and
+     the selected segment inverted (text colour as fill, page ground as text). The segments keep
+     the 44px target as their own height (D-08) instead of the design's 28px with an overlay. */
   .theme-toggle {
     display: inline-flex;
     padding: var(--fjord-space-1);
-    gap: var(--fjord-space-1);
-    background-color: var(--fjord-color-bg-sunken);
+    gap: var(--fjord-space-0-5);
+    background-color: var(--fjord-color-bg-raised);
     border: var(--fjord-border-width) solid var(--fjord-color-border);
-    border-radius: var(--fjord-radius-md);
+    border-radius: var(--fjord-radius-pill);
   }
 
   .theme-toggle__segment {
-    min-block-size: calc(var(--fjord-space-10) + var(--fjord-space-1));
-    min-inline-size: calc(var(--fjord-space-10) + var(--fjord-space-1));
-    padding-inline: var(--fjord-space-4);
-    font-family: inherit;
-    font-size: var(--fjord-text-ui);
+    min-block-size: var(--fjord-tap-min);
+    min-inline-size: var(--fjord-tap-min);
+    padding: 0 var(--fjord-space-3);
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-mono-sm);
     font-weight: var(--fjord-weight-medium);
+    line-height: var(--fjord-leading-none);
     color: var(--fjord-color-text-muted);
     background: transparent;
     border: 0;
-    border-radius: var(--fjord-radius-sm);
+    border-radius: var(--fjord-radius-pill);
     cursor: pointer;
-  }
-
-  /* On spruce the sunken tint lifts the track; lichen text there is 4.28:1, so use the full text color. */
-  :global(.fjord-on-spruce) .theme-toggle__segment {
-    color: var(--fjord-color-text);
   }
 
   .theme-toggle__segment:hover {
@@ -94,7 +93,15 @@ const options = [
   :global(:root[data-theme='natt']) .theme-toggle:not([data-sample]) [data-theme-value='natt'],
   .theme-toggle[data-selected='dag'] [data-theme-value='dag'],
   .theme-toggle[data-selected='natt'] [data-theme-value='natt'] {
-    color: var(--fjord-color-text);
-    background-color: var(--fjord-color-bg-raised);
+    color: var(--fjord-color-bg);
+    background-color: var(--fjord-color-text);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .theme-toggle__segment {
+      transition:
+        background-color var(--fjord-duration-200) var(--fjord-ease-out),
+        color var(--fjord-duration-200) var(--fjord-ease-out);
+    }
   }
 </style>

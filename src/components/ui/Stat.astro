@@ -83,7 +83,10 @@ const stats: StatItem[] = items ?? (single.value === undefined ? [] : [single as
     line-height: var(--fjord-leading-none);
     font-variant-numeric: tabular-nums;
     color: var(--fjord-color-text);
-    white-space: nowrap;
+    /* Short values stay on one line as in the design (they have no break points); a value too
+       long for its column wraps inside it instead of running into the next stat. */
+    max-width: 100%;
+    overflow-wrap: anywhere;
   }
   .stats--compact .stat__value {
     font-size: var(--fjord-text-h2);

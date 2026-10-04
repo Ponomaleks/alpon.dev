@@ -150,12 +150,29 @@ const stateLabel = { hover: 'Hover', focus: 'Focus', active: 'Pressed' } as cons
 
     <section data-section="Stat" class="sg__section">
       <h2>Stat</h2>
+      {/* Sample values in the forms the page design uses; they are not facts about anyone. */}
       <Stat
         items={[
-          { value: '[placeholder]', label: 'Years of experience' },
-          { value: '[placeholder]', label: 'Projects shipped' },
+          {
+            value: 3,
+            suffix: '+',
+            unit: 'yrs',
+            label: 'Sample with a suffix and a unit',
+            context: 'Context line · 2022 – 2026',
+          },
+          { value: 40, prefix: '~', label: 'Sample with a prefix', context: 'Context line' },
+          { value: 2000, prefix: '~', label: 'Sample with four digits' },
+          { value: 100, suffix: '+', label: 'Sample with a suffix' },
         ]}
       />
+      <div class="sg__gap" data-long-value>
+        <Stat
+          items={[
+            { value: '1234567890123', label: 'Sample with a value too long for its column' },
+            { value: 12, label: 'Sample neighbour' },
+          ]}
+        />
+      </div>
     </section>
 
     <section data-section="SectionHeader" class="sg__section">
@@ -295,6 +312,10 @@ const stateLabel = { hover: 'Hover', focus: 'Focus', active: 'Pressed' } as cons
   h2 {
     margin: 0 0 var(--fjord-space-6);
     font-size: var(--fjord-text-h3);
+  }
+
+  .sg__gap {
+    margin-top: var(--fjord-space-8);
   }
 
   .sg__row {
