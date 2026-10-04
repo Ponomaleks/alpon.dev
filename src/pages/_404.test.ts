@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import stylelint from 'stylelint';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
@@ -26,7 +26,17 @@ const text = () =>
 
 describe('built 404.html (SCR-02)', () => {
   it('shows the code line with "Ikke funnet" marked Norwegian', () => {
-    expect(body()).toMatch(/404 \/ <span lang="no"[^>]*>Ikke funnet<\/span>/);
+    expect(body()).toMatch(/<b[^>]*>404<\/b> \/ <span lang="no"[^>]*>Ikke funnet<\/span>/);
+  });
+
+  it('sets the code number "404" in the link colour, as the design eyebrow does', () => {
+    const assets = join(site.out, '_astro');
+    const css = readdirSync(assets)
+      .filter((f) => f.endsWith('.css'))
+      .map((f) => readFileSync(join(assets, f), 'utf8'))
+      .join('\n');
+    const rule = css.match(/\.code[^{},]*\sb[^{},]*\{([^}]*)\}/)?.[1] ?? '';
+    expect(rule).toMatch(/color:\s*var\(--fjord-color-link\)/);
   });
 
   it('has the h1 "This page is off the map." and the design body copy', () => {

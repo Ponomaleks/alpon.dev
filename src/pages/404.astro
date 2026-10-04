@@ -12,7 +12,7 @@ import Button from '../components/ui/Button.astro';
     <section class="not-found" aria-labelledby="not-found-title">
       <div class="text">
         <p class="code">
-          404 / <span lang="no">Ikke funnet</span>
+          <b>404</b> / <span lang="no">Ikke funnet</span>
         </p>
         <h1 class="title" id="not-found-title">
           This page is off the map.
@@ -84,6 +84,11 @@ import Button from '../components/ui/Button.astro';
     letter-spacing: var(--fjord-tracking-label);
     font-variant-numeric: tabular-nums;
     color: var(--fjord-color-text-muted);
+  }
+
+  .code b {
+    font-weight: var(--fjord-weight-medium);
+    color: var(--fjord-color-link);
   }
 
   .title {
