@@ -1,6 +1,6 @@
-// Token-only styles (fjord-foundation ADR-0003): an @import may name a file and nothing else.
+// Token-only styles (base-components ADR-0004): an @import may name a file and nothing else.
 // A media condition after the file (`@import "x.css" (min-width: 800px)`) is a media query that
-// the breakpoint and unit rules never see, because Stylelint's core rules read @media preludes
+// the breakpoint rule never sees, because Stylelint's core rules read @media preludes
 // only. supports() and layer conditions are rejected with it until real code needs one.
 
 export interface ConditionalImport {

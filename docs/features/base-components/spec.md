@@ -22,7 +22,7 @@ Committed approach: build the whole Shell and the base components once, from the
 Traceability:
 - Parity: P-25 flips from `fixme` to `test` here. P-41 stays active and its wording changes to the page design (AC-17). Two items are added to `docs/stub-parity.md` under "Not in the stub", each with its own `test.fixme`: P-50, the Shell's contact links reach the contact place (owner: step 4), and P-51, the Shell's CV links reach the CV page (owner: step 5). The 5x range is new and belongs to the Shell, following the file's one-range-per-area numbering (AC-31).
 - This spec's AC-17 and AC-18 replace fjord-foundation AC-07 and AC-08. When this feature is implemented, those two get a one-line "superseded by base-components AC-17 / AC-18" pointer and keep no wording of their own. fjord-foundation §8 OQ-02 closes when base-components AC-17 and base-components AC-07 (the Sticky action bar, OQ-02 item 7) pass and the Design match row of §6 is at 0; backlog B-01 is done with it. fjord-foundation §3 promised animated theme and page transitions for step 3; that line gets a pointer to AC-29 and AC-32.
-- The allow lists of the token-only style check (fjord-foundation ADR-0003) are extended in the same ADR, one row per function, unit or media form, each with its reason and what it must still reject (AC-26).
+- The token-only style check is enforced as recorded in ADR-0004, which supersedes fjord-foundation ADR-0003 (AC-26).
 - The page design uses tokens that the generated token file does not have yet (for example the fifth space step, the not-found top space, the layer order tokens). They are added through the token generator, never by hand (AC-26).
 - If the task breakdown goes above about 25 tasks, `tasks` proposes a split before writing tasks: 3a components, contact data and Styleguide; 3b the Not-found rebuild and its baselines. In a split, the part that first shows the Shell on the Not-found page also owns that page's e2e and visual baseline changes, so neither part merges red.
 - Decision: BRAND.md says the call to action is Norwegian; the page design says "Get in touch". The Owner confirmed English for the Shell's call to action; this feature records it in `CLAUDE.md` (Content rules).
@@ -32,7 +32,7 @@ Traceability:
 - Notes for the design stage, from the Owner:
   - Mobile menu: a dialog is fine. AC-06 is met by the Sticky action bar, which is always on screen with scripts off and carries both the CV and the contact action.
   - Header call to action below 768: no extra script. The Sticky action bar's script already sets the bar's state; the header style follows it with one CSS rule (`:has()`).
-  - Allow list: `color-mix()` enters only with Fjord token arguments (`var()`), never a literal colour. `ch` needs an explanation before it enters, because fjord-foundation moved the measure tokens from `ch` to `em`; if a measure token covers the need, `ch` stays rejected. Every new entry gets its reason in ADR-0003.
+  - Token-only check: `color-mix()` takes only Fjord token arguments (`var()`), never a literal colour. The allow-list method this note first described is replaced by ADR-0004 (Owner decision, 2026-10-04).
 - Change log, 2026-10-04 (ux-flows stage, decided by the Owner): AC-24 gained the rule for leaving out the Sticky action bar; AC-21 and the `/styleguide` row of §1.1 now say which Shell parts the Styleguide uses for real and which it shows as samples; D-12 says that the menu button is not shown with scripts off if the menu mechanism needs a script. Nothing else changed.
 - Change log, 2026-10-04 (design stage, decided by the Owner): §1.3 gained D-13, the header's scroll border appears only where scripts run. Nothing else changed.
 - The e2e suite runs with reduced motion emulated, so page and theme transitions never make it unstable; AC-29 and AC-32 have their own tests with motion allowed.
@@ -53,7 +53,7 @@ Nothing that fjord-foundation built is specified again. `src/components/` is emp
 | BaseLayout | extend | renders the Shell and takes the page options of AC-24 |
 | Not-found page | extend (rebuild) | per the page design; closes OQ-02 |
 | Home placeholder | unchanged | gets the Shell from the layout; content is step 4 |
-| Token generator source, Stylelint allow lists | extend | AC-26 |
+| Token generator source, Stylelint token-only rules (ADR-0004) | extend | AC-26 |
 | `tests/e2e/parity.spec.ts`, `docs/stub-parity.md` | extend | P-25 on, P-41 reworded, P-50 and P-51 added as `fixme` |
 | `CLAUDE.md` | extend | three rule clarifications from §1 Traceability, written together with this spec |
 | `docs/features/fjord-foundation/spec.md` | extend | pointers only: AC-07, AC-08, §3 transitions, §8 OQ-02 closed |

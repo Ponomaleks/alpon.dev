@@ -12,3 +12,15 @@
   animation-duration: var(--fjord-duration-320);
   animation-timing-function: var(--fjord-ease-out);
 }
+
+@supports (translate: 0) {
+  .a {
+    gap: var(--fjord-space-4);
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}

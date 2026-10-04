@@ -1,0 +1,29 @@
+@media (min-width: 800px) {
+  .a {
+    color: var(--fjord-color-text);
+  }
+}
+
+@media (MIN-WIDTH: 800px) {
+  .a {
+    color: var(--fjord-color-text);
+  }
+}
+
+@media (width >= 800px) {
+  .a {
+    color: var(--fjord-color-text);
+  }
+}
+
+@media (WIDTH >= 800px) {
+  .a {
+    color: var(--fjord-color-text);
+  }
+}
+
+@media (max-width: 48em) {
+  .a {
+    color: var(--fjord-color-text);
+  }
+}

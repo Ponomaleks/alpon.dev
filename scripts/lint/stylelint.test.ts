@@ -2,8 +2,9 @@ import { fileURLToPath } from 'node:url';
 import stylelint from 'stylelint';
 import { describe, expect, it } from 'vitest';
 
-// AC-11: every kind of literal visual value is reported with file and line;
-// token-only styles pass (ADR-0003 rule set in stylelint.config.js).
+// AC-26: a literal visual value is reported with file and line, a token-only style passes, and
+// standard CSS (fr, %, minmax(), transforms, ...) is not a finding (base-components ADR-0004, rule
+// set in stylelint.config.js). One passing and one failing fixture per enforced group.
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
 const fixture = (name: string) => fileURLToPath(new URL(`./fixtures/${name}`, import.meta.url));
@@ -16,127 +17,110 @@ async function lintFile(name: string) {
   return result;
 }
 
-describe('stylelint token-only rules (ADR-0003)', () => {
-  const banned: [file: string, literal: string, line: number, rule: string][] = [
-    ['hex.css', '#24493D', 2, 'color-no-hex'],
-    ['named.css', 'red', 2, 'color-named'],
-    ['rgb.css', 'rgb(0 0 0)', 2, 'function-disallowed-list'],
-    ['px.css', '16px', 2, 'unit-disallowed-list'],
-    ['ms.css', '200ms', 2, 'unit-disallowed-list'],
-    ['easing.css', 'cubic-bezier', 2, 'function-disallowed-list'],
-    ['weight.css', 'font-weight: 600', 2, 'declaration-property-value-allowed-list'],
-    ['leading.css', 'line-height: 1.2', 2, 'declaration-property-value-allowed-list'],
-    ['breakpoint.css', 'min-width: 800px', 1, 'media-feature-name-value-allowed-list'],
-    ['component.astro', '12px in an .astro <style>', 5, 'unit-disallowed-list'],
-    // Radius and size.
-    ['radius.css', 'border-radius: 4px', 2, 'unit-disallowed-list'],
-    ['radius.css', 'border-top-left-radius: 50%', 3, 'declaration-property-value-allowed-list'],
-    ['size.css', 'font-size: 14px', 2, 'declaration-property-value-allowed-list'],
-    ['size.css', 'width: 640px', 3, 'unit-disallowed-list'],
-    // Literals hidden in shorthands.
-    [
-      'shorthand-easing.css',
-      'ease-in-out in transition',
-      2,
-      'declaration-property-value-disallowed-list',
-    ],
-    [
-      'shorthand-easing.css',
-      'linear in animation',
-      3,
-      'declaration-property-value-disallowed-list',
-    ],
-    ['font-shorthand.css', 'the font shorthand', 2, 'property-disallowed-list'],
-    ['border-shorthand.css', 'border: thin', 2, 'declaration-property-value-allowed-list'],
-    ['border-shorthand.css', 'outline: medium', 3, 'declaration-property-value-allowed-list'],
-    // Absolute and viewport units.
-    ['absolute-unit.css', '12pt', 2, 'unit-disallowed-list'],
-    ['absolute-unit.css', '4mm in box-shadow', 3, 'unit-disallowed-list'],
-    ['viewport.css', 'top: 3vh', 2, 'declaration-property-unit-disallowed-list'],
-    ['viewport.css', '100vw', 3, 'unit-disallowed-list'],
-    ['viewport.css', 'padding-block: 2dvh', 4, 'declaration-property-unit-disallowed-list'],
-    // Height properties take a viewport unit only as a full 100vh / 100svh / 100lvh / 100dvh.
-    ['viewport.css', 'min-height: 73vh', 5, 'declaration-property-value-allowed-list'],
-    ['viewport.css', 'max-height: 50svh', 6, 'declaration-property-value-allowed-list'],
-    ['viewport.css', 'calc(100dvh - token)', 7, 'declaration-property-value-allowed-list'],
-    // Container-query units.
-    ['container-unit.css', 'width: 50cqi', 2, 'unit-disallowed-list'],
-    ['container-unit.css', 'inline-size: 10cqmin', 3, 'unit-disallowed-list'],
-    ['container-unit.css', 'height: 20cqh', 4, 'unit-disallowed-list'],
-    // Container queries bypass the unit and breakpoint rules, so the at-rule is banned (R32).
-    ['container.css', '@container (min-width: 400px)', 1, 'at-rule-disallowed-list'],
-    // At-rule and media-feature names are case-insensitive in CSS; so are the rules (R37).
-    ['container-upper.css', '@CONTAINER (min-width: 400px)', 1, 'at-rule-disallowed-list'],
-    ['breakpoint-upper.css', 'MIN-WIDTH: 800px', 1, 'media-feature-name-value-allowed-list'],
-    ['breakpoint-range.css', 'width >= 800px', 1, 'media-feature-name-value-allowed-list'],
-    ['breakpoint-range-upper.css', 'WIDTH >= 800px', 1, 'media-feature-name-value-allowed-list'],
-    // Allow lists: functions and units nobody listed are rejected by default.
-    ['lab.css', 'lab()', 2, 'function-allowed-list'],
-    ['oklab.css', 'oklab()', 2, 'function-allowed-list'],
-    ['clamp.css', 'clamp()', 2, 'function-allowed-list'],
-    ['min.css', 'min()', 2, 'function-allowed-list'],
-    ['max.css', 'max()', 2, 'function-allowed-list'],
-    ['url.css', 'url()', 2, 'function-allowed-list'],
-    ['rch.css', '20rch', 2, 'unit-allowed-list'],
-    // AC-26: color-mix() enters with var() arguments only; everything else stays rejected.
-    ['color-mix-literal.css', 'hex inside color-mix()', 2, 'color-no-hex'],
-    ['color-mix-literal.css', 'rgb() inside color-mix()', 3, 'function-disallowed-list'],
-    ['color-mix-literal.css', 'named colour inside color-mix()', 4, 'color-named'],
-    [
-      'color-mix-unknown-token.css',
-      'unknown token inside color-mix()',
-      2,
-      'declaration-property-value-disallowed-list',
-    ],
-    [
-      'calc-raw-number.css',
-      'raw number in calc() on margin-top',
-      2,
-      'declaration-property-value-allowed-list',
-    ],
-    [
-      'calc-raw-number.css',
-      'raw numbers in calc() on padding-top',
-      3,
-      'declaration-property-value-allowed-list',
-    ],
-    ['ch.css', '60ch', 2, 'unit-disallowed-list'],
-    ['ch.css', '60ch (not in the unit allow list)', 2, 'unit-allowed-list'],
-    // Tokens that tokens.css does not declare.
-    [
-      'unknown-token.css',
-      'var(--fjord-color-txt)',
-      2,
-      'declaration-property-value-disallowed-list',
-    ],
-    ['unknown-token.css', 'var(--fjord-space-99)', 3, 'declaration-property-value-disallowed-list'],
-  ];
+const strict = 'scale-unlimited/declaration-strict-value';
+const hex = 'color-no-hex';
+const named = 'color-named';
+const colourFunction = 'function-disallowed-list';
+const fontShorthand = 'property-disallowed-list';
+const undeclared = 'declaration-property-value-disallowed-list';
+const breakpoint = 'media-feature-name-value-allowed-list';
+const atRule = 'at-rule-disallowed-list';
 
-  for (const [file, literal, line, rule] of banned) {
-    it(`reports ${literal} in ${file} at line ${line} (${rule})`, async () => {
-      const result = await lintFile(file);
-      expect(result.source).toBe(fixture(file));
-      expect(result.warnings).toContainEqual(expect.objectContaining({ line, rule }));
+type Finding = [line: number, rule: string];
+type Group = { name: string; pass: string; fail: string; findings: Finding[] };
+
+/** `lines(strict, 2, 3)` is a finding of `rule` on each of the lines. */
+const lines = (rule: string, ...at: number[]): Finding[] => at.map((line) => [line, rule]);
+
+const groups: Group[] = [
+  {
+    name: 'colour literals (hex, named, colour functions) in any property',
+    pass: 'colour-literal-pass.css',
+    fail: 'colour-literal-fail.css',
+    findings: [
+      ...lines(hex, 2, 13),
+      ...lines(named, 3, 15),
+      // rgb / rgba, hsl, hsla, hwb, lab, lch, oklab, oklch, color(), and rgb() inside color-mix().
+      ...lines(colourFunction, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14),
+    ],
+  },
+  {
+    name: 'colour properties (color, background, border and outline colour, fill, stroke)',
+    pass: 'colour-property-pass.css',
+    fail: 'colour-property-fail.css',
+    findings: [...lines(strict, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13), [12, named], [13, hex]],
+  },
+  {
+    name: 'spacing (margin, padding, gap)',
+    pass: 'spacing-pass.css',
+    fail: 'spacing-fail.css',
+    findings: lines(strict, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12),
+  },
+  {
+    name: 'type (font-size, line-height, the font shorthand)',
+    pass: 'type-pass.css',
+    fail: 'type-fail.css',
+    findings: [...lines(strict, 2, 3, 4, 5, 6, 7, 8), [9, fontShorthand]],
+  },
+  {
+    name: 'border-radius',
+    pass: 'radius-pass.css',
+    fail: 'radius-fail.css',
+    findings: lines(strict, 2, 3, 4, 5, 6),
+  },
+  {
+    name: 'motion (transition and animation durations and easing)',
+    pass: 'motion-pass.css',
+    fail: 'motion-fail.css',
+    findings: lines(strict, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14),
+  },
+  {
+    name: 'breakpoints (360 / 768 / 1024 / 1440, any case, legacy and range syntax)',
+    pass: 'breakpoint-pass.css',
+    fail: 'breakpoint-fail.css',
+    findings: lines(breakpoint, 1, 7, 13, 19, 25),
+  },
+  {
+    name: 'Fjord tokens that tokens.css does not declare',
+    pass: 'unknown-token-pass.css',
+    fail: 'unknown-token-fail.css',
+    findings: lines(undeclared, 2, 3, 4),
+  },
+  {
+    name: 'at-rules (@container is banned in any case; @view-transition, @supports pass)',
+    pass: 'at-rule-pass.css',
+    fail: 'at-rule-fail.css',
+    findings: lines(atRule, 1, 7),
+  },
+  {
+    name: 'a <style> block in an .astro file',
+    pass: 'component-pass.astro',
+    fail: 'component-fail.astro',
+    findings: lines(strict, 5),
+  },
+];
+
+const byLine = (a: Finding, b: Finding) => a[0] - b[0] || a[1].localeCompare(b[1]);
+
+describe('stylelint token-only rules (ADR-0004)', () => {
+  describe.each(groups)('$name', ({ pass, fail, findings }) => {
+    it(`passes ${pass} with zero findings`, async () => {
+      const result = await lintFile(pass);
+      expect(result.warnings).toEqual([]);
     });
-  }
 
-  it('passes a token-only file', async () => {
-    const result = await lintFile('token-only.css');
-    expect(result.warnings).toEqual([]);
+    it(`reports exactly the findings of ${fail}, each with file and line`, async () => {
+      const result = await lintFile(fail);
+      expect(result.source).toBe(fixture(fail));
+      const reported = new Map(
+        result.warnings.map(({ line, rule }) => [`${line} ${rule}`, [line, rule] as Finding]),
+      );
+      expect([...reported.values()].sort(byLine)).toEqual([...findings].sort(byLine));
+    });
   });
 
-  it('passes color-mix() with var() arguments only (AC-26)', async () => {
-    const result = await lintFile('color-mix-allowed.css');
-    expect(result.warnings).toEqual([]);
-  });
-
-  it('passes @view-transition with navigation and token-timed view-transition groups (AC-32)', async () => {
-    const result = await lintFile('view-transition.css');
-    expect(result.warnings).toEqual([]);
-  });
-
-  it('passes the four breakpoints in lower and upper case and in range syntax', async () => {
-    const result = await lintFile('breakpoint-allowed.css');
+  it('passes standard CSS: fr, %, ch, minmax(), repeat(), clamp(), min(), max(), transforms, calc() over tokens, color-mix() and gradients over tokens', async () => {
+    const result = await lintFile('standard-css-pass.css');
     expect(result.warnings).toEqual([]);
   });
 

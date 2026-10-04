@@ -1,5 +1,0 @@
-.a {
-  background-color: color-mix(in srgb, var(--fjord-color-bg) 50%, #ffffff);
-  border-color: color-mix(in srgb, var(--fjord-color-bg), rgb(0 0 0));
-  color: color-mix(in srgb, var(--fjord-color-bg), red);
-}

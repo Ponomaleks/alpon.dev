@@ -1,0 +1,16 @@
+.a {
+  box-shadow: 0 0 0 1px #24493d;
+  text-shadow: 0 1px red;
+  background-image: linear-gradient(rgb(0 0 0), rgba(0, 0, 0, 0.5));
+  filter: drop-shadow(0 0 2px hsl(0 0% 0%));
+  filter: drop-shadow(0 0 2px hsla(0, 0%, 0%, 0.5));
+  filter: drop-shadow(0 0 2px hwb(0 0% 0%));
+  filter: drop-shadow(0 0 2px lab(50% 40 59));
+  filter: drop-shadow(0 0 2px lch(50% 40 59));
+  filter: drop-shadow(0 0 2px oklab(0.5 0.1 0.1));
+  filter: drop-shadow(0 0 2px oklch(0.5 0.1 120));
+  filter: drop-shadow(0 0 2px color(display-p3 1 0 0));
+  background-color: color-mix(in srgb, var(--fjord-color-bg) 50%, #ffffff);
+  border-color: color-mix(in srgb, var(--fjord-color-bg), rgb(0 0 0));
+  color: color-mix(in srgb, var(--fjord-color-bg), red);
+}

@@ -1,5 +1,5 @@
 ---
-status: Accepted
+status: Superseded
 owner: "Alexander Ponomarenko"
 reviewers: []
 updated_at: "2026-10-03"
@@ -9,7 +9,9 @@ ticket: "roadmap step 2 — fjord-foundation"
 
 # 0003 — Enforce token-only styles with Stylelint built-in rules
 
-- **Status:** Accepted
+> Superseded by [base-components ADR-0004](../../base-components/adr/0004-enforce-token-only-styles-with-targeted-rules.md). The text below is kept as the historical record.
+
+- **Status:** Superseded by base-components ADR-0004
 - **Date:** 2026-10-02
 - **Deciders:** Alexander Ponomarenko (Owner), with Claude during the design walk
 

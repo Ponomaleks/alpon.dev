@@ -1,0 +1,11 @@
+@container (min-width: 400px) {
+  .a {
+    gap: var(--fjord-space-4);
+  }
+}
+
+@CONTAINER (min-width: 400px) {
+  .a {
+    gap: var(--fjord-space-4);
+  }
+}

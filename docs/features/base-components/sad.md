@@ -38,7 +38,7 @@ target_surfaces: [web-frontend]  # declared in §4 — read (never re-derived) b
 - TypeScript 5.9.3 (`strict`), Node 24 LTS, npm. Astro 6.4.8, `output: 'static'`, `build.format: 'file'`, `trailingSlash: 'never'` (repo ADR-0001).
 - Cloudflare Workers static assets via Wrangler 4.146.0; headers only through `public/_headers`; no Worker script.
 - The security policy is fixed: `script-src 'self'` plus the theme-bootstrap hash, `style-src 'self'`. The CSP integration fails the build on any inline executable script other than the bootstrap, any inline `<style>`, `style=""` or `on*=""` attribute. `build.inlineStylesheets: 'never'` and `vite.build.assetsInlineLimit: 0` keep component scripts and styles in external files (fjord-foundation ADR-0002). `tests/contracts/csp.contract.json` must be unchanged at the end of this feature (spec §6.1).
-- Token-only styles are enforced by Stylelint 17.16.0 with allow lists (fjord-foundation ADR-0003). Today: functions `var`, `calc`; units `%`, viewport heights on height properties, `px` only in width media features; breakpoints 360 / 768 / 1024 / 1440 px; `@container` rejected; `color-mix()`, `ch` and `env()` rejected; `:has()` and `@supports` pass. New entries go through AC-26.
+- Token-only styles are enforced by Stylelint 17.16.0 with the targeted rules of ADR-0004, which supersedes fjord-foundation ADR-0003 (AC-26).
 - Theme invariant from fjord-foundation ADR-0001: with scripts on, the bootstrap always sets `data-theme` to `dag` or `natt` before the first frame; with scripts off it is never set. Storage key `fjord-theme`.
 - Zero client JS by default; interactivity is vanilla TS in Astro `<script>` (repo ADR-0002). No React, no UI kit, no QR or icon library.
 - Test toolchain: Playwright 1.63.0 (projects desktop and mobile, against `wrangler dev` on `dist/`), `@axe-core/playwright` 4.13.0, Vitest 5.0.3 for pure logic, Lighthouse CI 0.15.1. Vitest was added by fjord-foundation (`npm run test:unit`). Visual baselines are Linux only.
@@ -131,7 +131,7 @@ scripts/
 ├── check-contact.ts        contact.ts vs the .vcf, field by field; last-updated date rule (AC-15, AC-16)
 ├── check-budgets.ts        + Shell scripts ≤ 5 KB gzip, Not-found HTML ≤ 20 KB gzip
 └── contrast-pairs.ts       + the pairs the new components use (Dag, Natt, on spruce)
-stylelint.config.js         allow lists extended per AC-26 (recorded in fjord-foundation ADR-0003)
+stylelint.config.js         token-only rules per AC-26 (ADR-0004)
 src/
 ├── data/contact.ts         contact facts, Work region, Residence + coordinates, lastUpdated, link targets
 ├── scripts/shell/          pure logic, one module per behaviour
@@ -394,7 +394,7 @@ Everything not listed here is inherited unchanged from the fjord-foundation SAD 
 | Contact data | `src/data/contact.ts` is the only place for email, phone, profile URLs, Work region, Residence with coordinates, and `lastUpdated` (ISO date). `scripts/check-contact.ts` runs in `npm run lint`: it compares the fields with `public/alexander-ponomarenko.vcf` and names the one that differs (AC-15), and fails on a `lastUpdated` that is not a real calendar date or lies after the day of the run (AC-16). The copyright year is taken at build time (D-10) and masked in visual tests | here |
 | Links out | Profile links carry `rel="noopener noreferrer"`. Shell targets: CV `/cv`, contact `/#contact`, "Download CV" the PDF for `cvLang` with `download`. P-50 and P-51 stay `fixme` until steps 4 and 5 (AC-31) | spec §6.1; AC-31 |
 | Styleguide states | Interactive components accept a `data-demo-state` attribute (`hover`, `focus`, `active`) whose selector is listed next to the real pseudo-class in the component's style, so the Styleguide shows each state statically and the visual test captures it without pointer choreography. It has no effect unless the attribute is present | here |
-| Token-only styles | New functions, units or media forms enter only through the allow lists with a reason and a rejecting fixture, recorded in fjord-foundation ADR-0003 (AC-26): `color-mix()` only with `var()` arguments; `ch` stays rejected while a measure token covers the need. New tokens come from the generator only | ADR-0001; fjord-foundation ADR-0003 |
+| Token-only styles | Colour literals are banned in every property and the enforced properties take Fjord tokens only; the rule set, the property list and the accepted gaps are in ADR-0004 (AC-26). New tokens come from the generator only | ADR-0001; ADR-0004 |
 | Accessibility | One `h1` per page; `<main id="main" tabindex="-1">` as the skip-link target; landmarks `header`, `nav`, `main`, `footer`; `aria-current="page"` on the current link; theme switch as a group of two buttons with `aria-pressed`; Norwegian details carry `lang="no"`; decorative SVG is `aria-hidden` | `CLAUDE.md` quality bar |
 | Testing | Vitest for `src/scripts/shell/*` and `scripts/check-contact.ts`; Playwright e2e with reduced motion emulated by default; tests with motion allowed for AC-29 and AC-32, and also for AC-08 and the "bar scrolled away" state of AC-23, because the bar script does not hide the bar under reduced motion; a scripts-off context for AC-06, AC-09, AC-11; axe incl. the open menu; visual per Styleguide section | spec §1, §6 |
 | Error handling | Build time: checks fail closed and name file and line, field, or value and rule. Run time: storage errors are swallowed (AC-11); a missing API (`startViewTransition`, `showModal`) falls back to the direct state change | here |
@@ -407,8 +407,9 @@ Everything not listed here is inherited unchanged from the fjord-foundation SAD 
 | 0001 | Read Fjord tokens from the site copy of the design system | Accepted | §4 |
 | 0002 | Open the mobile menu as a native modal dialog | Accepted | §4 |
 | 0003 | Keep Shell state in DOM attributes and let CSS derive the rest | Accepted | §4 |
+| 0004 | Enforce token-only styles with targeted rules | Accepted | §8 |
 
-ADR files live under `docs/features/base-components/adr/NNNN-<title>.md`. Inherited decisions: repo ADR-0001 to 0003 and fjord-foundation ADR-0001 to 0003 (links at the top). The allow-list extensions of AC-26 are recorded in fjord-foundation ADR-0003 at implementation, as spec §1 requires, not in a new ADR.
+ADR files live under `docs/features/base-components/adr/NNNN-<title>.md`. Inherited decisions: repo ADR-0001 to 0003 and fjord-foundation ADR-0001 and 0002 (links at the top). fjord-foundation ADR-0003 is superseded by ADR-0004.
 
 ## 10. Quality requirements
 
@@ -427,7 +428,7 @@ Each top-3 goal from §1 expanded into scenarios. Numbers are quoted from spec �
 **QG-3. Composable and guarded**
 - **When:** the Owner builds a page by setting page options only; and when a style uses a function, unit, breakpoint form or token outside the recorded lists.
 - **Then:** the page gets the matching Shell with no change to a shared file (AC-24); Stylelint reports "0 findings over all page and component styles" and fails with file and line on a violation (AC-26); visual regression stays "≤ 0.1 % differing pixels per screenshot", the Styleguide captured per component section and the Not-found page full page, "all at 390 / 834 / 1440 in Dag and Natt"; Design match is "0 differences between the Not-found page and `design/screenshots/`" other than those listed in spec §1.3; Lighthouse mobile stays "Performance, Accessibility, Best Practices, SEO each ≥ 95" with "≤ 2.0 s / ≤ 0.02 / ≤ 100 ms" for LCP / CLS / TBT on the home placeholder and the Not-found page (SEO not asserted on the noindex Not-found page).
-- **How verify:** the home placeholder, Not-found page and Styleguide pass different option sets through `BaseLayout` and the e2e Shell spec asserts the result of each; Stylelint in `npm run lint` with a rejecting fixture per allow-list entry (Vitest); Playwright visual tests in CI; manual side-by-side review in the PR; `npm run lhci`. The KPI "edits to shared files in the step 4 and step 5 PRs = 0" is measured at their review.
+- **How verify:** the home placeholder, Not-found page and Styleguide pass different option sets through `BaseLayout` and the e2e Shell spec asserts the result of each; Stylelint in `npm run lint` with a passing and a failing fixture per enforced group (Vitest, ADR-0004); Playwright visual tests in CI; manual side-by-side review in the PR; `npm run lhci`. The KPI "edits to shared files in the step 4 and step 5 PRs = 0" is measured at their review.
 
 ## 11. Risks and technical debt
 

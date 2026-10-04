@@ -21,3 +21,9 @@
     color: var(--fjord-color-text);
   }
 }
+
+@media (min-width: 360px) and (max-width: 1440px) {
+  .a {
+    color: var(--fjord-color-text);
+  }
+}

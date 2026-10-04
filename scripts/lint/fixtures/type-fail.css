@@ -1,0 +1,10 @@
+.a {
+  font-size: 14px;
+  font-size: 1.25rem;
+  font-size: 120%;
+  font-size: clamp(1rem, 2vw, 2rem);
+  line-height: 1.2;
+  line-height: 24px;
+  line-height: normal;
+  font: 600 1.5 serif;
+}

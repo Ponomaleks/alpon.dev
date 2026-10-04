@@ -17,9 +17,8 @@ CONTEXT.md
 src/styles/tokens.css
 src/scripts/theme-bootstrap.js
 # Upper-case fixtures for the Stylelint rules; Prettier would lower-case them.
-scripts/lint/fixtures/container-upper.css
-scripts/lint/fixtures/breakpoint-upper.css
-scripts/lint/fixtures/breakpoint-range-upper.css
-scripts/lint/fixtures/breakpoint-allowed.css
+scripts/lint/fixtures/at-rule-fail.css
+scripts/lint/fixtures/breakpoint-fail.css
+scripts/lint/fixtures/breakpoint-pass.css
 # Verbatim copy of the previous tokens.css, compared by build.test.ts.
 scripts/tokens/fixtures/tokens-before-base-components.css
