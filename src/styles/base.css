@@ -88,3 +88,9 @@ samp,
 pre {
   font-family: var(--fjord-font-mono);
 }
+
+/* Scripts-off gate (AC-11, H-1): the theme bootstrap always sets data-theme, so it is missing
+   only when scripts are off. Controls that need a script are then hidden. */
+:root:not([data-theme]) [data-needs-script] {
+  display: none;
+}

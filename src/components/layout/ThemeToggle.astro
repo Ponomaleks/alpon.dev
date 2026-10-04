@@ -1,0 +1,83 @@
+---
+// Theme switch: two buttons in a group (AC-10, AC-12). The selected segment is styled from
+// `data-theme` on <html>, so it is right before any script runs. `sample` renders a fixed
+// selection for the styleguide and never reacts (hook H-3).
+interface Props {
+  sample?: 'dag' | 'natt';
+}
+
+const { sample } = Astro.props;
+const options = [
+  { value: 'dag', label: 'Light' },
+  { value: 'natt', label: 'Dark' },
+] as const;
+---
+
+<div
+  class="theme-toggle"
+  role="group"
+  aria-label="Theme"
+  data-needs-script={sample ? undefined : ''}
+  data-sample={sample ? '' : undefined}
+  data-selected={sample}
+>
+  {options.map((option) => (
+    <button
+      type="button"
+      class="theme-toggle__segment"
+      data-theme-button
+      data-theme={option.value}
+      aria-pressed={sample ? sample === option.value : undefined}
+    >
+      {option.label}
+    </button>
+  ))}
+</div>
+
+<script>
+  import { switchTheme } from '../../scripts/shell/theme';
+
+  const env = { document, matchMedia: (q: string) => window.matchMedia(q), storage: localStorage };
+
+  for (const button of document.querySelectorAll<HTMLButtonElement>('[data-theme-button]')) {
+    button.addEventListener('click', () => switchTheme(button.dataset.theme, button, env));
+  }
+</script>
+
+<style>
+  .theme-toggle {
+    display: inline-flex;
+    padding: var(--fjord-space-1);
+    gap: var(--fjord-space-1);
+    background-color: var(--fjord-color-bg-sunken);
+    border: var(--fjord-border-width) solid var(--fjord-color-border);
+    border-radius: var(--fjord-radius-md);
+  }
+
+  .theme-toggle__segment {
+    min-block-size: calc(var(--fjord-space-10) + var(--fjord-space-1));
+    min-inline-size: calc(var(--fjord-space-10) + var(--fjord-space-1));
+    padding-inline: var(--fjord-space-4);
+    font-family: inherit;
+    font-size: var(--fjord-text-ui);
+    font-weight: var(--fjord-weight-medium);
+    color: var(--fjord-color-text-muted);
+    background: transparent;
+    border: 0;
+    border-radius: var(--fjord-radius-sm);
+    cursor: pointer;
+  }
+
+  .theme-toggle__segment:hover {
+    color: var(--fjord-color-text);
+  }
+
+  /* Selected from the theme itself (live) or from data-selected (sample). */
+  :global(:root[data-theme='dag']) .theme-toggle:not([data-sample]) [data-theme='dag'],
+  :global(:root[data-theme='natt']) .theme-toggle:not([data-sample]) [data-theme='natt'],
+  .theme-toggle[data-selected='dag'] [data-theme='dag'],
+  .theme-toggle[data-selected='natt'] [data-theme='natt'] {
+    color: var(--fjord-color-text);
+    background-color: var(--fjord-color-bg-raised);
+  }
+</style>
