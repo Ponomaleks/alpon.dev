@@ -10,13 +10,13 @@
 | T3 | [Add src/data/contact.ts and the contact check against the vCard and the last-updated date](./t03-contact-data-and-check.md) | domain | Alexander Ponomarenko | S | — | done |
 | T4 | [Build Icon, Button, Link and IconButton with all interactive states](./t04-action-components.md) | ui | Alexander Ponomarenko | M | T2 | done |
 | T5 | [Build Badge, Tag, Stat and SectionHeader with Eyebrow](./t05-content-components.md) | ui | Alexander Ponomarenko | S | T2 | done |
-| T6 | [Build Contours, the Terrain map panel and Wordmark](./t06-brand-components.md) | ui | Alexander Ponomarenko | M | T2, T4 | todo |
+| T6 | [Build Contours, the Terrain map panel and Wordmark](./t06-brand-components.md) | ui | Alexander Ponomarenko | M | T2, T4 | done |
 | T7 | [Build ThemeToggle, the theme script and the scripts-off gate](./t07-theme-toggle.md) | ui | Alexander Ponomarenko | M | T2 | done |
-| T8 | [Build Toast, its polite live region and the fjord:toast script](./t08-toast.md) | ui | Alexander Ponomarenko | S | T4 | todo |
+| T8 | [Build Toast, its polite live region and the fjord:toast script](./t08-toast.md) | ui | Alexander Ponomarenko | S | T4 | done |
 | T9 | [Build SkipLink, CtaBand and Footer from the contact data](./t09-static-shell-parts.md) | ui | Alexander Ponomarenko | M | T3, T4, T6 | todo |
 | T10 | [Build Header with its variants, the scroll border script and the one-primary rule](./t10-header.md) | ui | Alexander Ponomarenko | M | T4, T6, T7 | todo |
 | T11 | [Build the mobile menu panel as a native modal dialog (SCR-03)](./t11-mobile-menu.md) | ui | Alexander Ponomarenko | M | T3, T10 | todo |
-| T12 | [Build the Sticky action bar and its scroll script](./t12-sticky-action-bar.md) | ui | Alexander Ponomarenko | M | T4 | todo |
+| T12 | [Build the Sticky action bar and its scroll script](./t12-sticky-action-bar.md) | ui | Alexander Ponomarenko | M | T4 | done |
 | T13 | [Compose the Shell in BaseLayout from page options and keep the existing suites green](./t13-base-layout-shell.md) | wiring | Alexander Ponomarenko | M | T8, T9, T10, T11, T12 | todo |
 | T14 | [Add cross-document page transitions with a still header](./t14-view-transitions.md) | ui | Alexander Ponomarenko | S | T13 | todo |
 | T15 | [Rebuild the Not-found page to its page design (SCR-02) and reword P-41](./t15-not-found-rebuild.md) | ui | Alexander Ponomarenko | M | T13 | todo |
