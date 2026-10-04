@@ -19,9 +19,9 @@ const { onSpruce = false } = Astro.props;
 
 <style>
   .wordmark {
+    position: relative;
     display: inline-flex;
-    align-items: center;
-    min-height: var(--fjord-space-12);
+    align-items: baseline;
     font-family: var(--fjord-font-mono);
     font-size: var(--fjord-text-ui-lg);
     font-weight: var(--fjord-weight-medium);
@@ -31,6 +31,14 @@ const { onSpruce = false } = Astro.props;
     text-decoration: none;
     white-space: nowrap;
   }
+  /* The link is as high as its text, as in the design; the overlay keeps a 44px touch target. */
+  .wordmark::before {
+    content: '';
+    position: absolute;
+    /* Grows past the control only where it is smaller than the 44px target, on each axis. */
+    inset: min(0px, calc((100% - var(--fjord-tap-min)) / 2));
+  }
+
   .wordmark span {
     color: var(--fjord-color-link);
   }

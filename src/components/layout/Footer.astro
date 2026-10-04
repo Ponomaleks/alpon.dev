@@ -64,8 +64,8 @@ const year = new Date().getFullYear();
 
   .fj-footer__slogan {
     grid-column: 1 / -1;
-    /* The design's 18ch: three eighths of the 48ch narrow measure. */
-    max-width: calc(var(--fjord-measure-narrow) * 3 / 8);
+    /* ch of this semibold heading, as in the design; the em measure tokens are sized for body text. */
+    max-width: 18ch;
     margin: 0;
     font-size: var(--fjord-text-h3);
     font-weight: var(--fjord-weight-semibold);
@@ -93,10 +93,7 @@ const year = new Date().getFullYear();
   }
 
   .fj-footer__col a {
-    display: inline-flex;
-    align-items: center;
     align-self: flex-start;
-    min-height: var(--fjord-space-12);
     max-width: 100%;
     color: var(--fjord-color-text);
     text-decoration: none;

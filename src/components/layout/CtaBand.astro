@@ -55,8 +55,9 @@ const cvHref = cvLang === 'no' ? contact.links.cvNo : contact.links.cvEn;
     font-weight: var(--fjord-weight-semibold);
     letter-spacing: var(--fjord-tracking-heading);
     line-height: var(--fjord-leading-heading);
-    /* The design's 16ch: a third of the 48ch narrow measure. */
-    max-width: calc(var(--fjord-measure-narrow) / 3);
+    /* ch of this semibold heading, as in the design; the em measure tokens are sized for body text,
+       whose narrower "0" made the title break into three lines. */
+    max-width: 16ch;
     text-wrap: balance;
   }
 

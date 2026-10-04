@@ -58,8 +58,8 @@ const options = [
 
 <style>
   /* The design's segmented control (.fj-seg): a pill track with pill segments, mono labels, and
-     the selected segment inverted (text colour as fill, page ground as text). The segments keep
-     the 44px target as their own height (D-08) instead of the design's 28px with an overlay. */
+     the selected segment inverted (text colour as fill, page ground as text). Segments are 28px
+     high, so the switch is 38px; the overlay keeps each touch target at 44px (spec D-08). */
   .theme-toggle {
     display: inline-flex;
     padding: var(--fjord-space-1);
@@ -70,7 +70,8 @@ const options = [
   }
 
   .theme-toggle__segment {
-    min-block-size: var(--fjord-tap-min);
+    position: relative;
+    block-size: var(--fjord-space-7);
     min-inline-size: var(--fjord-tap-min);
     padding: 0 var(--fjord-space-3);
     font-family: var(--fjord-font-mono);
@@ -82,6 +83,13 @@ const options = [
     border: 0;
     border-radius: var(--fjord-radius-pill);
     cursor: pointer;
+  }
+
+  .theme-toggle__segment::before {
+    content: '';
+    position: absolute;
+    /* Grows past the control only where it is smaller than the 44px target, on each axis. */
+    inset: min(0px, calc((100% - var(--fjord-tap-min)) / 2));
   }
 
   .theme-toggle__segment:hover {

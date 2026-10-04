@@ -56,8 +56,10 @@ for (const { name, path } of pages) {
       await open(page, path);
       await scrollTo(page, 100000);
       const bar = await barBox(page);
-      const footer = await box(page.locator('footer'));
-      expect(footer.y + footer.height).toBeLessThanOrEqual(bar.y);
+      // The reserve for the bar is the footer's own bottom padding (as in the page design), so the
+      // footer box runs under the bar; its last line, the base line, must end above it.
+      const last = await box(page.locator('footer .fj-footer__base'));
+      expect(last.y + last.height).toBeLessThanOrEqual(bar.y);
     });
 
     test('a focused footer link is not covered by the bar (AC-07)', async ({ page }) => {

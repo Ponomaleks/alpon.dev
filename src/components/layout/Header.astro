@@ -48,7 +48,7 @@ const links = [
         <ThemeToggle />
       </div>
       <span class="header__cta">
-        <Button href={contact.links.contact} arrow>
+        <Button size="sm" href={contact.links.contact} arrow>
           Get in touch
         </Button>
       </span>
@@ -123,10 +123,15 @@ const links = [
     align-items: center;
     gap: var(--fjord-space-5);
     box-sizing: border-box;
-    block-size: var(--fjord-header-height-compact);
+    block-size: var(--fjord-header-height);
     max-inline-size: calc(var(--fjord-content-max) + 2 * var(--fjord-grid-margin));
     margin-inline: auto;
     padding-inline: var(--fjord-space-4);
+  }
+
+  /* The design's Header draws the wordmark at 17px: the 16px UI size scaled by 17 / 16. */
+  .header__in > :global(a[aria-label='alpon.dev, home']) {
+    font-size: calc(var(--fjord-text-ui-lg) * 17 / 16);
   }
 
   .header__nav,

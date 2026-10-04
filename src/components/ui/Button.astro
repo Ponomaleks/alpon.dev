@@ -4,7 +4,7 @@ import Icon, { type IconName } from './Icon.astro';
 interface Props {
   href?: string;
   variant?: 'primary' | 'secondary';
-  size?: 'lg';
+  size?: 'sm' | 'lg';
   block?: boolean;
   /** Trailing arrow that nudges on hover. */
   arrow?: boolean;
@@ -29,6 +29,7 @@ const {
 const classes = [
   'fj-btn',
   `fj-btn--${variant}`,
+  size === 'sm' && 'fj-btn--sm',
   size === 'lg' && 'fj-btn--lg',
   block && 'fj-btn--block',
 ].filter(Boolean);
@@ -81,6 +82,21 @@ const classes = [
     white-space: nowrap;
     cursor: pointer;
     user-select: none;
+  }
+
+  /* The design's 36px button. Its touch target stays 44px through the overlay (spec D-08). */
+  .fj-btn--sm {
+    height: calc(var(--fjord-space-8) + var(--fjord-space-1));
+    padding: 0 var(--fjord-space-4);
+    gap: var(--fjord-space-2);
+    font-size: var(--fjord-text-ui-sm);
+  }
+
+  .fj-btn--sm::before {
+    content: '';
+    position: absolute;
+    /* Grows past the control only where it is smaller than the 44px target, on each axis. */
+    inset: min(0px, calc((100% - var(--fjord-tap-min)) / 2));
   }
 
   .fj-btn--lg {

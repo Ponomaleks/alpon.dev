@@ -219,13 +219,13 @@ describe('SkipLink and footer links (design form)', () => {
   });
 });
 
-describe('measures (design ch widths, written with the measure tokens)', () => {
-  const measured = /max-width:\s*(?:calc\()?var\(--fjord-measure-narrow\)/;
-
-  it('limits the band title to 16ch: a third of the narrow measure', () => {
-    expect(bodiesOf('fj-band__title')[0]).toMatch(
-      /max-width:\s*calc\(var\(--fjord-measure-narrow\)\s*\/\s*3\)/,
-    );
+// Body text widths use the em measure tokens. The two semibold headings use the design's ch: the
+// measure tokens are sized from the regular "0", which is narrower than the semibold one, and
+// made the band title break into three lines where the design has two (Owner, design match).
+describe('measures (design widths)', () => {
+  it('limits the band title to the 16ch of the design and balances its lines', () => {
+    expect(bodiesOf('fj-band__title')[0]).toMatch(/max-width:\s*16ch/);
+    expect(bodiesOf('fj-band__title')[0]).toMatch(/text-wrap:\s*balance/);
   });
 
   it('limits the band body to the narrow measure and pulls it up as the design does', () => {
@@ -236,14 +236,12 @@ describe('measures (design ch widths, written with the measure tokens)', () => {
     expect(bodiesOf('fj-band__actions')[0]).not.toMatch(/margin/);
   });
 
-  it('limits the footer slogan to 18ch: three eighths of the narrow measure', () => {
-    expect(bodiesOf('fj-footer__slogan')[0]).toMatch(measured);
-    expect(bodiesOf('fj-footer__slogan')[0]).toMatch(/max-width:\s*calc\(/);
+  it('limits the footer slogan to the 18ch of the design', () => {
+    expect(bodiesOf('fj-footer__slogan')[0]).toMatch(/max-width:\s*18ch/);
   });
 
-  it('writes no width in ch', () => {
-    for (const cls of ['fj-band__title', 'fj-band__body', 'fj-footer__slogan'])
-      expect(bodiesOf(cls).join(';')).not.toMatch(/\dch\b/);
+  it('writes no body text width in ch', () => {
+    expect(bodiesOf('fj-band__body').join(';')).not.toMatch(/\dch\b/);
   });
 });
 

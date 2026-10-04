@@ -36,6 +36,7 @@ Traceability:
 - Change log, 2026-10-04 (ux-flows stage, decided by the Owner): AC-24 gained the rule for leaving out the Sticky action bar; AC-21 and the `/styleguide` row of §1.1 now say which Shell parts the Styleguide uses for real and which it shows as samples; D-12 says that the menu button is not shown with scripts off if the menu mechanism needs a script. Nothing else changed.
 - Change log, 2026-10-04 (design stage, decided by the Owner): §1.3 gained D-13, the header's scroll border appears only where scripts run. Nothing else changed.
 - Change log, 2026-10-04 (implement stage, decided by the Owner): AC-26 now states the targeted token rules of ADR-0004 instead of allow lists; the §6 Contrast row gates text, control boundaries and the focus ring, and only reports decorative `aria-hidden` lines; the arrow and icon nudges of the page design stay where motion is allowed (`screens.md` interactive states, AC-28 for reduced motion); text widths may use math on a measure token. Nothing else changed.
+- Change log, 2026-10-04 (design match, decided by the Owner): the header is 64 high below 768 with a 17 px wordmark and a 36 px "Get in touch"; the theme switch is 38 high; these keep a 44 px target through an overlay (D-08). Footer text links are as high as their line, so AC-25 and the §6 Touch targets row name that exception. The page keeps one bottom reserve for the Sticky action bar (the footer's), not two. Nothing else changed.
 - The e2e suite runs with reduced motion emulated, so page and theme transitions never make it unstable; AC-29 and AC-32 have their own tests with motion allowed.
 
 ### 1.1 New or extended
@@ -346,7 +347,7 @@ Not a difference: the coordinates printed on the Not-found map stay "59.91° N �
 
 **Given** a Visitor using any interactive component of §1.1 by touch or by keyboard
 **When** they reach it and activate it
-**Then** it has a touch target of at least 44 by 44, a visible focus ring, works with Enter (and Space for buttons), and tells nothing by hover alone; a Stat shows its final number in the page itself, with scripts on or off
+**Then** it has a touch target of at least 44 by 44 (the control's own box, or an invisible overlay where the page design draws the control lower, D-08; footer text links are as high as their line and keep at least 24 between their centres), a visible focus ring, works with Enter (and Space for buttons), and tells nothing by hover alone; a Stat shows its final number in the page itself, with scripts on or off
 
 ### AC-26 (US-12) — domain invariant
 
@@ -399,7 +400,7 @@ Not a difference: the coordinates printed on the Not-found map stay "59.91° N �
 | Initial JS per page | ≤ 50 KB gzip in total; all Shell scripts together ≤ 5 KB gzip. If the built scripts exceed 5 KB, the measurement is reported to the Owner before anything is changed | build output size check in CI |
 | Not-found page weight | HTML ≤ 20 KB gzip, with the map panel inline. If the built page exceeds it, the map is not simplified, because the page design wins: either the map moves to a separate cached SVG file, which must still meet AC-17, AC-19 and AC-26 in Dag and Natt, or the PR proposes a new limit with the measured size; the limit in CI changes only through that proposal | build output size check in CI |
 | Accessibility | 0 axe violations on the home placeholder, the Not-found page and the Styleguide, in Dag and Natt, and with the menu panel open | axe in Playwright |
-| Touch targets | every interactive element of the Shell ≥ 44 × 44 px at 390 | e2e box measurement |
+| Touch targets | every interactive element of the Shell has a target ≥ 44 × 44 px at 390, counting its overlay (D-08); footer text links: line height, ≥ 24 px between centres (WCAG 2.2 2.5.8 spacing) | e2e box and overlay measurement |
 | Primary buttons | page content ≤ 1, visible screen ≤ 2, at 390 / 834 / 1440, on every page except the Styleguide; at 390 the count is taken in three states: bar on screen (header action secondary), bar scrolled away (header action primary, bar actions not focusable), and scripts off or reduced motion (bar on screen, header action secondary) | e2e count (AC-23) |
 | Visual regression | ≤ 0.1 % differing pixels per screenshot; the Styleguide is captured per component section, not as one page; Not-found page full page; all at 390 / 834 / 1440 in Dag and Natt; the copyright year is masked | Playwright visual tests in CI |
 | Design match | 0 differences between the Not-found page and `design/screenshots/` at 390 / 834 / 1440 in Dag and Natt other than those listed in §1.3 | manual review in the PR, screenshots side by side |

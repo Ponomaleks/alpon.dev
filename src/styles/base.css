@@ -122,16 +122,8 @@ pre {
   scroll-padding-bottom: var(--fjord-space-24);
 }
 
-:root:has([data-shell-bar]) body {
-  padding-bottom: var(--fjord-space-24);
-}
-
 @media (min-width: 768px) {
   :root:has([data-shell-bar]) {
     scroll-padding-bottom: 0;
-  }
-
-  :root:has([data-shell-bar]) body {
-    padding-bottom: 0;
   }
 }

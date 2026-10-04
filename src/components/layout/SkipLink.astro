@@ -24,7 +24,6 @@ const { sample = false } = Astro.props;
     background-color: var(--fjord-color-bg-raised);
     color: var(--fjord-color-text);
     border: var(--fjord-border-width) solid var(--fjord-color-border);
-    box-shadow: var(--fjord-shadow-float);
     font-weight: var(--fjord-weight-medium);
     text-decoration: none;
   }
@@ -32,10 +31,14 @@ const { sample = false } = Astro.props;
   .skip-link[data-sample] {
     position: static;
     display: inline-block;
+    box-shadow: var(--fjord-shadow-float);
   }
 
+  /* The shadow belongs to the shown link only: while hidden above the page its blur would show
+     at the top edge. */
   .skip-link:focus-visible {
     top: var(--fjord-space-3);
+    box-shadow: var(--fjord-shadow-float);
     outline: var(--fjord-focus-width) solid var(--fjord-color-focus-ring);
     outline-offset: var(--fjord-focus-offset);
   }

@@ -143,24 +143,57 @@ for (const { name, path, band } of pages) {
       await expect(download).toHaveAttribute('download', '');
     });
 
-    test('every Shell control is at least 44 x 44 at 390 (AC-25)', async ({ page }) => {
+    test('every Shell control has a touch target of at least 44 x 44 at 390 (AC-25)', async ({
+      page,
+    }) => {
       await open(page, path, widths.phone);
+      // The target is the control's box, widened by its invisible overlay where the design draws
+      // the control lower than 44 px (spec D-08). Footer text links are the exception of AC-25:
+      // they are as high as their line and are checked for spacing below.
       const regions = ['header', '[data-shell-bar]', 'footer', 'section.fj-band'];
       const small: string[] = [];
       for (const region of regions) {
         for (const control of await page.locator(`${region} :is(a[href], button)`).all()) {
           if (!(await control.isVisible())) continue;
-          const box = await control.boundingBox();
-          if (!box) continue;
-          if (box.width < 44 || box.height < 44) {
+          if (await control.evaluate((el) => el.matches('.fj-footer__col a'))) continue;
+          const target = await control.evaluate((el) => {
+            const box = el.getBoundingClientRect();
+            const overlay = getComputedStyle(el, '::before');
+            const has = overlay.content !== 'none' && overlay.position === 'absolute';
+            return {
+              width: Math.max(box.width, has ? parseFloat(overlay.width) : 0),
+              height: Math.max(box.height, has ? parseFloat(overlay.height) : 0),
+            };
+          });
+          if (target.width < 44 || target.height < 44) {
             const label =
               ((await control.textContent()) ?? '').trim() ||
               (await control.getAttribute('aria-label'));
-            small.push(`${region} "${label}" ${Math.round(box.width)}x${Math.round(box.height)}`);
+            small.push(
+              `${region} "${label}" ${Math.round(target.width)}x${Math.round(target.height)}`,
+            );
           }
         }
       }
       expect(small).toEqual([]);
+    });
+
+    test('footer text links keep 24 px between their centres (AC-25, WCAG 2.5.8 spacing)', async ({
+      page,
+    }) => {
+      await open(page, path, widths.phone);
+      const centres = await page.locator('footer .fj-footer__col a').evaluateAll((links) =>
+        links.map((link) => {
+          const box = link.getBoundingClientRect();
+          return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+        }),
+      );
+      expect(centres.length).toBeGreaterThanOrEqual(4);
+      for (const [i, one] of centres.entries()) {
+        for (const two of centres.slice(i + 1)) {
+          expect(Math.hypot(one.x - two.x, one.y - two.y)).toBeGreaterThanOrEqual(24);
+        }
+      }
     });
   });
 }
