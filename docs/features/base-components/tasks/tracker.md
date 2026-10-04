@@ -13,8 +13,8 @@
 | T6 | [Build Contours, the Terrain map panel and Wordmark](./t06-brand-components.md) | ui | Alexander Ponomarenko | M | T2, T4 | done |
 | T7 | [Build ThemeToggle, the theme script and the scripts-off gate](./t07-theme-toggle.md) | ui | Alexander Ponomarenko | M | T2 | done |
 | T8 | [Build Toast, its polite live region and the fjord:toast script](./t08-toast.md) | ui | Alexander Ponomarenko | S | T4 | done |
-| T9 | [Build SkipLink, CtaBand and Footer from the contact data](./t09-static-shell-parts.md) | ui | Alexander Ponomarenko | M | T3, T4, T6 | todo |
-| T10 | [Build Header with its variants, the scroll border script and the one-primary rule](./t10-header.md) | ui | Alexander Ponomarenko | M | T4, T6, T7 | todo |
+| T9 | [Build SkipLink, CtaBand and Footer from the contact data](./t09-static-shell-parts.md) | ui | Alexander Ponomarenko | M | T3, T4, T6 | done |
+| T10 | [Build Header with its variants, the scroll border script and the one-primary rule](./t10-header.md) | ui | Alexander Ponomarenko | M | T4, T6, T7 | done |
 | T11 | [Build the mobile menu panel as a native modal dialog (SCR-03)](./t11-mobile-menu.md) | ui | Alexander Ponomarenko | M | T3, T10 | todo |
 | T12 | [Build the Sticky action bar and its scroll script](./t12-sticky-action-bar.md) | ui | Alexander Ponomarenko | M | T4 | done |
 | T13 | [Compose the Shell in BaseLayout from page options and keep the existing suites green](./t13-base-layout-shell.md) | wiring | Alexander Ponomarenko | M | T8, T9, T10, T11, T12 | todo |
