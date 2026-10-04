@@ -122,6 +122,11 @@ const Root = sample ? 'div' : 'dialog';
     block-size: var(--fjord-header-height-compact);
   }
 
+  /* The design's sheet draws the wordmark at 17px, as the Header does: the 16px UI size scaled by 17 / 16. */
+  .menu .menu__top .wordmark {
+    font-size: calc(var(--fjord-text-ui-lg) * 17 / 16);
+  }
+
   .menu__nav {
     display: flex;
     flex-direction: column;

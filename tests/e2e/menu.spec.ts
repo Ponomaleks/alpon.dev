@@ -162,6 +162,19 @@ test.describe('mobile menu at 390', () => {
     await expect(button).toBeFocused();
   });
 
+  test('the panel wordmark has the size of the header wordmark, as in the page design (R1)', async ({
+    page,
+  }) => {
+    await open(page);
+    const size = (el: Element) => getComputedStyle(el).fontSize;
+    const inHeader = await page
+      .locator('header[data-header] a[aria-label="alpon.dev, home"]')
+      .evaluate(size);
+    await openMenu(page);
+    const inPanel = await panel(page).locator('a[aria-label="alpon.dev, home"]').evaluate(size);
+    expect(inPanel).toBe(inHeader);
+  });
+
   test('closes when the width reaches 768', async ({ page }) => {
     await open(page);
     await openMenu(page);
