@@ -1,7 +1,7 @@
 ---
 status: Draft
 owner: "Alexander Ponomarenko"
-reviewers: ["Tech Lead", "Security Lead"]
+reviewers: ["Tech Lead"]
 updated_at: "2026-10-05"
 feature_size: "S"
 ---
@@ -9,7 +9,7 @@ feature_size: "S"
 # Spec — home
 
 > **Glossary:** [CONTEXT](../../../CONTEXT.md) (repo root; this feature has no feature-level CONTEXT)
-> **Reference module / docs / channels used:** `CLAUDE.md`; `docs/roadmap.md` step 4, lane rules and the Projects rule; `docs/idea-brief.md` §3 and §6; `docs/stub-parity.md` P-20 to P-24 and P-50; `docs/backlog.md` B-05, B-09, B-18, B-25; `docs/features/base-components/spec.md` §1.2, §1.3, §3, AC-23, AC-24, AC-27, AC-28; `src/pages/index.astro`, `src/data/contact.ts`, `public/alexander-ponomarenko.vcf`, `public/_headers`; page design `design/handoff/site/project/site/Home.jsx`, `App.jsx` (header over the hero, reveal), `data.js`, `site.css`; the design system's `ContactForm.jsx`; screenshots `design/screenshots/{dag,natt}_home.png`.
+> **Reference module / docs / channels used:** `CLAUDE.md`; `docs/roadmap.md` step 4, lane rules and the Projects rule; `docs/idea-brief.md` §3 and §6; `docs/stub-parity.md` P-20 to P-24 and P-50; `docs/backlog.md` B-05, B-09, B-18, B-25; `docs/features/base-components/spec.md` §1.2, §1.3, §3, AC-23, AC-24, AC-27, AC-28; `src/pages/index.astro`, `src/data/contact.ts`, `public/alexander-ponomarenko.vcf`, `public/_headers`; page design `design/handoff/site/project/site/Home.jsx`, `App.jsx` (header over the hero, reveal), `data.js`, `site.css`; screenshots `design/screenshots/{dag,natt}_home.png`.
 
 ## 1. Context
 
@@ -17,17 +17,17 @@ After base-components, v2 has the Shell and the base components, but its home pa
 
 Why now: this is wave 3 of the roadmap, next to the CV pages (step 5), and Release 1 waits for it. Six stub-parity items belong to this step: P-20 to P-24 and P-50. Until they pass, the stub stays on `main` during an active job search.
 
-Committed approach: build the whole home page from its page design, content first and with the form proven. Four rules shape it. (1) The first phone screen is the one the page design draws: badge, "Oslo, Norge", name, roles, lead, "View CV" and the Now line, with contact one tap away. (2) Every section is visible by default; reveal, count-up, drift and parallax only add motion and never hold content back, so the page reads fully with scripts off. (3) Email is the main contact route; the Message form is second, delivers only to the Owner's own mailbox, keeps showing the email address after "sent", and is proven by one real message on production at every release. (4) No bracketed placeholder reaches a page for Visitors. The research pass found the same advice in every source: say who, what role, where and how to reach you on the first screen; none of the reviewed pages combines visible location and availability with a CV and with contact that keeps working when a form fails. The failure-mode pass named the sharpest risk as a form that says "sent" while the Owner never receives the message; AC-19, AC-21 and AC-37 pin it. The success criterion from the idea brief stays the measure: a Recruiter understands and acts within 60 seconds on a phone (AC-01).
+Committed approach: build the whole home page from its page design, content first. Three rules shape it. (1) The first phone screen is the one the page design draws: badge, "Oslo, Norge", name, roles, lead, "View CV" and the Now line, with contact one tap away. (2) Every section is visible by default; reveal, count-up, drift and parallax only add motion and never hold content back, so the page reads fully with scripts off. (3) No bracketed placeholder reaches a page for Visitors. Email is the main contact route; the Message form of the page design is not built here (IS-03). The research pass found the same advice in every source: say who, what role, where and how to reach you on the first screen; none of the reviewed pages combines visible location and availability with a CV and with contact routes that need no form. The success criterion from the idea brief stays the measure: a Recruiter understands and acts within 60 seconds on a phone (AC-01).
 
 Traceability:
 - Scope: the Owner widened roadmap step 4 from "hero, contact block, meta" to the whole page design. The roadmap row and the execution-path zone of step 4 are updated when this spec is registered.
 - Parity: P-20, P-21, P-22, P-23, P-24 and P-50 flip from `fixme` to `test` here (AC-35). P-21 keeps "Oslo, Norge" in the Contact block (D-03).
-- Task order: the tasks that Release 1 needs (hero, Contact block, head meta, the parity items) come first and can merge on their own; the Message form, Recommendations and the Dormant section follow. If the task breakdown goes above about 25 tasks, `tasks` proposes a split along the same line before writing tasks: 4a the Shell changes and the parity part with key facts, About, experience and motion; 4b the Message form, Recommendations and Selected projects. With the Shell changes added on 2026-10-05 the feature is at the upper edge of size S, so a split is likely.
-- Shared files (roadmap lane rule): besides the Shell changes decided by the Owner below (Header, MobileBar, CtaBand, the Not-found page), this feature changes files the Shell owns: `src/data/contact.ts` (Work region coordinates for the hero), `public/_headers` and `tests/contracts/csp.contract.json` (only if the Message form's delivery needs it), `tests/e2e/parity.spec.ts`, `docs/stub-parity.md`, `scripts/check-contact.ts` (structured data and hero coordinates), `scripts/check-budgets.ts` (B-09), `src/components/ui/Toast.astro` (B-25), `src/layouts/BaseLayout.astro` and `src/components/layout/CtaBand.astro` (B-18). Step 5 has not started (no branch or spec on 2026-10-05), so today these changes stay in this feature's PR. The "small separate PR to `v2` first" rule applies only if step 5 starts while this feature is still open, and then only to the files step 5 also touches: `src/data/contact.ts`, `tests/e2e/parity.spec.ts`, `docs/stub-parity.md`, `public/_headers`, `src/layouts/BaseLayout.astro` and the Shell components (Header, MobileBar, CtaBand). Step 5 should start after the Shell changes of this feature are in `v2`.
+- Task order: the tasks that Release 1 needs (hero, Contact block, head meta, the parity items) come first and can merge on their own; Recommendations and the Dormant section follow. If the task breakdown goes above about 25 tasks, `tasks` proposes a split along the same line before writing tasks: 4a the Shell changes and the parity part with key facts, About, experience and motion; 4b Recommendations and Selected projects. With the Shell changes added on 2026-10-05 the feature is at the upper edge of size S, so a split is likely.
+- Shared files (roadmap lane rule): besides the Shell changes decided by the Owner below (Header, MobileBar, CtaBand, the Not-found page), this feature changes files the Shell owns: `src/data/contact.ts` (Work region coordinates for the hero), `tests/e2e/parity.spec.ts`, `docs/stub-parity.md`, `scripts/check-contact.ts` (structured data and hero coordinates), `scripts/check-budgets.ts` (B-09), `src/components/ui/Toast.astro` (B-25), `src/layouts/BaseLayout.astro` and `src/components/layout/CtaBand.astro` (B-18). Step 5 has not started (no branch or spec on 2026-10-05), so today these changes stay in this feature's PR. The "small separate PR to `v2` first" rule applies only if step 5 starts while this feature is still open, and then only to the files step 5 also touches: `src/data/contact.ts`, `tests/e2e/parity.spec.ts`, `docs/stub-parity.md`, `src/layouts/BaseLayout.astro` and the Shell components (Header, MobileBar, CtaBand). Step 5 should start after the Shell changes of this feature are in `v2`.
 - The contact card file is not changed: `public/alexander-ponomarenko.vcf` already holds every field AC-16 names, the LinkedIn and GitHub addresses included. The QR files do not change.
 - The base-components KPI "edits to shared Shell or component files in the step 4 PR" will read above 0: B-09, B-18, B-25, the contact data change and the Shell decisions the Owner took on 2026-10-05. These are the edits listed here and nothing else.
 - Backlog items that close here: B-09 (page-own scripts are measured apart from the Shell scripts), B-18 (band top margin, `main` minimum height), B-25 (Toast check icon, first used by the copy-email action). B-05 does not apply: the home page marks no navigation link as current.
-- The Message form reverses a line of base-components §3 ("The contact form: not planned; it needs its own ADR"). The design stage records one decision that covers the delivery path, any change to the security policy (today it forbids form posts and requests to other origins), the behaviour with scripts off, where the sender limit keeps its count, and how preview deployments and tests are kept off the real delivery path. It must cost nothing to run. If that decision touches the "no server code" note of the architecture map or ADR-0001, the ADR says so.
+- Decision (Owner, 2026-10-05): the Message form moves out of this feature into roadmap step 12, the last step. Email, phone, the contact card and LinkedIn are the contact routes until then. In its place the contact section shows one sentence with the email address as a mail link (IS-03). The security policy is not changed by this feature: `public/_headers` and `tests/contracts/csp.contract.json` stay as they are, and base-components §3 ("The contact form: not planned; it needs its own ADR") stands. The decisions already taken for the form at the design stage are recorded in the roadmap row of step 12. The ids that left with the form (US-03, US-13, AC-19 to AC-25, AC-37, D-07) are not reused.
 - Projects: roadmap rule "Projects merges into `v2` only after Release 1" stays true for the Projects pages. This feature builds only the home section and the shape of a project entry, as a Dormant section (AC-11); step 7 owns the switch. The roadmap records this when the spec is registered.
 - Step 5 owns the legacy `#cv` and `#cv-no` hand-off from the home page. It adds its own script and does not need a change in this feature; whichever of the two steps merges second rebases.
 - Decision: the page design's Contact block shows "Nittedal, Norge"; `CLAUDE.md` and P-21 put the Work region there. The Work region wins (D-03).
@@ -43,7 +43,6 @@ Traceability:
   - The choice is kept in `sessionStorage`, wrapped in try and catch; with blocked storage it holds for the current page only.
   - The loops start only when scripts run, the same gate as the theme switch; the control is hidden with scripts off.
   - Selected projects reads from the projects content collection.
-  - Spam is limited by a hidden trap field and a sender limit; no CAPTCHA.
 - Content source: the copy comes from `design/handoff/site/project/site/data.js` and `Home.jsx`. The Owner supplies during implement, when asked: the Now line's project, and two Recommendations with text, name and role. The Owner confirms every number and status through the Claims list (AC-29).
 
 ### 1.1 New or extended
@@ -58,14 +57,13 @@ Traceability:
 | Recommendations | new | rendered only with real quotes (AC-09, AC-10) |
 | Selected projects with project cards | new, Dormant section | Styleguide only until step 7 (AC-11) |
 | Contact block: contact list, copy-email action, "Save contact", QR tile | new | reads `src/data/contact.ts` |
-| Message form with text fields | new | delivery path decided at the design stage |
 | Head meta and structured Person data | new | P-24 |
 | Section reveal, hero parallax and contour drift, header over the hero | new | page-own scripts; the static variants shipped in base-components |
 | Home content data (facts, intro, quick facts, experience, recommendations) | new | typed data next to `contact.ts`; contact facts stay in `contact.ts` |
 | Shape of a project entry (projects content collection) | new | empty; step 7 fills and extends it |
 | `/styleguide` | extend | sections for every new component, with marked sample data |
 | Build checks: placeholder check; contact check covers structured data and hero coordinates; budget check (B-09) | new, extend | AC-27, AC-28 |
-| `src/data/contact.ts`, Toast, BaseLayout, CtaBand, `public/_headers` | extend | shared files, see Traceability |
+| `src/data/contact.ts`, Toast, BaseLayout, CtaBand | extend | shared files, see Traceability |
 | Sticky action bar (Shell) | extend | actions set per page (D-10); collapse tab (D-11); both actions secondary |
 | CtaBand (Shell) | extend | actions set per page (D-12); contours follow scrolling (D-13) |
 | Header (Shell) | extend | follows the page design over the home hero (AC-33); the "secondary while the bar is on screen" rule is removed (D-14) |
@@ -83,6 +81,7 @@ Review does not check these against the design (`CLAUDE.md` Review policy).
 |---|---|---|
 | IS-01 | "View CV" in the hero and "Full CV" in the experience section lead to the CV address, which answers with the English PDF until the CV pages exist | 5 |
 | IS-02 | The legacy `#cv` and `#cv-no` addresses on the home page do nothing yet | 5 |
+| IS-03 | In the contact section, in the place of the page design's Message form, one sentence shows the email address from `src/data/contact.ts` as a mail link. It is static HTML with no script | 12 |
 
 ### 1.3 Confirmed differences from the page design
 
@@ -96,12 +95,11 @@ Decided by the Owner; they go to the PR's design-difference list as they are.
 | D-04 | Sections below the hero are invisible until a script reveals them | visible by default; where scripts run and motion is allowed they fade in once | content never depends on a script (AC-32) |
 | D-05 | Hero has "See projects"; Selected projects is section 02; Contact is 05 | until step 7: no "See projects", no Selected projects; sections are numbered in the order shown: About 01, Experience 02, Recommendations 03, Contact 04 (Contact 03 without Recommendations) | no Published project and no Projects pages yet; the design itself renumbers Contact when a section is absent |
 | D-06 | Now line "[current project] · MSc Computer Science at Woolf University" | the project the Owner supplies; without one, only the MSc part | no bracketed placeholder on a page (AC-28) |
-| D-07 | Form note "Goes straight to my inbox"; success state has no address; error state names the address as text | a short privacy line under the form; the success state keeps the email address; the error state offers a ready "write by email instead" link next to the address | privacy notice and the silent-failure risk (AC-19, AC-21, AC-25) |
 | D-08 | The header over the hero is set by a script | reproduced exactly where scripts run (AC-33); with scripts off the header keeps its default look and a primary "Get in touch" | the state depends on scroll position; contrast holds in both |
 | D-09 | "On LinkedIn" and profile links open a new tab | the same tab | base-components D-16 |
 | D-10 | Sticky action bar: "View CV" and "Get in touch" on every page | the actions are set per page, all in the secondary style: home and Not-found "View CV" and "Save contact (.vcf)", also after step 7; CV (step 5) the language switch and "Download PDF"; project and case-study pages (step 7) "View CV" and "Next project" or "All projects" | Owner decision 2026-10-05: the header already carries "Get in touch" at 390 |
 | D-11 | The Sticky action bar cannot be put away | a small arrow tab collapses it and brings it back; it works with scripts off, and a collapsed bar stays collapsed for the page visit (AC-39). The look of the tab is decided at the design stage within Fjord | Owner decision 2026-10-05 |
-| D-12 | Closing band on the home page: "Get in touch" and "Download CV" | "Save contact (.vcf)" and "Download CV", both secondary; other pages keep the design's pair | the band sits right under the contact section; no primary button competes with "Send message" (AC-34, AC-40) |
+| D-12 | Closing band on the home page: "Get in touch" and "Download CV" | "Save contact (.vcf)" and "Download CV", both secondary; other pages keep the design's pair | the band sits right under the contact section, so it repeats no contact action (AC-34, AC-40) |
 | D-13 | The closing band's contours drift in a time loop | they shift with the Visitor's scrolling, on every page with the band, with scripts on or off; still without browser support or with reduced motion | motion that follows scrolling needs no pause control (WCAG 2.2.2), so the band behaves the same on pages without a Motion control (AC-41) |
 | D-14 | base-components D-06: below 768 the header "Get in touch" is secondary while the Sticky action bar is on screen | dropped; the header follows the page design: on the Not-found, CV, Projects and Thoughts pages it never changes style and "Get in touch" is always primary, only the bottom border appears after scroll; the home page is AC-33 | Owner decision 2026-10-05, measured on the prototype at 390, 834 and 1440; the bar no longer holds a primary button |
 
@@ -110,7 +108,7 @@ Not a difference: the hero coordinates stay 59.91° N, 10.75° E. They belong to
 ## 2. Goals
 
 - A Recruiter on a phone learns who Alexander is, his role and his Work region from the first screen, and reaches the CV or a contact action without searching.
-- Every way to contact Alexander works and tells the truth: the Contact block, the contact card, the QR and the Message form, which never reports a message as sent when it was not delivered.
+- Every way to contact Alexander works and tells the truth: the Contact block, the contact card and the QR.
 - A Tech lead finds the page as careful as its content: complete without scripts, calm under reduced motion, looping motion that can be stopped, facts that have a confirmed source.
 - v2 moves to Release 1: the six parity items of this step pass and the Shell's contact links reach a real place.
 - The Shell fits each page: the header follows the page design, and the Sticky action bar and the closing band carry the actions that make sense where they are shown.
@@ -122,7 +120,7 @@ Not a difference: the hero coordinates stay 59.91° N, 10.75° E. They belong to
 - The command palette and "Search Ctrl K" in the header: step 8.
 - Analytics and its security-policy change: step 6. The KPI that needs it is measured from Release 1.
 - A Norwegian version of the home page: the content rules keep the main content in English with Norwegian details.
-- Storing messages, a message history or an auto-reply to the sender: the site has no datastore, and mail to an address typed by a Visitor would make the site a relay.
+- The Message form of the page design, with its delivery, sender limit and privacy line: roadmap step 12. Until then the contact section shows the email address in its place (IS-03).
 
 ## 4. User stories
 
@@ -137,12 +135,6 @@ Not a difference: the hero coordinates stay 59.91° N, 10.75° E. They belong to
 **As a** Recruiter
 **I want** a Contact block with email, phone, profiles, a contact card to save and a QR to scan
 **So that** I can contact him or keep his details in the way that suits me
-
-### US-03: Send a short message
-
-**As a** Recruiter
-**I want** to write a few lines on the page and know for certain whether they were sent
-**So that** I do not have to open a mail app, and I am never left believing a lost message arrived
 
 ### US-04: Get the background in numbers and a paragraph
 
@@ -197,12 +189,6 @@ Not a difference: the hero coordinates stay 59.91° N, 10.75° E. They belong to
 **As the** Owner
 **I want** contact facts from one place, no placeholder on a page, and a Claims list I sign
 **So that** nothing on the page contradicts the contact card or cannot be backed in an interview
-
-### US-13: Messages that reach me, and only me
-
-**As the** Owner
-**I want** the Message form to deliver to my own mailbox only, to hold back automated messages, and to be proven on production
-**So that** I do not lose a Recruiter's message and the site cannot be used to mail anyone else
 
 ### US-14: Useful actions at my thumb, out of the way when I want
 
@@ -320,48 +306,6 @@ Not a difference: the hero coordinates stay 59.91° N, 10.75° E. They belong to
 **When** they activate "Contact" or "Get in touch" in the header or the mobile menu
 **Then** they arrive at the contact section of the home page with its heading in view below the header, the mobile menu closed, and keyboard focus placed at that section
 
-### AC-19 (US-03) — happy
-
-**Given** a Recruiter who has entered a name, a complete email address and a message of at least ten characters
-**When** they activate "Send message"
-**Then** the button shows "Sending…" and cannot be activated twice; once delivery is confirmed the form is replaced by "Thanks! Your message is on its way. I'll answer by email." with the direct email address still shown, announced to assistive technology; and the message is in the Owner's mailbox with the sender's name and address, so that a reply goes to the sender
-
-### AC-20 (US-03) — error
-
-**Given** a Recruiter who leaves the name empty, enters an incomplete email address or writes fewer than ten characters
-**When** they activate "Send message"
-**Then** nothing is sent; each wrong field shows its own message ("Please add your name.", "This email looks incomplete.", "A sentence or two is enough."), tied to the field for assistive technology; focus moves to the first wrong field; what they typed stays; and a field's message goes away when they correct it
-
-### AC-21 (US-03) — error
-
-**Given** a Recruiter whose message cannot be delivered, or gets no confirmation within the time limit of §6
-**When** the attempt ends
-**Then** the form never shows the success state: it shows "Message not sent." with the reason in plain words, keeps everything they typed, lets them try again, and offers "write by email instead", which opens their mail app with the message filled in, next to the email address as text
-
-### AC-22 (US-03) — error
-
-**Given** a Visitor whose browser runs no scripts
-**When** they reach the place of the Message form
-**Then** they find no control that does nothing: either the form works without scripts, or in its place a sentence points to the email address as a mail link
-
-### AC-23 (US-13) — authorization
-
-**Given** anyone, a person or a program, who submits the Message form or addresses its delivery path directly
-**When** the message is handled
-**Then** it can only ever be delivered to the Owner's own fixed mailbox; no value supplied by the sender decides a recipient, and no copy or automatic reply goes to the address they typed. The site must not be usable to send mail to third parties
-
-### AC-24 (US-13) — domain invariant
-
-**Given** a submission that fills the hidden trap field, exceeds the allowed message length, or comes from a sender who is over the sender limit of §6
-**When** it arrives
-**Then** it is not delivered to the Owner. A program that filled the trap field gets no hint of that; a real Visitor who is over the limit or over the length is told in plain words and is offered the email address. One sender cannot flood the mailbox
-
-### AC-25 (US-03) — domain invariant
-
-**Given** a Visitor about to use the Message form
-**When** they read the line under it
-**Then** it says, truthfully and before they send: that the message goes to Alexander's mailbox, what is used to answer them, what is kept and for how long, including whatever the sender limit keeps, and how to ask for deletion. The form sets no cookie and keeps nothing in the Visitor's browser. A Visitor's personal data is used only for the purpose they were told
-
 ### AC-26 (US-08) — happy
 
 **Given** a Recruiter who meets the home page in a search result or as a shared link
@@ -372,7 +316,7 @@ Not a difference: the hero coordinates stay 59.91° N, 10.75° E. They belong to
 
 **Given** the Owner changes a contact fact
 **When** the checks run
-**Then** the Contact block, the structured data, the footer, the menu and the hero take the fact from the one contact source, and the checks fail, naming the field, if the contact card disagrees with it or if the coordinates shown in the hero differ from the Work region coordinates in the contact source. Contact facts live in one place
+**Then** the Contact block, the mail-link sentence of IS-03, the structured data, the footer, the menu and the hero take the fact from the one contact source, and the checks fail, naming the field, if the contact card disagrees with it, if the email address in the mail-link sentence of IS-03 differs from the one in the contact source, or if the coordinates shown in the hero differ from the Work region coordinates in the contact source. Contact facts live in one place
 
 ### AC-28 (US-12) — error
 
@@ -402,7 +346,7 @@ Not a difference: the hero coordinates stay 59.91° N, 10.75° E. They belong to
 
 **Given** a Tech lead who opens the home page with scripts off, or a page in which an inline script, an inline style or a script the site's security policy does not name has appeared
 **When** the page is shown
-**Then** every section is visible and readable, every link of the Contact block works, "Save contact" works, no Ambient motion runs and no Motion control or "Copy" action is offered; and the browser refuses the script or style that the policy does not name. The policy is widened only as far as the recorded Message form decision needs, and never to allow inline scripts
+**Then** every section is visible and readable, every link of the Contact block works, "Save contact" works, no Ambient motion runs and no Motion control or "Copy" action is offered; and the browser refuses the script or style that the policy does not name. This feature does not change the policy
 
 ### AC-33 (US-11) — happy
 
@@ -418,7 +362,7 @@ In every one of these states the header's text and actions are readable at the c
 
 **Given** any page for Visitors, which is every page except the Styleguide, at 390, 834 or 1440 wide, at any scroll position
 **When** the checks count the primary buttons on the visible screen
-**Then** there are never more than two, and never more than one from the page content; the other one is the header's "Get in touch", the Shell's single primary action. On the home page "View CV" is the hero's and "Send message" the contact section's, and the two never share a screen; the Sticky action bar holds no primary button on any page, and the closing band holds none on the home page. One primary action per screen is a brand rule
+**Then** there are never more than two, and never more than one from the page content; the other one is the header's "Get in touch", the Shell's single primary action. On the home page the hero's "View CV" is the only primary button of the page content; the Sticky action bar holds no primary button on any page, and the closing band holds none on the home page. One primary action per screen is a brand rule
 
 ### AC-35 (US-12) — happy
 
@@ -431,12 +375,6 @@ In every one of these states the header's text and actions are readable at the c
 **Given** a Visitor whose browser runs scripts and whose device does not ask for reduced motion
 **When** a section below the hero first comes into view
 **Then** it fades in once and stays; a section already in view when the page opens, or reached through a link to it, is shown at once
-
-### AC-37 (US-13) — cross-context
-
-**Given** a release of the site, a preview deployment or a test run
-**When** the Message form is exercised
-**Then** on production the Owner sends one real message after each release and finds it in the mailbox before the release is called done; on a preview deployment and in tests the form behaves the same for the Visitor but never delivers to the real mailbox and never uses up the allowance of the delivery path
 
 ### AC-38 (US-14) — happy
 
@@ -471,15 +409,12 @@ In every one of these states the header's text and actions are readable at the c
 | Initial JS on the home page | ≤ 50 KB gzip in total; the home page's own scripts together ≤ 10 KB gzip, measured apart from the Shell scripts (B-09) | build output size check in CI |
 | Portrait | ≤ 40 KB at the largest size served; width and height reserved | build output size check in CI; CLS above |
 | First screen on a phone | at 390 × 844, the size of the page design, everything AC-01 lists lies fully inside the first screen | e2e box measurement (AC-01) |
-| Accessibility | 0 axe violations on the home page in Dag and Natt, with scripts on and off, with an experience entry open, and in the form's idle, invalid, sending, success and failure states | axe in Playwright |
+| Accessibility | 0 axe violations on the home page in Dag and Natt, with scripts on and off, and with an experience entry open | axe in Playwright |
 | Touch targets | every interactive element of the page content ≥ 44 × 44 px at 390, counting its overlay | e2e box measurement |
 | Ambient motion | 0 loops running when paused, with reduced motion, or with scripts off; pausing takes effect within 100 ms; 0 animations in the closing band that advance without scrolling | e2e check of running animations |
 | Primary buttons | on every page except the Styleguide: visible screen ≤ 2, of which page content ≤ 1, at 390 / 834 / 1440; on the home page counted at the top, over the contact section and at the end; Sticky action bar 0 on every page, closing band 0 on the home page | e2e count (AC-34) |
 | Header states | the 3 widths × 2 themes × 3 positions (top of the page, scrolled over the hero, after it) of AC-33 each match the page design, border included | e2e computed styles and visual tests |
 | Sticky action bar, collapsed | the tab is ≥ 44 × 44 px; at 390, at the end of the page and with focus on the last footer link, it overlaps 0 px of the last line and of the focused element | e2e box measurement (AC-39) |
-| Message form, time limit | the Visitor sees success or failure ≤ 10 s after "Send message" | e2e with a delayed delivery stub |
-| Message form, limits | message ≤ 2,000 characters; ≤ 5 messages per sender per hour | contract test of the delivery path |
-| Message form, delivery | 1 of 1 real test messages received on production at each release | Owner check in the release checklist (AC-37) |
 | Contrast | every text and background pair the new components render, in Dag, Natt and on spruce, including the header over the hero: body ≥ 4.5:1; large text, control boundaries and the focus ring ≥ 3:1 | contrast check script in CI |
 | Visual regression | ≤ 0.1 % differing pixels per screenshot; home page per section at 390 / 834 / 1440 in Dag and Natt with motion off; new and changed Styleguide sections; the Not-found page re-baselined for its bar | Playwright visual tests in CI |
 | Design match | 0 differences between the home page and `design/screenshots/{dag,natt}_home.png` (and the standalone design at 390 and 834) other than those listed in §1.2 and §1.3; the Dormant section is D-05; the header is compared in the states of AC-33 | manual review in the PR, screenshots side by side |
@@ -488,27 +423,22 @@ In every one of these states the header's text and actions are readable at the c
 
 ## 6.1 Security / privacy
 
-- **Data classification:** confidential for what Visitors type into the Message form (name, email address, free text); public for everything the page shows.
-- **Personal data touched:** new: a Visitor's name, email address and message, in transit to the Owner's mailbox and kept there as ordinary mail; whatever the sender limit needs to count a sender, kept no longer than the limit's window. Third parties: the name, role and words of each person who gave a Recommendation, shown with their agreement. The Owner's own contact facts, as before. The Motion control keeps one "paused" value in the Visitor's browser for the session, never sent anywhere. No cookie is set.
-- **AuthZ/AuthN impact:** no accounts or sign-in. The Message form is the site's first way to receive data from a Visitor: its delivery path accepts messages from anyone, delivers to one fixed mailbox and to nothing else (AC-23), and enforces the limits itself, never only in the page (AC-24). The security policy changes only as recorded in the design-stage decision.
+- **Data classification:** public for everything the page shows. The page takes no input from Visitors.
+- **Personal data touched:** third parties: the name, role and words of each person who gave a Recommendation, shown with their agreement. The Owner's own contact facts, as before. The Motion control keeps one "paused" value in the Visitor's browser for the session, never sent anywhere. No cookie is set.
+- **AuthZ/AuthN impact:** none. No accounts or sign-in, and the site still receives no data from a Visitor. The security policy is not changed (AC-32).
 - **Abuse cases:**
-  - Using the form as a relay to mail other people: refused by design; the recipient is fixed and nothing is sent to the typed address (AC-23).
-  - Automated submissions straight to the delivery path, skipping the page: the trap field, the length limit and the sender limit are enforced on the delivery side; over the limit nothing is delivered (AC-24).
-  - Using up the free allowance so that real messages fail: the Visitor then sees the failure state with the email route, never a false success (AC-21); the release check notices a dead path (AC-37).
-  - Markup or script typed into a message: treated as plain text everywhere it is shown; the page never shows a Visitor's text back as markup.
   - A Recommendation that the person did not agree to: omitted, not edited (AC-10).
-  - Preview deployments and test runs reaching the real mailbox: kept off the real path (AC-37).
-- **Security review:** Required for the Message form: the delivery decision, the security-policy change and the privacy line are reviewed on the preview URL before merge. N/A for the rest of the page if the policy contract is otherwise unchanged.
+  - A script or style the security policy does not name appearing in the page: refused by the browser (AC-32).
+- **Security review:** N/A: the policy contract is unchanged and the page takes no input.
 
 ## 7. Metrics / KPIs
 
 - **Open stub-parity items (`test.fixme` in the parity suite)** — baseline: 12, target: 6 when this feature merges into `v2` (P-20 to P-24 and P-50 turned on).
 - **Differences from the page design not listed in §1.2 or §1.3** — baseline: the whole page (placeholder), target: 0 at the design-match review.
 - **Claims list items confirmed by the Owner** — baseline: 0, target: all of them before merge.
-- **Real test messages received on production** — baseline: none (no form), target: 1 of 1 at Release 1 and at each later release.
-- **Home visits that continue to the CV or to contact** — baseline: TBD; measured over the first 30 days after Release 1; the target is set from that baseline. As far as is known, the cookieless analytics that step 6 turns on counts page views, not link clicks. So the measurable part is visits that continue from the home page to the CV pages, plus messages received through the Message form, counted on the delivery side; mail, phone, contact card and QR actions may stay unmeasured. Step 6 confirms what it can count before the target is set.
+- **Home visits that continue to the CV or to contact** — baseline: TBD; measured over the first 30 days after Release 1; the target is set from that baseline. As far as is known, the cookieless analytics that step 6 turns on counts page views, not link clicks. So the measurable part is visits that continue from the home page to the CV pages; mail, phone, contact card and QR actions may stay unmeasured. Step 6 confirms what it can count before the target is set.
 - **Review rounds** — baseline: 2 (base-components), target: ≤ 2.
 
 ## 8. Open questions
 
-None. The mechanism choices left open on purpose (the Message form's delivery path and the security-policy change that goes with it, the header mechanism over the hero, the look of the collapse tab of the bar) belong to the design stage and are bounded by AC-19 to AC-25, AC-32, AC-33 and AC-37.
+None. The mechanism choices left open on purpose (the header mechanism over the hero, the look of the collapse tab of the bar) belong to the design stage and are bounded by AC-33 and AC-39.

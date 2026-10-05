@@ -16,26 +16,21 @@ updated_at: "2026-10-05"
 
 - **Posture:** mobile-first, per `docs/design-system.md`. The phone path is drawn first; the flows branch at 768 (Sticky action bar, header navigation) and at 1024 (portrait beside the text, QR tile).
 - **Page shape:** the home page is one long page. Its sections (hero, key facts, About, Experience, Recommendations, Contact) are places on one screen, not screens of their own; a Visitor moves between them by scrolling or by a link to the contact section.
+- **Message form:** not part of this feature (spec §1.2 IS-03, roadmap step 12). In its place the contact section shows one sentence with the email address as a mail link, the same with scripts on or off.
 - **Contact place:** the contact section of the home page. "Contact" and "Get in touch" in the header and in the Mobile menu panel lead there from every page: on the home page the page moves to it, from another page the home page opens at it. Focus is placed at the section in both cases.
-- **Message form modality:** inline in the contact section. Its idle, invalid, sending, success and failure states replace each other in place; no dialog and no page of its own. The success state stays until the page is opened again.
 - **Experience entries:** each entry opens and closes in place and independently of the others; nothing navigates.
 - **Copy confirmation:** a Toast, transient and non-blocking, as in base-components. On a phone it is the first Toast shown together with the real Sticky action bar.
 - **Motion control:** one control in the hero, changing the page in place. It exists only where scripts run and the device does not ask for reduced motion.
 - **Sticky action bar:** below 768 only; its two actions come from the page and it can be collapsed to a tab. Collapsing holds for the page the Visitor is on; a newly opened page shows the bar again.
 - **Closing band:** on the home page it follows the contact section directly and carries no contact action.
-- **Scripts off:** every section is readable and every contact route works. The actions that need a script (the Motion control, "Copy") are not offered, and the place of the Message form never holds a control that does nothing.
+- **Scripts off:** every section is readable and every contact route works. The actions that need a script (the Motion control, "Copy") are not offered.
 - **Motion:** with reduced motion every flow ends in the same state; changes are instant or a fade and nothing loops, counts or follows scrolling.
 - **Interim and dormant targets:** the CV address is an exit of these flows, not a screen of this feature (spec §1.2 IS-01). The Selected projects section and "See projects" are dormant until step 7; their branches are dashed.
 - **Design input, decided (Owner, 2026-10-05):** `design`, `screens` and `plan-tests` take these as given.
   - Sticky action bar brought back with the tab: it behaves like a bar that was never collapsed, so it again leaves on the way down and returns on the way up. AC-39's "scrolling does not bring it back" holds while the bar is collapsed.
   - A Toast while the bar is collapsed sits above the tab, as it sits above the bar when the bar is visible (base-components AC-30).
-  - Leaving the page while "Sending…" is shown: no special handling and no leave warning.
-  - A submission that filled the trap field gets the same response as a delivered message, and nothing is delivered (AC-24).
-  - Message length: the form limits it and shows a visible character count; the delivery side checks the length again (AC-24).
-  - The success state has no "send another" action, as in the prototype; a second message needs the page opened again.
   - Experience entries open and close independently, as in the prototype.
 - **Design input (not decided here):**
-  - The Message form's delivery path, the security-policy change that goes with it, and which of the two scripts-off variants of AC-22 is built (the form works, or a sentence with the mail link replaces it).
   - How the header follows the hero (AC-33), including the state after returning with the back button at a scrolled position.
   - The look and position of the collapse tab of the Sticky action bar (D-11).
 
@@ -106,35 +101,11 @@ flowchart TD
     R -->|"'Save contact (.vcf)'"| D
     R -->|"'Download CV'"| R1["The English CV PDF downloads"]
     R -.->|"other pages with the band, from step 5"| R2["The band keeps 'Get in touch' and 'Download CV'"]
-    L -->|"prefers to write on the page"| F["Message form (Flow US-03)"]
+    L --> F["Beside the Contact block, in the place of the page design's Message form: one sentence with the email address as a mail link, with scripts on or off (interim IS-03)"]
+    F -->|"the mail link"| M1
 ```
 
-A Recruiter reaches the contact section by scrolling, or a Visitor on any page activates "Contact" or "Get in touch" in the header or the Mobile menu panel. On the home page the menu closes and the page moves to the section; from another page, such as the Not-found page, the home page opens at it. Either way the section's heading is in view below the header and keyboard focus is at the section. The Contact block shows the heading, the lead and rows for email, phone, LinkedIn, GitHub and "Based in" with "Oslo, Norge". The email opens the mail app, the phone number the phone app, and the profiles open on the other site in the same tab. "Copy" depends on the browser: with scripts off it is not offered and the address stays a selectable mail link; with scripts on and clipboard access, the address is copied and a Toast confirms "Kopiert" with the address, announced, and leaves by itself (on a phone it sits above the Sticky action bar, or above its tab when the bar is collapsed); where clipboard access is refused no confirmation appears and the Visitor is told to copy by hand. "Save contact (.vcf)" downloads the contact card. From 1024 the QR tile with "Skann meg" and the camera hint is shown and scanning it offers the contact; below 1024 neither is shown. At the end of the page the closing band offers "Save contact (.vcf)" and "Download CV" (the English PDF), both secondary and without "Get in touch"; on other pages the band keeps its usual pair (dashed, from step 5). A Recruiter who would rather write on the page goes on to the Message form.
-
-### Flow: US-03 — Send a short message
-
-```mermaid
-flowchart TD
-    A["Recruiter reaches the place of the Message form in the contact section of SCR-01"] --> B{"Do scripts run?"}
-    B -->|"no (AC-22)"| N["No control that does nothing: either the form itself works without scripts, or a sentence with the email address as a mail link stands in its place. Which of the two is design input"]
-    B -->|"yes"| P["Reads the line under the form: where the message goes, what is used to answer, what is kept and for how long, how to ask for deletion (AC-25)"]
-    P --> F["Enters a name, an email address and a message, activates 'Send message'. The form shows a character count and holds the message to the allowed length"]
-    F --> V{"Name present, email complete, message at least ten characters?"}
-    V -->|"no (AC-20)"| E["Nothing is sent. Each wrong field shows its own message, focus moves to the first wrong field, what was typed stays"]
-    E -->|"corrects a field"| E2["That field's message goes away"]
-    E2 --> F
-    V -->|"yes (AC-19)"| S["The button shows 'Sending…' and cannot be activated twice"]
-    S -->|"leaves the page while it is sending"| LV["The page is left without a warning, no special handling"]
-    S --> O{"What comes back within the time limit?"}
-    O -->|"delivery confirmed (AC-19)"| OK["The form is replaced by 'Thanks! Your message is on its way. I'll answer by email.' with the direct email address still shown, announced to assistive technology"]
-    O -->|"cannot be delivered, or no confirmation in time (AC-21)"| X["'Message not sent.' with the reason in plain words. Everything typed stays. Never the success state"]
-    X -->|"tries again"| S
-    X -->|"'write by email instead'"| X2["The Visitor's mail app opens with the message filled in. The address is also shown as text"]
-    O -->|"refused: sender over the limit, or a message that still reached the delivery side over the allowed length (AC-24)"| R["Told in plain words and offered the email address. Nothing is delivered"]
-    T["A program fills the hidden trap field (AC-24)"] --> T2["It gets the same response as a delivered message. Nothing is delivered"]
-```
-
-A Recruiter reaches the Message form. With scripts off there is no control that does nothing: either the form works without scripts or a sentence with the email address as a mail link stands in its place; `design` decides which. With scripts on, the line under the form tells them before they send where the message goes, what is used to answer, what is kept and for how long, and how to ask for deletion. They fill in name, email and message, with a visible character count that holds the message to the allowed length, and activate "Send message". If the name is empty, the email incomplete or the message shorter than ten characters, nothing is sent: each wrong field shows its own message, focus moves to the first wrong field, the typed text stays, and a field's message goes away once it is corrected. With valid input the button shows "Sending…" and cannot be activated twice; a Visitor who leaves the page at this point simply leaves, with no warning. Three outcomes follow within the time limit. Delivery confirmed: the form is replaced by the thanks line with the direct email address still shown, announced. Not delivered or no confirmation in time: "Message not sent." with a plain reason, everything typed kept, and two ways on, trying again or "write by email instead", which opens the mail app with the message filled in. Refused because the sender is over the limit, or because a message over the allowed length still reached the delivery side, which checks the length again: the Visitor is told in plain words and offered the email address, and nothing is delivered. Separately, a program that fills the hidden trap field gets the same response as a delivered message, and nothing is delivered.
+A Recruiter reaches the contact section by scrolling, or a Visitor on any page activates "Contact" or "Get in touch" in the header or the Mobile menu panel. On the home page the menu closes and the page moves to the section; from another page, such as the Not-found page, the home page opens at it. Either way the section's heading is in view below the header and keyboard focus is at the section. The Contact block shows the heading, the lead and rows for email, phone, LinkedIn, GitHub and "Based in" with "Oslo, Norge". The email opens the mail app, the phone number the phone app, and the profiles open on the other site in the same tab. "Copy" depends on the browser: with scripts off it is not offered and the address stays a selectable mail link; with scripts on and clipboard access, the address is copied and a Toast confirms "Kopiert" with the address, announced, and leaves by itself (on a phone it sits above the Sticky action bar, or above its tab when the bar is collapsed); where clipboard access is refused no confirmation appears and the Visitor is told to copy by hand. "Save contact (.vcf)" downloads the contact card. From 1024 the QR tile with "Skann meg" and the camera hint is shown and scanning it offers the contact; below 1024 neither is shown. At the end of the page the closing band offers "Save contact (.vcf)" and "Download CV" (the English PDF), both secondary and without "Get in touch"; on other pages the band keeps its usual pair (dashed, from step 5). Where the page design draws the Message form, the contact section shows one sentence with the email address as a mail link, the same with scripts on or off (interim, IS-03); it opens the mail app like the email row.
 
 ### Flow: US-04 — Get the background in numbers and a paragraph
 
@@ -221,7 +192,7 @@ A Visitor opens the home page. If the device asks for reduced motion, no Ambient
 flowchart TD
     A["Tech lead opens SCR-01"] --> B{"Do scripts run?"}
     B -->|"no (AC-32)"| C["Every section is visible and readable. Every link of the Contact block works and 'Save contact' works. No Ambient motion, no Motion control, no 'Copy'"]
-    C --> C2["The rest still works: experience entries open (Flow US-05), the place of the Message form has no dead control (Flow US-03), the Sticky action bar collapses (Flow US-14), the header keeps its default look (Flow US-11)"]
+    C --> C2["The rest still works: experience entries open (Flow US-05), the sentence in the place of the Message form is a plain mail link (Flow US-02), the Sticky action bar collapses (Flow US-14), the header keeps its default look (Flow US-11)"]
     B -->|"yes"| D{"Motion allowed?"}
     D -->|"no, reduced motion"| E["Every section is shown at once (AC-31)"]
     D -->|"yes"| F{"How does a section below the hero come into view?"}
@@ -230,7 +201,7 @@ flowchart TD
     X["An inline script, an inline style or a script the security policy does not name appears in the page (AC-32)"] --> Y["The browser refuses it. The page stays readable, with no visible step for the Visitor"]
 ```
 
-A Tech lead opens the home page. With scripts off every section is visible and readable, every link of the Contact block and "Save contact" work, and nothing that needs a script is offered: no Ambient motion, no Motion control and no "Copy". The rest still works: experience entries open, the place of the Message form holds no dead control, the Sticky action bar collapses and the header keeps its default look. With scripts on and reduced motion, every section is shown at once. With scripts on and motion allowed, a section that is already in view when the page opens, or that is reached through a link to it, is shown at once, and a section scrolled into view for the first time fades in once and stays. Separately, if an inline script, an inline style or a script the security policy does not name appears in the page, the browser refuses it and the page stays readable; the Visitor sees no step.
+A Tech lead opens the home page. With scripts off every section is visible and readable, every link of the Contact block and "Save contact" work, and nothing that needs a script is offered: no Ambient motion, no Motion control and no "Copy". The rest still works: experience entries open, the sentence in the place of the Message form is a plain mail link, the Sticky action bar collapses and the header keeps its default look. With scripts on and reduced motion, every section is shown at once. With scripts on and motion allowed, a section that is already in view when the page opens, or that is reached through a link to it, is shown at once, and a section scrolled into view for the first time fades in once and stays. Separately, if an inline script, an inline style or a script the security policy does not name appears in the page, the browser refuses it and the page stays readable; the Visitor sees no step.
 
 ### Flow: US-11 — A header that fits the hero
 
@@ -248,11 +219,11 @@ flowchart TD
     N3 -->|"scrolls back over the hero"| N2
     N2 -->|"back at the top"| N1
     A -->|"returns with the back button at a scrolled position (AC-33)"| R["The header is in the state of that position at once, readable at the required contrast"]
-    A -->|"anywhere on the page (AC-34)"| P["Never more than two primary buttons on the visible screen, at most one from page content: 'View CV' at the top, 'Send message' at the contact section, none at the end. The Sticky action bar and the closing band hold none"]
+    A -->|"anywhere on the page (AC-34)"| P["Never more than two primary buttons on the visible screen, at most one from page content: 'View CV' at the top, none at the contact section or at the end. The Sticky action bar and the closing band hold none"]
     O["Visitor on SCR-02 (D-14)"] --> O1["The header never changes style and 'Get in touch' is always primary. Only the bottom border appears after scrolling. The same primary count holds (AC-34)"]
 ```
 
-A Visitor opens the home page at 390, 834 or 1440 wide. With scripts off the header keeps its default look and a primary "Get in touch" throughout. With scripts on it follows the page design. In Dag, while the hero is under the header, the header is on spruce without a border, with a light wordmark and light links, and "Get in touch" is primary at 390 and secondary at 834 and 1440; exactly when the hero leaves the area under the header, it takes its default look and its border together and "Get in touch" is primary; scrolling back reverses this. In Natt the header's colours never change: the border appears as soon as the page is scrolled from the top, and "Get in touch" is secondary over the hero and primary after it at 834 and 1440, and primary throughout at 390. Returning with the back button at a scrolled position gives the header the state of that position at once, and it is readable in every state. At any scroll position the visible screen holds at most two primary buttons, at most one of them from page content: "View CV" at the top, "Send message" at the contact section and none at the end, since the Sticky action bar and the home page's closing band hold none. On the Not-found page the header never changes style, "Get in touch" is always primary and only the bottom border appears after scrolling.
+A Visitor opens the home page at 390, 834 or 1440 wide. With scripts off the header keeps its default look and a primary "Get in touch" throughout. With scripts on it follows the page design. In Dag, while the hero is under the header, the header is on spruce without a border, with a light wordmark and light links, and "Get in touch" is primary at 390 and secondary at 834 and 1440; exactly when the hero leaves the area under the header, it takes its default look and its border together and "Get in touch" is primary; scrolling back reverses this. In Natt the header's colours never change: the border appears as soon as the page is scrolled from the top, and "Get in touch" is secondary over the hero and primary after it at 834 and 1440, and primary throughout at 390. Returning with the back button at a scrolled position gives the header the state of that position at once, and it is readable in every state. At any scroll position the visible screen holds at most two primary buttons, at most one of them from page content: "View CV" at the top and none at the contact section or at the end, since the Sticky action bar and the home page's closing band hold none. On the Not-found page the header never changes style, "Get in touch" is always primary and only the bottom border appears after scrolling.
 
 ### Flow: US-14 — Useful actions at my thumb, out of the way when I want
 
@@ -279,7 +250,6 @@ A Recruiter opens the home page or the Not-found page. At 768 and wider there is
 
 - **US-08 — Recognise the page before opening it:** the title, description, preview card and structured data are read by search engines and other apps; the Recruiter sees them outside the site and there is no screen to move through.
 - **US-12 — Facts that stay true:** the Owner works in the repository, CI and the pull request (contact source check, placeholder check, Claims list, parity suite). The visible results are the Contact block (Flow US-02), the Now line (Flow US-01) and the Recommendations (Flow US-06).
-- **US-13 — Messages that reach me, and only me:** the fixed recipient, the trap field, the limits and the separation of preview and test runs are enforced on the delivery side; the release check is the Owner sending one message through Flow US-03 on production. What a Visitor sees of the limits is drawn in Flow US-03.
 
 ## AC coverage
 
@@ -303,13 +273,6 @@ A Recruiter opens the home page or the Not-found page. At 768 and wider there is
 | AC-16 | Flow US-02, branch `'Save contact (.vcf)' (AC-16)` | Also reached from the closing band and from Flow US-14 |
 | AC-17 | Flow US-02, both branches of "Screen 1024 or wider?" | |
 | AC-18 | Flow US-02, node "Visitor on any page activates 'Contact' or 'Get in touch'" and both branches of "Already on SCR-01?" | SCR-02 and SCR-03 are the other entry points |
-| AC-19 | Flow US-03, branch `yes (AC-19)` and branch `delivery confirmed (AC-19)` | The message in the Owner's mailbox is a delivery-side check |
-| AC-20 | Flow US-03, branch `no (AC-20)` and `corrects a field` | |
-| AC-21 | Flow US-03, branch `cannot be delivered, or no confirmation in time (AC-21)`, then `tries again` and `'write by email instead'` | |
-| AC-22 | Flow US-03, branch `no (AC-22)` | Which of the two variants is design input |
-| AC-23 | N/A: enforced on the delivery side, with no step a Visitor sees | Contract test in `plan-tests`; US-13 out of scope here |
-| AC-24 | Flow US-03, branch `refused: sender over the limit, or a message that still reached the delivery side over the allowed length (AC-24)` and nodes from "A program fills the hidden trap field" | Enforcement is on the delivery side; the form also limits the length with a character count (Owner decision) |
-| AC-25 | Flow US-03, node "Reads the line under the form" | No cookie and nothing kept in the browser is an e2e check |
 | AC-26 | N/A: head meta and structured data, read by search engines and apps, no screen of the site | US-08 out of scope here |
 | AC-27 | N/A: build-time contact source check, Owner in CI | Visible result: Flow US-02 and Flow US-01 |
 | AC-28 | N/A: build-time placeholder check, Owner in CI | Visible result: Flow US-01, Now line branches |
@@ -321,7 +284,6 @@ A Recruiter opens the home page or the Not-found page. At 768 and wider there is
 | AC-34 | Flow US-11, node "Never more than two primary buttons on the visible screen" and node for SCR-02 | The count itself is an e2e check |
 | AC-35 | N/A: the parity suite runs in CI | The six behaviours are drawn in Flows US-01, US-02 and US-14 |
 | AC-36 | Flow US-10, both branches of "How does a section below the hero come into view?" | |
-| AC-37 | N/A: the Owner's release check and the separation of preview and test runs are on the delivery side | What a Visitor sees is the same everywhere: Flow US-03 |
 | AC-38 | Flow US-14, branch `yes (AC-38)` with the `'View CV'` and `'Save contact (.vcf)'` branches | On SCR-01 and SCR-02 |
 | AC-39 | Flow US-14, branch `activates the arrow tab, with scripts on or off (AC-39)`, then `activates the tab again` and `scrolls up or down` | A bar brought back with the tab scrolls like a normal bar (Owner decision) |
 | AC-40 | Flow US-02, node "Closing band right under the contact section" and its branches | Other pages: dashed, from step 5 |
