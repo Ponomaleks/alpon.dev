@@ -27,7 +27,7 @@ Traceability:
 - The contact card file is not changed: `public/alexander-ponomarenko.vcf` already holds every field AC-16 names, the LinkedIn and GitHub addresses included. The QR files do not change.
 - The base-components KPI "edits to shared Shell or component files in the step 4 PR" will read above 0: B-09, B-18, B-25, the contact data change and the Shell decisions the Owner took on 2026-10-05. These are the edits listed here and nothing else.
 - Backlog items that close here: B-09 (page-own scripts are measured apart from the Shell scripts), B-18 (band top margin, `main` minimum height), B-25 (Toast check icon, first used by the copy-email action). B-05 does not apply: the home page marks no navigation link as current.
-- Decision (Owner, 2026-10-05): the Message form moves out of this feature into roadmap step 12, the last step. Email, phone, the contact card and LinkedIn are the contact routes until then. In its place the contact section shows one sentence with the email address as a mail link (IS-03). The security policy is not changed by this feature: `public/_headers` and `tests/contracts/csp.contract.json` stay as they are, and base-components §3 ("The contact form: not planned; it needs its own ADR") stands. The decisions already taken for the form at the design stage are recorded in the roadmap row of step 12. The ids that left with the form (US-03, US-13, AC-19 to AC-25, AC-37, D-07) are not reused.
+- Decision (Owner, 2026-10-05): the Message form moves out of this feature into roadmap step 12, the last step. Email, phone, the contact card and LinkedIn are the contact routes until then. In its place the contact section shows a mail-link sentence, see IS-03. The security policy is not changed by this feature: `public/_headers` and `tests/contracts/csp.contract.json` stay as they are, and base-components §3 ("The contact form: not planned; it needs its own ADR") stands. The decisions already taken for the form at the design stage are recorded in the roadmap row of step 12. The ids that left with the form (US-03, US-13, AC-19 to AC-25, AC-37, D-07) are not reused.
 - Projects: roadmap rule "Projects merges into `v2` only after Release 1" stays true for the Projects pages. This feature builds only the home section and the shape of a project entry, as a Dormant section (AC-11); step 7 owns the switch. The roadmap records this when the spec is registered.
 - Step 5 owns the legacy `#cv` and `#cv-no` hand-off from the home page. It adds its own script and does not need a change in this feature; whichever of the two steps merges second rebases.
 - Decision: the page design's Contact block shows "Nittedal, Norge"; `CLAUDE.md` and P-21 put the Work region there. The Work region wins (D-03).
@@ -81,7 +81,7 @@ Review does not check these against the design (`CLAUDE.md` Review policy).
 |---|---|---|
 | IS-01 | "View CV" in the hero and "Full CV" in the experience section lead to the CV address, which answers with the English PDF until the CV pages exist | 5 |
 | IS-02 | The legacy `#cv` and `#cv-no` addresses on the home page do nothing yet | 5 |
-| IS-03 | In the contact section, in the place of the page design's Message form, one sentence shows the email address from `src/data/contact.ts` as a mail link. It is static HTML with no script | 12 |
+| IS-03 | In the contact section, in the place of the page design's Message form, one sentence with a mail link to the email address from `src/data/contact.ts`. It is static HTML with no script | 12 |
 
 ### 1.3 Confirmed differences from the page design
 
@@ -120,7 +120,7 @@ Not a difference: the hero coordinates stay 59.91° N, 10.75° E. They belong to
 - The command palette and "Search Ctrl K" in the header: step 8.
 - Analytics and its security-policy change: step 6. The KPI that needs it is measured from Release 1.
 - A Norwegian version of the home page: the content rules keep the main content in English with Norwegian details.
-- The Message form of the page design, with its delivery, sender limit and privacy line: roadmap step 12. Until then the contact section shows the email address in its place (IS-03).
+- The Message form of the page design, with its delivery, sender limit and privacy line: roadmap step 12. Until then the contact section shows a mail-link sentence in its place, see IS-03.
 
 ## 4. User stories
 
