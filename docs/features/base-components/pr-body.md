@@ -87,7 +87,7 @@ Base: `v2`. Production (`main`) is not touched. [Changelog](docs/features/base-c
 | R6 Keyboard activation, 44 px in the open menu | 7ab3edc |
 | R7 AC-32 verification method (docs) | 99cfa66 |
 | R8 Theme after back/forward cache | a81e636 |
-| Owner decisions at ship (press, bar shadow, header hover, Stat row name, Toast line height) | this push |
+| Owner decisions at ship (press, bar shadow, header hover, Stat row name, Toast line height) | f7c3013, baselines b73b7fa |
 
 ## Review
 
@@ -95,13 +95,13 @@ Two rounds, in `docs/features/base-components/_review/`. Round 1 (`review-2026-1
 
 ## Verification
 
-Local, Windows, on the head of this push:
+Local, Windows, on `f7c3013`:
 
 - Lint: clean (tokens check, contrast, contact, `astro check`, ESLint, Prettier, Stylelint). Contrast: 85 pairs pass, 1 known failure (fjord-foundation OQ-01), 2 decorative pairs not gated.
 - Unit (Vitest): 28 files, 545 tests passed.
 - Build + budgets: within limits. `404.html` 11.9 KB gzip (limit 20); Shell scripts 2.1 to 2.3 KB gzip (limit 5); two font preloads.
 - e2e + axe (Playwright, `wrangler dev` on `dist/`): 439 passed, 53 skipped (among them the Linux-only visual specs and the 12 parity `fixme` items, in both projects).
-- Lighthouse and visual regression: not run locally; they run in CI `check` and `visual` on this push.
+- Lighthouse and visual regression: not run locally; CI `check` (includes Lighthouse CI) and `visual` are green on `b73b7fa`.
 
 Ran the feature (`wrangler dev` on `dist/`, browser at 375 × 812, before the ship fixes below):
 
@@ -127,7 +127,7 @@ The Owner accepted the Not-found design match on 2026-10-05; fjord-foundation OQ
 
 - Accepted, recorded in spec §1.3: D-01 to D-18. D-14 is new: footer text links are 21 px high with 27 px between centres at 390 and meet WCAG 2.2 AA target size (2.5.8) by spacing, not the 44 px Shell rule (`CLAUDE.md` quality bar). The earlier list said "48 px minimum height" for the wordmark and footer links; that was stale. Measured at 390: wordmark 17 px, header "Get in touch" 36 px and theme-switch segments 28 px, each with a 44 px overlay (D-08); menu contact links 44 px.
 - Removed from the list: the missing `env(safe-area-inset-bottom)` on the Sticky action bar. `viewport-fit=cover` is not set, so there is no inset to add.
-- Fixed in this push, because steps 4 and 5 must not edit Shell or component files:
+- Fixed in `f7c3013`, because steps 4 and 5 must not edit Shell or component files:
   - Button and IconButton move when pressed, as in the design (`translateY(1px) scale(.985)`, `scale(.94)`, 120 ms), and stay still with reduced motion (AC-28). The old lint allow lists rejected transform functions, and the press was not restored with the nudges when ADR-0004 replaced them. The 1 px distance is written with the hairline token.
   - The Sticky action bar has the design's float shadow (closes backlog B-16).
   - The outlined header "Get in touch" changes on hover and press, when forced by the page and beside the bar below 768.
@@ -135,7 +135,7 @@ The Owner accepted the Not-found design match on 2026-10-05; fjord-foundation OQ
   - The Toast text has the design line height (`--fjord-leading-snug`).
 - Left for later, in `docs/backlog.md`: B-14 (header gaps), B-15 (icon size and three icon paths), B-17 (Not-found code-line gap), B-18 (band top margin, `main` min-height), B-19 (skip-link sample ring, underline position), B-29 (status Badge look, step 7).
 
-Baselines changed by this push (regenerated through the `visual-baselines` label): the Styleguide Button, IconButton, Toast and Sticky action bar sections, and any Not-found capture that contains the bar.
+Baselines changed (`b73b7fa`, written through the `visual-baselines` label, 22 files): the Styleguide Button, IconButton and Sticky action bar sections, the Toast section at 390, and the Not-found page at 390.
 
 Conflicts with `BRAND.md`: the Shell's call to action is English, "Get in touch", as in the page design; recorded in `CLAUDE.md` Content rules (spec §1).
 
