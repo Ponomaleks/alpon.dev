@@ -1,0 +1,152 @@
+---
+// Contact block (AC-13 to AC-17): five rows, Copy on the email row, Save contact, the mail-link
+// sentence and the QR tile. The section wrapper (id="contact") is placed by the page. No primary
+// button here (D-09); data only from contact.ts.
+import SectionHeader from '../ui/SectionHeader.astro';
+import Link from '../ui/Link.astro';
+import Button from '../ui/Button.astro';
+import Icon from '../ui/Icon.astro';
+import QrTile from '../brand/QrTile.astro';
+import { contact } from '../../data/contact';
+
+interface Props {
+  /** Section number in the eyebrow, e.g. "05". */
+  index: string;
+}
+
+const { index } = Astro.props;
+const short = (url: string) => url.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '');
+const tel = `tel:${contact.phone.replace(/[^\d+]/g, '')}`;
+---
+
+<div class="contact">
+  <SectionHeader
+    index={index}
+    eyebrow="Contact"
+    title="Get in touch"
+    lead="Email is fastest. Phone and LinkedIn work too."
+  />
+  <dl class="contact__list">
+    <div class="contact__row">
+      <dt>Email</dt>
+      <dd>
+        <a class="fj-link" href={`mailto:${contact.email}`}>
+          {contact.email}
+        </a>
+        <span data-needs-script>
+          <button
+            type="button"
+            class="fj-btn fj-btn--secondary fj-btn--sm"
+            data-copy-email={contact.email}
+          >
+            <Icon name="copy" />
+            Copy
+          </button>
+        </span>
+      </dd>
+    </div>
+    <div class="contact__row">
+      <dt>Phone</dt>
+      <dd>
+        <a class="fj-link" href={tel}>
+          {contact.phone}
+        </a>
+      </dd>
+    </div>
+    <div class="contact__row">
+      <dt>LinkedIn</dt>
+      <dd>
+        <a class="fj-link" href={contact.linkedin}>
+          {short(contact.linkedin)}
+        </a>
+      </dd>
+    </div>
+    <div class="contact__row">
+      <dt>GitHub</dt>
+      <dd>
+        <a class="fj-link" href={contact.github}>
+          {short(contact.github)}
+        </a>
+      </dd>
+    </div>
+    <div class="contact__row">
+      <dt>Based in</dt>
+      <dd>
+        <span lang="no">{contact.workRegion}</span>
+      </dd>
+    </div>
+  </dl>
+  <div class="contact__actions">
+    <Button variant="secondary" href="/alexander-ponomarenko.vcf" icon="download" download>
+      Save contact (.vcf)
+    </Button>
+  </div>
+  <p class="contact__sentence">
+    Hiring? <Link href={`mailto:${contact.email}`}>A short email</Link> about the role is the
+    quickest way to reach me.
+  </p>
+  <QrTile />
+</div>
+
+<style>
+  .contact {
+    display: flex;
+    flex-direction: column;
+    gap: var(--fjord-space-8);
+    min-width: 0;
+  }
+  .contact__list {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+  }
+  .contact__row {
+    display: grid;
+    grid-template-columns: calc(var(--fjord-space-24)) minmax(0, 1fr);
+    gap: var(--fjord-space-3);
+    align-items: center;
+    padding: var(--fjord-space-1) 0;
+    border-top: var(--fjord-border-width) solid var(--fjord-color-border);
+    min-block-size: var(--fjord-tap-min);
+  }
+  .contact__row:last-child {
+    border-bottom: var(--fjord-border-width) solid var(--fjord-color-border);
+  }
+  dt {
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-mono-sm);
+    font-weight: var(--fjord-weight-medium);
+    letter-spacing: var(--fjord-tracking-label);
+    color: var(--fjord-color-text-muted);
+  }
+  dd {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--fjord-space-3);
+    margin: 0;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    font-size: var(--fjord-text-ui);
+  }
+  dd a {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--fjord-tap-min);
+  }
+  .contact__actions {
+    display: flex;
+  }
+  .contact__sentence {
+    margin: 0;
+    max-width: var(--fjord-measure-narrow);
+    line-height: var(--fjord-leading-body);
+    text-wrap: pretty;
+  }
+</style>
+
+<script>
+  import { initCopyEmail } from '../../scripts/home/copy-email';
+
+  initCopyEmail({ document, navigator });
+</script>

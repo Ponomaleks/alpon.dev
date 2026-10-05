@@ -1,0 +1,93 @@
+---
+// Contact QR (AC-17): the two static files, one shown per data-theme, with the caption and hint.
+// Not generated and not edited (CLAUDE.md). Shown from 1024 only; the phone Visitor taps instead.
+const alt = "QR code that opens Alexander Ponomarenko's contact card";
+---
+
+<figure class="qr">
+  <div class="qr__plate">
+    <img
+      class="qr__img"
+      data-theme="dag"
+      src="/qr/qr-vcard-dag.svg"
+      alt={alt}
+      width="132"
+      height="132"
+      loading="lazy"
+    />
+    <img
+      class="qr__img"
+      data-theme="natt"
+      src="/qr/qr-vcard-natt.svg"
+      alt={alt}
+      width="132"
+      height="132"
+      loading="lazy"
+    />
+  </div>
+  <figcaption class="qr__text">
+    <span class="qr__caption" lang="no">
+      Skann meg
+    </span>
+    <span class="qr__hint">Point your phone’s camera here to open my contact card.</span>
+  </figcaption>
+</figure>
+
+<style>
+  .qr {
+    display: none;
+    align-items: center;
+    gap: var(--fjord-space-5);
+    margin: 0;
+  }
+  .qr__plate {
+    flex: none;
+    inline-size: calc(var(--fjord-space-32) + var(--fjord-space-1));
+    block-size: calc(var(--fjord-space-32) + var(--fjord-space-1));
+  }
+  .qr__img {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+  }
+  .qr__img[data-theme='natt'] {
+    display: none;
+  }
+  :global(:root[data-theme='natt']) .qr__img[data-theme='dag'] {
+    display: none;
+  }
+  :global(:root[data-theme='natt']) .qr__img[data-theme='natt'] {
+    display: block;
+  }
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme])) .qr__img[data-theme='dag'] {
+      display: none;
+    }
+    :global(:root:not([data-theme])) .qr__img[data-theme='natt'] {
+      display: block;
+    }
+  }
+  .qr__text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--fjord-space-2);
+    max-inline-size: calc(var(--fjord-measure-narrow) / 2);
+  }
+  .qr__caption {
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-mono-sm);
+    font-weight: var(--fjord-weight-medium);
+    letter-spacing: var(--fjord-tracking-label);
+    color: var(--fjord-color-text);
+  }
+  .qr__hint {
+    font-size: var(--fjord-text-ui-sm);
+    line-height: var(--fjord-leading-body);
+    color: var(--fjord-color-text-muted);
+  }
+  @media (min-width: 1024px) {
+    .qr {
+      display: flex;
+    }
+  }
+</style>
