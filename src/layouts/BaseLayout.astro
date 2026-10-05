@@ -26,6 +26,8 @@ interface Props {
   mobileBar?: boolean;
   ctaBand?: boolean;
   cvLang?: 'en' | 'no';
+  // Schema.org data, rendered as one ld+json block (AC-26).
+  structuredData?: Record<string, unknown>;
 }
 
 const {
@@ -39,9 +41,21 @@ const {
   mobileBar = true,
   ctaBand = true,
   cvLang = 'en',
+  structuredData,
 } = Astro.props;
 // The same LF text the CSP integration hashes (ADR-0002).
 const themeBootstrap = normaliseNewlines(themeBootstrapSource);
+// Canonical address: the site origin plus the page path (trailingSlash 'never', format 'file').
+// The dev server and the build both report file-format paths (/index.html, /cv/en.html).
+const canonicalPath = Astro.url.pathname
+  .replace(/(?:^|\/)index\.html$/, '/')
+  .replace(/\.html$/, '');
+const canonical = new URL(canonicalPath, Astro.site).href;
+const ogImage = new URL('/og.png', Astro.site).href;
+// "<" is escaped so a value with </script> cannot close the data block.
+const structuredDataJson = structuredData
+  ? JSON.stringify(structuredData).replace(/</g, '\\u003c')
+  : undefined;
 ---
 
 <!doctype html>
@@ -68,6 +82,19 @@ const themeBootstrap = normaliseNewlines(themeBootstrapSource);
     <title>{title}</title>
     <meta name="description" content={description} />
     {noindex && <meta name="robots" content="noindex" />}
+    {!noindex && (
+      <>
+        <link rel="canonical" href={canonical} />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:url" content={canonical} />
+        <meta property="og:image" content={ogImage} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta name="twitter:card" content="summary_large_image" />
+      </>
+    )}
+    {structuredDataJson && <script type="application/ld+json" set:html={structuredDataJson} />}
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   </head>

@@ -28,6 +28,10 @@ export default {
             pattern: '/fixture-opt/[name]',
             entrypoint: new URL('./OptionsPage.astro', import.meta.url),
           });
+          injectRoute({
+            pattern: '/fixture-structured',
+            entrypoint: new URL('./StructuredPage.astro', import.meta.url),
+          });
         },
       },
     },

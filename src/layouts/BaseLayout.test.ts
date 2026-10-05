@@ -299,3 +299,96 @@ describe('bar clearance (AC-07, hook H-2)', () => {
     expect(css).toMatch(/:has\(\[data-shell-bar\]/);
   });
 });
+
+// Head meta and structured data (AC-26, T4; sad §8).
+
+const metaTags = (page: string) => [...head(page).matchAll(/<meta\b[^>]*>/g)].map(([m]) => m);
+/** The content of the meta tag whose property or name is `key`, or undefined. */
+const metaContent = (page: string, key: string) =>
+  metaTags(page)
+    .find((m) => new RegExp(`\\b(?:property|name)="${key}"`).test(m))
+    ?.match(/\bcontent="([^"]*)"/)?.[1];
+const canonicalTag = (page: string) => head(page).match(/<link\b[^>]*rel="canonical"[^>]*>/)?.[0];
+const ldBlocks = (page: string) => [
+  ...head(page).matchAll(/<script\b[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g),
+];
+
+describe.each([
+  ['fixture.html', 'https://alpon.dev/fixture', 'Fixture page'],
+  ['index.html', 'https://alpon.dev/', undefined],
+])('head meta of the indexable %s (AC-26)', (page, url, title) => {
+  it('has the canonical address from the site and the page address', () => {
+    expect(canonicalTag(page)).toContain(`href="${url}"`);
+  });
+
+  it('has og:title, og:description and og:url', () => {
+    expect(metaContent(page, 'og:title')).toBe(
+      title ?? head(page).match(/<title>([^<]*)<\/title>/)?.[1],
+    );
+    expect(metaContent(page, 'og:description')).toBe(metaContent(page, 'description'));
+    expect(metaContent(page, 'og:url')).toBe(url);
+  });
+
+  it('has og:image at 1200 x 630 and the large Twitter card', () => {
+    expect(metaContent(page, 'og:image')).toBe('https://alpon.dev/og.png');
+    expect(metaContent(page, 'og:image:width')).toBe('1200');
+    expect(metaContent(page, 'og:image:height')).toBe('630');
+    expect(metaContent(page, 'twitter:card')).toBe('summary_large_image');
+  });
+});
+
+describe('head meta of the noindex 404 page (AC-26)', () => {
+  it('has no canonical, no og tags and no Twitter card, and keeps noindex', () => {
+    expect(canonicalTag('404.html')).toBeUndefined();
+    expect(
+      metaTags('404.html').filter((m) => /(?:property|name)="(?:og|twitter):/.test(m)),
+    ).toEqual([]);
+    expect(head('404.html')).toContain('<meta name="robots" content="noindex">');
+  });
+});
+
+describe('structuredData (AC-26)', () => {
+  const expected = { '@type': 'Person', name: 'A </script><b>x</b> & <i>', list: [1, 'two'] };
+
+  it('renders exactly one ld+json block in the head that parses back to the object', () => {
+    const blocks = ldBlocks('fixture-structured.html');
+    expect(blocks).toHaveLength(1);
+    expect(JSON.parse(blocks[0]?.[1] ?? '')).toEqual(expected);
+  });
+
+  it('escapes "<" so a value with </script> cannot close the block', () => {
+    const body = ldBlocks('fixture-structured.html')[0]?.[1] ?? '';
+    expect(body).not.toContain('<');
+    expect(body).toContain('\\u003c');
+  });
+
+  it('renders no block when the page passes none, and the build passes the CSP integration', () => {
+    expect(ldBlocks('fixture.html')).toHaveLength(0);
+    expect(readFileSync(join(out, 'dist', '_headers'), 'utf8')).toContain("script-src 'self'");
+  });
+});
+
+describe('main rules in base.css (AC-26, B-18)', () => {
+  const css = () => {
+    const dir = join(out, 'dist/_astro');
+    return readdirSync(dir)
+      .filter((file) => file.endsWith('.css'))
+      .map((file) => readFileSync(join(dir, file), 'utf8'))
+      .join('\n');
+  };
+  const rule = (selector: string) =>
+    [...css().matchAll(/([^{}]+)\{([^{}]*)\}/g)]
+      .filter((m) => (m[1] ?? '').split(',').some((s) => s.trim() === selector))
+      .map((m) => m[2])
+      .join(';');
+
+  // The design value, as a literal: tokens.css has no size for it and sizes are outside the token
+  // rule (base-components ADR-0004).
+  it('gives main the minimum height of the page design', () => {
+    expect(rule('main')).toMatch(/min-height:s*60vh/);
+  });
+
+  it('shows no outline on a focused main', () => {
+    expect(rule('main:focus')).toMatch(/outline:\s*(?:none|0)/);
+  });
+});

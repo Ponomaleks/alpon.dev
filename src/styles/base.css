@@ -127,3 +127,13 @@ pre {
     scroll-padding-bottom: 0;
   }
 }
+
+/* The page design's main: tall enough to keep the footer low on a short page (B-18). Sizes are
+   outside the token rule (base-components ADR-0004). */
+main {
+  min-height: 60vh;
+}
+
+main:focus {
+  outline: none;
+}
