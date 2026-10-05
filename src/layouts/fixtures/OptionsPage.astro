@@ -23,6 +23,12 @@ export function getStaticPaths() {
     },
     'band-off': { ctaBand: false },
     'band-on': { ctaBand: true },
+    'band-custom': {
+      ctaBandActions: [
+        { label: 'Read the case study', href: '/projects/example', variant: 'primary' },
+        { label: 'Get the brief', href: '/brief.pdf', download: true },
+      ],
+    },
     'cvlang-en': { cvLang: 'en' },
     'cvlang-no': { cvLang: 'no' },
   } as const;

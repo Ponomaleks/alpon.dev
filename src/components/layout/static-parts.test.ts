@@ -21,6 +21,7 @@ import { contact } from '../../data/contact';
 const repo = fileURLToPath(new URL('../../../', import.meta.url));
 const layoutDir = join(repo, 'src/components/layout');
 const layout = (name: string) => join(layoutDir, name).replaceAll('\\', '/');
+const shellActionsPath = join(repo, 'src/data/shell-actions.ts').replaceAll('\\', '/');
 let out = '';
 let page = '';
 let css = '';
@@ -28,12 +29,15 @@ let css = '';
 const fixture = `---
 import SkipLink from '${layout('SkipLink.astro')}';
 import CtaBand from '${layout('CtaBand.astro')}';
+import * as shellActions from '${shellActionsPath}';
 import Footer from '${layout('Footer.astro')}';
 ---
 <html lang="en"><head><title>static</title></head><body>
 <div data-case="skip"><SkipLink /></div>
 <div data-case="band-en"><CtaBand /></div>
 <div data-case="band-no"><CtaBand cvLang="no" /></div>
+<div data-case="band-home-en"><CtaBand actions={shellActions.homeBandActions?.('en')} /></div>
+<div data-case="band-home-no"><CtaBand cvLang="no" actions={shellActions.homeBandActions?.('no')} /></div>
 <div data-case="footer"><Footer /></div>
 </body></html>
 `;
@@ -155,6 +159,126 @@ describe('CtaBand (AC-20)', () => {
     expect(cv).toMatch(/\sdownload\b/);
     expect(text(cv)).toContain('Download CV');
     expect(made('band-no')).not.toContain(contact.links.cvEn);
+  });
+});
+
+// AC-40 (T8): the band's actions come from a page option; the home page's pair repeats no
+// contact action. The pairs are the ready ones of shell-actions.ts (ADR-0002); "Download CV"
+// follows cvLang in both.
+describe('CtaBand actions (AC-40, ADR-0002)', () => {
+  const homeVcf = '/alexander-ponomarenko.vcf';
+
+  it.each([
+    ['band-home-en', contact.links.cvEn, contact.links.cvNo],
+    ['band-home-no', contact.links.cvNo, contact.links.cvEn],
+  ])(
+    'the home pair in %s is "Save contact (.vcf)" and "Download CV", both secondary',
+    (name, cvHref, otherCv) => {
+      const html = made(name);
+      const [save, cv, ...rest] = anchors(html);
+      expect(rest).toEqual([]);
+      expect(save).toContain(`href="${homeVcf}"`);
+      expect(text(save ?? '')).toContain('Save contact (.vcf)');
+      expect(save).toMatch(/\sdownload\b/);
+      expect(cv).toContain(`href="${cvHref}"`);
+      expect(text(cv ?? '')).toContain('Download CV');
+      expect(cv).toMatch(/\sdownload\b/);
+      for (const a of [save ?? '', cv ?? '']) {
+        expect(classesOf(a)).toContain('fj-btn--secondary');
+        expect(classesOf(a)).not.toContain('fj-btn--primary');
+      }
+      expect(text(html)).not.toContain('Get in touch');
+      expect(html).not.toContain(otherCv);
+      expect(html).not.toContain('fj-btn--primary');
+    },
+  );
+
+  it('the default pair keeps "Get in touch" primary before "Download CV", for both languages', () => {
+    for (const [name, cvHref] of [
+      ['band-en', contact.links.cvEn],
+      ['band-no', contact.links.cvNo],
+    ] as const) {
+      const [first, second, ...rest] = anchors(made(name));
+      expect(rest).toEqual([]);
+      expect(first).toContain(`href="${contact.links.contact}"`);
+      expect(classesOf(first ?? '')).toContain('fj-btn--primary');
+      expect(second).toContain(`href="${cvHref}"`);
+      expect(classesOf(second ?? '')).toContain('fj-btn--secondary');
+    }
+    expect(made('band-en')).not.toContain(homeVcf);
+  });
+});
+
+// AC-41, D-13 (T8): the band's contours follow scrolling. Only the band's own rules are read: other
+// components keep their own, and the hero loops are not the band's.
+describe('CtaBand style (AC-41, D-13)', () => {
+  type Block = { selector: string; body: string; context: string };
+  /** Every style rule of the built CSS with the at-rule preludes around it, spaces removed. */
+  const blocks = (): Block[] => {
+    const found: Block[] = [];
+    const stack: string[] = [];
+    let start = 0;
+    for (let i = 0; i < css.length; i++) {
+      const ch = css[i];
+      if (ch === '{') {
+        stack.push(css.slice(start, i).trim());
+        start = i + 1;
+      } else if (ch === '}') {
+        const open = stack.pop() ?? '';
+        const body = css.slice(start, i);
+        if (!open.startsWith('@') && !body.includes('{')) {
+          found.push({
+            selector: open,
+            body,
+            context: stack.join('|').replace(/\s+/g, ''),
+          });
+        }
+        start = i + 1;
+      } else if (ch === ';' && css.slice(start, i).trim().startsWith('@')) {
+        start = i + 1;
+      }
+    }
+    return found;
+  };
+  const bandBlocks = () => blocks().filter((b) => /\.fj-band(?![-\w])/.test(b.selector));
+  const timed = (b: Block) => /(?<![-\w])animation(?:-name)?\s*:/.test(b.body);
+
+  it('gives the band the design top margin from the section space token', () => {
+    const own = bodiesOf('fj-band').join(';');
+    expect(own).toMatch(/margin(?:-top|-block-start)?\s*:\s*var\(--fjord-space-section\)/);
+  });
+
+  it('declares the scroll-driven animation in the band, with view() as its timeline', () => {
+    const driven = bandBlocks().filter((b) => b.body.includes('animation-timeline'));
+    expect(driven.length).toBeGreaterThan(0);
+    for (const b of driven)
+      expect(b.body.replace(/\s+/g, '')).toContain('animation-timeline:view(');
+    expect(bandBlocks().some((b) => timed(b))).toBe(true);
+  });
+
+  it('declares it only inside @supports (animation-timeline: view()) and prefers-reduced-motion: no-preference', () => {
+    const own = bandBlocks().filter((b) => timed(b) || b.body.includes('animation-timeline'));
+    expect(own.length).toBeGreaterThan(0);
+    for (const b of own) {
+      expect(b.context, b.selector).toContain('@supports');
+      expect(b.context, b.selector).toMatch(/animation-timeline:view\(\)/);
+      expect(b.context, b.selector).toContain('(prefers-reduced-motion:no-preference)');
+    }
+  });
+
+  it('has no time-based animation, loop or transition in the band', () => {
+    const all = bandBlocks()
+      .map((b) => b.body)
+      .join(';');
+    expect(all).not.toMatch(/infinite/);
+    expect(all).not.toMatch(/animation-duration\s*:\s*(?!auto)/);
+    expect(all).not.toMatch(/animation\s*:[^;]*(?<![-\w.])\d*\.?\d+m?s\b/);
+    expect(all).not.toMatch(/--fjord-duration/);
+    expect(all).not.toMatch(/(?<![-\w])transition/);
+  });
+
+  it('has no script', () => {
+    expect(readFileSync(join(layoutDir, 'CtaBand.astro'), 'utf8')).not.toMatch(/<script/i);
   });
 });
 

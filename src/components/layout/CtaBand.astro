@@ -1,16 +1,17 @@
 ---
 import Button from '../ui/Button.astro';
 import Contours from '../brand/Contours.astro';
-import { contact } from '../../data/contact';
+import { defaultBandActions, type BandAction } from '../../data/shell-actions';
 
 // Closing band on spruce (AC-20), copy and structure from the page design (App.jsx, CtaBand in
 // the design system). One primary button; "Download CV" follows the CV language. Static contours.
 interface Props {
   cvLang?: 'en' | 'no';
+  /** The band's pair; defaults to "Get in touch" + "Download CV" (AC-40). */
+  actions?: readonly [BandAction, BandAction];
 }
 
-const { cvLang = 'en' } = Astro.props;
-const cvHref = cvLang === 'no' ? contact.links.cvNo : contact.links.cvEn;
+const { cvLang = 'en', actions = defaultBandActions(cvLang) } = Astro.props;
 ---
 
 <section class="fj-band fjord-on-spruce">
@@ -19,12 +20,17 @@ const cvHref = cvLang === 'no' ? contact.links.cvNo : contact.links.cvEn;
     <h2 class="fj-band__title">Let’s build something good together.</h2>
     <p class="fj-band__body">If your team is hiring in the Oslo area, I’d like to hear about it.</p>
     <div class="fj-band__actions">
-      <Button size="lg" href={contact.links.contact} arrow>
-        Get in touch
-      </Button>
-      <a class="fj-btn fj-btn--secondary fj-btn--lg" href={cvHref} download>
-        Download CV
-      </a>
+      {actions.map((action) => (
+        <Button
+          size="lg"
+          href={action.href}
+          variant={action.variant ?? 'secondary'}
+          download={action.download !== undefined && action.download !== false}
+          arrow={action.variant === 'primary'}
+        >
+          {action.label}
+        </Button>
+      ))}
     </div>
   </div>
 </section>
@@ -33,7 +39,29 @@ const cvHref = cvLang === 'no' ? contact.links.cvNo : contact.links.cvEn;
   .fj-band {
     position: relative;
     overflow: hidden;
+    margin-top: var(--fjord-space-section);
     padding: var(--fjord-space-section) 0;
+  }
+
+  /* The contours drift as the band scrolls into view (AC-41). Scroll-tied, never time-based: no
+     duration, loop or transition; skipped without support and under reduced motion. */
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .fj-band :global(.contours__layer) {
+        animation: fj-band-contours var(--fjord-ease-linear) both;
+        animation-timeline: view();
+        animation-range: entry 0% cover 100%;
+      }
+    }
+  }
+
+  @keyframes fj-band-contours {
+    from {
+      transform: translate3d(0, var(--fjord-space-6), 0);
+    }
+    to {
+      transform: translate3d(0, calc(var(--fjord-space-6) * -1), 0);
+    }
   }
 
   .fj-band__in {

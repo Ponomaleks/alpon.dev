@@ -325,6 +325,41 @@ describe('page option ctaBand', () => {
   });
 });
 
+describe('page option ctaBandActions (AC-40, ADR-0002)', () => {
+  /** The anchors inside the closing band. */
+  const bandAnchors = (source: string) => {
+    const band =
+      source.match(/<section\s[^>]*class="fj-band[^>]*>([\s\S]*?)<\/section>/)?.[1] ?? '';
+    return [...band.matchAll(/<a\b[^>]*>[\s\S]*?<\/a>/g)].map((m) => m[0]);
+  };
+
+  it('a page option reaches the band: its pair replaces the default one, variants kept', () => {
+    const source = opt('band-custom');
+    const [first, second, ...rest] = bandAnchors(source);
+    expect(rest).toEqual([]);
+    expect(first).toContain('href="/projects/example"');
+    expect(first).toContain('Read the case study');
+    expect(first).toContain('fj-btn--primary');
+    expect(second).toContain('href="/brief.pdf"');
+    expect(second).toContain('Get the brief');
+    expect(second).toContain('fj-btn--secondary');
+    expect(second).toMatch(/\sdownload(?:=""|\s|>)/);
+    // The header keeps its own "Get in touch", so only the band's anchors are checked.
+    const band = bandAnchors(source).join('');
+    expect(band).not.toContain('Get in touch');
+    expect(band).not.toContain('-cv-en.pdf');
+  });
+
+  it('without the option the band has the default pair: "Get in touch" primary, then "Download CV"', () => {
+    const [first, second, ...rest] = bandAnchors(html('fixture.html'));
+    expect(rest).toEqual([]);
+    expect(first).toContain('Get in touch');
+    expect(first).toContain('fj-btn--primary');
+    expect(second).toContain('Download CV');
+    expect(second).toContain('fj-btn--secondary');
+  });
+});
+
 describe('page option cvLang', () => {
   it('en downloads the English PDF, as by default', () => {
     expect(bandDownload(opt('cvlang-en'))).toContain('href="/cv/alexander-ponomarenko-cv-en.pdf"');

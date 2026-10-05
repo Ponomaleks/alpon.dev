@@ -11,7 +11,7 @@ import MobileMenu from '../components/layout/MobileMenu.astro';
 import CtaBand from '../components/layout/CtaBand.astro';
 import Footer from '../components/layout/Footer.astro';
 import MobileBar from '../components/layout/MobileBar.astro';
-import { defaultBarActions, type BarAction } from '../data/shell-actions';
+import { defaultBarActions, type BandAction, type BarAction } from '../data/shell-actions';
 import Toast from '../components/ui/Toast.astro';
 
 interface Props {
@@ -29,6 +29,7 @@ interface Props {
   // The bar's pair, all secondary (AC-34).
   mobileBarActions?: readonly [BarAction, BarAction];
   ctaBand?: boolean;
+  ctaBandActions?: readonly [BandAction, BandAction];
   cvLang?: 'en' | 'no';
   // Schema.org data, rendered as one ld+json block (AC-26).
   structuredData?: Record<string, unknown>;
@@ -46,6 +47,7 @@ const {
   mobileBar = true,
   mobileBarActions = defaultBarActions,
   ctaBand = true,
+  ctaBandActions,
   cvLang = 'en',
   structuredData,
 } = Astro.props;
@@ -116,7 +118,7 @@ const structuredDataJson = structuredData
     <main id="main" tabindex="-1">
       <slot />
     </main>
-    {ctaBand && <CtaBand cvLang={cvLang} />}
+    {ctaBand && <CtaBand cvLang={cvLang} actions={ctaBandActions} />}
     <Footer />
     {mobileBar && <MobileBar actions={mobileBarActions} />}
     <Toast />
