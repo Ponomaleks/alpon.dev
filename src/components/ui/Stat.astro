@@ -1,5 +1,6 @@
 ---
-// Final number and label, printed in the HTML. Static, no script and no animation (AC-25).
+// Final number and label, printed in the HTML (AC-25). With countUp a second, aria-hidden copy
+// is printed for the page script to count (AC-06); this file has no script.
 interface StatItem {
   value: string | number;
   prefix?: string;
@@ -14,9 +15,11 @@ interface Props extends Partial<StatItem> {
   compact?: boolean;
   /** The accessible name of the row, set by the page (`label` is a single stat's own label). */
   rowLabel?: string;
+  /** Adds a counting copy of each value for the page script (AC-06); the final number stays. */
+  countUp?: boolean;
 }
 
-const { items, compact = false, rowLabel, ...single } = Astro.props;
+const { items, compact = false, rowLabel, countUp = false, ...single } = Astro.props;
 const stats: StatItem[] = items ?? (single.value === undefined ? [] : [single as StatItem]);
 ---
 
@@ -28,7 +31,22 @@ const stats: StatItem[] = items ?? (single.value === undefined ? [] : [single as
   {stats.map((s) => (
     <li class="stat">
       <span class="stat__value">
-        {`${s.prefix ?? ''}${s.value}${s.suffix ?? ''}`}
+        {countUp ? (
+          <span class="stat__num">
+            <span class="stat__final">{`${s.prefix ?? ''}${s.value}${s.suffix ?? ''}`}</span>
+            <span
+              class="stat__count"
+              aria-hidden="true"
+              data-count-to={s.value}
+              data-prefix={s.prefix}
+              data-suffix={s.suffix}
+            >
+              {`${s.prefix ?? ''}${s.value}${s.suffix ?? ''}`}
+            </span>
+          </span>
+        ) : (
+          `${s.prefix ?? ''}${s.value}${s.suffix ?? ''}`
+        )}
         {s.unit && <small>{s.unit}</small>}
       </span>
       <span class="stat__label">{s.label}</span>
@@ -90,6 +108,25 @@ const stats: StatItem[] = items ?? (single.value === undefined ? [] : [single as
        long for its column wraps inside it instead of running into the next stat. */
     max-width: 100%;
     overflow-wrap: anywhere;
+  }
+  /* Both copies share one cell, so the width of the final value is reserved. Without the script
+     the final copy shows; the state attribute the script sets on the panel swaps them. */
+  .stat__num {
+    display: inline-grid;
+    font-variant-numeric: tabular-nums;
+  }
+  .stat__final,
+  .stat__count {
+    grid-area: 1 / 1;
+  }
+  .stat__count {
+    opacity: 0;
+  }
+  :global([data-count-state]) .stat__count {
+    opacity: 1;
+  }
+  :global([data-count-state]) .stat__final {
+    opacity: 0;
   }
   .stats--compact .stat__value {
     font-size: var(--fjord-text-h2);
