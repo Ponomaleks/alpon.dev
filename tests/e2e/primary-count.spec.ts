@@ -1,8 +1,9 @@
 import { expect, test, type Page } from '@playwright/test';
 
 // One primary rule (base-components T20): AC-23, spec section 6 "Primary buttons". Counted by the
-// primary style hook of Button (.fj-btn--primary) whose painted style is still the filled one: the
-// header action keeps the class but is restyled to secondary while the bar is on screen.
+// primary style hook of Button (.fj-btn--primary) whose painted style is the filled one. The
+// header "Get in touch" is always primary outside the home hero (AC-34, D-14): the bar no longer
+// restyles it.
 
 const pages = [
   { name: 'home', path: '/' },
@@ -71,14 +72,14 @@ test.describe('at most 1 primary in main and 2 on screen at 390, 834 and 1440', 
   }
 });
 
-test.describe('the three states at 390 (AC-23)', () => {
+test.describe('the bar states at 390 (AC-34)', () => {
   for (const { name, path } of pages) {
-    test(`${name}: bar on screen, the header action is secondary`, async ({ page }) => {
+    test(`${name}: bar on screen, the header action is primary`, async ({ page }) => {
       await page.emulateMedia({ reducedMotion: 'no-preference' });
       await open(page, path, 390);
       await expect(page.locator('[data-shell-bar]')).toBeInViewport();
       const c = await counts(page);
-      expect(c.headerPrimary).toBe(false);
+      expect(c.headerPrimary).toBe(true);
       expect(c.bar).toBe(0);
       expect(c.main).toBeLessThanOrEqual(1);
       expect(c.screen).toBeLessThanOrEqual(2);
@@ -101,7 +102,7 @@ test.describe('the three states at 390 (AC-23)', () => {
       expect(await bar.evaluate((el: HTMLElement) => el.inert)).toBe(true);
     });
 
-    test(`${name}: reduced motion keeps the bar and the header action stays secondary`, async ({
+    test(`${name}: reduced motion keeps the bar and the header action stays primary`, async ({
       page,
     }) => {
       await page.emulateMedia({ reducedMotion: 'reduce' });
@@ -109,7 +110,7 @@ test.describe('the three states at 390 (AC-23)', () => {
       await scrollAway(page);
       await expect(page.locator('[data-shell-bar]')).toBeInViewport();
       const c = await counts(page);
-      expect(c.headerPrimary).toBe(false);
+      expect(c.headerPrimary).toBe(true);
       expect(c.screen).toBeLessThanOrEqual(2);
     });
   }
@@ -117,11 +118,11 @@ test.describe('the three states at 390 (AC-23)', () => {
   test.describe('scripts off', () => {
     test.use({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
     for (const { name, path } of pages) {
-      test(`${name}: bar on screen, the header action is secondary`, async ({ page }) => {
+      test(`${name}: bar on screen, the header action is primary`, async ({ page }) => {
         await page.goto(path);
         await expect(page.locator('[data-shell-bar]')).toBeInViewport();
         const c = await counts(page);
-        expect(c.headerPrimary).toBe(false);
+        expect(c.headerPrimary).toBe(true);
         expect(c.main).toBeLessThanOrEqual(1);
         expect(c.screen).toBeLessThanOrEqual(2);
       });

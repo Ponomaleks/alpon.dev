@@ -18,9 +18,19 @@ interface Props {
   scrolled?: boolean;
   /** Sample only: forces the hover or focus look on the first header link (AC-21). */
   linkState?: 'hover' | 'focus';
+  /** Renders `data-over-hero`: the home hero reaches below the header (AC-33, ADR-0001). */
+  overHero?: boolean;
 }
 
-const { current, variant, cta = 'auto', sample = false, scrolled = false, linkState } = Astro.props;
+const {
+  current,
+  variant,
+  cta = 'auto',
+  sample = false,
+  scrolled = false,
+  linkState,
+  overHero = false,
+} = Astro.props;
 const links = [
   { key: 'cv', label: 'CV', href: contact.links.cv },
   { key: 'contact', label: 'Contact', href: contact.links.contact },
@@ -35,6 +45,7 @@ const links = [
   data-cta={cta === 'secondary' ? 'secondary' : undefined}
   data-sample={sample ? '' : undefined}
   data-scrolled={sample && scrolled ? '' : undefined}
+  data-over-hero={overHero ? '' : undefined}
 >
   <div class="header__in">
     <Wordmark onSpruce={variant === 'on-spruce'} />
@@ -190,21 +201,7 @@ const links = [
     display: none;
   }
 
-  /* Secondary while the page has a bar that is not inert (H-2, AC-23), or when forced. */
-  @media (width < 768px) {
-    :global(:root:has([data-shell-bar]:not([inert]))) .header__cta :global(.fj-btn) {
-      background-color: transparent;
-      color: var(--fjord-color-text);
-      border-color: var(--fjord-color-border-strong);
-    }
-
-    :global(:root:has([data-shell-bar]:not([inert]))) .header__cta :global(.fj-btn:hover),
-    :global(:root:has([data-shell-bar]:not([inert]))) .header__cta :global(.fj-btn:active) {
-      background-color: var(--fjord-color-accent-soft);
-      border-color: var(--fjord-color-text);
-    }
-  }
-
+  /* Secondary when forced. */
   .header[data-cta='secondary'] .header__cta :global(.fj-btn) {
     background-color: transparent;
     color: var(--fjord-color-text);
@@ -216,6 +213,45 @@ const links = [
   .header[data-cta='secondary'] .header__cta :global(.fj-btn:active) {
     background-color: var(--fjord-color-accent-soft);
     border-color: var(--fjord-color-text);
+  }
+
+  /* Over the home hero (AC-33, ADR-0001). Only under a theme, so without scripts the header keeps
+     its default look. Dag: the spruce surface of the hero, no border. The values are those of
+     .fjord-on-spruce in tokens.css, written from core tokens because a state attribute cannot apply
+     that class; the raised surface of Dag is the white of its hover. */
+  :global(:root[data-theme='dag']) .header[data-over-hero] {
+    --fjord-color-bg: var(--fjord-spruce);
+    --fjord-color-text: var(--fjord-snow);
+    --fjord-color-text-muted: var(--fjord-lichen);
+    --fjord-color-link: var(--fjord-snow);
+    --fjord-color-focus-ring: var(--fjord-contour);
+    --fjord-color-border: transparent;
+    --fjord-color-border-strong: color-mix(in srgb, var(--fjord-lichen) 60%, transparent);
+    --fjord-color-accent-soft: color-mix(in srgb, var(--fjord-lichen) 12%, transparent);
+    --fjord-color-cta-bg: var(--fjord-stone);
+    --fjord-color-cta-text: var(--fjord-spruce);
+    --fjord-color-cta-hover: var(--fjord-color-bg-raised);
+    color-scheme: dark;
+    background-color: var(--fjord-color-bg);
+    color: var(--fjord-color-text);
+    border-block-end-color: transparent;
+  }
+
+  @media (min-width: 768px) {
+    :global(:root[data-theme='dag']) .header[data-over-hero] .header__cta :global(.fj-btn),
+    :global(:root[data-theme='natt']) .header[data-over-hero] .header__cta :global(.fj-btn) {
+      background-color: transparent;
+      color: var(--fjord-color-text);
+      border-color: var(--fjord-color-border-strong);
+    }
+
+    :global(:root[data-theme='dag']) .header[data-over-hero] .header__cta :global(.fj-btn:hover),
+    :global(:root[data-theme='dag']) .header[data-over-hero] .header__cta :global(.fj-btn:active),
+    :global(:root[data-theme='natt']) .header[data-over-hero] .header__cta :global(.fj-btn:hover),
+    :global(:root[data-theme='natt']) .header[data-over-hero] .header__cta :global(.fj-btn:active) {
+      background-color: var(--fjord-color-accent-soft);
+      border-color: var(--fjord-color-text);
+    }
   }
 
   @media (min-width: 768px) {

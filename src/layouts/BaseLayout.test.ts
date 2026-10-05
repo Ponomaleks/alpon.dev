@@ -248,6 +248,22 @@ describe('page option headerCta', () => {
   });
 });
 
+describe('page option headerOverHero (AC-33, ADR-0001)', () => {
+  it('true renders data-over-hero on the header', () => {
+    expect(headerTag(opt('over-hero'))).toMatch(/\sdata-over-hero(?:=""|\s|>)/);
+  });
+
+  it('false is the same as leaving it out: no attribute on the header', () => {
+    expect(headerTag(opt('over-hero-off'))).toBe(headerTag(html('fixture.html')));
+    expect(headerTag(html('fixture.html'))).not.toContain('data-over-hero');
+    expect(headerTag(html('404.html'))).not.toContain('data-over-hero');
+  });
+
+  it('does not change the header call to action: no secondary hook is set for it', () => {
+    expect(headerTag(opt('over-hero'))).not.toContain('data-cta');
+  });
+});
+
 describe('page option mobileBar', () => {
   it('false leaves the Sticky action bar out of the HTML and keeps the rest of the Shell', () => {
     const source = opt('bar-off');

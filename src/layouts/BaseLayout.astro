@@ -23,6 +23,8 @@ interface Props {
   current?: 'cv' | 'contact';
   headerVariant?: 'default' | 'on-spruce';
   headerCta?: 'auto' | 'secondary';
+  // The header sits over the page's hero (AC-33); the page script keeps the attribute in step.
+  headerOverHero?: boolean;
   mobileBar?: boolean;
   // The bar's pair, all secondary (AC-34).
   mobileBarActions?: readonly [BarAction, BarAction];
@@ -40,6 +42,7 @@ const {
   current,
   headerVariant = 'default',
   headerCta = 'auto',
+  headerOverHero = false,
   mobileBar = true,
   mobileBarActions = defaultBarActions,
   ctaBand = true,
@@ -107,6 +110,7 @@ const structuredDataJson = structuredData
       current={current}
       variant={headerVariant === 'on-spruce' ? 'on-spruce' : undefined}
       cta={headerCta}
+      overHero={headerOverHero}
     />
     <MobileMenu current={current} />
     <main id="main" tabindex="-1">
