@@ -7,7 +7,7 @@ acs: ["AC-05", "AC-06"]
 files_hint: ["src/components/ui/Stat.astro", "src/components/ui/content.test.ts", "src/components/home/KeyFacts.astro", "src/components/home/key-facts.test.ts", "src/scripts/home/count-up.ts", "src/scripts/home/count-up.test.ts"]
 owner: "Alexander Ponomarenko"
 estimate: "M"
-status: "todo"
+status: "done"
 ---
 
 # T11 — Build the key facts panel with the Stat count-up

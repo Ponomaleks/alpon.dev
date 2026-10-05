@@ -7,7 +7,7 @@ acs: ["AC-02", "AC-30", "AC-31"]
 files_hint: ["src/components/home/Portrait.astro", "src/components/home/MotionControl.astro", "src/components/home/motion.test.ts", "src/components/brand/Contours.astro", "src/components/brand/brand.test.ts", "src/scripts/home/motion.ts", "src/scripts/home/motion.test.ts"]
 owner: "Alexander Ponomarenko"
 estimate: "M"
-status: "todo"
+status: "done"
 ---
 
 # T9 — Build Portrait, the Motion control and the Ambient motion of the hero under data-motion

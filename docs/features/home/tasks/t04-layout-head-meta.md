@@ -7,7 +7,7 @@ acs: ["AC-26"]
 files_hint: ["src/layouts/BaseLayout.astro", "src/layouts/BaseLayout.test.ts", "src/layouts/fixtures/", "src/styles/base.css"]
 owner: "Alexander Ponomarenko"
 estimate: "M"
-status: "todo"
+status: "done"
 ---
 
 # T4 — Render head meta, the structured-data block and the main minimum height in BaseLayout
