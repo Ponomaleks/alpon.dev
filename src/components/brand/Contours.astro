@@ -2,15 +2,17 @@
 // Static topographic contour rings from the Fjord brand pack (site copy of the design system,
 // components/brand/contourData.js, 85 x 55 viewBox). Two shapes: "ridge" (rings centred low left)
 // and "corner" (rings entering from the top right). The group is mirrored when the anchor is not
-// the shape's natural corner. Drift and parallax are a later step. Colour comes from a tone class
+// the shape's natural corner. The optional parallax layer (hero) drifts slowly, only under data-motion="running" on an ancestor. Colour comes from a tone class
 // (tokens), never from an attribute; the whole layer is hidden from assistive technology.
 interface Props {
   variant?: 'ridge' | 'corner';
   anchor?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
   tone?: 'auto' | 'spruce' | 'stone';
+  /** Wraps the rings in a decorative layer that drifts while the hero's motion is running. */
+  parallax?: boolean;
 }
 
-const { variant = 'ridge', anchor, tone = 'auto' } = Astro.props;
+const { variant = 'ridge', anchor, tone = 'auto', parallax = false } = Astro.props;
 
 const natural = variant === 'corner' ? 'top-right' : 'bottom-left';
 const [av, ah] = (anchor ?? natural).split('-') as ['top' | 'bottom', 'left' | 'right'];
@@ -50,19 +52,25 @@ const paths = variant === 'corner' ? corner : ridge;
   data-variant={variant}
   aria-hidden="true"
 >
-  <svg viewBox="0 0 85 55" preserveAspectRatio={align} aria-hidden="true" focusable="false">
-    <g
-      {transform}
-      class="contours__group"
-      fill="none"
-      stroke-width="1"
-      vector-effect="non-scaling-stroke"
-    >
-      {paths.map((d) => (
-        <path {d} vector-effect="non-scaling-stroke" />
-      ))}
-    </g>
-  </svg>
+  <div
+    class="contours__layer"
+    data-contours-parallax={parallax ? '' : undefined}
+    aria-hidden="true"
+  >
+    <svg viewBox="0 0 85 55" preserveAspectRatio={align} aria-hidden="true" focusable="false">
+      <g
+        {transform}
+        class="contours__group"
+        fill="none"
+        stroke-width="1"
+        vector-effect="non-scaling-stroke"
+      >
+        {paths.map((d) => (
+          <path {d} vector-effect="non-scaling-stroke" />
+        ))}
+      </g>
+    </svg>
+  </div>
 </div>
 
 <style>
@@ -72,6 +80,10 @@ const paths = variant === 'corner' ? corner : ridge;
     overflow: hidden;
     pointer-events: none;
     z-index: var(--fjord-z-base);
+  }
+  .contours__layer {
+    position: absolute;
+    inset: 0;
   }
   .contours svg {
     position: absolute;
@@ -104,5 +116,22 @@ const paths = variant === 'corner' ? corner : ridge;
   }
   .contours--stone .contours__group {
     stroke: var(--fjord-contour-line-stone);
+  }
+  /* Drift: paused by default, runs only under data-motion="running" (set by the hero script). */
+  [data-contours-parallax] {
+    animation: contours-drift var(--fjord-duration-drift) var(--fjord-ease-in-out) infinite
+      alternate;
+    animation-play-state: paused;
+  }
+  :global([data-motion='running']) [data-contours-parallax] {
+    animation-play-state: running;
+  }
+  @keyframes contours-drift {
+    from {
+      transform: translate3d(0, 0, 0);
+    }
+    to {
+      transform: translate3d(calc(var(--fjord-space-4) * -1), var(--fjord-space-3), 0);
+    }
   }
 </style>

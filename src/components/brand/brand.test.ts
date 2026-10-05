@@ -112,3 +112,30 @@ describe('Wordmark', () => {
     expect(a).not.toBe(b);
   });
 });
+
+// T9 (AC-30, ADR-0003): the hero corner shape and its parallax layer are decorative and carry
+// no style attribute (the script moves the layer through a CSS variable on a class, never inline).
+describe('Contours as the hero corner (T9)', () => {
+  it('hides the corner shape from assistive technology and has no style attribute', async () => {
+    const html = markup(await render('Contours', { variant: 'corner', parallax: true }));
+    expect(html).toMatch(/<div\b[^>]*class="[^"]*contours[^"]*"[^>]*aria-hidden="true"/);
+    expect(html).not.toMatch(/\sstyle=/);
+  });
+
+  it('has a separate parallax layer that is aria-hidden and has no style attribute', async () => {
+    const html = markup(await render('Contours', { variant: 'corner', parallax: true }));
+    const layer = html.match(/<[a-z]+\b[^>]*data-contours-parallax[^>]*>/)?.[0] ?? '';
+    expect(layer).not.toBe('');
+    expect(layer).toMatch(/aria-hidden="true"/);
+    expect(layer).not.toMatch(/\sstyle=/);
+  });
+
+  it('declares the drift animation paused by default and running only under data-motion="running"', () => {
+    const src = readFileSync(`${dir}Contours.astro`, 'utf8');
+    expect(src).toMatch(/animation:[^;]*var\(--fjord-duration-drift\)/);
+    expect(src).toMatch(/animation-play-state:\s*paused/);
+    expect(src).toMatch(
+      /\[data-motion=['"]running['"]\][^{]*\{[^}]*animation-play-state:\s*running/,
+    );
+  });
+});

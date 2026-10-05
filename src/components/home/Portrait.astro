@@ -1,0 +1,69 @@
+---
+// Hero portrait (AC-02): round frame, AVIF and WebP at 340 and 680, width and height reserved,
+// not lazy-loaded (it can be the LCP candidate). Floats only under data-motion="running" (AC-30).
+const sizes = '(min-width: 1024px) 340px, (min-width: 768px) 260px, 200px';
+---
+
+<div class="portrait">
+  <picture>
+    <source
+      type="image/avif"
+      srcset="/img/portrait-v1-340.avif 340w, /img/portrait-v1-680.avif 680w"
+      sizes={sizes}
+    />
+    <source
+      type="image/webp"
+      srcset="/img/portrait-v1-340.webp 340w, /img/portrait-v1-680.webp 680w"
+      sizes={sizes}
+    />
+    <img
+      src="/img/portrait-v1-680.webp"
+      width="340"
+      height="340"
+      alt="Alexander Ponomarenko"
+      decoding="async"
+      fetchpriority="high"
+    />
+  </picture>
+</div>
+
+<style>
+  .portrait {
+    width: 200px;
+    aspect-ratio: 1;
+    border-radius: var(--fjord-radius-round);
+    border: calc(var(--fjord-border-width) * 2) solid var(--fjord-color-border-strong);
+    box-shadow: 0 0 0 var(--fjord-space-2) var(--fjord-color-accent-soft);
+    overflow: hidden;
+    animation: portrait-float var(--fjord-duration-float) var(--fjord-ease-in-out) infinite
+      alternate;
+    animation-play-state: paused;
+  }
+  .portrait img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  @media (min-width: 768px) {
+    .portrait {
+      width: 260px;
+    }
+  }
+  @media (min-width: 1024px) {
+    .portrait {
+      width: 340px;
+    }
+  }
+  :global([data-motion='running']) .portrait {
+    animation-play-state: running;
+  }
+  @keyframes portrait-float {
+    from {
+      transform: translateY(0);
+    }
+    to {
+      transform: translateY(calc(var(--fjord-space-2) * -1));
+    }
+  }
+</style>

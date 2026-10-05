@@ -1,0 +1,42 @@
+---
+import Icon from '../ui/Icon.astro';
+// Pause / play control for the hero's Ambient motion (AC-30). The script (scripts/home/motion.ts)
+// sets data-motion on the hero, the name and aria-pressed here. It is shown only when the hero has
+// data-motion (no script or reduced motion: no attribute, no control); it keeps its place.
+---
+
+<button
+  type="button"
+  class="fj-iconbtn motion-control"
+  data-motion-control
+  aria-label="Pause animation"
+  aria-pressed="false"
+>
+  <span class="motion-control__icon" data-motion-icon="pause">
+    <Icon name="pause" />
+  </span>
+  <span class="motion-control__icon" data-motion-icon="play">
+    <Icon name="play" />
+  </span>
+</button>
+
+<style>
+  .motion-control {
+    visibility: hidden;
+  }
+  :global([data-motion]) .motion-control {
+    visibility: visible;
+  }
+  .motion-control {
+    display: inline-grid;
+    place-items: center;
+  }
+  .motion-control__icon {
+    grid-area: 1 / 1;
+    display: grid;
+  }
+  .motion-control[aria-pressed='false'] [data-motion-icon='play'],
+  .motion-control[aria-pressed='true'] [data-motion-icon='pause'] {
+    visibility: hidden;
+  }
+</style>
