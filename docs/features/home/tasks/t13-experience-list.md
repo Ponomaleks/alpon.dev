@@ -7,7 +7,7 @@ acs: ["AC-08"]
 files_hint: ["src/components/home/ExperienceList.astro", "src/components/home/experience.test.ts"]
 owner: "Alexander Ponomarenko"
 estimate: "M"
-status: "todo"
+status: "done"
 ---
 
 # T13 — Build the experience list from native details entries

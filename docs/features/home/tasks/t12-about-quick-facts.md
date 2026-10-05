@@ -7,7 +7,7 @@ acs: ["AC-07"]
 files_hint: ["src/components/home/About.astro", "src/components/home/QuickFacts.astro", "src/components/home/about.test.ts"]
 owner: "Alexander Ponomarenko"
 estimate: "S"
-status: "todo"
+status: "done"
 ---
 
 # T12 — Build the About section with the QuickFacts list

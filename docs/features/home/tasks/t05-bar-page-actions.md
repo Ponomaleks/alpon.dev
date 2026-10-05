@@ -7,7 +7,7 @@ acs: ["AC-34", "AC-38"]
 files_hint: ["src/data/shell-actions.ts", "src/components/layout/MobileBar.astro", "src/components/layout/bar.test.ts", "src/layouts/BaseLayout.astro", "src/layouts/BaseLayout.test.ts", "tests/e2e/action-bar.spec.ts", "tests/e2e/primary-count.spec.ts", "tests/e2e/not-found.spec.ts"]
 owner: "Alexander Ponomarenko"
 estimate: "M"
-status: "todo"
+status: "done"
 ---
 
 # T5 — Give the Sticky action bar its actions from a page option, all secondary
