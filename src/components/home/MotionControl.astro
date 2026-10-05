@@ -3,14 +3,24 @@ import Icon from '../ui/Icon.astro';
 // Pause / play control for the hero's Ambient motion (AC-30). The script (scripts/home/motion.ts)
 // sets data-motion on the hero, the name and aria-pressed here. It is shown only when the hero has
 // data-motion (no script or reduced motion: no attribute, no control); it keeps its place.
+// `sample` is for the Styleguide: a static, visible control in the named state, without the script hook.
+interface Props {
+  sample?: 'pause' | 'play';
+  'data-demo-state'?: 'hover' | 'focus' | 'active';
+}
+
+const { sample, 'data-demo-state': demoState } = Astro.props;
+const playing = sample !== 'play';
 ---
 
 <button
   type="button"
   class="fj-iconbtn motion-control"
-  data-motion-control
-  aria-label="Pause animation"
-  aria-pressed="false"
+  data-motion-control={sample ? undefined : ''}
+  data-sample={sample ? '' : undefined}
+  data-demo-state={demoState}
+  aria-label={playing ? 'Pause animation' : 'Play animation'}
+  aria-pressed={playing ? 'false' : 'true'}
 >
   <span class="motion-control__icon" data-motion-icon="pause">
     <Icon name="pause" />
@@ -24,7 +34,8 @@ import Icon from '../ui/Icon.astro';
   .motion-control {
     visibility: hidden;
   }
-  :global([data-motion]) .motion-control {
+  :global([data-motion]) .motion-control,
+  .motion-control[data-sample] {
     visibility: visible;
   }
   .motion-control {

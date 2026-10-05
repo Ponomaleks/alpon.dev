@@ -221,3 +221,108 @@ describe('src/pages/styleguide.astro', () => {
     expect(results[0]?.warnings).toEqual([]);
   });
 });
+
+// T16: the home component sections (AC-02, AC-05, AC-07, AC-08, AC-13, AC-17; screens.md SCR-04
+// "New sections"). Every sample is static: the home scripts do not run here (sad.md §11, T-3).
+const HOME_SECTIONS = [
+  'Portrait',
+  'Motion control',
+  'Key facts',
+  'Quick facts',
+  'Experience list',
+  'Contact list',
+  'QR tile',
+  'Mail-link sentence',
+];
+
+describe('home component sections (T16, SCR-04)', () => {
+  it.each(HOME_SECTIONS)('has one data-section block for %s', (name) => {
+    expect(html().match(new RegExp(`data-section="${name}"`, 'g'))).toHaveLength(1);
+    expect(section(name).length).toBeGreaterThan(0);
+  });
+
+  it('shows the Portrait as a round frame at 200 and at 340', () => {
+    const s = section('Portrait');
+    expect(s.match(/<div\b[^>]*class="portrait\b/g)).toHaveLength(2);
+    expect(s).toContain('data-sample-size="200"');
+    expect(s).toContain('data-sample-size="340"');
+  });
+
+  it('shows the Motion control named "Pause animation" and "Play animation" in every state', () => {
+    const s = section('Motion control');
+    expect(s).toContain('aria-label="Pause animation"');
+    expect(s).toContain('aria-label="Play animation"');
+    for (const st of ['hover', 'focus', 'active']) expect(s).toContain(`data-demo-state="${st}"`);
+    expect(s).toContain('data-motion-icon="pause"');
+    expect(s).toContain('data-motion-icon="play"');
+  });
+
+  it('shows the Key facts panel with the four final numbers and no counting copy', () => {
+    const s = section('Key facts');
+    expect(s.match(/<li\b[^>]*class="stat\b/g)).toHaveLength(4);
+    for (const n of ['3+', '~40', '~2000', '100+']) expect(s).toContain(n);
+    expect(s).not.toContain('data-count-to');
+    expect(s).not.toContain('stat__count');
+  });
+
+  it('shows the four Quick facts rows', () => {
+    const s = section('Quick facts');
+    expect(s.match(/<dt\b/g)).toHaveLength(4);
+    for (const k of ['Based in', 'Focus', 'Stack', 'Languages']) expect(s).toContain(`>${k}<`);
+  });
+
+  it('shows the Experience list: open, closed, current, and an entry without points and tags', () => {
+    const s = section('Experience list');
+    expect(s.match(/<details\b[^>]*\sopen\b/g)?.length ?? 0).toBeGreaterThanOrEqual(1);
+    expect(s.match(/<details\b(?![^>]*\sopen\b)[^>]*>/g)?.length ?? 0).toBeGreaterThanOrEqual(2);
+    expect(s).toContain('xp--current');
+    const entries = s.match(/<li\b[^>]*class="xp\b/g)?.length ?? 0;
+    expect(entries).toBeGreaterThanOrEqual(3);
+    expect(s.match(/<ul\b[^>]*class="xp__points/g)?.length ?? 0).toBeLessThan(entries);
+    expect(s.match(/<div\b[^>]*class="xp__body[^"]*"[\s\S]*?<\/div>/g)?.length ?? 0).toBe(entries);
+    expect(s).toMatch(/<summary\b[^>]*data-demo-state="hover"/);
+    expect(s).toMatch(/<summary\b[^>]*data-demo-state="focus"/);
+  });
+
+  it('shows the Contact list: five rows, Copy in three states, Save contact', () => {
+    const s = section('Contact list');
+    expect(s.match(/<dt\b/g)).toHaveLength(5);
+    expect(s).toContain('Copy');
+    for (const st of ['default', 'hover', 'focus'])
+      expect(s).toMatch(new RegExp(String.raw`data-copy-state="${st}"|data-demo-state="${st}"`));
+    expect(s).toContain('Save contact (.vcf)');
+    expect(s).toContain('href="/alexander-ponomarenko.vcf"');
+    expect(s).toMatch(/<span\b[^>]*lang="no"[^>]*>\s*Oslo, Norge/);
+  });
+
+  it('shows the QR tile with the Dag and the Natt asset and "Skann meg"', () => {
+    const s = section('QR tile');
+    expect(s).toContain('src="/qr/qr-vcard-dag.svg"');
+    expect(s).toContain('src="/qr/qr-vcard-natt.svg"');
+    expect(s).toMatch(/lang="no"[^>]*>\s*Skann meg/);
+    expect(s.match(/<img\b[^>]*alt="[^"]+"/g)?.length ?? 0).toBeGreaterThanOrEqual(2);
+  });
+
+  it('shows the Mail-link sentence with the link in default, hover and focus', () => {
+    const s = section('Mail-link sentence');
+    expect(s).toContain('Hiring?');
+    expect(s).toContain('about the role is the');
+    expect(s).toMatch(/<a\b[^>]*href="mailto:[^"]+"[^>]*>\s*A short email/);
+    expect(s).toMatch(/<a\b[^>]*data-demo-state="hover"/);
+    expect(s).toMatch(/<a\b[^>]*data-demo-state="focus"/);
+  });
+
+  it('shows no whole-hero sample (T-3)', () => {
+    expect(html()).not.toMatch(/class="[^"]*\bhero\b/);
+    expect(html()).not.toContain('data-motion=');
+  });
+
+  it('loads no page-own home script (sad.md §11)', () => {
+    const srcs = [...html().matchAll(/<script\b[^>]*\ssrc="([^"]+)"/g)].map((m) => m[1] ?? '');
+    expect(srcs.length).toBeGreaterThan(0);
+    for (const src of srcs)
+      expect(src).not.toMatch(
+        /KeyFacts|Hero|ContactBlock|Portrait|MotionControl|home|count-up|copy-email|parallax|motion/i,
+      );
+  });
+});

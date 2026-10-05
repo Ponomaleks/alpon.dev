@@ -22,6 +22,12 @@ import { defaultBarActions } from '../data/shell-actions';
 import Contours from '../components/brand/Contours.astro';
 import TerrainMap from '../components/brand/TerrainMap.astro';
 import Wordmark from '../components/brand/Wordmark.astro';
+import QrTile from '../components/brand/QrTile.astro';
+import Portrait from '../components/home/Portrait.astro';
+import MotionControl from '../components/home/MotionControl.astro';
+import QuickFacts from '../components/home/QuickFacts.astro';
+import ExperienceList from '../components/home/ExperienceList.astro';
+import type { ExperienceEntry } from '../data/home';
 
 const iconNames: IconName[] = [
   'arrow-right',
@@ -43,6 +49,52 @@ const iconNames: IconName[] = [
   'github',
 ];
 const states = ['hover', 'focus', 'active'] as const;
+// Sample copy for the home components; none of it is a fact about anyone. Key facts and the contact
+// list are built from their base parts here: their own components load the home scripts (sad.md §11).
+const keyFactSamples = [
+  {
+    value: 3,
+    suffix: '+',
+    unit: 'yrs',
+    label: 'Sample with a suffix and a unit',
+    context: 'Context line',
+  },
+  { value: 40, prefix: '~', label: 'Sample with a prefix', context: 'Context line' },
+  { value: 2000, prefix: '~', label: 'Sample with four digits', context: 'Context line' },
+  { value: 100, suffix: '+', label: 'Sample with a suffix', context: 'Context line' },
+];
+const quickFactSamples = [
+  { k: 'Based in', v: 'Sample place · sample note' },
+  { k: 'Focus', v: 'Sample focus' },
+  { k: 'Stack', v: 'Sample · Stack · Names' },
+  { k: 'Languages', v: 'Sample language, sample level' },
+];
+const entrySample: ExperienceEntry = {
+  role: 'Sample role',
+  org: 'Sample organisation',
+  period: 'Jan 2022 – Jan 2024',
+  location: 'Sample place',
+  summary: 'A sample summary of the entry, two lines at most.',
+  points: ['A sample point.', 'Another sample point.'],
+  stack: ['Sample', 'Tags'],
+};
+const experienceSamples: (ExperienceEntry & { demo?: 'hover' | 'focus' })[] = [
+  {
+    ...entrySample,
+    role: 'Sample role, open and current',
+    open: true,
+    current: true,
+    demo: 'hover',
+  },
+  { ...entrySample, role: 'Sample role, closed', demo: 'focus' },
+  { ...entrySample, role: 'Sample role, no points and no tags', points: [], stack: [] },
+];
+const contactRows = [
+  ['Phone', 'sample phone'],
+  ['LinkedIn', 'linkedin.com/in/sample'],
+  ['GitHub', 'github.com/sample'],
+] as const;
+const sentenceStates = [undefined, 'hover', 'focus'] as const;
 const stateLabel = { hover: 'Hover', focus: 'Focus', active: 'Pressed' } as const;
 ---
 
@@ -292,6 +344,111 @@ const stateLabel = { hover: 'Hover', focus: 'Focus', active: 'Pressed' } as cons
         </div>
       </div>
     </section>
+
+    <section data-section="Portrait" class="sg__section">
+      <h2>Portrait</h2>
+      <div class="sg__row sg__row--top">
+        <div data-sample-size="200">
+          <Portrait />
+        </div>
+        <div data-sample-size="340">
+          <Portrait />
+        </div>
+      </div>
+    </section>
+
+    <section data-section="Motion control" class="sg__section">
+      <h2>Motion control</h2>
+      <div class="sg__row">
+        <MotionControl sample="pause" />
+        <MotionControl sample="pause" data-demo-state="hover" />
+        <MotionControl sample="pause" data-demo-state="focus" />
+        <MotionControl sample="play" data-demo-state="active" />
+        <MotionControl sample="play" />
+      </div>
+    </section>
+
+    <section data-section="Key facts" class="sg__section">
+      <h2>Key facts</h2>
+      <div class="sg__panel">
+        <Stat items={keyFactSamples} />
+      </div>
+    </section>
+
+    <section data-section="Quick facts" class="sg__section">
+      <h2>Quick facts</h2>
+      <QuickFacts items={quickFactSamples} />
+    </section>
+
+    <section data-section="Experience list" class="sg__section">
+      <h2>Experience list</h2>
+      <ExperienceList sample items={experienceSamples} />
+    </section>
+
+    <section data-section="Contact list" class="sg__section">
+      <h2>Contact list</h2>
+      <dl class="sg__contact">
+        <div class="sg__contact-row">
+          <dt>Email</dt>
+          <dd>
+            <a class="fj-link" href="mailto:sample@example.com">
+              sample@example.com
+            </a>
+            <span data-copy-state="default">
+              <Button variant="secondary" size="sm" icon="copy">
+                Copy
+              </Button>
+            </span>
+            <Button variant="secondary" size="sm" icon="copy" data-demo-state="hover">
+              Copy
+            </Button>
+            <Button variant="secondary" size="sm" icon="copy" data-demo-state="focus">
+              Copy
+            </Button>
+          </dd>
+        </div>
+        {contactRows.map(([k, v]) => (
+          <div class="sg__contact-row">
+            <dt>{k}</dt>
+            <dd>
+              <a class="fj-link" href="/">
+                {v}
+              </a>
+            </dd>
+          </div>
+        ))}
+        <div class="sg__contact-row">
+          <dt>Based in</dt>
+          <dd>
+            <span lang="no">Oslo, Norge</span>
+          </dd>
+        </div>
+      </dl>
+      <Button variant="secondary" href="/alexander-ponomarenko.vcf" icon="download" download>
+        Save contact (.vcf)
+      </Button>
+    </section>
+
+    <section data-section="QR tile" class="sg__section">
+      <h2>QR tile</h2>
+      <div class="sg__row">
+        <QrTile sample="dag" />
+        <QrTile sample="natt" />
+      </div>
+    </section>
+
+    <section data-section="Mail-link sentence" class="sg__section">
+      <h2>Mail-link sentence</h2>
+      {sentenceStates.map((s) => (
+        <p class="sg__sentence">
+          Hiring?{' '}
+          <Link href="mailto:sample@example.com" data-demo-state={s}>
+            A short email
+          </Link>{' '}
+          about the role is the quickest way to reach me.
+        </p>
+      ))}
+    </section>
   </div>
 </BaseLayout>
 
@@ -376,6 +533,72 @@ const stateLabel = { hover: 'Hover', focus: 'Focus', active: 'Pressed' } as cons
 
   .sg__map {
     max-inline-size: var(--fjord-measure);
+  }
+
+  .sg__row--top {
+    align-items: flex-start;
+  }
+
+  /* The portrait is 200 wide, then 260 and 340 by viewport; the samples pin both sizes. */
+  [data-sample-size='200'] :global(.portrait) {
+    width: 200px;
+  }
+
+  [data-sample-size='340'] :global(.portrait) {
+    width: 340px;
+    max-width: 100%;
+  }
+
+  .sg__panel {
+    padding: var(--fjord-space-6) var(--fjord-space-panel) var(--fjord-space-7);
+    border: var(--fjord-border-width) solid var(--fjord-color-border);
+    border-radius: var(--fjord-radius-md);
+    background: var(--fjord-color-bg-raised);
+  }
+
+  .sg__panel :global(.stat) {
+    border-top-color: var(--fjord-color-border);
+  }
+
+  .sg__contact {
+    margin: 0 0 var(--fjord-space-6);
+  }
+
+  .sg__contact-row {
+    display: grid;
+    grid-template-columns: var(--fjord-space-24) minmax(0, 1fr);
+    gap: var(--fjord-space-3);
+    align-items: center;
+    padding: var(--fjord-space-1) 0;
+    border-top: var(--fjord-border-width) solid var(--fjord-color-border);
+    min-block-size: var(--fjord-tap-min);
+  }
+
+  .sg__contact-row:last-child {
+    border-bottom: var(--fjord-border-width) solid var(--fjord-color-border);
+  }
+
+  .sg__contact dt {
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-mono-sm);
+    font-weight: var(--fjord-weight-medium);
+    letter-spacing: var(--fjord-tracking-label);
+    color: var(--fjord-color-text-muted);
+  }
+
+  .sg__contact dd {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--fjord-space-3);
+    margin: 0;
+    font-size: var(--fjord-text-ui);
+  }
+
+  .sg__sentence {
+    margin: 0 0 var(--fjord-space-3);
+    max-width: var(--fjord-measure-narrow);
+    line-height: var(--fjord-leading-body);
   }
 
   .sg__spruce {

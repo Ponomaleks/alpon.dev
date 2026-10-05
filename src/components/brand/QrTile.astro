@@ -2,28 +2,48 @@
 // Contact QR (AC-17): the two static files, one shown per data-theme, with the caption and hint.
 // Not generated and not edited (CLAUDE.md). Shown from 1024 only; the phone Visitor taps instead.
 const alt = "QR code that opens Alexander Ponomarenko's contact card";
+
+interface Props {
+  /** Styleguide: one fixed asset, shown at any width and in either theme. */
+  sample?: 'dag' | 'natt';
+}
+
+const { sample } = Astro.props;
 ---
 
-<figure class="qr">
+<figure class="qr" data-sample={sample ? '' : undefined}>
   <div class="qr__plate">
-    <img
-      class="qr__img"
-      data-theme="dag"
-      src="/qr/qr-vcard-dag.svg"
-      alt={alt}
-      width="132"
-      height="132"
-      loading="lazy"
-    />
-    <img
-      class="qr__img"
-      data-theme="natt"
-      src="/qr/qr-vcard-natt.svg"
-      alt={alt}
-      width="132"
-      height="132"
-      loading="lazy"
-    />
+    {sample ? (
+      <img
+        class="qr__img"
+        src={`/qr/qr-vcard-${sample}.svg`}
+        alt={alt}
+        width="132"
+        height="132"
+        loading="lazy"
+      />
+    ) : (
+      <>
+        <img
+          class="qr__img"
+          data-theme="dag"
+          src="/qr/qr-vcard-dag.svg"
+          alt={alt}
+          width="132"
+          height="132"
+          loading="lazy"
+        />
+        <img
+          class="qr__img"
+          data-theme="natt"
+          src="/qr/qr-vcard-natt.svg"
+          alt={alt}
+          width="132"
+          height="132"
+          loading="lazy"
+        />
+      </>
+    )}
   </div>
   <figcaption class="qr__text">
     <span class="qr__caption" lang="no">
@@ -84,6 +104,9 @@ const alt = "QR code that opens Alexander Ponomarenko's contact card";
     font-size: var(--fjord-text-ui-sm);
     line-height: var(--fjord-leading-body);
     color: var(--fjord-color-text-muted);
+  }
+  .qr[data-sample] {
+    display: flex;
   }
   @media (min-width: 1024px) {
     .qr {

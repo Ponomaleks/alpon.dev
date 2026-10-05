@@ -6,20 +6,33 @@ import Icon from '../ui/Icon.astro';
 import Link from '../ui/Link.astro';
 import SectionHeader from '../ui/SectionHeader.astro';
 import Tag from '../ui/Tag.astro';
-import { experience } from '../../data/home';
+import { experience, type ExperienceEntry } from '../../data/home';
+
+type Entry = ExperienceEntry & { demo?: 'hover' | 'focus' };
+
+interface Props {
+  /** The entries; the home data by default. */
+  items?: Entry[];
+  /** Styleguide: the list alone, without the heading column; entries may force a heading state. */
+  sample?: boolean;
+}
+
+const { items = experience as Entry[], sample = false } = Astro.props;
 ---
 
 <section class="experience" aria-label="Experience">
-  <div class="experience__wrap">
-    <div class="experience__head">
-      <SectionHeader index="03" eyebrow="Experience" title="Where I’ve worked" />
-      <Link href="/cv">Full CV</Link>
-    </div>
+  <div class:list={['experience__wrap', { 'experience__wrap--sample': sample }]}>
+    {!sample && (
+      <div class="experience__head">
+        <SectionHeader index="03" eyebrow="Experience" title="Where I’ve worked" />
+        <Link href="/cv">Full CV</Link>
+      </div>
+    )}
     <ol class="experience__list">
-      {experience.map((x) => (
+      {items.map((x) => (
         <li class:list={['xp', { 'xp--current': x.current }]}>
           <details open={x.open}>
-            <summary class="xp__summary">
+            <summary class="xp__summary" data-demo-state={x.demo}>
               <span class="xp__meta">
                 <span class="xp__period">{x.period}</span>
                 <span class="xp__note">{x.location}</span>
@@ -66,7 +79,7 @@ import { experience } from '../../data/home';
     gap: var(--fjord-space-4);
   }
   @media (min-width: 1024px) {
-    .experience__wrap {
+    .experience__wrap:not(.experience__wrap--sample) {
       grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
       gap: var(--fjord-space-16);
     }
@@ -109,7 +122,12 @@ import { experience } from '../../data/home';
   .xp__summary::-webkit-details-marker {
     display: none;
   }
-  .xp__summary:focus-visible {
+  .xp__summary:hover .xp__role,
+  .xp__summary[data-demo-state='hover'] .xp__role {
+    color: var(--fjord-color-link);
+  }
+  .xp__summary:focus-visible,
+  .xp__summary[data-demo-state='focus'] {
     outline: var(--fjord-focus-width) solid var(--fjord-color-focus-ring);
     outline-offset: var(--fjord-focus-offset);
     border-radius: var(--fjord-radius-xs);
