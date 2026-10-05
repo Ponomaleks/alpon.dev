@@ -41,7 +41,7 @@ Traceability:
   - CtaBand and MobileBar take their actions as a page option; no page edits the component.
   - Motion control: an IconButton with play and pause icons in the hero; its accessible name says the action ("Pause animation", "Play animation"); `aria-pressed`; visible focus ring; 44 px target.
   - The choice is kept in `sessionStorage`, wrapped in try and catch; with blocked storage it holds for the current page only.
-  - The loops start only when scripts run, the same gate as the theme switch; the control is hidden with scripts off.
+  - When the loops start and when the control is shown: decided at the design stage, see [ADR-0003](./adr/0003-run-ambient-motion-only-under-a-state-attribute-the-page-script-sets.md). It replaces the earlier wording of this note ("the same gate as the theme switch").
   - Selected projects reads from the projects content collection.
 - Content source: the copy comes from `design/handoff/site/project/site/data.js` and `Home.jsx`. The Owner supplies during implement, when asked: the Now line's project, and two Recommendations with text, name and role. The Owner confirms every number and status through the Claims list (AC-29).
 
