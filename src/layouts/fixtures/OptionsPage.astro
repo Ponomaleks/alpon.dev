@@ -1,0 +1,29 @@
+---
+// One page per page-option value (AC-24, sad §5), at /fixture-opt/<case>. Built only by
+// src/layouts/BaseLayout.test.ts into a throwaway directory; it is not a route of the site.
+import BaseLayout from '../BaseLayout.astro';
+
+export function getStaticPaths() {
+  const cases = {
+    'current-cv': { current: 'cv' },
+    'current-contact': { current: 'contact' },
+    'variant-default': { headerVariant: 'default' },
+    'variant-on-spruce': { headerVariant: 'on-spruce' },
+    'cta-auto': { headerCta: 'auto' },
+    'cta-secondary': { headerCta: 'secondary' },
+    'bar-off': { mobileBar: false },
+    'bar-on': { mobileBar: true },
+    'band-off': { ctaBand: false },
+    'band-on': { ctaBand: true },
+    'cvlang-en': { cvLang: 'en' },
+    'cvlang-no': { cvLang: 'no' },
+  } as const;
+  return Object.entries(cases).map(([name, options]) => ({ params: { name }, props: { options } }));
+}
+
+const { options } = Astro.props;
+---
+
+<BaseLayout title="Options fixture" description="A page that sets one page option." {...options}>
+  <h1>Options</h1>
+</BaseLayout>

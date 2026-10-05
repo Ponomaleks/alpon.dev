@@ -1,0 +1,293 @@
+import { spawnSync } from 'node:child_process';
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join, relative } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { contact } from '../../data/contact';
+
+// AC-13, AC-14, AC-20 (T9): SkipLink, CtaBand and Footer. A real production build of a
+// throwaway fixture page (outside the repo); the test reads the built HTML. Focus and
+// layout checks are T20's browser tests.
+
+const repo = fileURLToPath(new URL('../../../', import.meta.url));
+const layoutDir = join(repo, 'src/components/layout');
+const layout = (name: string) => join(layoutDir, name).replaceAll('\\', '/');
+let out = '';
+let page = '';
+let css = '';
+
+const fixture = `---
+import SkipLink from '${layout('SkipLink.astro')}';
+import CtaBand from '${layout('CtaBand.astro')}';
+import Footer from '${layout('Footer.astro')}';
+---
+<html lang="en"><head><title>static</title></head><body>
+<div data-case="skip"><SkipLink /></div>
+<div data-case="band-en"><CtaBand /></div>
+<div data-case="band-no"><CtaBand cvLang="no" /></div>
+<div data-case="footer"><Footer /></div>
+</body></html>
+`;
+
+beforeAll(() => {
+  out = mkdtempSync(join(tmpdir(), 'fjord-static-'));
+  const src = join(out, 'fixture');
+  mkdirSync(src);
+  writeFileSync(join(src, 'StaticPage.astro'), fixture);
+  const config = join(src, 'astro.static.config.mjs');
+  writeFileSync(
+    config,
+    `import base from ${JSON.stringify(pathToFileURL(join(repo, 'astro.config.mjs')).href)};
+export default {
+  ...base,
+  root: ${JSON.stringify(repo)},
+  outDir: ${JSON.stringify(join(out, 'dist'))},
+  integrations: [
+    ...(base.integrations ?? []),
+    {
+      name: 'static-fixture',
+      hooks: {
+        'astro:config:setup': ({ injectRoute }) =>
+          injectRoute({
+            pattern: '/static-fixture',
+            entrypoint: ${JSON.stringify(pathToFileURL(join(src, 'StaticPage.astro')).href)},
+          }),
+      },
+    },
+  ],
+};
+`,
+  );
+  const astro = join(repo, 'node_modules/astro/bin/astro.mjs');
+  const build = spawnSync(process.execPath, [astro, 'build', '--config', relative(repo, config)], {
+    cwd: repo,
+    encoding: 'utf8',
+    env: { ...process.env, ASTRO_TELEMETRY_DISABLED: '1' },
+  });
+  if (build.status !== 0)
+    throw new Error(`astro build failed:
+${build.stdout}
+${build.stderr}`);
+  page = readFileSync(join(out, 'dist', 'static-fixture.html'), 'utf8');
+  const assets = join(out, 'dist', '_astro');
+  const sheets = existsSync(assets)
+    ? readdirSync(assets)
+        .filter((f) => f.endsWith('.css'))
+        .map((f) => readFileSync(join(assets, f), 'utf8'))
+    : [];
+  const inline = [...page.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/g)].map((m) => m[1] ?? '');
+  css = [...sheets, ...inline].join('\n');
+}, 180_000);
+
+afterAll(() => {
+  if (out) rmSync(out, { recursive: true, force: true });
+});
+
+/** The markup of one fixture case. */
+function made(name: string): string {
+  const m = page.match(
+    new RegExp(`<div data-case="${name}">([\\s\\S]*?)</div>\\s*(?=<div data-case|</body>)`),
+  );
+  if (!m) throw new Error(`fixture case ${name} is missing from the built page`);
+  return m[1] ?? '';
+}
+const anchors = (html: string) => [...html.matchAll(/<a\b[^>]*>[\s\S]*?<\/a>/g)].map((m) => m[0]);
+const classesOf = (tag: string) => (tag.match(/\bclass="([^"]*)"/)?.[1] ?? '').split(/\s+/);
+const text = (html: string) =>
+  html
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&#(?:x2019|8217);/gi, '’')
+    .replace(/\s+/g, ' ');
+const anchorTo = (html: string, href: string) =>
+  anchors(html).find((a) => a.includes(`href="${href}"`));
+/** The bodies of every built rule whose selector starts with the class, in source order. */
+const bodiesOf = (cls: string) =>
+  [...css.matchAll(new RegExp(`\\.${cls}(?![-\\w])[^{},]*\\{([^}]*)\\}`, 'g'))].map(
+    (m) => m[1] ?? '',
+  );
+
+describe('SkipLink (AC-13)', () => {
+  it('is an <a href="#main"> reading "Skip to content"', () => {
+    const [link, ...rest] = anchors(made('skip'));
+    expect(rest).toEqual([]);
+    expect(link).toMatch(/^<a\b[^>]*\bhref="#main"/);
+    expect(text(link ?? '')).toContain('Skip to content');
+  });
+});
+
+describe('CtaBand (AC-20)', () => {
+  it('shows the heading as h2 and the hiring line', () => {
+    const html = made('band-en');
+    const h2 = html.match(/<h2\b[^>]*>([\s\S]*?)<\/h2>/)?.[1] ?? '';
+    expect(text(h2)).toContain('Let’s build something good together.');
+    expect(text(html)).toContain(
+      'If your team is hiring in the Oslo area, I’d like to hear about it.',
+    );
+  });
+
+  it('has exactly one primary button: "Get in touch" to the contact target', () => {
+    const html = made('band-en');
+    const primaries = anchors(html).filter((a) => classesOf(a).includes('fj-btn--primary'));
+    expect(primaries).toHaveLength(1);
+    expect(primaries[0]).toContain(`href="${contact.links.contact}"`);
+    expect(text(primaries[0] ?? '')).toContain('Get in touch');
+  });
+
+  it('"Download CV" is secondary and downloads the English PDF by default', () => {
+    const cv = anchorTo(made('band-en'), contact.links.cvEn) ?? '';
+    expect(cv).toMatch(/\sdownload\b/);
+    expect(classesOf(cv)).toContain('fj-btn--secondary');
+    expect(text(cv)).toContain('Download CV');
+    expect(made('band-en')).not.toContain(contact.links.cvNo);
+  });
+
+  it('with cvLang="no" "Download CV" downloads the Norwegian PDF', () => {
+    const cv = anchorTo(made('band-no'), contact.links.cvNo) ?? '';
+    expect(cv).toMatch(/\sdownload\b/);
+    expect(text(cv)).toContain('Download CV');
+    expect(made('band-no')).not.toContain(contact.links.cvEn);
+  });
+});
+
+describe('Footer (AC-14)', () => {
+  const html = () => made('footer');
+
+  it('shows the slogan', () => {
+    expect(text(html())).toMatch(/Good products\s+are built together\./);
+  });
+
+  it('links email and phone from contact.ts', () => {
+    expect(anchorTo(html(), `mailto:${contact.email}`)).toBeDefined();
+    expect(anchorTo(html(), `tel:${contact.phone.replace(/\s+/g, '')}`)).toBeDefined();
+    expect(text(html())).toContain(contact.email);
+    expect(text(html())).toContain(contact.phone);
+  });
+
+  it('links LinkedIn and GitHub with rel="noopener noreferrer"', () => {
+    for (const url of [contact.linkedin, contact.github]) {
+      const a = anchorTo(html(), url) ?? '';
+      expect(a, url).not.toBe('');
+      const rel = (a.match(/\brel="([^"]*)"/)?.[1] ?? '').split(/\s+/);
+      expect(rel).toEqual(expect.arrayContaining(['noopener', 'noreferrer']));
+    }
+  });
+
+  it('shows "Based in", the residence as lang="no" and the coordinates at two decimals', () => {
+    expect(text(html())).toContain('Based in');
+    expect(html()).toMatch(
+      new RegExp(`<[a-z]+\\b[^>]*\\blang="no"[^>]*>\\s*${contact.residence.name}\\s*</`),
+    );
+    const { lat, lon } = contact.residence;
+    expect(text(html())).toContain(`${lat.toFixed(2)}° N, ${lon.toFixed(2)}° E`);
+    expect(text(html())).not.toMatch(/\d+\.\d{3,}°/);
+  });
+
+  it('shows the copyright with the build-time year and the name', () => {
+    expect(text(html())).toContain(`© ${new Date().getFullYear()} Alexander Ponomarenko`);
+  });
+
+  it('shows "Sist oppdatert" as lang="no" with a <time> of the last-updated date', () => {
+    expect(html()).toMatch(/\blang="no"[^>]*>[^<]*Sist oppdatert/);
+    expect(html()).toMatch(
+      new RegExp(`<time\\b[^>]*\\bdatetime="${contact.lastUpdated}"[^>]*>[^<]*\\d`),
+    );
+  });
+});
+
+describe('SkipLink and footer links (design form)', () => {
+  it('hides the skip link above the page with top, as the design does, and shows it on focus', () => {
+    const [base = ''] = bodiesOf('skip-link');
+    expect(base).toMatch(/top:\s*calc\([^;]*var\(--fjord-space-16\)[^;]*\)/);
+    expect(bodiesOf('skip-link').join(';')).not.toMatch(/(?<![-\w])translate\s*:/);
+    const shown = css.match(/\.skip-link[^{},]*:focus-visible\{([^}]*)\}/)?.[1] ?? '';
+    expect(shown).toMatch(/top:\s*var\(--fjord-space-3\)/);
+    expect(shown).toMatch(/outline:[^;]*var\(--fjord-color-focus-ring\)/);
+  });
+
+  it('offsets the footer link underline by 0.2em, as the design does', () => {
+    const hover = css.match(/\.fj-footer__col[^{},]*a[^{},]*:hover\{([^}]*)\}/)?.[1] ?? '';
+    expect(hover).toMatch(/text-underline-offset:\s*0?\.2em/);
+  });
+});
+
+// Body text widths use the em measure tokens. The two semibold headings use the design's ch: the
+// measure tokens are sized from the regular "0", which is narrower than the semibold one, and
+// made the band title break into three lines where the design has two (Owner, design match).
+describe('measures (design widths)', () => {
+  it('limits the band title to the 16ch of the design and balances its lines', () => {
+    expect(bodiesOf('fj-band__title')[0]).toMatch(/max-width:\s*16ch/);
+    expect(bodiesOf('fj-band__title')[0]).toMatch(/text-wrap:\s*balance/);
+  });
+
+  it('limits the band body to the narrow measure and pulls it up as the design does', () => {
+    const [body = ''] = bodiesOf('fj-band__body');
+    expect(body).toMatch(/max-width:\s*var\(--fjord-measure-narrow\)/);
+    expect(body).toMatch(/margin:\s*calc\([^;)]*var\(--fjord-space-2\)[^;]*\)\s*0\s*0/);
+    expect(bodiesOf('fj-band__in')[0]).toMatch(/gap:\s*var\(--fjord-space-7\)/);
+    expect(bodiesOf('fj-band__actions')[0]).not.toMatch(/margin/);
+  });
+
+  it('limits the footer slogan to the 18ch of the design', () => {
+    expect(bodiesOf('fj-footer__slogan')[0]).toMatch(/max-width:\s*18ch/);
+  });
+
+  it('writes no body text width in ch', () => {
+    expect(bodiesOf('fj-band__body').join(';')).not.toMatch(/\dch\b/);
+  });
+});
+
+describe('Footer layout (design .fj-footer grid)', () => {
+  it('is the 4 / 8 / 12-column grid of the design', () => {
+    const [box = ''] = bodiesOf('fj-footer__in');
+    expect(box).toMatch(/display:\s*grid/);
+    expect(box).toMatch(
+      /grid-template-columns:\s*repeat\(var\(--fjord-grid-columns\),\s*minmax\(0,\s*1fr\)\)/,
+    );
+  });
+
+  it('spans the slogan and base line over the whole grid and each column over four tracks', () => {
+    expect(bodiesOf('fj-footer__slogan')[0]).toMatch(/grid-column:\s*1\s*\/\s*-1/);
+    expect(bodiesOf('fj-footer__base')[0]).toMatch(/grid-column:\s*1\s*\/\s*-1/);
+    expect(bodiesOf('fj-footer__col')[0]).toMatch(/grid-column:\s*span 4/);
+  });
+
+  it('gives the slogan and each column three of twelve tracks from 1024', () => {
+    expect(css).toMatch(
+      /min-width:\s*1024px[^{]*\{[^@]*\.fj-footer__slogan[^{]*\{[^}]*grid-column:\s*span 3/,
+    );
+    expect(bodiesOf('fj-footer__col').join(';')).toMatch(/grid-column:\s*span 3/);
+    expect(bodiesOf('fj-footer__col').join(';')).not.toMatch(/flex-basis|flex:\s*\d/);
+  });
+});
+
+describe('sources hold no literal contact value', () => {
+  const values = [
+    contact.email,
+    contact.phone,
+    contact.linkedin,
+    contact.github,
+    contact.residence.name,
+    contact.links.cvEn,
+    contact.links.cvNo,
+    contact.lastUpdated,
+    String(contact.residence.lat),
+    String(contact.residence.lon),
+  ];
+  for (const file of ['SkipLink.astro', 'CtaBand.astro', 'Footer.astro']) {
+    it(`${file} reads contact.ts instead`, () => {
+      const path = join(layoutDir, file);
+      expect(existsSync(path), `${file} exists`).toBe(true);
+      const source = readFileSync(path, 'utf8');
+      for (const v of values) expect(source, v).not.toContain(v);
+    });
+  }
+});

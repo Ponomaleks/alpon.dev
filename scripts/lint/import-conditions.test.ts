@@ -5,14 +5,14 @@ import stylelint from 'stylelint';
 import { describe, expect, it } from 'vitest';
 import { conditionalImports } from './import-conditions.ts';
 
-// AC-11: a media condition on @import carries a width past the breakpoint and unit rules, which
-// read @media preludes only. No Stylelint core rule checks an @import prelude (ADR-0003), so this
+// AC-11: a media condition on @import carries a width past the breakpoint rule, which
+// read @media preludes only. No Stylelint core rule checks an @import prelude (ADR-0004), so this
 // check does.
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
 const fixture = fileURLToPath(new URL('./fixtures/import-condition.css', import.meta.url));
 
-describe('conditional @import check (ADR-0003)', () => {
+describe('conditional @import check (ADR-0004)', () => {
   it('reports a media condition on @import, with the feature name in either case', () => {
     expect(conditionalImports(readFileSync(fixture, 'utf8'))).toEqual([
       { line: 1, prelude: "'./wide.css' (min-width: 800px)" },

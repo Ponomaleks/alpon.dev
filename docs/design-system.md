@@ -48,33 +48,39 @@ All values come from `src/styles/tokens.css` (`--fjord-*`, generated, do not edi
 
 `screens.md` may use only these names, or declare `NEW: <name>` with a why-no-primitive-fits line (`implement` then registers it here). **Repo** = the component is built in `src/`. **Handoff** = design-only so far, and the first feature that needs it builds it at the target path. States are given where the handoff signature defines them; otherwise see the component's `.d.ts`/`.prompt.md`. Handoff paths are relative to `design/handoff/design-system/project/`.
 
-**Built in the repo**
+**Built in the repo** (base-components registers the Shell and the base components here; the handoff rows of built components are removed)
 
 | Component | Source (`file:line` / node / URL) | States it supports | Notes |
 |---|---|---|---|
 | BaseLayout | `src/layouts/BaseLayout.astro:1` | — (head contract: lang, title, description, noindex) | fjord-foundation extends it: theme bootstrap, font preloads, tokens → fonts → base |
-
-**Registered page-local (built by fjord-foundation, `docs/features/fjord-foundation/screens.md`; step 3 promotes them)**
-
-| Component | Source (`file:line` / node / URL) | States it supports | Notes |
-|---|---|---|---|
-| home-link | `src/pages/404.astro:40` (markup), `src/pages/404.astro:140` (styles); design `components/actions/actions.css:8` | default / hover / focus-visible (color only) | Promoted to `Button` (primary, arrow) in step 3, same token names |
-| ridge-contours | `src/pages/404.astro:17` (markup), `src/pages/404.astro:90` (styles); paths from design `components/brand/contourData.js`; design `components/brand/Contours.jsx:28` | static only | Promoted to `Contours` in step 3, same markup |
+| Button | `src/components/ui/Button.astro` | primary / secondary; size; arrow; disabled; hover / focus-visible | one primary CTA per screen; promoted from the Not-found `home-link` |
+| Link | `src/components/ui/Link.astro` | default / hover / focus-visible |  |
+| IconButton | `src/components/ui/IconButton.astro` | default / hover / focus-visible | 44px target |
+| Icon | `src/components/ui/Icon.astro` | — | 1.5px line icons |
+| Badge (availability, status) | `src/components/ui/Badge.astro` | — |  |
+| Tag | `src/components/ui/Tag.astro` | — |  |
+| Stat | `src/components/ui/Stat.astro` | — | shows the final number, no count-up |
+| SectionHeader with Eyebrow | `src/components/ui/SectionHeader.astro` | size; eyebrow; lead |  |
+| Toast and its live region | `src/components/ui/Toast.astro`, script `src/scripts/shell/toast.ts` | tone; message | polite live region; the Styleguide triggers it |
+| Contours | `src/components/brand/Contours.astro` | static | promoted from the Not-found `ridge-contours` |
+| Terrain map panel | `src/components/brand/TerrainMap.astro` | static | map panel of the Not-found page |
+| Wordmark | `src/components/brand/Wordmark.astro` | — |  |
+| SkipLink | `src/components/layout/SkipLink.astro` | default / focus-visible | first focusable element |
+| Header | `src/components/layout/Header.astro` | variants; scroll border (script `src/scripts/shell/header.ts`) |  |
+| MobileMenu | `src/components/layout/MobileMenu.astro` | open / closed (script `src/scripts/shell/menu.ts`) | native modal dialog |
+| ThemeToggle | `src/components/layout/ThemeToggle.astro` | dag / natt (script `src/scripts/shell/theme.ts`) | View Transition is progressive and skipped under reduced motion |
+| CtaBand | `src/components/layout/CtaBand.astro` | — |  |
+| Footer | `src/components/layout/Footer.astro` | — | data from `src/data/contact.ts` |
+| MobileBar (Sticky action bar) | `src/components/layout/MobileBar.astro` | shown / hidden (script `src/scripts/shell/action-bar.ts`) |  |
+| contact data | `src/data/contact.ts` | — | single source for contacts |
 
 **Design-only (handoff), by group**
 
 | Component | Source (`file:line` / node / URL) | States it supports | Notes |
 |---|---|---|---|
-| Button | `components/actions/Button.jsx:4` | variant primary/secondary…; size; disabled; loading; arrow; icon | target `src/components/ui/`; one primary CTA per screen |
-| IconButton | `components/actions/IconButton.jsx:4` | see `.d.ts` | 44px target |
-| TextLink | `components/actions/TextLink.jsx:4` | see `.d.ts` | |
-| Contours | `components/brand/Contours.jsx:28` | shape ridge/corner; tone; ambient drift; parallax | target `src/components/brand/`; drift/parallax off under reduced motion |
-| Icon | `components/brand/Icon.jsx:4` | see `.d.ts` | 1.5px line icons, no tech logos |
 | OgImage | `components/brand/OgImage.jsx:5` | — | source lives in `tools/`, not deployed |
 | Portrait | `components/brand/Portrait.jsx:4` | see `.d.ts` | |
 | QrTile | `components/brand/QrTile.jsx:4` | Dag / Natt asset | uses static `public/qr/qr-vcard-{dag,natt}.svg`, no QR library |
-| Terrain | `components/brand/Terrain.jsx:41` | see `.d.ts` | |
-| Wordmark | `components/brand/Wordmark.jsx:3` | — | |
 | ArchDiagram | `components/casestudy/ArchDiagram.jsx:4` | see `.d.ts` | case studies |
 | Callout | `components/casestudy/Callout.jsx:4` | see `.d.ts` | |
 | Figure | `components/casestudy/Figure.jsx:4` | see `.d.ts` | |
@@ -82,11 +88,7 @@ All values come from `src/styles/tokens.css` (`--fjord-*`, generated, do not edi
 | MetaRow | `components/casestudy/MetaRow.jsx:3` | see `.d.ts` | |
 | NextProject | `components/casestudy/NextProject.jsx:5` | see `.d.ts` | |
 | Prose | `components/casestudy/Prose.jsx:3` | — | target `src/components/prose/`; step 7 |
-| CtaBand | `components/content/CtaBand.jsx:5` | see `.d.ts` | |
 | ProjectCard | `components/content/ProjectCard.jsx:7` | see `.d.ts` | |
-| SectionHeader | `components/content/SectionHeader.jsx:3` | size; eyebrow; lead | |
-| Eyebrow | `components/content/SectionHeader.jsx:14` | — | |
-| Stat / StatRow | `components/content/Stat.jsx:6`, `:42` | see `.d.ts` | real numbers only; reduced motion shows final values |
 | Testimonial | `components/content/Testimonial.jsx:4` | see `.d.ts` | real quotes only, with name and link; hidden if none |
 | ContactForm | `components/cv/ContactForm.jsx:10` | see `.d.ts` | needs a server endpoint (Worker); requires its own ADR before building (repo ADR-0001) |
 | ContactList | `components/cv/ContactList.jsx:5` | see `.d.ts` | data from `src/data/contact.ts` |
@@ -95,24 +97,16 @@ All values come from `src/styles/tokens.css` (`--fjord-*`, generated, do not edi
 | LanguageList | `components/cv/LanguageList.jsx:4` | — | plain labels, no CEFR codes |
 | SkillGroup | `components/cv/SkillGroup.jsx:4` | — | no skill bars or percentages |
 | TextField | `components/cv/TextField.jsx:4` | default / hint / error / optional; multiline | |
-| AvailabilityBadge | `components/feedback/AvailabilityBadge.jsx:5` | see `.d.ts` | |
 | EmptyState | `components/feedback/EmptyState.jsx:4` | eyebrow / title / body / action | |
-| NotFound | `components/feedback/NotFound.jsx:4`; newer site copy `design/handoff/site/project/_ds/…/components/feedback/feedback.css:40` (terrain map, "You are here" pin) | title / body / code line / actions; map panel in the site copy | A building block, not the page spec. The 404 page follows the site design (`design/handoff/site/project/site/Misc.jsx`, `design/screenshots/{dag,natt}_not_found_*.png`). `src/pages/404.astro` (fjord-foundation) was built from the older component demo and differs from the page design; rebuilt in step 3 (fjord-foundation spec §8 OQ-02) |
+| NotFound | `components/feedback/NotFound.jsx:4`; newer site copy `design/handoff/site/project/_ds/…/components/feedback/feedback.css:40` (terrain map, "You are here" pin) | title / body / code line / actions; map panel in the site copy | A building block, not the page spec. The 404 page follows the site design (`design/handoff/site/project/site/Misc.jsx`, `design/screenshots/{dag,natt}_not_found_*.png`). `src/pages/404.astro` is rebuilt to the page design by base-components (AC-17) |
 | Skeleton | `components/feedback/Skeleton.jsx:3` | — | islands only; static pages have no loading state |
-| StatusBadge | `components/feedback/StatusBadge.jsx:5` | see `.d.ts` | |
-| Tag / TagList | `components/feedback/Tag.jsx:3`, `:7` | — | |
-| Toast / ToastRegion | `components/feedback/Toast.jsx:4`, `:16` | tone success…; message; meta | |
 | Tooltip | `components/feedback/Tooltip.jsx:3` | — | never the only carrier of information |
 | Breadcrumbs | `components/navigation/Breadcrumbs.jsx:3` | — | |
 | CommandPalette | `components/navigation/CommandPalette.jsx:5` | see `.d.ts` | after Release 1, loaded lazily on first Ctrl/Cmd+K (roadmap step 8) |
 | FilterChips | `components/navigation/FilterChips.jsx:3` | see `.d.ts` | |
-| Footer | `components/navigation/Footer.jsx:3` | — | target `src/components/layout/`; step 3 |
-| Header | `components/navigation/Header.jsx:9` | see `.d.ts` | target `src/components/layout/`; step 3 |
-| MobileMenu | `components/navigation/MobileMenu.jsx:10` | open / closed | |
 | Pagination | `components/navigation/Pagination.jsx:4` | prev / next optional | |
 | SegmentedControl | `components/navigation/SegmentedControl.jsx:3` | see `.d.ts` | |
-| ThemeToggle | `components/navigation/SegmentedControl.jsx:26` | dag / natt | step 3; View Transition is progressive and skipped under reduced motion |
-| StickyActionBar / ScrollProgress | `components/navigation/StickyActionBar.jsx:4`, `:29` | see `.d.ts` | |
+| ScrollProgress | `components/navigation/StickyActionBar.jsx:29` | see `.d.ts` | |
 | TrailNav | `components/navigation/TrailNav.jsx:5` | see `.d.ts` | |
 
 ## Interaction & writing conventions

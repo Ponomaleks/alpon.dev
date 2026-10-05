@@ -4,7 +4,7 @@ import stylelint from 'stylelint';
 import { describe, expect, it } from 'vitest';
 import { parseCss } from '../tokens/parse.ts';
 
-// src/styles/base.css: the element base ported from the handoff, tokens only (ADR-0003),
+// src/styles/base.css: the element base ported from the handoff, tokens only (base-components ADR-0004),
 // readable with scripts off (AC-04) and with no motion of its own (AC-14).
 
 const root = fileURLToPath(new URL('../../', import.meta.url));

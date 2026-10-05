@@ -1,0 +1,76 @@
+---
+import Icon, { type IconName } from './Icon.astro';
+
+interface Props {
+  icon: IconName;
+  /** The accessible name; an icon alone says nothing to assistive tech. */
+  label: string;
+  disabled?: boolean;
+  /** Forces a state for the Styleguide (hook H-4). */
+  'data-demo-state'?: 'hover' | 'focus' | 'active';
+}
+
+const { icon, label, disabled = false, 'data-demo-state': demoState } = Astro.props;
+---
+
+<button
+  type="button"
+  class="fj-iconbtn"
+  aria-label={label}
+  disabled={disabled}
+  data-demo-state={demoState}
+>
+  <Icon name={icon} />
+</button>
+
+<style is:global>
+  .fj-iconbtn {
+    display: inline-grid;
+    place-items: center;
+    width: var(--fjord-tap-min);
+    height: var(--fjord-tap-min);
+    padding: 0;
+    border-radius: var(--fjord-radius-md);
+    border: var(--fjord-border-width) solid transparent;
+    background-color: transparent;
+    color: var(--fjord-color-text);
+    cursor: pointer;
+  }
+
+  .fj-iconbtn:hover,
+  .fj-iconbtn:active,
+  .fj-iconbtn[data-demo-state='hover'],
+  .fj-iconbtn[data-demo-state='active'] {
+    background-color: var(--fjord-color-accent-soft);
+  }
+
+  .fj-iconbtn:focus-visible,
+  .fj-iconbtn[data-demo-state='focus'] {
+    outline: var(--fjord-focus-width) solid var(--fjord-color-focus-ring);
+    outline-offset: var(--fjord-focus-offset);
+    border-radius: var(--fjord-radius-md);
+  }
+
+  .fj-iconbtn:disabled {
+    cursor: not-allowed;
+    background-color: transparent;
+    color: var(--fjord-color-text-muted);
+    border-color: var(--fjord-color-border);
+    border-style: dashed;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .fj-iconbtn {
+      transition:
+        background-color var(--fjord-duration-200) var(--fjord-ease-out),
+        color var(--fjord-duration-200) var(--fjord-ease-out),
+        transform var(--fjord-duration-120) var(--fjord-ease-out);
+    }
+
+    /* The design's press; with reduced motion the control stays still (AC-28). */
+    .fj-iconbtn:active:not(:disabled),
+    .fj-iconbtn[data-demo-state='active'] {
+      transform: scale(0.94);
+    }
+  }
+</style>

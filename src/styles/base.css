@@ -76,6 +76,27 @@ a:hover {
   }
 }
 
+/* Cross-document page transitions (AC-32, AC-28): progressive enhancement, no client router. The
+   page cross-fades with motion tokens; the header has its own name and stays still (Header.astro).
+   The opt-in applies only when motion is allowed; reduced motion turns the transition off
+   entirely, so the new page simply opens. */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+}
+
+::view-transition-group(root) {
+  animation-duration: var(--fjord-duration-200);
+  animation-timing-function: var(--fjord-ease-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @view-transition {
+    navigation: none;
+  }
+}
+
 :focus-visible {
   outline: var(--fjord-focus-width) solid var(--fjord-color-focus-ring);
   outline-offset: var(--fjord-focus-offset);
@@ -87,4 +108,22 @@ kbd,
 samp,
 pre {
   font-family: var(--fjord-font-mono);
+}
+
+/* Scripts-off gate (AC-11, H-1): the theme bootstrap always sets data-theme, so it is missing
+   only when scripts are off. Controls that need a script are then hidden. */
+:root:not([data-theme]) [data-needs-script] {
+  display: none;
+}
+
+/* Sticky action bar clearance (AC-07, hook H-2): below 768 a page that has the bar keeps its last
+   lines and any focused element clear of it; from 768 the bar is hidden and the reserve is reset. */
+:root:has([data-shell-bar]) {
+  scroll-padding-bottom: var(--fjord-space-24);
+}
+
+@media (min-width: 768px) {
+  :root:has([data-shell-bar]) {
+    scroll-padding-bottom: 0;
+  }
 }

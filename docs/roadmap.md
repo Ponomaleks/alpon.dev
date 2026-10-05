@@ -1,6 +1,6 @@
 ---
 status: living
-updated_at: "2026-10-03"
+updated_at: "2026-10-05"
 ---
 
 # Roadmap — alpon.dev
@@ -20,9 +20,9 @@ A Norwegian recruiter can tell within 60 seconds on a phone who Alexander is and
 | # | Step | Source | Size | Status |
 |---|---|---|:---:|---|
 | 1 | Project skeleton: Astro 6 static build, test harness, CI, Workers preview deploys ([`_scaffold`](features/_scaffold/)) | `architecture-map.md` Greenfield foundation | S | shipped |
-| 2 | Fjord foundation ([`fjord-foundation`](features/fjord-foundation/)): tokens, self-hosted fonts, Dag/Natt theme with no flash (inline theme script allowed by a CSP hash generated at build), `BaseLayout`, and the 404 "Ikke funnet" page | `idea-brief.md` §1 Raw idea | S | spec'd ([PR #1](https://github.com/Ponomaleks/alpon.dev/pull/1) open) |
-| 3 | Base components + `/styleguide`: only what Home and CV need — Button, Link, Badge, Tag, Stat, SectionHeader, Toast, Header/Footer, SkipLink, ThemeToggle, Contours; plus `src/data/contact.ts`, which the Footer reads. Rebuild the 404 page per the site design (`Misc.jsx`): two columns from 1024 (5fr / 7fr); below 1024, one column with the map under the text; map panel built on Terrain/Contours as static SVG (no JS, CSP-safe), heading and code line as in the site design, still no path echo; build the sticky action bar ("View CV / Get in touch" at 390) as part of MobileBar, together with Header/Footer; update AC-07 / P-41 wording to the page design; re-baseline the 404 visuals together with Header/Footer (fjord-foundation spec §8 OQ-02) | `reference/01-foundations.md` 8. Styleguide page | S | idea |
-| 4 | Home with contacts: name, role, Oslo area, contact block from `contact.ts`, copy email ("Kopiert"), vCard, QR tile, meta + JSON-LD | `idea-brief.md` §3 Users | S | idea |
+| 2 | Fjord foundation ([`fjord-foundation`](features/fjord-foundation/)): tokens, self-hosted fonts, Dag/Natt theme with no flash (inline theme script allowed by a CSP hash generated at build), `BaseLayout`, and the 404 "Ikke funnet" page | `idea-brief.md` §1 Raw idea | S | shipped |
+| 3 | Base components + `/styleguide` ([`base-components`](features/base-components/)): only what Home and CV need — Button, Link, Badge, Tag, Stat (final number, no count-up), SectionHeader, Toast, SkipLink, ThemeToggle ("Light / Dark"), Contours; the Shell: Header (no "Search Ctrl K" until step 8; border after scroll; static variants default, bordered, on spruce, secondary CTA), MobileMenu, CtaBand, Footer and MobileBar with the sticky action bar ("View CV / Get in touch" at 390, hides on scroll down); page and theme cross-fade as progressive enhancement; plus `src/data/contact.ts` (work region "Oslo, Norge", residence "Nittedal, Norge", last-updated date), which the Footer reads. Rebuild the 404 page per the site design (`Misc.jsx`), closing every fjord-foundation OQ-02 item and backlog B-01: two columns from 1024 (5fr / 7fr); below 1024, one column with the map under the text; map panel built on Terrain/Contours as static SVG (no JS, CSP-safe), heading and code line as in the site design, still no path echo; update fjord-foundation AC-07 / AC-08 and P-41 to the page design; re-baseline the 404 visuals together with Header/Footer. Extend the token-only allow lists in ADR-0003 with a reason per entry. Shell links use their final addresses; P-50 and P-51 are added for steps 4 and 5 to close. Not here: BackToTop (step 5); count-up, Contours drift and parallax, spruce header over the hero (step 4). If tasks go above about 25, split into 3a (components, contact data, styleguide) and 3b (404 rebuild and baselines) | `reference/01-foundations.md` 8. Styleguide page | S | shipped |
+| 4 | Home with contacts: name, role, Oslo area, contact block from `contact.ts`, copy email ("Kopiert"), vCard, QR tile, meta + JSON-LD. Move `id="contact"` from the placeholder wrapper in `src/pages/index.astro` to the real contact section (P-50 checks it) | `idea-brief.md` §3 Users | S | idea |
 | 5 | CV pages EN/NO: `/cv`, `/cv/en`, `/cv/no` as HTML, language switch, page-image preview, Download PDF, legacy `#cv`/`#cv-no` hand-off from home | `idea-brief.md` §7 Recommendation | S | idea |
 | 6 | Release 1: parity gate green (no `test.fixme` in `parity.spec.ts`), cookieless Cloudflare Web Analytics on with matching CSP, v2 → `main`, production deploy command switched to `npm run build && npx wrangler deploy`, enable `main` branch protection (`check` + `visual` required; T16 option 2 command, right after the merge), post-merge smoke check on alpon.dev, including: verify 404 page and CSP on the production Worker (an unknown address returns the Fjord Not-found page with the `Content-Security-Policy` header; the Workers preview URL returns a bare `Not found`, see fjord-foundation [changelog](features/fjord-foundation/changelog.md)) | `idea-brief.md` §6 Risks | XS | idea |
 | 7 | Projects templates: `/projects` index, `/projects/[slug]` case-study pages with the live-preview facade, "Selected projects" on home, Prose/CodeBlock/Callout components; the nav link and home block render only when at least one published project exists | `idea-brief.md` §7 Recommendation | M | idea |
@@ -104,7 +104,7 @@ flowchart LR
 Lane rules (owner-confirmed):
 
 - **Shared files belong to the shell (steps 2–3):** Header/Footer, `src/data/contact.ts`, `public/_headers`, `public/_redirects`, `tests/e2e/parity.spec.ts`, `docs/stub-parity.md`. In wave 3, a change to any of them goes first as a small separate PR to `v2`; the other worktree rebases on it.
-- **A parity id flips in the step that builds the behaviour**, so no test sits as `fixme` while the behaviour already exists: Fjord foundation — P-16, P-26, P-41; Base components — P-25; Home — P-20..P-24; CV — P-01..P-03, P-30..P-34.
+- **A parity id flips in the step that builds the behaviour**, so no test sits as `fixme` while the behaviour already exists: Fjord foundation — P-16, P-26, P-41; Base components — P-25; Home — P-20..P-24, P-50; CV — P-01..P-03, P-30..P-34, P-51.
 - **Projects (step 7) runs on its own branch off `v2` and merges into `v2` only after Release 1 is on `main`**, so the release never carries a half-built Projects section.
 - Fog steps 9–11 enter a wave only after their recon pass gives them a size.
 
@@ -113,3 +113,5 @@ Lane rules (owner-confirmed):
 | Step | Shipped | Link |
 |---|---|---|
 | 1 · Project skeleton (on `v2`) | 2026-10-02 | commit `b4512ec` |
+| 2 · Fjord foundation (on `v2`) | 2026-10-03 | [PR #1](https://github.com/Ponomaleks/alpon.dev/pull/1) |
+| 3 · Base components (PR open against `v2`) | 2026-10-05 | [PR #2](https://github.com/Ponomaleks/alpon.dev/pull/2) · [changelog](features/base-components/changelog.md) |

@@ -1,11 +1,10 @@
 ---
 // AC-13 fixture: a new page that passes only a title and a description. Built only by
 // src/layouts/BaseLayout.test.ts into a throwaway directory; it is not a route of the site.
+// The layout supplies <main id="main">, so the page content has no <main> of its own.
 import BaseLayout from '../BaseLayout.astro';
 ---
 
 <BaseLayout title="Fixture page" description="A page with only a title and a description.">
-  <main>
-    <h1>Fixture</h1>
-  </main>
+  <h1>Fixture</h1>
 </BaseLayout>

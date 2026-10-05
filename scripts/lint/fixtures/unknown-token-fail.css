@@ -1,0 +1,5 @@
+.a {
+  color: var(--fjord-color-txt);
+  min-height: calc(var(--fjord-space-99) * 2);
+  background-color: color-mix(in srgb, var(--fjord-color-txt) 50%, var(--fjord-color-bg));
+}

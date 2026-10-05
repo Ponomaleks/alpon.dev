@@ -1,0 +1,24 @@
+.a {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+  grid-template-rows: auto 1fr;
+  width: 100%;
+  max-inline-size: 60ch;
+  inline-size: clamp(20rem, 50vw, 60rem);
+  min-block-size: min(100dvh, 40rem);
+  block-size: max(50%, 320px);
+  aspect-ratio: 16 / 9;
+  transform: translate(-50%, 4px) scale(1.05) rotate(45deg);
+  translate: 0 -100%;
+  padding: calc(var(--fjord-space-2) * 2);
+  background-color: color-mix(in srgb, var(--fjord-color-bg) 94%, transparent);
+  background-image: linear-gradient(
+    to bottom,
+    var(--fjord-color-bg),
+    var(--fjord-color-bg-raised) 60%
+  );
+}
+
+.b {
+  transform: translateX(4px);
+}

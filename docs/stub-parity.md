@@ -52,7 +52,7 @@ Note: CLAUDE.md plans `/cv`, `/cv/en`, `/cv/no` as CV pages later. The spec that
 | P-22 | Copy-email button copies the address and confirms (stub: "Copied"; v2 copy rule: "Kopiert") | fixme |
 | P-23 | "Save contact" links to `/alexander-ponomarenko.vcf` with a `download` attribute | fixme |
 | P-24 | Head meta: title, description, canonical `https://alpon.dev/`, `og:*` with `og:image=https://alpon.dev/og.png` 1200×630, `twitter:card=summary_large_image`, JSON-LD `Person` (name, jobTitle, email, telephone, Oslo/NO address, `sameAs` LinkedIn + GitHub) | fixme |
-| P-25 | Skip link is the first focusable element | fixme |
+| P-25 | Skip link is the first focusable element | active |
 | P-26 | Fonts: Schibsted Grotesk 400 and 600 preloaded | active |
 
 ## CV viewer (stub: on the home page, `#cv`)
@@ -70,9 +70,14 @@ Note: CLAUDE.md plans `/cv`, `/cv/en`, `/cv/no` as CV pages later. The spec that
 | Id | Behaviour | Test |
 |---|---|---|
 | P-40 | Unknown path returns status 404 | active |
-| P-41 | 404 page shows "404 · Ikke funnet", has `noindex` and a link back to `/` | active |
+| P-41 | 404 page shows "404 / Ikke funnet", has `noindex` and a link back to `/` | active |
 
 ## Not in the stub (Release 1 adds these, listed for the release gate)
 
 - Contact QR (`public/qr/qr-vcard-{dag,natt}.svg`), required by the idea brief §6 parity line.
 - Footer year: the stub fills it with JS (`#year`). On v2 it's set at build time (no JS needed).
+
+| Id | Behaviour | Test |
+|---|---|---|
+| P-50 | The Shell's contact links (header, menu, bar, band) reach the contact place. Owner: step 4 | fixme |
+| P-51 | The Shell's CV links (header, menu, bar) reach the CV page. Owner: step 5 | fixme |

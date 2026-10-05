@@ -1,8 +1,0 @@
-.a {
-  top: 3vh;
-  width: 100vw;
-  padding-block: 2dvh;
-  min-height: 73vh;
-  max-height: 50svh;
-  height: calc(100dvh - var(--fjord-space-4));
-}

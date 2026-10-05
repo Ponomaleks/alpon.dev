@@ -1,0 +1,17 @@
+.a {
+  transition: color 200ms var(--fjord-ease-out);
+  transition: color var(--fjord-duration-200) ease-in-out;
+  transition: color var(--fjord-duration-200) cubic-bezier(0.2, 0, 0, 1);
+  transition-duration: 200ms;
+  transition-duration: 0.2s;
+  transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
+  transition-timing-function: ease;
+  animation: spin 1s var(--fjord-ease-linear) infinite;
+  animation: spin var(--fjord-duration-1200) linear infinite;
+  animation: spin var(--fjord-duration-1200) steps(4) infinite;
+  animation-duration: 1200ms;
+  animation-timing-function: linear;
+  transition:
+    color var(--fjord-duration-200) var(--fjord-ease-out),
+    opacity 120ms var(--fjord-ease-out);
+}

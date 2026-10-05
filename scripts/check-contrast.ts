@@ -1,6 +1,6 @@
 // Contrast check over the generated tokens (fjord-foundation AC-10, sad QG-3). Resolves every
 // manifest pair per theme from src/styles/tokens.css, computes the WCAG ratio and fails naming
-// pair · theme · ratio. Also asserts the no-JS Natt block equals [data-theme="natt"] (ADR-0001).
+// pair · theme · ratio. Decorative pairs are measured and printed, never gated. Also asserts the no-JS Natt block equals [data-theme="natt"] (ADR-0001).
 //
 // Run from the repo root: node scripts/check-contrast.ts
 
@@ -23,6 +23,9 @@ export interface ContrastResult {
   failures: string[];
   /** Pairs in KNOWN_FAILURES that still fail: reported, not fatal. */
   known: string[];
+  /** Pairs of kind 'decorative': reported with their ratio, never gated. */
+  decorative: string[];
+  /** The gated pairs. */
   measured: Measured[];
   checked: number;
 }
@@ -108,15 +111,20 @@ export function checkContrast(css: string): ContrastResult {
   };
 
   const known: string[] = [];
+  const decorative: string[] = [];
   const measured: Measured[] = [];
   for (const pair of PAIRS) {
     for (const theme of pair.themes) {
       const tokens = themes[theme];
       const background = over(resolve(tokens, pair.bg), resolve(tokens, '--fjord-color-bg'));
       const ratio = contrastRatio(over(resolve(tokens, pair.fg), background), background);
+      const name = `${pair.fg} on ${pair.bg} · ${theme}`;
+      if (pair.kind === 'decorative') {
+        decorative.push(`${name} · ${ratio.toFixed(2)}:1 (decorative, not gated)`);
+        continue;
+      }
       const threshold = THRESHOLD[pair.kind];
       measured.push({ fg: pair.fg, bg: pair.bg, theme, ratio, threshold });
-      const name = `${pair.fg} on ${pair.bg} · ${theme}`;
       const expected = KNOWN_FAILURES.find(
         (k) => k.fg === pair.fg && k.bg === pair.bg && k.theme === theme,
       );
@@ -128,22 +136,23 @@ export function checkContrast(css: string): ContrastResult {
       else failures.push(line);
     }
   }
-  return { failures, known, measured, checked: measured.length };
+  return { failures, known, decorative, measured, checked: measured.length };
 }
 
 if (import.meta.main) {
-  const { failures, known, measured } = checkContrast(
+  const { failures, known, decorative, measured } = checkContrast(
     readFileSync('src/styles/tokens.css', 'utf8'),
   );
   // Failing pairs are printed below, as known failures or as errors.
   for (const m of measured.filter((p) => p.ratio >= p.threshold))
     console.log(`${m.fg} on ${m.bg} · ${m.theme} · ${m.ratio.toFixed(2)}:1 (≥ ${m.threshold}:1)`);
   for (const k of known) console.log(k);
+  for (const d of decorative) console.log(d);
   if (failures.length > 0) {
     console.error(`contrast check failed:\n  ${failures.join('\n  ')}`);
     process.exit(1);
   }
   console.log(
-    `contrast: ${measured.length - known.length} pairs pass, ${known.length} known failure(s)`,
+    `contrast: ${measured.length - known.length} pairs pass, ${known.length} known failure(s), ${decorative.length} decorative pair(s) not gated`,
   );
 }

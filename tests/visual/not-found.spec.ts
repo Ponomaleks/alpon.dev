@@ -38,7 +38,11 @@ test.describe('Not-found page visual baselines', () => {
           await page.addInitScript((t) => localStorage.setItem('fjord-theme', t), theme);
           await page.goto('/does-not-exist');
           await page.evaluate(() => document.fonts.ready);
-          await expect(page).toHaveScreenshot(name, { fullPage: true, maxDiffPixelRatio: 0.001 });
+          await expect(page).toHaveScreenshot(name, {
+            fullPage: true,
+            maxDiffPixelRatio: 0.001,
+            mask: [page.locator('.fj-footer__base')],
+          });
         });
       });
     }

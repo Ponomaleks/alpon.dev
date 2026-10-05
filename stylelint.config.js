@@ -1,6 +1,7 @@
 // @ts-check
-// Token-only styles (fjord-foundation ADR-0003): every color, size, space, radius, duration and
-// easing in a page or component style comes from a --fjord-* token. Core rules only.
+// Token-only styles (base-components ADR-0004): colour, spacing, type size, radius, duration and
+// easing in a page or component style come from a --fjord-* token. Colour literals are banned in
+// every property; the properties listed below take tokens only. Everything else is standard CSS.
 
 import { readFileSync } from 'node:fs';
 
@@ -16,144 +17,117 @@ const undeclaredToken = new RegExp(
   String.raw`var\(\s*--fjord-(?!(?:${declared.map((t) => t.slice('--fjord-'.length)).join('|')})\s*[,)])`,
 );
 
-/** Values the token-only properties accept besides var(--fjord-*). */
-const keywords = ['0', '100%', 'auto', 'none', 'inherit', 'currentColor', 'transparent'];
+/**
+ * The strict-value rule checks a value part by part, split at spaces, so the patterns below
+ * describe one part each. A part may end with the comma of a list (transition, background).
+ */
 
-/** A space-separated sequence of Fjord tokens and allowlisted keywords. */
-const sequence = (/** @type {string[]} */ extra) => {
-  const term = String.raw`(?:var\(--fjord-[a-z0-9-]+\)|${[...keywords, ...extra].join('|')})`;
-  return new RegExp(String.raw`^${term}(?:\s+${term})*$`);
-};
-const tokenOnly = sequence([]);
+/** One Fjord token, with no fallback value. */
+const token = /^var\(--fjord-[a-z0-9-]+\),?$/;
 
-/** Border and outline shorthands: tokens plus the line styles (no thin / medium / thick). */
-const lineShorthand = sequence(['solid', 'dashed', 'dotted', 'double']);
-
-/** Keyword easings inside the transition and animation shorthands (tokens hold the curves). */
-const keywordEasing = /(?<![\w-])(?:ease(?:-in|-out|-in-out)?|linear|step-start|step-end)(?![\w-])/;
-
-/** Viewport-height units are allowed only where layout needs them (e.g. min-height: 100dvh). */
-const viewportHeightUnits = ['vh', 'svh', 'lvh', 'dvh'];
-const viewportHeightProperties = ['height', 'min-height', 'max-height'];
+/** Accepted on every enforced property besides a token. */
+const everywhere = [token, '0', 'inherit', 'initial', 'unset', 'revert', 'revert-layer'];
 
 /**
- * Height values: tokens, auto, percentages, a full-viewport 100vh / 100svh / 100lvh / 100dvh, or
- * a calc() of tokens and plain numbers (e.g. calc(var(--fjord-space-1) * 105)). Any other
- * viewport height (73vh, calc(100dvh - ...)) is a magic number.
+ * calc(), min(), max() and clamp() over tokens: at least one token, plain numbers as factors
+ * (`calc(var(--fjord-space-2) * 2)`), no number with a unit or a percent sign.
  */
-const heightValue = sequence([
-  String.raw`\d+(?:\.\d+)?%`,
-  String.raw`100(?:s|l|d)?vh`,
-  String.raw`calc\((?:var\(--fjord-[a-z0-9-]+\)|\d+(?:\.\d+)?|[-+*/()\s])+\)`,
-]);
+const tokenMath =
+  /^(?=.*var\(--fjord-)(?:calc|min|max|clamp)\((?:var\(--fjord-[a-z0-9-]+\)|(?:calc|min|max|clamp)\(|-?\d*\.?\d+(?![\w%.])|[-+*/(),\s])+\),?$/;
 
-const tokenOnlyProperties = [
-  'color',
-  'background-color',
-  '/^border(-(top|right|bottom|left|block|inline)(-(start|end))?)?-color$/',
-  'outline-color',
-  'fill',
-  'stroke',
-  'caret-color',
-  'accent-color',
-  'text-decoration-color',
-  'font-family',
-  'font-size',
-  'font-weight',
-  'line-height',
-  'letter-spacing',
-  '/^margin/',
-  '/^padding/',
-  'gap',
-  'row-gap',
-  'column-gap',
-  '/^inset/',
-  'top',
-  'right',
-  'bottom',
-  'left',
-  '/^(border|outline)(-(top|right|bottom|left|block|inline)(-(start|end))?)?-width$/',
-  'outline-offset',
-  'box-shadow',
-  '/^border(-.+)?-radius$/',
-  'transition-duration',
-  'transition-timing-function',
-  'animation-duration',
-  'animation-timing-function',
+/**
+ * Colour values: the keywords and any function but var() (color-mix(), gradients, url()). A
+ * literal colour inside a function is caught by the colour-literal rules below.
+ */
+const colour = ['transparent', /^currentcolor$/i, 'none', /^(?!var\()[a-z-]+\([\s\S]*\),?$/];
+
+/** A number with or without a unit: the width in a border shorthand, a background position. */
+const dimension = /^-?\d*\.?\d+[a-z%]*,?$/;
+
+/** The parts of a border or outline shorthand that are not its colour. */
+const lineParts = [
+  dimension,
+  /^(?:thin|medium|thick|auto)$/,
+  /^(?:hidden|dotted|dashed|solid|double|groove|ridge|inset|outset)$/,
+];
+
+/** The parts of a background shorthand that are not its colour. */
+const backgroundParts = [
+  dimension,
+  '/',
+  /^(?:left|right|top|bottom|center|auto|cover|contain),?$/,
+  /^(?:repeat|repeat-x|repeat-y|no-repeat|space|round|scroll|fixed|local),?$/,
+  /^(?:border-box|padding-box|content-box|text),?$/,
+];
+
+/**
+ * Names in a transition or animation shorthand (property, animation name, `infinite`, `both`),
+ * except the keyword easings: tokens hold the curves. A plain number is an iteration count.
+ */
+const motionParts = [
+  /^(?!(?:ease(?:-in|-out|-in-out)?|linear|step-start|step-end),?$)-?[a-z_][a-z0-9_-]*,?$/i,
+  /^\d+,?$/,
+];
+
+const sides = '(-(top|right|bottom|left|block|inline)(-(start|end))?)?';
+
+/** Enforced properties, and what each group accepts besides a token and `everywhere`. */
+const enforced = [
+  { properties: ['/color$/', 'fill', 'stroke'], accepts: colour },
+  { properties: [`/^border${sides}$/`, 'outline'], accepts: [...colour, ...lineParts] },
+  { properties: ['background'], accepts: [...colour, ...backgroundParts] },
+  {
+    properties: ['/^margin/', '/^padding/', '/^(row-|column-)?gap$/'],
+    accepts: ['auto', tokenMath],
+  },
+  { properties: ['font-size', 'line-height'], accepts: [tokenMath] },
+  { properties: ['/^border(-.+)?-radius$/'], accepts: ['/', tokenMath] },
+  { properties: ['/^(transition|animation)-(duration|timing-function)$/'], accepts: [] },
+  { properties: ['transition', 'animation'], accepts: motionParts },
 ];
 
 /** The four breakpoints from CLAUDE.md; media queries cannot use var(). */
 const breakpoints = ['360px', '768px', '1024px', '1440px'];
 
-/**
- * The only CSS functions styles may use; color and easing functions are tokens' job. clamp() lives
- * in the generated tokens.css and url() in fonts.css, both excluded below; a function is added
- * back only when real code under src/ needs it.
- */
-const allowedFunctions = ['var', 'calc'];
-
-/**
- * The only units styles may use: percentages, the viewport heights (see above) and px for the
- * breakpoints. This rule cannot scope px to media features, so unit-disallowed-list keeps
- * rejecting px everywhere except width media features.
- */
-const allowedUnits = ['%', 'px', ...viewportHeightUnits];
-
 /** @type {import('stylelint').Config} */
 export default {
   ignoreFiles: ['src/styles/tokens.css', 'src/styles/fonts.css'],
+  plugins: ['stylelint-declaration-strict-value'],
   rules: {
+    // Colour literals, in any property.
     'color-no-hex': true,
     'color-named': 'never',
-    // Container queries read a container's size, which skips the unit and breakpoint rules; a
-    // feature that needs them lifts this ban and adds its own rule for the allowed widths. CSS
-    // matches at-rule and media-feature names case-insensitively, and so do these rules.
-    'at-rule-disallowed-list': ['/^container$/i'],
-    // Allow lists reject any new function or unit by default; the disallowed lists below stay
-    // for their clearer messages.
-    'function-allowed-list': allowedFunctions,
-    'unit-allowed-list': allowedUnits,
     'function-disallowed-list': [
-      'rgb',
-      'rgba',
-      'hsl',
-      'hsla',
-      'hwb',
-      'oklch',
-      'cubic-bezier',
-      'steps',
+      ...['rgb', 'rgba', 'hsl', 'hsla', 'hwb'],
+      ...['lab', 'lch', 'oklab', 'oklch', 'color'],
     ],
-    'unit-disallowed-list': [
-      [
-        ...['px', 'rem', 'em', 'ms', 's'],
-        // Absolute and font-relative units: sizes come from tokens (measures are --fjord-measure*).
-        ...['pt', 'pc', 'cm', 'mm', 'in', 'Q', 'ch', 'ex', 'cap', 'ic', 'lh', 'rlh'],
-        // Viewport units other than the height ones allowed below.
-        ...['vw', 'vi', 'vb', 'vmin', 'vmax'],
-        ...['svw', 'lvw', 'dvw', 'svi', 'lvi', 'dvi', 'svb', 'lvb', 'dvb'],
-        ...['svmin', 'lvmin', 'dvmin', 'svmax', 'lvmax', 'dvmax'],
-        // Container-query units: sizes come from tokens, not from the container.
-        ...['cqw', 'cqh', 'cqi', 'cqb', 'cqmin', 'cqmax'],
-      ],
-      { ignoreMediaFeatureNames: { px: ['width', 'min-width', 'max-width'] } },
+    // Tokens only on the enforced properties. Variables and functions are not accepted as such:
+    // the patterns above name the token and the function forms that are.
+    'scale-unlimited/declaration-strict-value': [
+      enforced.flatMap(({ properties }) => properties),
+      {
+        ignoreVariables: false,
+        ignoreFunctions: false,
+        ignoreValues: Object.fromEntries(
+          enforced.flatMap(({ properties, accepts }) =>
+            properties.map((property) => [property, [...everywhere, ...accepts].map(String)]),
+          ),
+        ),
+        disableFix: true,
+        message: 'Expected a --fjord-* token for "${value}" of "${property}"',
+      },
     ],
-    'declaration-property-unit-disallowed-list': {
-      [`/^(?!(?:${viewportHeightProperties.join('|')})$)/`]: viewportHeightUnits,
-    },
+    // The font shorthand hides a size and a line-height; use the longhands.
     'property-disallowed-list': ['font'],
     'declaration-property-value-disallowed-list': {
       '/.*/': [undeclaredToken],
-      '/^(transition|animation)$/': [keywordEasing],
     },
+    // Container queries read a container's size, which skips the breakpoint rule; a feature that
+    // needs them lifts this ban and adds its own rule for the allowed widths. CSS matches at-rule
+    // and media-feature names case-insensitively, and so do these rules.
+    'at-rule-disallowed-list': ['/^container$/i'],
     'media-feature-name-value-allowed-list': {
       '/^(min-|max-)?width$/i': breakpoints,
-    },
-    'declaration-property-value-allowed-list': {
-      ...Object.fromEntries(tokenOnlyProperties.map((property) => [property, [tokenOnly]])),
-      ...Object.fromEntries(viewportHeightProperties.map((property) => [property, [heightValue]])),
-      '/^(border|outline)(-(top|right|bottom|left|block|inline)(-(start|end))?)?$/': [
-        lineShorthand,
-      ],
     },
   },
   overrides: [{ files: ['**/*.astro'], customSyntax: 'postcss-html' }],

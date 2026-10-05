@@ -1,0 +1,5 @@
+.a {
+  color: var(--fjord-color-text);
+  min-height: calc(var(--fjord-space-1) * 105);
+  max-width: var(--fjord-content-max);
+}

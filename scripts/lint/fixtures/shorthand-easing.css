@@ -1,4 +1,0 @@
-.a {
-  transition: color var(--fjord-duration-200) ease-in-out;
-  animation: spin var(--fjord-duration-1200) linear infinite;
-}

@@ -109,4 +109,54 @@ describe('checkBudgets', () => {
     );
     expect(failures).toContainEqual(expect.stringMatching(/a-700\.woff2.*31\.0 KB.*30 KB/));
   });
+
+  // AC-27 (spec §6): the Shell's own scripts ≤ 5 KB gzip together per page; 404.html ≤ 20 KB gzip.
+  it('fails a page whose Shell scripts exceed 5 KB gzip together, naming page and size', () => {
+    const { failures } = checkBudgets(
+      fixture({
+        ...healthy(),
+        'dist/index.html': page(
+          `${PRELOADS}<script type="module" src="/_astro/menu.js"></script>`,
+          '<script type="module" src="/_astro/toggle.js"></script>',
+        ),
+        'dist/_astro/menu.js': bytes(3 * KB),
+        'dist/_astro/toggle.js': bytes(3 * KB),
+      }),
+    );
+    expect(failures).toContainEqual(
+      expect.stringMatching(/index\.html.*Shell scripts.*6\.\d KB gzip.*5 KB/),
+    );
+  });
+
+  it('passes Shell scripts of 4 KB gzip together and reports the size', () => {
+    const { failures, report } = checkBudgets(
+      fixture({
+        ...healthy(),
+        'dist/index.html': page(
+          `${PRELOADS}<script type="module" src="/_astro/menu.js"></script>`,
+          '<script type="module" src="/_astro/toggle.js"></script>',
+        ),
+        'dist/_astro/menu.js': bytes(2 * KB),
+        'dist/_astro/toggle.js': bytes(2 * KB),
+      }),
+    );
+    expect(failures).toEqual([]);
+    expect(report.join('\n')).toMatch(/index\.html.*Shell scripts 4\.\d KB gzip/);
+  });
+
+  it('fails 404.html over 20 KB gzip, naming the file and size', () => {
+    const { failures } = checkBudgets(
+      fixture({
+        ...healthy(),
+        'dist/404.html': page(PRELOADS, 'x'.repeat(21 * KB) + bytes(21 * KB).toString('base64')),
+      }),
+    );
+    expect(failures).toContainEqual(expect.stringMatching(/404\.html.*gzip.*2\d\.\d KB.*20 KB/));
+  });
+
+  it('passes a 404.html under 20 KB gzip and reports it', () => {
+    const { failures, report } = checkBudgets(fixture({ ...healthy(), 'dist/404.html': page() }));
+    expect(failures).toEqual([]);
+    expect(report.join('\n')).toMatch(/404\.html.*weight.*KB gzip/);
+  });
 });

@@ -1,0 +1,7 @@
+.a {
+  border-radius: var(--fjord-radius-md);
+  border-radius: var(--fjord-radius-lg) var(--fjord-radius-lg) 0 0;
+  border-radius: var(--fjord-radius-lg) / var(--fjord-radius-md);
+  border-top-left-radius: 0;
+  border-end-end-radius: calc(var(--fjord-radius-md) * 2);
+}

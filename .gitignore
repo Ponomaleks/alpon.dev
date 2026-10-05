@@ -15,3 +15,7 @@ tests/**/__screenshots__/darwin/
 
 # Windows temp paths mangled by Git Bash (e.g. C:\Users\X\AppData\Local\Temp -> UsersXAppDataLocalTemp).
 /Users*AppDataLocal*/
+
+# SDD per-developer files and parallel worktrees
+.claude/*.local.md
+.worktrees/

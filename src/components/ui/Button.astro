@@ -1,0 +1,195 @@
+---
+import Icon, { type IconName } from './Icon.astro';
+
+interface Props {
+  href?: string;
+  variant?: 'primary' | 'secondary';
+  size?: 'sm' | 'lg';
+  block?: boolean;
+  /** Trailing arrow that nudges on hover. */
+  arrow?: boolean;
+  /** Leading icon. */
+  icon?: IconName;
+  disabled?: boolean;
+  /** Forces a state for the Styleguide (hook H-4). */
+  'data-demo-state'?: 'hover' | 'focus' | 'active';
+}
+
+const {
+  href,
+  variant = 'primary',
+  size,
+  block = false,
+  arrow = false,
+  icon,
+  disabled = false,
+  'data-demo-state': demoState,
+} = Astro.props;
+
+const classes = [
+  'fj-btn',
+  `fj-btn--${variant}`,
+  size === 'sm' && 'fj-btn--sm',
+  size === 'lg' && 'fj-btn--lg',
+  block && 'fj-btn--block',
+].filter(Boolean);
+---
+
+{href === undefined ? (
+  <button type="button" class:list={classes} disabled={disabled} data-demo-state={demoState}>
+    {icon && <Icon name={icon} />}
+    <slot />
+    {arrow && (
+      <span class="fj-btn__arrow">
+        <Icon name="arrow-right" />
+      </span>
+    )}
+  </button>
+) : (
+  <a
+    class:list={classes}
+    href={disabled ? undefined : href}
+    aria-disabled={disabled ? 'true' : undefined}
+    data-demo-state={demoState}
+  >
+    {icon && <Icon name={icon} />}
+    <slot />
+    {arrow && (
+      <span class="fj-btn__arrow">
+        <Icon name="arrow-right" />
+      </span>
+    )}
+  </a>
+)}
+
+<style is:global>
+  .fj-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--fjord-space-3);
+    height: var(--fjord-tap-min);
+    padding: 0 var(--fjord-space-5);
+    border-radius: var(--fjord-radius-md);
+    border: var(--fjord-border-width) solid transparent;
+    font-family: var(--fjord-font-sans);
+    font-size: var(--fjord-text-ui);
+    font-weight: var(--fjord-weight-medium);
+    line-height: var(--fjord-leading-none);
+    letter-spacing: var(--fjord-tracking-body);
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  /* The design's 36px button. Its touch target stays 44px through the overlay (spec D-08). */
+  .fj-btn--sm {
+    height: calc(var(--fjord-space-8) + var(--fjord-space-1));
+    padding: 0 var(--fjord-space-4);
+    gap: var(--fjord-space-2);
+    font-size: var(--fjord-text-ui-sm);
+  }
+
+  .fj-btn--sm::before {
+    content: '';
+    position: absolute;
+    /* Grows past the control only where it is smaller than the 44px target, on each axis. */
+    inset: min(0px, calc((100% - var(--fjord-tap-min)) / 2));
+  }
+
+  .fj-btn--lg {
+    height: calc(var(--fjord-tap-min) + var(--fjord-space-2));
+    padding: 0 var(--fjord-space-6);
+    font-size: var(--fjord-text-ui-lg);
+  }
+
+  .fj-btn--block {
+    display: flex;
+    width: 100%;
+  }
+
+  .fj-btn--primary {
+    background-color: var(--fjord-color-cta-bg);
+    color: var(--fjord-color-cta-text);
+    font-weight: var(--fjord-weight-semibold);
+  }
+
+  .fj-btn--primary:hover,
+  .fj-btn--primary:active,
+  .fj-btn--primary[data-demo-state='hover'],
+  .fj-btn--primary[data-demo-state='active'] {
+    background-color: var(--fjord-color-cta-hover);
+    color: var(--fjord-color-cta-text);
+  }
+
+  .fj-btn--secondary {
+    background-color: transparent;
+    color: var(--fjord-color-text);
+    border-color: var(--fjord-color-border-strong);
+  }
+
+  .fj-btn--secondary:hover,
+  .fj-btn--secondary:active,
+  .fj-btn--secondary[data-demo-state='hover'],
+  .fj-btn--secondary[data-demo-state='active'] {
+    background-color: var(--fjord-color-accent-soft);
+    border-color: var(--fjord-color-text);
+    color: var(--fjord-color-text);
+  }
+
+  .fj-btn:focus-visible,
+  .fj-btn[data-demo-state='focus'] {
+    outline: var(--fjord-focus-width) solid var(--fjord-color-focus-ring);
+    outline-offset: var(--fjord-focus-offset);
+    border-radius: var(--fjord-radius-md);
+  }
+
+  .fj-btn:disabled,
+  .fj-btn[aria-disabled='true'] {
+    cursor: not-allowed;
+    background-color: transparent;
+    color: var(--fjord-color-text-muted);
+    border-color: var(--fjord-color-border);
+    border-style: dashed;
+  }
+
+  .fj-btn__arrow {
+    display: inline-flex;
+  }
+
+  /* Reduced motion = fades only: the colour transitions, the arrow nudge and the press only
+     without it. Hover changes colours; a press sinks and shrinks the control, as in the design. */
+  @media (prefers-reduced-motion: no-preference) {
+    .fj-btn {
+      transition:
+        background-color var(--fjord-duration-200) var(--fjord-ease-out),
+        border-color var(--fjord-duration-200) var(--fjord-ease-out),
+        color var(--fjord-duration-200) var(--fjord-ease-out),
+        transform var(--fjord-duration-120) var(--fjord-ease-out);
+    }
+
+    /* The design's translateY(1px): the distance is the 1px hairline token, not a literal. */
+    .fj-btn:active:not(:disabled):not([aria-disabled='true']),
+    .fj-btn[data-demo-state='active'] {
+      transform: translateY(var(--fjord-border-width)) scale(0.985);
+    }
+
+    .fj-btn__arrow {
+      transition: transform var(--fjord-duration-200) var(--fjord-ease-out);
+    }
+
+    .fj-btn:hover .fj-btn__arrow,
+    .fj-btn:focus-visible .fj-btn__arrow,
+    .fj-btn[data-demo-state='hover'] .fj-btn__arrow,
+    .fj-btn[data-demo-state='focus'] .fj-btn__arrow {
+      transform: translateX(var(--fjord-space-0-5));
+    }
+
+    .fj-btn:disabled .fj-btn__arrow,
+    .fj-btn[aria-disabled='true'] .fj-btn__arrow {
+      transform: none;
+    }
+  }
+</style>

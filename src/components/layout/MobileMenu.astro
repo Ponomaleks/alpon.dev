@@ -1,0 +1,239 @@
+---
+import IconButton from '../ui/IconButton.astro';
+import Button from '../ui/Button.astro';
+import ThemeToggle from './ThemeToggle.astro';
+import Wordmark from '../brand/Wordmark.astro';
+import Contours from '../brand/Contours.astro';
+import { contact } from '../../data/contact';
+
+// Mobile menu panel (SCR-03; AC-04, AC-05, AC-02, AC-28; ADR-0002): a native modal <dialog> below
+// 768, opened by the header button (menu.ts). `current` marks a link; `sample` renders the same
+// content as a static block for the Styleguide (SCR-04), with no <dialog>.
+// The panel is on spruce in both themes, as the page design (fj-sheet fjord-on-spruce).
+// The wordmark link sits above the nav; the opening focus goes to the first nav link (data-menu-nav).
+interface Props {
+  current?: 'cv' | 'contact';
+  sample?: boolean;
+}
+
+const { current, sample = false } = Astro.props;
+const links = [
+  { key: 'cv', label: 'CV', href: contact.links.cv },
+  { key: 'contact', label: 'Contact', href: contact.links.contact },
+] as const;
+const Root = sample ? 'div' : 'dialog';
+---
+
+<Root
+  class:list={['menu', 'fjord-on-spruce', { 'menu--sample': sample }]}
+  id={sample ? undefined : 'mobile-menu'}
+  aria-label={sample ? undefined : 'Menu'}
+  data-sample={sample ? '' : undefined}
+>
+  <Contours variant="ridge" anchor="bottom-left" tone="spruce" />
+  <div class="menu__top">
+    <Wordmark onSpruce />
+    <IconButton icon="x" label="Close menu" />
+  </div>
+  <ul class="menu__nav" data-menu-nav>
+    {links.map((link, i) => (
+      <li>
+        <a href={link.href} aria-current={current === link.key ? 'page' : undefined}>
+          <span>{String(i + 1).padStart(2, '0')}</span>
+          {link.label}
+        </a>
+      </li>
+    ))}
+  </ul>
+  <div class="menu__foot">
+    <div class="menu__contacts">
+      <a href={`mailto:${contact.email}`}>{contact.email}</a>
+      <a href={`tel:${contact.phone.replaceAll(' ', '')}`}>{contact.phone}</a>
+      <span lang="no">{contact.workRegion}</span>
+    </div>
+    <ThemeToggle sample={sample ? 'dag' : undefined} />
+    <Button href={contact.links.contact} size="lg" block arrow>
+      Get in touch
+    </Button>
+  </div>
+</Root>
+
+<script>
+  import { initMenu } from '../../scripts/shell/menu';
+
+  const dialog = document.querySelector<HTMLDialogElement>('dialog#mobile-menu');
+  const button = document.querySelector<HTMLButtonElement>('[aria-controls="mobile-menu"]');
+  if (dialog && button) {
+    initMenu(dialog, button, window.matchMedia('(min-width: 768px)'));
+    dialog.querySelector('.fj-iconbtn')?.addEventListener('click', () => dialog.close());
+  }
+</script>
+
+<style is:global>
+  .menu {
+    position: relative;
+    box-sizing: border-box;
+    flex-direction: column;
+    padding: 0 var(--fjord-space-4) var(--fjord-space-6);
+    color: var(--fjord-color-text);
+    background-color: var(--fjord-color-bg);
+    overflow: hidden;
+  }
+
+  .menu > :not(.contours) {
+    position: relative;
+    z-index: var(--fjord-z-raised);
+  }
+
+  dialog.menu {
+    position: fixed;
+    inset: 0;
+    z-index: var(--fjord-z-sheet);
+    inline-size: 100%;
+    block-size: 100%;
+    max-inline-size: none;
+    max-block-size: none;
+    margin: 0;
+    border: 0;
+    /* Scrolls when the viewport is shorter than the content; the foot stays at the bottom otherwise. */
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  dialog.menu[open],
+  .menu--sample {
+    display: flex;
+  }
+
+  dialog.menu::backdrop {
+    background: transparent;
+  }
+
+  /* One rule, no script: the page behind does not scroll while the panel is open (G-3). */
+  html:has(dialog[open]) {
+    overflow: hidden;
+  }
+
+  .menu__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    block-size: var(--fjord-header-height-compact);
+  }
+
+  /* The design's sheet draws the wordmark at 17px, as the Header does: the 16px UI size scaled by 17 / 16. */
+  .menu .menu__top .wordmark {
+    font-size: calc(var(--fjord-text-ui-lg) * 17 / 16);
+  }
+
+  .menu__nav {
+    display: flex;
+    flex-direction: column;
+    margin: var(--fjord-space-8) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .menu__nav a {
+    display: flex;
+    align-items: baseline;
+    gap: var(--fjord-space-4);
+    min-block-size: var(--fjord-tap-min);
+    padding: var(--fjord-space-4) 0;
+    color: var(--fjord-color-text);
+    font-size: var(--fjord-text-h1);
+    font-weight: var(--fjord-weight-semibold);
+    letter-spacing: var(--fjord-tracking-heading);
+    line-height: var(--fjord-leading-heading);
+    text-decoration: none;
+    border-block-end: var(--fjord-border-width) solid var(--fjord-color-border);
+  }
+
+  .menu__nav a span {
+    min-inline-size: var(--fjord-space-6);
+    color: var(--fjord-color-text-muted);
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-mono-sm);
+    font-weight: var(--fjord-weight-medium);
+    letter-spacing: var(--fjord-tracking-label);
+    line-height: var(--fjord-leading-none);
+  }
+
+  .menu__nav a[aria-current='page'] {
+    color: var(--fjord-color-link);
+  }
+
+  .menu__nav a:focus-visible,
+  .menu__contacts a:focus-visible {
+    outline: var(--fjord-focus-width) solid var(--fjord-color-focus-ring);
+    outline-offset: var(--fjord-focus-offset);
+  }
+
+  .menu__foot {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--fjord-space-4);
+    margin-block-start: auto;
+  }
+
+  .menu__foot > .fj-btn {
+    align-self: stretch;
+  }
+
+  .menu__contacts {
+    display: flex;
+    flex-direction: column;
+    gap: var(--fjord-space-1-5);
+    color: var(--fjord-color-text-muted);
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-ui-sm);
+    line-height: var(--fjord-leading-ui);
+  }
+
+  .menu__contacts a {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--fjord-tap-min);
+    color: var(--fjord-color-text);
+    text-decoration: none;
+  }
+
+  .menu--sample {
+    block-size: 100%;
+  }
+
+  /* Open motion: a short slide and fade with motion allowed; a fade only when reduced. */
+  @keyframes menu-in {
+    from {
+      opacity: 0;
+      transform: translateY(calc(-1 * var(--fjord-space-2)));
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes menu-fade {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    dialog.menu[open] {
+      animation: menu-in var(--fjord-duration-320) var(--fjord-ease-out);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    dialog.menu[open] {
+      animation: menu-fade var(--fjord-duration-120) var(--fjord-ease-linear);
+    }
+  }
+</style>

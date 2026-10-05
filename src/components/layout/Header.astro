@@ -1,0 +1,244 @@
+---
+import Icon from '../ui/Icon.astro';
+import Button from '../ui/Button.astro';
+import Wordmark from '../brand/Wordmark.astro';
+import ThemeToggle from './ThemeToggle.astro';
+import { contact } from '../../data/contact';
+
+// Sticky site header (AC-01, AC-02, AC-03, AC-23). Below 768: wordmark, "Get in touch" and the
+// menu button; from 768: wordmark, links, theme switch and "Get in touch" with an arrow. The call
+// to action is styled by CSS only (one primary, hook H-2); `cta="secondary"` forces the outlined
+// style. `sample` renders an in-flow header for the Styleguide with no scroll sentinel.
+interface Props {
+  current?: 'cv' | 'contact';
+  variant?: 'on-spruce';
+  cta?: 'auto' | 'secondary';
+  sample?: boolean;
+  /** Sample only: shows the bordered, scrolled state without a script. */
+  scrolled?: boolean;
+  /** Sample only: forces the hover or focus look on the first header link (AC-21). */
+  linkState?: 'hover' | 'focus';
+}
+
+const { current, variant, cta = 'auto', sample = false, scrolled = false, linkState } = Astro.props;
+const links = [
+  { key: 'cv', label: 'CV', href: contact.links.cv },
+  { key: 'contact', label: 'Contact', href: contact.links.contact },
+] as const;
+---
+
+{!sample && <div class="header-sentinel" data-header-sentinel aria-hidden="true"></div>}
+<header
+  class:list={['header', { 'fjord-on-spruce': variant === 'on-spruce' }]}
+  data-header={sample ? undefined : ''}
+  data-variant={variant}
+  data-cta={cta === 'secondary' ? 'secondary' : undefined}
+  data-sample={sample ? '' : undefined}
+  data-scrolled={sample && scrolled ? '' : undefined}
+>
+  <div class="header__in">
+    <Wordmark onSpruce={variant === 'on-spruce'} />
+    <nav class="header__nav" aria-label="Primary">
+      {links.map((link, i) => (
+        <a
+          href={link.href}
+          aria-current={current === link.key ? 'page' : undefined}
+          data-demo-state={sample && i === 0 ? linkState : undefined}
+        >
+          {link.label}
+        </a>
+      ))}
+    </nav>
+    <div class="header__end">
+      <div class="header__theme">
+        <ThemeToggle />
+      </div>
+      <span class="header__cta">
+        <Button size="sm" href={contact.links.contact} arrow>
+          Get in touch
+        </Button>
+      </span>
+      <button
+        type="button"
+        class="fj-iconbtn header__menu"
+        aria-label="Open menu"
+        aria-controls="mobile-menu"
+        aria-expanded="false"
+        data-needs-script
+      >
+        <Icon name="menu" />
+      </button>
+    </div>
+  </div>
+</header>
+
+<script>
+  import { observeHeader } from '../../scripts/shell/header';
+
+  const header = document.querySelector('[data-header]');
+  const sentinel = document.querySelector('[data-header-sentinel]');
+  if (header && sentinel && 'IntersectionObserver' in window) observeHeader(header, sentinel);
+</script>
+
+<style>
+  .header-sentinel {
+    position: absolute;
+    inset-block-start: 0;
+    inline-size: var(--fjord-border-width);
+    block-size: var(--fjord-border-width);
+    pointer-events: none;
+  }
+
+  .header {
+    position: sticky;
+    inset-block-start: 0;
+    z-index: var(--fjord-z-header);
+    background-color: color-mix(in srgb, var(--fjord-color-bg) 94%, transparent);
+    border-block-end: var(--fjord-border-width) solid transparent;
+  }
+
+  .header[data-sample] {
+    position: static;
+  }
+
+  /* Own transition group so the header stays still while the page cross-fades (AC-32). The live
+     header only: a sample would repeat the name, and a name must be unique on the page. */
+  .header[data-header] {
+    view-transition-name: site-header;
+  }
+
+  /* The group is not animated: no cross-fade, no morph, so the header does not move. */
+  :global(::view-transition-group(site-header)),
+  :global(::view-transition-old(site-header)),
+  :global(::view-transition-new(site-header)) {
+    animation: none;
+  }
+
+  .header[data-scrolled] {
+    border-block-end-color: var(--fjord-color-border);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .header {
+      transition: border-color var(--fjord-duration-200) var(--fjord-ease-out);
+    }
+  }
+
+  .header__in {
+    display: flex;
+    align-items: center;
+    gap: var(--fjord-space-5);
+    box-sizing: border-box;
+    block-size: var(--fjord-header-height);
+    max-inline-size: calc(var(--fjord-content-max) + 2 * var(--fjord-grid-margin));
+    margin-inline: auto;
+    padding-inline: var(--fjord-space-4);
+  }
+
+  /* The design's Header draws the wordmark at 17px: the 16px UI size scaled by 17 / 16. */
+  .header__in > :global(a[aria-label='alpon.dev, home']) {
+    font-size: calc(var(--fjord-text-ui-lg) * 17 / 16);
+  }
+
+  .header__nav,
+  .header__theme {
+    display: none;
+  }
+
+  .header__nav {
+    gap: var(--fjord-space-1);
+  }
+
+  .header__nav a {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--fjord-tap-min);
+    padding-inline: var(--fjord-space-3);
+    font-size: var(--fjord-text-ui);
+    font-weight: var(--fjord-weight-medium);
+    color: var(--fjord-color-text-muted);
+    text-decoration: none;
+    border-radius: var(--fjord-radius-sm);
+  }
+
+  .header__nav a:hover,
+  :global(.header__nav a[data-demo-state='hover']) {
+    color: var(--fjord-color-text);
+  }
+
+  .header__nav a[aria-current='page'] {
+    color: var(--fjord-color-text);
+    border-radius: 0;
+    box-shadow: inset 0 calc(-1 * var(--fjord-border-width)) 0 var(--fjord-color-text);
+  }
+
+  .header__nav a:focus-visible,
+  :global(.header__nav a[data-demo-state='focus']) {
+    outline: var(--fjord-focus-width) solid var(--fjord-color-focus-ring);
+    outline-offset: 0;
+  }
+
+  .header__end {
+    display: flex;
+    align-items: center;
+    gap: var(--fjord-space-3);
+    margin-inline-start: auto;
+  }
+
+  /* No arrow in the compact header. */
+  .header__cta :global(.fj-btn__arrow) {
+    display: none;
+  }
+
+  /* Secondary while the page has a bar that is not inert (H-2, AC-23), or when forced. */
+  @media (width < 768px) {
+    :global(:root:has([data-shell-bar]:not([inert]))) .header__cta :global(.fj-btn) {
+      background-color: transparent;
+      color: var(--fjord-color-text);
+      border-color: var(--fjord-color-border-strong);
+    }
+
+    :global(:root:has([data-shell-bar]:not([inert]))) .header__cta :global(.fj-btn:hover),
+    :global(:root:has([data-shell-bar]:not([inert]))) .header__cta :global(.fj-btn:active) {
+      background-color: var(--fjord-color-accent-soft);
+      border-color: var(--fjord-color-text);
+    }
+  }
+
+  .header[data-cta='secondary'] .header__cta :global(.fj-btn) {
+    background-color: transparent;
+    color: var(--fjord-color-text);
+    border-color: var(--fjord-color-border-strong);
+  }
+
+  /* The outlined action answers to hover and press as a secondary Button does. */
+  .header[data-cta='secondary'] .header__cta :global(.fj-btn:hover),
+  .header[data-cta='secondary'] .header__cta :global(.fj-btn:active) {
+    background-color: var(--fjord-color-accent-soft);
+    border-color: var(--fjord-color-text);
+  }
+
+  @media (min-width: 768px) {
+    .header__in {
+      gap: var(--fjord-space-8);
+      block-size: var(--fjord-header-height);
+      padding-inline: var(--fjord-grid-margin);
+    }
+
+    .header__nav {
+      display: flex;
+    }
+
+    .header__theme {
+      display: block;
+    }
+
+    .header__menu {
+      display: none;
+    }
+
+    .header__cta :global(.fj-btn__arrow) {
+      display: inline-flex;
+    }
+  }
+</style>
