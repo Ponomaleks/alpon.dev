@@ -340,7 +340,7 @@ Not a difference: the hero coordinates stay 59.91° N, 10.75° E. They belong to
 
 **Given** a Visitor whose device asks for reduced motion
 **When** they open and scroll the home page
-**Then** no Ambient motion ever starts and no Motion control is shown; the key facts show final numbers; sections do not slide or count; the contours of the hero and of the closing band do not follow scrolling; a change of state is instant or at most a fade
+**Then** no Ambient motion ever starts and no Motion control is shown; the key facts show final numbers; sections do not slide or count; the contours of the hero do not follow the pointer and the contours of the closing band do not follow scrolling; a change of state is instant or at most a fade
 
 ### AC-32 (US-10) — authorization
 

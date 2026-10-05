@@ -24,7 +24,7 @@ updated_at: "2026-10-05"
 - **Sticky action bar:** below 768 only; its two actions come from the page and it can be collapsed to a tab. Collapsing holds for the page the Visitor is on; a newly opened page shows the bar again.
 - **Closing band:** on the home page it follows the contact section directly and carries no contact action.
 - **Scripts off:** every section is readable and every contact route works. The actions that need a script (the Motion control, "Copy") are not offered.
-- **Motion:** with reduced motion every flow ends in the same state; changes are instant or a fade and nothing loops, counts or follows scrolling.
+- **Motion:** with reduced motion every flow ends in the same state; changes are instant or a fade and nothing loops or counts; the hero contours do not follow the pointer and the closing band's contours do not follow scrolling.
 - **Interim and dormant targets:** the CV address is an exit of these flows, not a screen of this feature (spec §1.2 IS-01). The Selected projects section and "See projects" are dormant until step 7; their branches are dashed.
 - **Design input, decided (Owner, 2026-10-05):** `design`, `screens` and `plan-tests` take these as given.
   - Sticky action bar brought back with the tab: it behaves like a bar that was never collapsed, so it again leaves on the way down and returns on the way up. AC-39's "scrolling does not bring it back" holds while the bar is collapsed.
@@ -167,7 +167,7 @@ A Visitor reading the home page finds no Selected projects section, no "All proj
 ```mermaid
 flowchart TD
     A["Visitor opens SCR-01"] --> B{"Does the device ask for reduced motion?"}
-    B -->|"yes (AC-31)"| R["No Ambient motion ever starts and no Motion control is shown. Key facts show final numbers, sections do not slide or count, no contours follow scrolling, a change of state is instant or a fade"]
+    B -->|"yes (AC-31)"| R["No Ambient motion ever starts and no Motion control is shown. Key facts show final numbers, sections do not slide or count, the hero contours do not follow the pointer and the closing band's contours do not follow scrolling, a change of state is instant or a fade"]
     B -->|"no"| C{"Do scripts run?"}
     C -->|"no"| S["The hero is still and has no Motion control"]
     C -->|"yes"| D{"Was the motion paused earlier in this browser session?"}
@@ -184,7 +184,7 @@ flowchart TD
     Z -->|"no"| Z2["The band is still"]
 ```
 
-A Visitor opens the home page. If the device asks for reduced motion, no Ambient motion ever starts and no Motion control is shown; key facts show final numbers, sections do not slide or count, no contours follow scrolling, and a change of state is instant or a fade. Otherwise, with scripts off the hero is still and has no Motion control. With scripts on, the hero contour drift and the portrait float run and the Motion control offers to pause, unless the Visitor paused earlier in this browser session, in which case both are still and the control offers to play. Activating the control stops both where they are, the control then offers to play and exposes its state; activating it again resumes both. Where the browser lets the site keep the choice, it holds for the rest of the browser session on the home page, also after leaving and coming back, and is gone on a new visit; where it does not, it holds for the current page view. Apart from the hero, the closing band's contours shift only while the Visitor scrolls and stand still when they stop, with scripts on or off, where the browser supports motion tied to scrolling and motion is allowed; otherwise the band is still.
+A Visitor opens the home page. If the device asks for reduced motion, no Ambient motion ever starts and no Motion control is shown; key facts show final numbers, sections do not slide or count, the hero contours do not follow the pointer and the closing band's contours do not follow scrolling, and a change of state is instant or a fade. Otherwise, with scripts off the hero is still and has no Motion control. With scripts on, the hero contour drift and the portrait float run and the Motion control offers to pause, unless the Visitor paused earlier in this browser session, in which case both are still and the control offers to play. Activating the control stops both where they are, the control then offers to play and exposes its state; activating it again resumes both. Where the browser lets the site keep the choice, it holds for the rest of the browser session on the home page, also after leaving and coming back, and is gone on a new visit; where it does not, it holds for the current page view. Apart from the hero, the closing band's contours shift only while the Visitor scrolls and stand still when they stop, with scripts on or off, where the browser supports motion tied to scrolling and motion is allowed; otherwise the band is still.
 
 ### Flow: US-10 — A page that needs no scripts
 

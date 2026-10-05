@@ -27,12 +27,13 @@ Until now the Sticky action bar and the closing band carried a fixed pair of act
 ## Considered options
 
 1. **Typed action descriptors** — `BaseLayout` takes `mobileBarActions` and `ctaBandActions`, each a pair of plain objects; the components render them.
-2. **Named sets** — one option such as `shellActions: 'home' | 'cv' | 'project'`, with the pairs written inside the components.
-3. **Astro slots** — the page passes ready markup for the bar and the band through named slots.
+2. **Astro slots** — the page passes ready markup for the bar and the band through named slots.
+
+Excluded by constraint: named sets (one option such as `shellActions: 'home' | 'cv' | 'project'`, with the pairs written inside the components). AC-38 and the lane rule forbid editing a shared component for each new pair, so it was not weighed as an option.
 
 ## Decision outcome
 
-**Chosen:** Option 1. A page states its two actions as data, the component decides how they look, and the type system carries the brand rule. Option 2 makes every new pair an edit of a shared component, which is what AC-38 forbids, and cannot express "Next project" with an address that differs per page. Option 3 lets a page put a primary button or a third action into the bar, so the rule would rest on an e2e test alone, and each page would repeat the bar's markup.
+**Chosen:** Option 1. A page states its two actions as data, the component decides how they look, and the type system carries the brand rule. Option 2 lets a page put a primary button or a third action into the bar, so the rule would rest on an e2e test alone, and each page would repeat the bar's markup.
 
 The contract, in `src/data/shell-actions.ts`:
 
