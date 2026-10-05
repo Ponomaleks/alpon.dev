@@ -1,0 +1,656 @@
+{
+  "slug": "home",
+  "tasks": [
+    {
+      "id": "T1",
+      "title": "Add the Work region coordinates to contact.ts and build the structured Person data from it",
+      "layer": "domain",
+      "deps": [],
+      "acs": [
+        "AC-26",
+        "AC-27"
+      ],
+      "dod": "src/data/person.test.ts proves that every field of the Person object is read from contact.ts (changing a contact value changes the output) and that the address is Oslo, NO; scripts/check-contact.test.ts proves the source half fails, naming the field, when workRegionGeo disagrees with the ADR line of the contact card.",
+      "files_hint": [
+        "src/data/contact.ts",
+        "src/data/person.ts",
+        "src/data/person.test.ts",
+        "scripts/check-contact.ts",
+        "scripts/check-contact.test.ts"
+      ]
+    },
+    {
+      "id": "T2",
+      "title": "Add the typed home content, the projects feature switch and the section numbering",
+      "layer": "domain",
+      "deps": [],
+      "acs": [
+        "AC-03",
+        "AC-05",
+        "AC-07",
+        "AC-10",
+        "AC-11"
+      ],
+      "dod": "src/scripts/home/sections.test.ts proves the numbers have no gap with and without Recommendations and with and without Selected projects; src/data/home.test.ts proves that a Recommendation without consent is left out unchanged, that nowLine() never returns square brackets with or without a project, that there are four key facts and four experience entries, and that the language labels carry no level codes.",
+      "files_hint": [
+        "src/data/home.ts",
+        "src/data/home.test.ts",
+        "src/data/site.ts",
+        "src/scripts/home/sections.ts",
+        "src/scripts/home/sections.test.ts"
+      ]
+    },
+    {
+      "id": "T3",
+      "title": "Add the icons the home page needs and the optional check icon of the Toast",
+      "layer": "ui",
+      "deps": [],
+      "acs": [
+        "AC-14",
+        "AC-15"
+      ],
+      "dod": "src/scripts/shell/toast.test.ts proves that a fjord:toast event with icon \"check\" shows the check icon before the message, that an event without it shows none, and that a second event without the icon clears the icon of the first; src/components/ui/actions.test.ts renders every new icon name as an aria-hidden SVG.",
+      "files_hint": [
+        "src/components/ui/Icon.astro",
+        "src/components/ui/actions.test.ts",
+        "src/components/ui/Toast.astro",
+        "src/scripts/shell/toast.ts",
+        "src/scripts/shell/toast.test.ts"
+      ]
+    },
+    {
+      "id": "T4",
+      "title": "Render head meta, the structured-data block and the main minimum height in BaseLayout",
+      "layer": "wiring",
+      "deps": [],
+      "acs": [
+        "AC-26"
+      ],
+      "dod": "src/layouts/BaseLayout.test.ts builds fixture pages and asserts that an indexable page has the canonical address, the og tags with image width 1200 and height 630 and the large Twitter card, that a noindex page has none of them, that structuredData renders exactly one ld+json block whose text parses back to the object with \"<\" escaped, and that the build passes the CSP integration.",
+      "files_hint": [
+        "src/layouts/BaseLayout.astro",
+        "src/layouts/BaseLayout.test.ts",
+        "src/layouts/fixtures/",
+        "src/styles/base.css"
+      ]
+    },
+    {
+      "id": "T5",
+      "title": "Give the Sticky action bar its actions from a page option, all secondary",
+      "layer": "ui",
+      "deps": [
+        "T3"
+      ],
+      "acs": [
+        "AC-34",
+        "AC-38"
+      ],
+      "dod": "src/components/layout/bar.test.ts proves the bar renders the default pair and a custom pair, never with the primary variant, and that \"Save contact (.vcf)\" has download and the contact card address; tests/e2e/action-bar.spec.ts on the Not-found page at 390 finds \"View CV\" and \"Save contact (.vcf)\", both secondary, and a download of the contact card.",
+      "files_hint": [
+        "src/data/shell-actions.ts",
+        "src/components/layout/MobileBar.astro",
+        "src/components/layout/bar.test.ts",
+        "src/layouts/BaseLayout.astro",
+        "src/layouts/BaseLayout.test.ts",
+        "tests/e2e/action-bar.spec.ts",
+        "tests/e2e/primary-count.spec.ts",
+        "tests/e2e/not-found.spec.ts"
+      ]
+    },
+    {
+      "id": "T6",
+      "title": "Make the Sticky action bar collapsible with a native details tab and move the clearance to the tab",
+      "layer": "ui",
+      "deps": [
+        "T5"
+      ],
+      "acs": [
+        "AC-39"
+      ],
+      "dod": "tests/e2e/action-bar.spec.ts on the Not-found page at 390 proves, with scripts on and with scripts off, that the tab is at least 44 × 44, collapses and restores the bar by pointer and by keyboard, that a collapsed bar is not brought back by scrolling, and that at the end of the page with focus on the last footer link the tab overlaps 0 px of the last line and of the focused element; src/scripts/shell/action-bar.test.ts proves the scroll script changes nothing while the details element is closed.",
+      "files_hint": [
+        "src/components/layout/MobileBar.astro",
+        "src/components/layout/bar.test.ts",
+        "src/scripts/shell/action-bar.ts",
+        "src/scripts/shell/action-bar.test.ts",
+        "src/styles/base.css",
+        "src/components/ui/Toast.astro",
+        "tests/e2e/action-bar.spec.ts"
+      ]
+    },
+    {
+      "id": "T7",
+      "title": "Add the over-hero state to the header and drop the bar-dependent secondary rule",
+      "layer": "ui",
+      "deps": [],
+      "acs": [
+        "AC-33",
+        "AC-34"
+      ],
+      "dod": "src/scripts/home/hero-header.test.ts proves the attribute is removed when the hero bottom is at or above the header bottom and restored below it, at start, on scroll and on pageshow; src/components/layout/header.test.ts proves data-over-hero is rendered only with headerOverHero and that no rule depends on the bar; tests/e2e/primary-count.spec.ts finds the header \"Get in touch\" primary at 390 on the Not-found page in every bar state.",
+      "files_hint": [
+        "src/components/layout/Header.astro",
+        "src/components/layout/header.test.ts",
+        "src/layouts/BaseLayout.astro",
+        "src/layouts/BaseLayout.test.ts",
+        "src/scripts/home/hero-header.ts",
+        "src/scripts/home/hero-header.test.ts",
+        "tests/e2e/primary-count.spec.ts",
+        "tests/e2e/shell.spec.ts"
+      ]
+    },
+    {
+      "id": "T8",
+      "title": "Give the closing band its actions from a page option, its top margin and scroll-tied contours",
+      "layer": "ui",
+      "deps": [
+        "T5"
+      ],
+      "acs": [
+        "AC-40",
+        "AC-41"
+      ],
+      "dod": "src/components/layout/static-parts.test.ts proves the band renders the default pair and the home pair (no \"Get in touch\", no primary variant), that \"Download CV\" follows cvLang in both, and that the scroll-driven animation is declared only inside @supports (animation-timeline: view()) and prefers-reduced-motion: no-preference; scripts/lint/stylelint.test.ts has a passing and a rejected fixture for any allow-list entry added.",
+      "files_hint": [
+        "src/data/shell-actions.ts",
+        "src/components/layout/CtaBand.astro",
+        "src/components/layout/static-parts.test.ts",
+        "src/layouts/BaseLayout.astro",
+        "src/layouts/BaseLayout.test.ts",
+        "stylelint.config.js",
+        "scripts/lint/"
+      ]
+    },
+    {
+      "id": "T9",
+      "title": "Build Portrait, the Motion control and the Ambient motion of the hero under data-motion",
+      "layer": "ui",
+      "deps": [
+        "T3"
+      ],
+      "acs": [
+        "AC-02",
+        "AC-30",
+        "AC-31"
+      ],
+      "dod": "src/scripts/home/motion.test.ts proves: no saved value gives data-motion=\"running\"; a saved \"paused\" gives \"paused\"; a click switches the attribute, the accessible name and aria-pressed and stores or clears the value; a throwing storage is ignored and the choice still applies; reduced motion sets no attribute and a later change to reduced motion removes it; src/components/home/motion.test.ts proves the Portrait markup (two source types, 340w and 680w, width and height, no loading=\"lazy\", alt with the name) and that the animations are declared paused outside [data-motion=\"running\"].",
+      "files_hint": [
+        "src/components/home/Portrait.astro",
+        "src/components/home/MotionControl.astro",
+        "src/components/home/motion.test.ts",
+        "src/components/brand/Contours.astro",
+        "src/components/brand/brand.test.ts",
+        "src/scripts/home/motion.ts",
+        "src/scripts/home/motion.test.ts"
+      ]
+    },
+    {
+      "id": "T10",
+      "title": "Build the Hero section with the Now line and the pointer parallax",
+      "layer": "ui",
+      "deps": [
+        "T1",
+        "T2",
+        "T9"
+      ],
+      "acs": [
+        "AC-01",
+        "AC-03",
+        "AC-04",
+        "AC-31"
+      ],
+      "dod": "src/components/home/hero.test.ts proves the hero content of AC-01 in the built HTML (one h1 with the name, both roles, the lead, lang=\"no\" on \"Hei.\", \"Oslo, Norge\" and \"Nå:\", coordinates equal to workRegionGeo, exactly one primary button \"View CV\", no \"See projects\" while features.projects is false) and the Now line with and without a project without square brackets; src/scripts/home/parallax.test.ts proves the two properties are written only with setProperty, stay within the parallax maximum, and are never written under reduced motion or on a coarse pointer.",
+      "files_hint": [
+        "src/components/home/Hero.astro",
+        "src/components/home/hero.test.ts",
+        "src/scripts/home/parallax.ts",
+        "src/scripts/home/parallax.test.ts"
+      ]
+    },
+    {
+      "id": "T11",
+      "title": "Build the key facts panel with the Stat count-up",
+      "layer": "ui",
+      "deps": [
+        "T2"
+      ],
+      "acs": [
+        "AC-05",
+        "AC-06"
+      ],
+      "dod": "src/scripts/home/count-up.test.ts proves each value counts once from zero to its final number keeping prefix and suffix (\"3+\", \"~2 000\"), never runs twice, and does nothing under reduced motion; src/components/ui/content.test.ts proves a Stat with countUp prints the final number as the accessible text and marks the counting copy aria-hidden; src/components/home/key-facts.test.ts proves four items with value, label and context.",
+      "files_hint": [
+        "src/components/ui/Stat.astro",
+        "src/components/ui/content.test.ts",
+        "src/components/home/KeyFacts.astro",
+        "src/components/home/key-facts.test.ts",
+        "src/scripts/home/count-up.ts",
+        "src/scripts/home/count-up.test.ts"
+      ]
+    },
+    {
+      "id": "T12",
+      "title": "Build the About section with the QuickFacts list",
+      "layer": "ui",
+      "deps": [
+        "T2"
+      ],
+      "acs": [
+        "AC-07"
+      ],
+      "dod": "src/components/home/about.test.ts proves the heading, the introduction and a <dl> with the four keys \"Based in\", \"Focus\", \"Stack\" and \"Languages\", \"Nittedal, Oslo area\" with the work permit, the three plain language labels without level codes, and no img, svg logo, meter or progress element inside the section.",
+      "files_hint": [
+        "src/components/home/About.astro",
+        "src/components/home/QuickFacts.astro",
+        "src/components/home/about.test.ts"
+      ]
+    },
+    {
+      "id": "T13",
+      "title": "Build the experience list from native details entries",
+      "layer": "ui",
+      "deps": [
+        "T2",
+        "T3"
+      ],
+      "acs": [
+        "AC-08"
+      ],
+      "dod": "src/components/home/experience.test.ts proves four <details>, only the first with open, each summary holding role, organisation and period, summary, points and tags inside the body, no empty <ul> for an entry without points or tags, and a \"Full CV\" link to /cv; the summary target is at least 44 px high in the styles.",
+      "files_hint": [
+        "src/components/home/ExperienceList.astro",
+        "src/components/home/experience.test.ts"
+      ]
+    },
+    {
+      "id": "T14",
+      "title": "Build the Contact block with the copy-email action, Save contact, the mail-link sentence and the QR tile",
+      "layer": "ui",
+      "deps": [
+        "T1",
+        "T3"
+      ],
+      "acs": [
+        "AC-13",
+        "AC-14",
+        "AC-15",
+        "AC-16",
+        "AC-17"
+      ],
+      "dod": "src/scripts/home/copy-email.test.ts proves a resolved clipboard write dispatches fjord:toast with \"Kopiert\", lang \"no\", the address and icon \"check\", and that a rejected write or a missing clipboard dispatches the refusal message without an icon and never \"Kopiert\"; src/components/home/contact-block.test.ts proves the five rows with mailto and tel links, profile links without target, \"Oslo, Norge\" with lang=\"no\", the Copy button behind data-needs-script, \"Save contact (.vcf)\" with download, the mail-link sentence whose href equals the email of contact.ts, and a QR tile with both theme files and a text alternative.",
+      "files_hint": [
+        "src/components/home/ContactBlock.astro",
+        "src/components/brand/QrTile.astro",
+        "src/components/home/contact-block.test.ts",
+        "src/scripts/home/copy-email.ts",
+        "src/scripts/home/copy-email.test.ts"
+      ]
+    },
+    {
+      "id": "T15",
+      "title": "Compose the home page from its sections, page options, the script entry and the contact place",
+      "layer": "wiring",
+      "deps": [
+        "T4",
+        "T6",
+        "T7",
+        "T8",
+        "T10",
+        "T11",
+        "T12",
+        "T13",
+        "T14"
+      ],
+      "acs": [
+        "AC-01",
+        "AC-04",
+        "AC-11",
+        "AC-18",
+        "AC-32",
+        "AC-36",
+        "AC-40"
+      ],
+      "dod": "src/pages/_index.test.ts proves dist/index.html holds, in order, hero, key facts, About 01, Experience 02 and Contact 03 with id=\"contact\" and tabindex=\"-1\", no Recommendations, no Selected projects and no \"All projects\", data-over-hero on the header, the home pair in the band, one ld+json Person block, exactly one page-own script file and no inline script or style; src/scripts/home/reveal.test.ts proves sections in view and the fragment target are never marked and that a marked section is set to \"in\" once; tests/e2e/smoke.spec.ts and tests/a11y/smoke.spec.ts pass on the new page.",
+      "files_hint": [
+        "src/pages/index.astro",
+        "src/pages/_index.test.ts",
+        "src/scripts/home/index.ts",
+        "src/scripts/home/reveal.ts",
+        "src/scripts/home/reveal.test.ts",
+        "tests/e2e/smoke.spec.ts",
+        "tests/a11y/smoke.spec.ts"
+      ]
+    },
+    {
+      "id": "T16",
+      "title": "Add the home component sections to the Styleguide",
+      "layer": "ui",
+      "deps": [
+        "T9",
+        "T11",
+        "T12",
+        "T13",
+        "T14"
+      ],
+      "acs": [
+        "AC-02",
+        "AC-05",
+        "AC-07",
+        "AC-08",
+        "AC-13",
+        "AC-17"
+      ],
+      "dod": "src/pages/_styleguide.test.ts asserts one data-section block for each of Portrait, Motion control, Key facts, Quick facts, Experience list, Contact list, QR tile and Mail-link sentence with the states of screens.md SCR-04 (both Motion control names, an open entry, a closed entry, an entry without points and tags, both QR theme files), and that the page loads no page-own home script.",
+      "files_hint": [
+        "src/pages/styleguide.astro",
+        "src/pages/_styleguide.test.ts"
+      ]
+    },
+    {
+      "id": "T17",
+      "title": "Update the changed Shell and base samples on the Styleguide",
+      "layer": "ui",
+      "deps": [
+        "T6",
+        "T7",
+        "T8",
+        "T16"
+      ],
+      "acs": [
+        "AC-14",
+        "AC-33",
+        "AC-38",
+        "AC-39",
+        "AC-40"
+      ],
+      "dod": "src/pages/_styleguide.test.ts asserts the three over-hero header samples and the absence of the bar-dependent one, the bar samples open with the tab and collapsed, both band pairs, the Toast success sample with the check icon and the refusal sample without it, and every new icon name; the existing tests/e2e/styleguide.spec.ts and styleguide-components.spec.ts pass.",
+      "files_hint": [
+        "src/pages/styleguide.astro",
+        "src/pages/_styleguide.test.ts",
+        "tests/e2e/styleguide.spec.ts",
+        "tests/e2e/styleguide-components.spec.ts"
+      ]
+    },
+    {
+      "id": "T18",
+      "title": "Add the placeholder check and the built half of the contact check, and run both after the build",
+      "layer": "wiring",
+      "deps": [
+        "T15"
+      ],
+      "acs": [
+        "AC-27",
+        "AC-28"
+      ],
+      "dod": "scripts/check-placeholders.test.ts proves the check fails naming page and text for \"[current project]\" on a Visitor page, passes for the same text inside a marked Styleguide sample, and ignores brackets in script, style and ld+json content; scripts/check-contact.test.ts has one passing and one failing fixture per field (each Person field, the mail-link address, the hero coordinates); both checks pass on the built repo and run in CI after the build.",
+      "files_hint": [
+        "scripts/check-placeholders.ts",
+        "scripts/check-placeholders.test.ts",
+        "scripts/check-contact.ts",
+        "scripts/check-contact.test.ts",
+        "package.json",
+        ".github/workflows/ci.yml"
+      ]
+    },
+    {
+      "id": "T19",
+      "title": "Split the script budgets, add the portrait and contrast checks and hold the Lighthouse budget on the home page",
+      "layer": "tests",
+      "deps": [
+        "T15",
+        "T17"
+      ],
+      "acs": [
+        "AC-02",
+        "AC-33"
+      ],
+      "dod": "scripts/check-budgets.test.ts proves the check files a script loaded by two pages under the Shell budget and one loaded by a single page under that page's budget, fails naming file and size above 5 KB, 10 KB or 50 KB gzip, and fails naming a missing or larger than 40 KB portrait file; npm run check:budgets and npm run check:contrast pass on the built repo; npm run lhci passes on / with all four categories ≥ 95, LCP ≤ 2.0 s, CLS ≤ 0.02 and TBT ≤ 100 ms.",
+      "files_hint": [
+        "scripts/check-budgets.ts",
+        "scripts/check-budgets.test.ts",
+        "scripts/contrast-pairs.ts",
+        "scripts/check-contrast.test.ts",
+        "lighthouserc.cjs",
+        "src/components/home/Portrait.astro"
+      ]
+    },
+    {
+      "id": "T20",
+      "title": "Verify the first phone screen, the sections, touch targets and the scripts-off page end to end",
+      "layer": "tests",
+      "deps": [
+        "T15"
+      ],
+      "acs": [
+        "AC-01",
+        "AC-02",
+        "AC-03",
+        "AC-04",
+        "AC-05",
+        "AC-07",
+        "AC-08",
+        "AC-11",
+        "AC-32"
+      ],
+      "dod": "tests/e2e/home.spec.ts passes: at 390 × 844 in Dag and Natt the bounding boxes of the badge, the eyebrow with coordinates, the h1, both roles, the lead, \"View CV\" and the Now line lie fully inside the first screen above the bar; the portrait is beside the text from 1024 and under it below, with CLS 0 on load; four key facts with their final numbers; About and its four quick facts; experience entries open and close by click and by keyboard with the first open on arrival; no \"See projects\", Selected projects or \"All projects\"; every interactive element of main is at least 44 × 44 at 390; and with scripts off every section is visible, the contact links and \"Save contact\" work, entries open, and no Motion control or \"Copy\" is displayed.",
+      "files_hint": [
+        "tests/e2e/home.spec.ts"
+      ]
+    },
+    {
+      "id": "T21",
+      "title": "Verify the Contact block and head meta end to end and turn on P-20 to P-24",
+      "layer": "tests",
+      "deps": [
+        "T15"
+      ],
+      "acs": [
+        "AC-13",
+        "AC-14",
+        "AC-15",
+        "AC-16",
+        "AC-17",
+        "AC-26",
+        "AC-35"
+      ],
+      "dod": "tests/e2e/contact.spec.ts passes for the five rows with their mailto, tel and profile links in the same tab, a copy that puts the address on the clipboard and shows a Toast with the check icon, \"Kopiert\" (lang=\"no\") and the address in a role=\"status\" region that leaves by itself, a refused copy that shows the English message and never \"Kopiert\", a \"Save contact (.vcf)\" download whose file holds the name, TITLE \"Software Engineer\", phone, email, both profiles and the Oslo address, and the QR tile shown from 1024 per theme and absent below; tests/e2e/parity.spec.ts runs P-20 to P-24 as test and they pass.",
+      "files_hint": [
+        "tests/e2e/contact.spec.ts",
+        "tests/e2e/parity.spec.ts",
+        "docs/stub-parity.md"
+      ]
+    },
+    {
+      "id": "T22",
+      "title": "Verify the 18 header states and the primary-button count on every Visitor page",
+      "layer": "tests",
+      "deps": [
+        "T15"
+      ],
+      "acs": [
+        "AC-33",
+        "AC-34",
+        "AC-40"
+      ],
+      "dod": "tests/e2e/header-states.spec.ts passes for all 18 states by computed style (background, border, wordmark and link colour, the variant of \"Get in touch\") at fixed scroll positions, for a back-button return at a scrolled position, and for scripts off (default header, primary \"Get in touch\" throughout); tests/e2e/primary-count.spec.ts passes with at most 2 primary buttons on the visible screen and at most 1 from page content at 390, 834 and 1440 on / (top, over the contact section, end) and on the Not-found page, 0 in the Sticky action bar on both and 0 in the closing band of the home page.",
+      "files_hint": [
+        "tests/e2e/header-states.spec.ts",
+        "tests/e2e/primary-count.spec.ts"
+      ]
+    },
+    {
+      "id": "T23",
+      "title": "Verify the Shell contact links and focus at the contact place in three browsers and turn on P-50",
+      "layer": "tests",
+      "deps": [
+        "T21"
+      ],
+      "acs": [
+        "AC-18",
+        "AC-35"
+      ],
+      "dod": "tests/e2e/contact-place.spec.ts passes in Chromium, Firefox and WebKit: from / and from the Not-found page, each of the four links ends with the contact heading in view below the header, the menu panel closed and document.activeElement equal to the contact section; tests/e2e/parity.spec.ts runs P-50 as test and passes, and the file has 6 test.fixme left.",
+      "files_hint": [
+        "tests/e2e/contact-place.spec.ts",
+        "playwright.config.ts",
+        ".github/workflows/ci.yml",
+        "tests/e2e/parity.spec.ts",
+        "docs/stub-parity.md",
+        "src/scripts/shell/menu.ts"
+      ]
+    },
+    {
+      "id": "T24",
+      "title": "Verify Ambient motion, the Motion control, count-up, reveal, parallax and the band contours end to end",
+      "layer": "tests",
+      "deps": [
+        "T15"
+      ],
+      "acs": [
+        "AC-06",
+        "AC-30",
+        "AC-31",
+        "AC-36",
+        "AC-41"
+      ],
+      "dod": "tests/e2e/motion.spec.ts passes: with motion allowed the hero drift and the portrait float run, the Motion control pauses both within 100 ms and resumes them, its name and aria-pressed follow, a paused choice survives a navigation away and back and is gone in a new browser context, and with storage blocked it holds for the page view; key facts count once to their final numbers with the accessible text final throughout; a section below the fold fades in once while one in view or targeted by the fragment is shown at once; under the real security policy a fine pointer moves the contours layer with no policy violation; the band has 0 animations that advance without scrolling; tests/e2e/reduced-motion.spec.ts passes with 0 running loops, no Motion control, final numbers, no reveal, and --fj-px and --fj-py unset under reduced motion and on a touch-only device.",
+      "files_hint": [
+        "tests/e2e/motion.spec.ts",
+        "tests/e2e/reduced-motion.spec.ts"
+      ]
+    },
+    {
+      "id": "T25",
+      "title": "Add the home axe checks and the visual baselines for the home page, the Styleguide and the Not-found page",
+      "layer": "tests",
+      "deps": [
+        "T15",
+        "T17"
+      ],
+      "acs": [
+        "AC-32",
+        "AC-38"
+      ],
+      "dod": "tests/a11y/home.spec.ts reports 0 axe violations on / in Dag and Natt, with scripts on, with scripts off and with a second experience entry open; tests/visual/home.spec.ts captures each home section at 390 / 834 / 1440 in Dag and Natt, and with FJORD_VISUAL=compare the home, Styleguide and Not-found visual specs pass in CI at ≤ 0.1 % differing pixels against the Linux baselines the Owner has reviewed.",
+      "files_hint": [
+        "tests/a11y/home.spec.ts",
+        "tests/visual/home.spec.ts",
+        "tests/visual/styleguide.spec.ts",
+        "tests/visual/not-found.spec.ts",
+        "tests/visual/__screenshots__/"
+      ]
+    },
+    {
+      "id": "T26",
+      "title": "Close the document pointers, register the built components and draft the pull request with the Claims list",
+      "layer": "docs",
+      "deps": [
+        "T18",
+        "T19",
+        "T20",
+        "T21",
+        "T22",
+        "T23",
+        "T24",
+        "T25"
+      ],
+      "acs": [
+        "AC-29"
+      ],
+      "dod": "docs/features/home/pr-body.md holds a Claims list with a row and a source for each of the four key facts, the attendee figure, the availability badge, the marker on the most recent role, each period, the language levels and the Now line, all ticked by the Owner; grep finds the pointer to the home spec at each of the eight places in the base-components spec and components/home/ and scripts/home/ in CLAUDE.md; B-09, B-18 and B-25 are marked closed in docs/backlog.md.",
+      "files_hint": [
+        "CLAUDE.md",
+        "docs/design-system.md",
+        "docs/backlog.md",
+        "docs/roadmap.md",
+        "docs/features/base-components/spec.md",
+        "docs/features/home/pr-body.md"
+      ]
+    },
+    {
+      "id": "T27",
+      "title": "Build the Recommendations section and show it only with agreed quotes",
+      "layer": "ui",
+      "deps": [
+        "T26"
+      ],
+      "acs": [
+        "AC-09",
+        "AC-10"
+      ],
+      "dod": "src/components/home/recommendations.test.ts proves each card shows the quote unchanged, the name, the role and an \"On LinkedIn\" link to the profile of contact.ts without target, and that a quote without consent is not rendered; src/pages/_index.test.ts proves that with a consented Recommendation the section is headed \"From people I've worked with\" as 03 and Contact is 04, and that with none the section is absent and Contact is 03; src/data/home.test.ts proves each quote in home.ts is character for character the quote in docs/features/home/owner-inputs.md; tests/e2e/recommendations.spec.ts finds both Recommendations on the page with name and role only and Contact as 04.",
+      "files_hint": [
+        "src/components/home/Recommendations.astro",
+        "src/components/home/recommendations.test.ts",
+        "src/data/home.ts",
+        "src/data/home.test.ts",
+        "src/pages/index.astro",
+        "src/pages/_index.test.ts",
+        "tests/e2e/recommendations.spec.ts"
+      ]
+    },
+    {
+      "id": "T28",
+      "title": "Define the projects collection and build the Dormant Selected projects section with ProjectCard",
+      "layer": "ui",
+      "deps": [
+        "T26"
+      ],
+      "acs": [
+        "AC-11",
+        "AC-12"
+      ],
+      "dod": "src/components/home/projects.test.ts proves a card renders status, year, title, summary, one result with its label, tags and only the links that exist, that the section shows at most three projects with the first as the large card, and that the collection schema rejects an entry missing a required field; src/pages/_index.test.ts proves dist/index.html has no Selected projects section and no \"All projects\" link with features.projects false, with or without a Published project; npm run build passes with the empty collection.",
+      "files_hint": [
+        "src/content.config.ts",
+        "src/content/projects/",
+        "src/data/samples.ts",
+        "src/components/home/SelectedProjects.astro",
+        "src/components/home/ProjectCard.astro",
+        "src/components/home/projects.test.ts",
+        "src/pages/index.astro",
+        "src/pages/_index.test.ts"
+      ]
+    },
+    {
+      "id": "T29",
+      "title": "Show Testimonial and the Dormant Selected projects on the Styleguide with marked sample data",
+      "layer": "ui",
+      "deps": [
+        "T27",
+        "T28"
+      ],
+      "acs": [
+        "AC-12",
+        "AC-28"
+      ],
+      "dod": "src/pages/_styleguide.test.ts asserts a Testimonial section with two sample cards and a Selected projects section with a visible \"Sample data\" label, three cards with the first large, and one card without a live link; scripts/check-placeholders.test.ts proves the built Styleguide passes the placeholder check with its bracketed sample values while the same value outside the marked block fails; npm run check:placeholders passes on the built repo.",
+      "files_hint": [
+        "src/pages/styleguide.astro",
+        "src/pages/_styleguide.test.ts",
+        "scripts/check-placeholders.test.ts"
+      ]
+    },
+    {
+      "id": "T30",
+      "title": "Add the baselines and axe cases of phase 4b and complete the Claims list and the inventory",
+      "layer": "tests",
+      "deps": [
+        "T29"
+      ],
+      "acs": [
+        "AC-09",
+        "AC-12",
+        "AC-29"
+      ],
+      "dod": "With FJORD_VISUAL=compare the Styleguide visual spec passes in CI for the Testimonial and Selected projects sections, and tests/visual/home.spec.ts for the Recommendations and contact sections when Recommendations is rendered, against Linux baselines the Owner has reviewed; tests/a11y/home.spec.ts reports 0 violations; docs/features/home/pr-body.md has a ticked Claims row for each Recommendation shown.",
+      "files_hint": [
+        "tests/visual/home.spec.ts",
+        "tests/visual/__screenshots__/",
+        "tests/a11y/home.spec.ts",
+        "docs/design-system.md",
+        "docs/features/home/pr-body.md"
+      ]
+    }
+  ]
+}
