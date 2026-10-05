@@ -309,6 +309,299 @@ sequenceDiagram
     end
 ```
 
+The flows below were added by `sequences`. They use the generic vocabulary: `<user>` is the Visitor, `<ui>` the rendered page with the Shell in the Visitor's browser, `<service>` the static edge, `<external-system>` the Visitor's mail app, phone app or phone camera, or a profile site. All of them are synchronous and none writes to a store.
+
+### First view and key facts
+
+US-01, US-04 · AC-01, AC-02, AC-05, AC-06, AC-07, and the visible result of AC-03 and AC-04. On SCR-01.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as <user>
+    participant UI as <ui>
+    participant S as <service>
+
+    Note over U,S: Precondition: the built home page already holds the Now line and the hero actions, both decided at build time
+    U->>S: opens the home page (SCR-01)
+    S-->>UI: page with the Shell, every section and every key fact value as its final number
+    UI-->>U: hero with the badge, Hei and Oslo, Norge with the Work region coordinates, the name as the main heading, both roles, the lead, one primary View CV and the Now line
+    Note over U,UI: View CV stands alone and See projects is not offered. The Now line shows the project first when one was supplied, otherwise only the MSc part, never text in square brackets
+    alt screen below 768
+        UI-->>U: all of it lies inside the first screen at 390 by 844, the header offers Get in touch, the Sticky action bar offers View CV and Save contact (.vcf)
+    else screen 768 to 1023
+        UI-->>U: the same hero without the Sticky action bar, the portrait under the text
+    else screen 1024 or wider
+        UI-->>U: the same hero with the portrait beside the text
+    end
+    UI->>S: requests the portrait in the size and format the browser picks
+    S-->>UI: portrait file
+    UI-->>U: portrait in its round frame, announced as an image with the name, in a space reserved before it loaded, so nothing shifts
+    U->>UI: scrolls below the hero
+    UI-->>U: key facts panel with four facts, each with a value, a label and a line of context, overlapping the lower edge of the hero
+    alt scripts enabled and motion allowed
+        UI->>UI: notices the panel coming into view for the first time
+        UI-->>U: each value counts up once to its final number and stops, nothing around it moves
+        Note over U,UI: Assistive technology is given the final number only
+    else scripts disabled, reduced motion or the page script did not load
+        UI-->>U: the final numbers are simply shown
+    end
+    U->>UI: reads on
+    UI-->>U: About with its heading, the introduction and four quick facts (Based in, Focus, Stack, Languages) as plain text
+    opt View CV
+        U->>UI: activates View CV in the hero
+        UI->>S: requests the CV address
+        S-->>UI: the English CV PDF (interim IS-01)
+    end
+    Note over U,UI: Postcondition: who, what role, where and the way to the CV were on the first screen, and every number was readable on every path
+```
+
+### Reach the contact place
+
+US-02 · AC-13, AC-16, AC-17, AC-18. On SCR-01, entered from SCR-01, SCR-02, SCR-03 or SCR-04. Every step is the same with scripts on or off (AC-32).
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as <user>
+    participant UI as <ui>
+    participant S as <service>
+    participant X as <external-system>
+
+    Note over U,S: Precondition: any page with the Shell. Contact and Get in touch in the header and in the menu panel (SCR-03) point at the contact section of the home page
+    alt scrolls the home page down to the contact section
+        U->>UI: scrolls to the contact section
+    else activates Contact or Get in touch on the home page
+        U->>UI: activates the link in the header or in the menu panel
+        UI->>UI: closes the menu panel if it is open and moves to the contact section
+        UI-->>U: the section heading is in view below the header and keyboard focus is at the section
+    else activates Contact or Get in touch on another page
+        U->>UI: activates the link in the header or in the menu panel
+        UI->>S: requests the home page at the contact section
+        S-->>UI: home page
+        UI-->>U: the page opens at the contact section, its heading in view below the header, the menu closed, keyboard focus at the section
+    end
+    Note over U,UI: Focus comes from the browser's own navigation to a place on a page. Where a browser does not move focus, the smallest script that does is added (§8 Contact place)
+    UI-->>U: Contact block with Get in touch, the lead, rows for email, phone, LinkedIn, GitHub and Based in with Oslo, Norge, and one sentence with the email address as a mail link (interim IS-03)
+    Note over U,UI: Over the contact section the page content holds no primary button
+    alt screen 1024 or wider
+        UI-->>U: QR tile for the current theme with Skann meg and the camera hint
+        opt scans the tile
+            U->>X: points a phone camera at the tile
+            X-->>U: the phone offers to add the contact
+        end
+    else screen below 1024
+        UI-->>U: no QR tile and no hint
+    end
+    alt email address or the mail-link sentence
+        U->>X: follows the mail link, the mail app opens a message to Alexander
+    else phone number
+        U->>X: follows the call link, the phone app opens the number
+    else LinkedIn or GitHub
+        U->>X: follows the profile link, the profile opens in the same tab
+    else Save contact (.vcf)
+        U->>UI: activates Save contact
+        UI->>S: requests the contact card
+        S-->>UI: contact card file
+        UI-->>U: the browser downloads the card with the name, the title, the phone, the email, the profiles and the Work region
+    end
+    Note over U,UI: Postcondition: the Visitor is at the contact section and every contact route worked without a script
+```
+
+### Copy the email address
+
+US-02 · AC-14, AC-15. On SCR-01, in the Contact block.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as <user>
+    participant UI as <ui>
+
+    Note over U,UI: Precondition: the Visitor is at the Contact block. The email row is a mail link that can be selected
+    alt scripts disabled or the page script did not load
+        UI-->>U: Copy is not offered, the address stays a mail link that can be selected
+    else scripts enabled
+        UI-->>U: Copy is offered beside the email address
+        U->>UI: activates Copy
+        UI->>UI: asks the browser to put the address on the clipboard
+        alt the browser allows it
+            UI->>UI: asks the Shell for a Toast with Kopiert, marked as Norwegian, the address and the check icon
+            UI-->>U: a Toast with a check mark confirms Kopiert with the address, is announced and leaves by itself
+        else the browser refuses or has no clipboard access
+            UI->>UI: asks the Shell for a Toast without the check icon
+            UI-->>U: a Toast tells the Visitor to copy the address by hand, and no confirmation is shown
+        end
+        opt screen below 768
+            UI-->>U: the Toast sits above the Sticky action bar, or above its tab when the bar is collapsed
+        end
+    end
+    Note over U,UI: Postcondition: a confirmation was shown only for a copy that happened, and the address is still a mail link
+```
+
+### Sections below the hero
+
+US-05, US-06, US-07, US-09, US-10 · AC-08, AC-09, AC-36, AC-40, AC-41, and the visible result of AC-10 and AC-11. On SCR-01, from the experience section to the closing band.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as <user>
+    participant UI as <ui>
+    participant S as <service>
+    participant X as <external-system>
+
+    Note over U,S: Precondition: the home page is open and every section is visible by default. Recommendations is in the page only with an agreed quote, and Selected projects is not in the page, both decided at build time
+    alt scripts enabled and motion allowed
+        UI->>UI: at start marks only the sections that lie outside the viewport, never the target of the address fragment
+        U->>UI: scrolls a marked section into view for the first time
+        UI-->>U: the section fades in once and stays
+        Note over U,UI: A section already in view when the page opens, or reached through a link to it, is shown at once
+    else scripts disabled, reduced motion or the page script did not load
+        UI-->>U: every section is shown at once, nothing fades or slides
+    end
+    U->>UI: reaches the experience section
+    UI-->>U: four entries, each with the role, the organisation and the period, the first open and the other three closed
+    loop any entry, by pointer or keyboard, with scripts on or off
+        U->>UI: opens or closes an entry
+        UI-->>U: that entry shows or hides its summary, points and technology tags, its state is announced, the other entries stay as they are
+    end
+    opt Full CV
+        U->>UI: activates Full CV
+        UI->>S: requests the CV address
+        S-->>UI: the English CV PDF (interim IS-01)
+    end
+    alt at least one Recommendation is in the page
+        UI-->>U: the section From people I've worked with, each quote word for word with the name, the role and On LinkedIn, and Contact carries the next number
+        opt On LinkedIn
+            U->>X: follows the link, the LinkedIn profile opens in the same tab
+        end
+    else no Recommendation is in the page
+        UI-->>U: no such section, Contact is section 03 and the numbers have no gap
+    end
+    Note over U,UI: No Selected projects section and no All projects link on any path
+    U->>UI: scrolls past the contact section to the closing band
+    UI-->>U: closing band with Save contact (.vcf) and Download CV, both secondary, and no Get in touch
+    alt motion tied to scrolling supported and motion allowed, with scripts on or off
+        UI-->>U: the band contours shift while the Visitor scrolls and stand still when the Visitor stops
+    else no browser support or reduced motion
+        UI-->>U: the band is still
+    end
+    opt Save contact or Download CV in the band
+        U->>UI: activates the action
+        UI->>S: requests the contact card or the English CV PDF
+        S-->>UI: the file
+        UI-->>U: the browser downloads it
+    end
+    Note over U,UI: Postcondition: every section was readable on every path and nothing moved by itself below the hero
+```
+
+### Sticky action bar: page actions and collapse
+
+US-14 · AC-38, AC-39. On SCR-01 and SCR-02, below 768.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as <user>
+    participant UI as <ui>
+    participant S as <service>
+
+    Note over U,S: Precondition: screen below 768, the home page or the Not-found page. The page gave the bar its pair of actions through a page option
+    U->>S: opens the page
+    S-->>UI: page with the bar open and the two actions of this page
+    UI-->>U: Sticky action bar with View CV and Save contact (.vcf), both secondary, and the arrow tab at its edge
+    alt View CV
+        U->>UI: activates View CV
+        UI->>S: requests the CV address
+        S-->>UI: the English CV PDF (interim IS-01)
+    else Save contact (.vcf)
+        U->>UI: activates Save contact
+        UI->>S: requests the contact card
+        S-->>UI: contact card file
+        UI-->>U: the browser downloads the card
+    else the arrow tab, by touch or keyboard, with scripts on or off
+        U->>UI: activates the tab
+        UI-->>U: the bar collapses and only the tab remains, at least 44 by 44, and the new state is announced
+        Note over U,UI: With reduced motion the change is instant. The space at the bottom of the page and the Toast position follow the tab, so it never covers the last lines or the focused element
+        U->>UI: scrolls up or down
+        UI-->>U: the bar stays collapsed
+        opt activates the tab again
+            U->>UI: activates the tab
+            UI-->>U: the bar is back with both actions and from now on behaves like a bar that was never collapsed
+        end
+    else scrolls while the bar is open
+        alt scripts enabled and motion allowed
+            UI-->>U: the bar leaves on the way down and returns on the way up
+        else scripts disabled or reduced motion
+            UI-->>U: the bar stays in place
+        end
+    end
+    opt opens another page
+        U->>S: opens a page
+        S-->>UI: page with the bar open
+        UI-->>U: the bar is open again, because the collapse held for one page view only
+    end
+    Note over U,UI: Postcondition: the bar held no primary button in any state, and the Visitor's collapse was never undone by scrolling
+```
+
+**Scope of this stage.** By the Owner's decision (2026-10-05), `sequences` adds the five flows above to the two critical flows drawn by `design`, which were left as they were. The build and its checks are not drawn: the checks are independent of each other, so their order adds nothing a diagram would show; §8 describes each one.
+
+**Coverage (spec §4 → flows).**
+
+| User story | Flow(s) |
+|---|---|
+| US-01 Know who this is at a glance | First view and key facts |
+| US-02 Reach him the way I prefer | Reach the contact place; Copy the email address; Sections below the hero, the closing band steps |
+| US-04 Get the background in numbers and a paragraph | First view and key facts, from `scrolls below the hero` |
+| US-05 See where he has worked | Sections below the hero, the experience steps |
+| US-06 Hear from people who worked with him | Sections below the hero, branch `at least one Recommendation is in the page` and its `else` |
+| US-07 See selected projects when there are some | First view and key facts, note on `See projects`; Sections below the hero, note on Selected projects. The switch itself is not runtime |
+| US-08 Recognise the page before opening it | Not runtime: build-time checks, see §8 (Head meta, Structured data) |
+| US-09 Motion I can stop | Critical flow 2; Sections below the hero, branch `motion tied to scrolling supported and motion allowed`; the reduced-motion branches of every flow |
+| US-10 A page that needs no scripts | Critical flow 2, last branch; Sections below the hero, first `alt`; the scripts-off branches of every flow |
+| US-11 A header that fits the hero | Critical flow 1 |
+| US-12 Facts that stay true | Not runtime: build-time checks, see §8 (Contact data, Placeholders, Home content) |
+| US-14 Useful actions at my thumb, out of the way when I want | Sticky action bar: page actions and collapse |
+
+**Coverage (spec §5 → flows).**
+
+| AC | Shown in |
+|---|---|
+| AC-01 | First view and key facts, branch `screen below 768`. The box measurement is an e2e check |
+| AC-02 | First view and key facts, the portrait steps and the three width branches |
+| AC-03, AC-04 | First view and key facts, note after the hero step. The choice is made at build time (§8 Home content, Dormant Selected projects) |
+| AC-05 | First view and key facts, step `key facts panel with four facts` |
+| AC-06 | First view and key facts, branch `scripts enabled and motion allowed` and its `else` |
+| AC-07 | First view and key facts, step `About with its heading` |
+| AC-08 | Sections below the hero, the experience steps, the loop and `Full CV` |
+| AC-09 | Sections below the hero, branch `at least one Recommendation is in the page` |
+| AC-13 | Reach the contact place, step `Contact block with Get in touch` and the email, phone and profile branches |
+| AC-14 | Copy the email address, branch `the browser allows it` |
+| AC-15 | Copy the email address, branches `scripts disabled or the page script did not load` and `the browser refuses or has no clipboard access` |
+| AC-16 | Reach the contact place, branch `Save contact (.vcf)`; also the bar and the closing band |
+| AC-17 | Reach the contact place, branch `screen 1024 or wider` and its `else` |
+| AC-18 | Reach the contact place, the first `alt` with its three branches |
+| AC-30 | Critical flow 2 |
+| AC-31 | Critical flow 2, last branch; the reduced-motion branches of First view and key facts, Sections below the hero and the Sticky action bar flow |
+| AC-32 | Critical flow 2, last branch; the scripts-off branches of every flow. The refusal half is not runtime in this feature's code: browser enforcement of the unchanged policy, drawn in the fjord-foundation SAD §6 |
+| AC-33 | Critical flow 1 |
+| AC-34 | Critical flow 1, the header action in every state; the secondary actions of the bar and of the closing band in their flows; Reach the contact place, note on the contact section. The count itself is not runtime: an e2e check |
+| AC-36 | Sections below the hero, first `alt` and its note |
+| AC-38 | Sticky action bar flow, the first three steps and the `View CV` and `Save contact (.vcf)` branches |
+| AC-39 | Sticky action bar flow, branch `the arrow tab, by touch or keyboard, with scripts on or off` |
+| AC-40 | Sections below the hero, step `closing band with Save contact (.vcf) and Download CV` |
+| AC-41 | Sections below the hero, branch `motion tied to scrolling supported and motion allowed` and its `else` |
+| AC-10, AC-11, AC-12, AC-26, AC-27, AC-28, AC-35 | Not runtime: build-time checks, see §8 (Home content, Dormant Selected projects, Head meta, Structured data, Contact data, Placeholders) and the parity suite. The visible result of AC-10 and AC-11 is in Sections below the hero |
+| AC-29 | Not runtime: the Claims list is a step of the pull request, not of the system |
+
+**Flagged by the flows.** Items 1 and 2 were decided by the Owner on 2026-10-05 (sequences stage); `screens` and `plan-tests` take them as given. Items 3 and 4 are observations and need no decision.
+
+1. Copy the email address, branch `the browser refuses or has no clipboard access`: AC-15 says the Visitor is told to copy by hand but fixes neither the words nor their language. **Decided:** the refusal Toast is in English and has no check icon: "Couldn't copy. Select the address to copy it." Only the success Toast uses the Norwegian "Kopiert".
+2. Sticky action bar flow, `opens another page`: AC-39 says "for the rest of that page visit" and does not say what a return with the back button is. **Decided:** no extra code. If the browser restores the page from the back/forward cache, the bar keeps the state the page had (collapsed stays collapsed); on a normal reload or a new navigation it opens again.
+3. Critical flows 1 and 2 use the `design` container names as participants, while the five flows added here use the generic vocabulary; they were left as drawn.
+4. No new participant, and no persist step beyond the Visitor's own `fjord-motion` session value in critical flow 2: nothing for `data-model`, no contract for `api`.
+
 ## 7. Deployment view
 
 <!-- N/A: reuses the existing deployment unit, no infra change -->
