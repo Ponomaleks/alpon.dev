@@ -1,0 +1,165 @@
+---
+// Experience (AC-08): four native <details> entries on a timeline rail. The summary always shows
+// period, note, role and organisation; the text, points and tags sit in the body. No script: the
+// platform announces the state and the chevron turns through the [open] selector.
+import Icon from '../ui/Icon.astro';
+import Link from '../ui/Link.astro';
+import SectionHeader from '../ui/SectionHeader.astro';
+import Tag from '../ui/Tag.astro';
+import { experience } from '../../data/home';
+---
+
+<section class="experience" aria-label="Experience">
+  <div class="experience__wrap">
+    <div class="experience__head">
+      <SectionHeader index="03" eyebrow="Experience" title="Where I’ve worked" />
+      <Link href="/cv">Full CV</Link>
+    </div>
+    <ol class="experience__list">
+      {experience.map((x) => (
+        <li class:list={['xp', { 'xp--current': x.current }]}>
+          <details open={x.open}>
+            <summary class="xp__summary">
+              <span class="xp__meta">
+                <span class="xp__period">{x.period}</span>
+                <span class="xp__note">{x.location}</span>
+              </span>
+              <span class="xp__title">
+                <span class="xp__role">{x.role}</span>
+                <span class="xp__org">{x.org}</span>
+              </span>
+              <span class="xp__chevron" data-icon="chevron-down">
+                <Icon name="chevron-down" />
+              </span>
+            </summary>
+            <div class="xp__body">
+              <p class="xp__text">{x.summary}</p>
+              {x.points.length > 0 && (
+                <ul class="xp__points">
+                  {x.points.map((p) => (
+                    <li>{p}</li>
+                  ))}
+                </ul>
+              )}
+              {x.stack.length > 0 && <Tag items={x.stack} />}
+            </div>
+          </details>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>
+
+<style>
+  .experience__wrap {
+    width: 100%;
+    max-width: calc(var(--fjord-content-max) + 2 * var(--fjord-grid-margin));
+    margin-inline: auto;
+    padding-inline: var(--fjord-grid-margin);
+    display: grid;
+    gap: var(--fjord-space-10) var(--fjord-grid-gutter);
+  }
+  .experience__head {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--fjord-space-4);
+  }
+  @media (min-width: 1024px) {
+    .experience__wrap {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      gap: var(--fjord-space-16);
+    }
+  }
+  .experience__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-left: var(--fjord-border-width) solid var(--fjord-color-border);
+  }
+  .xp {
+    position: relative;
+    padding-left: var(--fjord-space-6);
+  }
+  .xp::before {
+    content: '';
+    position: absolute;
+    left: calc(-1 * var(--fjord-space-1));
+    top: var(--fjord-space-5);
+    width: var(--fjord-space-2);
+    height: var(--fjord-space-2);
+    border: var(--fjord-border-width) solid var(--fjord-color-text-muted);
+    border-radius: var(--fjord-radius-round);
+    background: var(--fjord-color-bg);
+  }
+  .xp--current::before {
+    border-color: var(--fjord-color-link);
+    background: var(--fjord-color-link);
+  }
+  .xp__summary {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--fjord-space-4);
+    min-height: var(--fjord-tap-min);
+    padding-block: var(--fjord-space-3);
+    cursor: pointer;
+    list-style: none;
+  }
+  .xp__summary::-webkit-details-marker {
+    display: none;
+  }
+  .xp__summary:focus-visible {
+    outline: var(--fjord-focus-width) solid var(--fjord-color-focus-ring);
+    outline-offset: var(--fjord-focus-offset);
+    border-radius: var(--fjord-radius-xs);
+  }
+  .xp__meta,
+  .xp__title {
+    display: flex;
+    flex-direction: column;
+    gap: var(--fjord-space-1);
+  }
+  .xp__title {
+    flex: 1;
+  }
+  .xp__period,
+  .xp__note {
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-mono-sm);
+    color: var(--fjord-color-text-muted);
+  }
+  .xp__role {
+    font-weight: var(--fjord-weight-semibold);
+    color: var(--fjord-color-text);
+  }
+  .xp__org {
+    color: var(--fjord-color-text-muted);
+  }
+  .xp__chevron {
+    display: inline-flex;
+    color: var(--fjord-color-text-muted);
+  }
+  details[open] .xp__chevron {
+    transform: rotate(180deg);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .xp__chevron {
+      transition: transform var(--fjord-duration-200) var(--fjord-ease-out);
+    }
+  }
+  .xp__body {
+    display: grid;
+    gap: var(--fjord-space-3);
+    padding-bottom: var(--fjord-space-6);
+  }
+  .xp__text {
+    margin: 0;
+  }
+  .xp__points {
+    margin: 0;
+    padding-left: var(--fjord-space-5);
+    display: grid;
+    gap: var(--fjord-space-2);
+  }
+</style>
