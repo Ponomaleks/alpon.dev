@@ -44,6 +44,18 @@ describe('contact.ts against the vCard (AC-15)', () => {
     expect(checkContact(contact, none, TODAY).join('\n')).toContain('workRegion');
   });
 
+  it('workRegionGeo agrees with the ADR line on the real files', () => {
+    expect(checkContact(contact, vcf, TODAY).join('\n')).not.toContain('workRegionGeo');
+  });
+
+  it.each([
+    ['locality', { ...contact.workRegionGeo, locality: 'Bergen' }],
+    ['country', { ...contact.workRegionGeo, country: 'SE' }],
+  ])('fails and names workRegionGeo when its %s disagrees with the ADR line', (_k, geo) => {
+    const msg = checkContact({ ...contact, workRegionGeo: geo }, vcf, TODAY).join('\n');
+    expect(msg).toContain('workRegionGeo');
+  });
+
   it('keeps the residence coordinates at two decimals at most', () => {
     const decimals = (n: number) => (String(n).split('.')[1] ?? '').length;
     expect(decimals(contact.residence.lat)).toBeLessThanOrEqual(2);

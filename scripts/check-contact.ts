@@ -8,7 +8,7 @@ import { contact, type Contact } from '../src/data/contact.ts';
 
 type Fields = Pick<
   Contact,
-  'email' | 'phone' | 'linkedin' | 'github' | 'workRegion' | 'lastUpdated'
+  'email' | 'phone' | 'linkedin' | 'github' | 'workRegion' | 'workRegionGeo' | 'lastUpdated'
 >;
 
 /** Values of the vCard lines whose name (with parameters) starts with `prefix`. */
@@ -43,6 +43,23 @@ function checkWorkRegion(workRegion: string, vcfText: string): string[] {
   ];
 }
 
+/** workRegionGeo locality and country (ISO code) against the ADR locality (4th) and country (7th) components. */
+function checkWorkRegionGeo(geo: Fields['workRegionGeo'], vcfText: string): string[] {
+  const adrs = vcfValues(vcfText, /^ADR[;:]/i).map((v) => v.split(';'));
+  const country = new Intl.DisplayNames('en', { type: 'region' }).of(geo.country) ?? geo.country;
+  const problems: string[] = [];
+  const expect = (part: string, value: string, index: number) => {
+    const found = adrs.map((a) => (a[index] ?? '').trim());
+    if (!found.includes(value))
+      problems.push(
+        `workRegionGeo.${part}: contact.ts has "${value}", vCard ADR has ${found.map((f) => `"${f}"`).join(', ') || 'nothing'}`,
+      );
+  };
+  expect('locality', geo.locality, 3);
+  expect('country', country, 6);
+  return problems;
+}
+
 export function checkContact(c: Fields, vcfText: string, today: Date): string[] {
   const problems: string[] = [];
   const expect = (field: string, value: string, found: string[]) => {
@@ -56,6 +73,7 @@ export function checkContact(c: Fields, vcfText: string, today: Date): string[] 
   expect('linkedin', c.linkedin, vcfValues(vcfText, /^item\d+\.URL:/i));
   expect('github', c.github, vcfValues(vcfText, /^item\d+\.URL:/i));
   problems.push(...checkWorkRegion(c.workRegion, vcfText));
+  problems.push(...checkWorkRegionGeo(c.workRegionGeo, vcfText));
   return [...problems, ...checkLastUpdated(c.lastUpdated, today)];
 }
 
