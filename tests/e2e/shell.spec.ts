@@ -234,16 +234,16 @@ test.describe('scripts off at 390 (AC-06)', () => {
   test.use({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
 
   for (const { name, path } of pages) {
-    test(`${name}: the bar offers "View CV" and "Get in touch"; script-only controls leave no gap`, async ({
+    test(`${name}: the bar offers "View CV" and "Save contact (.vcf)"; script-only controls leave no gap`, async ({
       page,
     }) => {
       await page.goto(path);
       const bar = page.locator('[data-shell-bar]');
       await expect(bar).toBeInViewport();
       await expect(bar.getByRole('link', { name: 'View CV' })).toHaveAttribute('href', '/cv');
-      await expect(bar.getByRole('link', { name: 'Get in touch' })).toHaveAttribute(
+      await expect(bar.getByRole('link', { name: 'Save contact (.vcf)' })).toHaveAttribute(
         'href',
-        '/#contact',
+        '/alexander-ponomarenko.vcf',
       );
       const header = page.locator('header');
       await expect(header.getByRole('button', { name: 'Open menu' })).not.toBeVisible();

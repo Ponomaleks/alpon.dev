@@ -262,6 +262,39 @@ describe('page option mobileBar', () => {
   });
 });
 
+describe('page option mobileBarActions (AC-38, ADR-0002)', () => {
+  /** The anchors inside the bar's root element. */
+  const barAnchors = (source: string) => {
+    const bar = source.match(/<div[^>]*data-shell-bar[^>]*>([\s\S]*?)<\/div>/)?.[1] ?? '';
+    return [...bar.matchAll(/<a\b[^>]*>[\s\S]*?<\/a>/g)].map((m) => m[0]);
+  };
+
+  it('the default gives "View CV" and "Save contact (.vcf)", both secondary', () => {
+    const [cv, save, ...rest] = barAnchors(html('fixture.html'));
+    expect(rest).toEqual([]);
+    expect(cv).toContain('href="/cv"');
+    expect(cv).toContain('View CV');
+    expect(save).toContain('href="/alexander-ponomarenko.vcf"');
+    expect(save).toContain('Save contact (.vcf)');
+    expect(save).toMatch(/\sdownload(?:=""|\s|>)/);
+    for (const anchor of [cv, save]) {
+      expect(anchor).toContain('fj-btn--secondary');
+      expect(anchor).not.toContain('fj-btn--primary');
+    }
+  });
+
+  it('a page option reaches the bar: its pair replaces the default one', () => {
+    const [first, second, ...rest] = barAnchors(opt('bar-custom'));
+    expect(rest).toEqual([]);
+    expect(first).toContain('href="/projects/example"');
+    expect(first).toContain('Read the case study');
+    expect(second).toContain('href="/brief.pdf"');
+    expect(second).toContain('Get the brief');
+    for (const anchor of [first, second]) expect(anchor).toContain('fj-btn--secondary');
+    expect(opt('bar-custom')).not.toContain('Save contact (.vcf)');
+  });
+});
+
 describe('page option ctaBand', () => {
   it('false leaves the closing band out of the HTML and keeps the rest of the Shell', () => {
     const source = opt('band-off');

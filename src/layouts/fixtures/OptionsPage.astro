@@ -13,6 +13,12 @@ export function getStaticPaths() {
     'cta-secondary': { headerCta: 'secondary' },
     'bar-off': { mobileBar: false },
     'bar-on': { mobileBar: true },
+    'bar-custom': {
+      mobileBarActions: [
+        { label: 'Read the case study', href: '/projects/example', icon: 'file-text' },
+        { label: 'Get the brief', href: '/brief.pdf', icon: 'download', download: true },
+      ],
+    },
     'band-off': { ctaBand: false },
     'band-on': { ctaBand: true },
     'cvlang-en': { cvLang: 'en' },

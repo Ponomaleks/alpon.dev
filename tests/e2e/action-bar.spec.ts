@@ -45,7 +45,8 @@ for (const { name, path } of pages) {
       const bar = page.locator(BAR);
       await expect(bar).toBeVisible();
       await expect(bar.getByRole('link', { name: 'View CV' })).toBeVisible();
-      await expect(bar.getByRole('link', { name: 'Get in touch' })).toBeVisible();
+      await expect(bar.getByRole('link', { name: 'Save contact (.vcf)' })).toBeVisible();
+      await expect(bar.getByRole('link', { name: 'Get in touch' })).toHaveCount(0);
       const box = await barBox(page);
       expect(Math.round(box.y + box.height)).toBe(844);
     });
@@ -83,6 +84,35 @@ for (const { name, path } of pages) {
     });
   });
 }
+
+test.describe('the bar actions are secondary, with a contact card download (AC-34, AC-38)', () => {
+  test.use({ reducedMotion: 'reduce' });
+
+  for (const { name, path } of pages) {
+    test(`${name}: "View CV" and "Save contact (.vcf)", both secondary`, async ({ page }) => {
+      await open(page, path);
+      const bar = page.locator(BAR);
+      await expect(bar.getByRole('link')).toHaveCount(2);
+      const cv = bar.getByRole('link', { name: 'View CV' });
+      const save = bar.getByRole('link', { name: 'Save contact (.vcf)' });
+      await expect(cv).toHaveAttribute('href', '/cv');
+      await expect(save).toHaveAttribute('href', '/alexander-ponomarenko.vcf');
+      await expect(save).toHaveAttribute('download', /.*/);
+      for (const action of [cv, save]) {
+        await expect(action).toHaveClass(/\bfj-btn--secondary\b/);
+        await expect(action).not.toHaveClass(/\bfj-btn--primary\b/);
+      }
+    });
+
+    test(`${name}: "Save contact (.vcf)" downloads the contact card`, async ({ page }) => {
+      await open(page, path);
+      const downloading = page.waitForEvent('download');
+      await page.locator(BAR).getByRole('link', { name: 'Save contact (.vcf)' }).click();
+      const download = await downloading;
+      expect(download.suggestedFilename()).toMatch(/\.vcf$/);
+    });
+  }
+});
 
 test.describe('bar-static with scripts off (AC-09)', () => {
   test.use({ javaScriptEnabled: false, viewport: { width: 390, height: 400 } });

@@ -32,6 +32,8 @@ async function counts(page: Page) {
     });
     const header = document.querySelector('header[data-header] .fj-btn');
     return {
+      // AC-34: the Sticky action bar holds no primary button, painted or not.
+      bar: document.querySelectorAll('[data-shell-bar] .fj-btn--primary').length,
       main: inMain.length,
       screen: onScreen.length,
       headerPrimary: !!header && all.includes(header),
@@ -61,8 +63,9 @@ test.describe('at most 1 primary in main and 2 on screen at 390, 834 and 1440', 
         const c = await counts(page);
         expect(c.main).toBeLessThanOrEqual(1);
         expect(c.screen).toBeLessThanOrEqual(2);
-        // The contact action is primary exactly once on screen.
-        expect(c.screen).toBeGreaterThanOrEqual(1);
+        expect(c.bar).toBe(0);
+        // Where the bar is absent the header action is the primary one on screen.
+        if (width >= 768) expect(c.screen).toBeGreaterThanOrEqual(1);
       });
     }
   }
@@ -76,6 +79,7 @@ test.describe('the three states at 390 (AC-23)', () => {
       await expect(page.locator('[data-shell-bar]')).toBeInViewport();
       const c = await counts(page);
       expect(c.headerPrimary).toBe(false);
+      expect(c.bar).toBe(0);
       expect(c.main).toBeLessThanOrEqual(1);
       expect(c.screen).toBeLessThanOrEqual(2);
     });

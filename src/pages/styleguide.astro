@@ -18,7 +18,7 @@ import Header from '../components/layout/Header.astro';
 import MobileMenu from '../components/layout/MobileMenu.astro';
 import MobileBar from '../components/layout/MobileBar.astro';
 import CtaBand from '../components/layout/CtaBand.astro';
-import { contact } from '../data/contact';
+import { defaultBarActions } from '../data/shell-actions';
 import Contours from '../components/brand/Contours.astro';
 import TerrainMap from '../components/brand/TerrainMap.astro';
 import Wordmark from '../components/brand/Wordmark.astro';
@@ -277,7 +277,7 @@ const stateLabel = { hover: 'Hover', focus: 'Focus', active: 'Pressed' } as cons
     <section data-section="Sticky action bar" class="sg__section">
       <h2>Sticky action bar</h2>
       <div class="sg__phone sg__phone--bar">
-        <MobileBar sample cvHref={contact.links.cvEn} contactHref={contact.links.contact} />
+        <MobileBar sample actions={defaultBarActions} />
       </div>
     </section>
 

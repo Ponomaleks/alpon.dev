@@ -5,13 +5,13 @@
 import stylesheet from '../styles/global.css?url';
 import themeBootstrapSource from '../scripts/theme-bootstrap.js?raw';
 import { normaliseNewlines } from '../scripts/newlines.ts';
-import { contact } from '../data/contact';
 import SkipLink from '../components/layout/SkipLink.astro';
 import Header from '../components/layout/Header.astro';
 import MobileMenu from '../components/layout/MobileMenu.astro';
 import CtaBand from '../components/layout/CtaBand.astro';
 import Footer from '../components/layout/Footer.astro';
 import MobileBar from '../components/layout/MobileBar.astro';
+import { defaultBarActions, type BarAction } from '../data/shell-actions';
 import Toast from '../components/ui/Toast.astro';
 
 interface Props {
@@ -24,6 +24,8 @@ interface Props {
   headerVariant?: 'default' | 'on-spruce';
   headerCta?: 'auto' | 'secondary';
   mobileBar?: boolean;
+  // The bar's pair, all secondary (AC-34).
+  mobileBarActions?: readonly [BarAction, BarAction];
   ctaBand?: boolean;
   cvLang?: 'en' | 'no';
   // Schema.org data, rendered as one ld+json block (AC-26).
@@ -39,6 +41,7 @@ const {
   headerVariant = 'default',
   headerCta = 'auto',
   mobileBar = true,
+  mobileBarActions = defaultBarActions,
   ctaBand = true,
   cvLang = 'en',
   structuredData,
@@ -111,7 +114,7 @@ const structuredDataJson = structuredData
     </main>
     {ctaBand && <CtaBand cvLang={cvLang} />}
     <Footer />
-    {mobileBar && <MobileBar cvHref={contact.links.cv} contactHref={contact.links.contact} />}
+    {mobileBar && <MobileBar actions={mobileBarActions} />}
     <Toast />
   </body>
 </html>

@@ -5,8 +5,10 @@ import { join, relative } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { contact } from '../../data/contact';
+import { defaultBarActions, type BarAction } from '../../data/shell-actions';
 
-// AC-07, D-11 (T12): the Sticky action bar markup. A real production build of a throwaway
+// AC-34, AC-38 (home T5, ADR-0002): the Sticky action bar renders the pair it is given, always
+// secondary. Markup of AC-07, D-11 (T12): the Sticky action bar. A real production build of a throwaway
 // fixture page (outside the repo); the test reads the built HTML. Scroll behaviour is in
 // src/scripts/shell/action-bar.test.ts, the browser checks are T20's.
 
@@ -15,13 +17,21 @@ const layout = (name: string) => join(repo, 'src/components/layout', name).repla
 let out = '';
 let page = '';
 
+const actionsModule = join(repo, 'src/data/shell-actions').replaceAll('\\', '/');
+const custom: BarAction[] = [
+  { label: 'Read the case study', href: '/projects/example', icon: 'file-text' },
+  { label: 'Get the brief', href: '/brief.pdf', icon: 'download', download: true },
+];
+
 const fixture = `---
 import MobileBar from '${layout('MobileBar.astro')}';
-const { cv, contact } = ${JSON.stringify(contact.links)};
+import { defaultBarActions } from '${actionsModule}';
+const custom = ${JSON.stringify(custom)};
 ---
 <html lang="en"><head><title>bar</title></head><body>
-<div data-case="live"><MobileBar cvHref={cv} contactHref={contact} /></div>
-<div data-case="sample"><MobileBar cvHref={cv} contactHref={contact} sample /></div>
+<div data-case="live"><MobileBar actions={defaultBarActions} /></div>
+<div data-case="custom"><MobileBar actions={custom} /></div>
+<div data-case="sample"><MobileBar actions={defaultBarActions} sample /></div>
 </body></html>
 `;
 
@@ -90,26 +100,77 @@ describe('MobileBar: live', () => {
     expect(html).not.toMatch(/data-sample/);
   });
 
-  it('has exactly two actions: "View CV" then "Get in touch"', () => {
-    const [cv, getInTouch, ...rest] = anchors(made('live'));
+  it('has exactly two actions: "View CV" then "Save contact (.vcf)"', () => {
+    const [cv, save, ...rest] = anchors(made('live'));
     expect(rest).toEqual([]);
     expect(cv).toMatch(/>\s*(?:<svg[\s\S]*?<\/svg>\s*)?View CV\s*</);
-    expect(getInTouch).toMatch(/Get in touch/);
+    expect(save).toMatch(/Save contact \(\.vcf\)/);
+    expect(made('live')).not.toMatch(/Get in touch/);
   });
 
-  it('View CV is secondary with the file icon and the contact.ts CV target', () => {
+  it('View CV has the file icon and the contact.ts CV target', () => {
     const cv = anchors(made('live'))[0] ?? '';
-    expect(classesOf(cv)).toEqual(expect.arrayContaining(['fj-btn', 'fj-btn--secondary']));
-    expect(classesOf(cv)).not.toContain('fj-btn--primary');
     expect(cv).toMatch(/<svg\b[^>]*aria-hidden="true"/);
     expect(cv).toContain(`href="${contact.links.cv}"`);
+    expect(cv).not.toMatch(/\sdownload\b/);
   });
 
-  it('Get in touch is primary with the contact.ts contact target', () => {
-    const cta = anchors(made('live'))[1] ?? '';
-    expect(classesOf(cta)).toEqual(expect.arrayContaining(['fj-btn', 'fj-btn--primary']));
-    expect(classesOf(cta)).not.toContain('fj-btn--secondary');
-    expect(cta).toContain(`href="${contact.links.contact}"`);
+  it('Save contact (.vcf) is a download of the contact card', () => {
+    const save = anchors(made('live'))[1] ?? '';
+    expect(save).toContain('href="/alexander-ponomarenko.vcf"');
+    expect(save).toMatch(/\sdownload(?:=""|\s|>)/);
+    expect(save).toMatch(/<svg\b[^>]*aria-hidden="true"/);
+  });
+
+  it('both actions are secondary and none is primary', () => {
+    for (const anchor of anchors(made('live'))) {
+      expect(classesOf(anchor)).toEqual(expect.arrayContaining(['fj-btn', 'fj-btn--secondary']));
+      expect(classesOf(anchor)).not.toContain('fj-btn--primary');
+    }
+  });
+});
+
+describe('MobileBar: custom pair', () => {
+  it('renders the pair it is given, in order, and not the default one', () => {
+    const [first, second, ...rest] = anchors(made('custom'));
+    expect(rest).toEqual([]);
+    expect(first).toContain('href="/projects/example"');
+    expect(first).toMatch(/Read the case study/);
+    expect(second).toContain('href="/brief.pdf"');
+    expect(second).toMatch(/Get the brief/);
+    expect(second).toMatch(/\sdownload(?:=""|\s|>)/);
+    expect(first).not.toMatch(/\sdownload\b/);
+    expect(made('custom')).not.toMatch(/View CV|Save contact|Get in touch/);
+  });
+
+  it('is secondary for both actions', () => {
+    for (const anchor of anchors(made('custom'))) {
+      expect(classesOf(anchor)).toContain('fj-btn--secondary');
+      expect(classesOf(anchor)).not.toContain('fj-btn--primary');
+    }
+  });
+});
+
+describe('BarAction type and the default pair (ADR-0002)', () => {
+  it('has no style field: a primary button in the bar cannot be written', () => {
+    const styled: BarAction = {
+      label: 'x',
+      href: '/',
+      // @ts-expect-error a BarAction has no style field
+      variant: 'primary',
+    };
+    expect(styled.label).toBe('x');
+    for (const action of defaultBarActions) expect(Object.keys(action)).not.toContain('variant');
+  });
+
+  it('the default pair is "View CV" and "Save contact (.vcf)" from contact.ts', () => {
+    expect(defaultBarActions).toHaveLength(2);
+    expect(defaultBarActions[0]).toMatchObject({ label: 'View CV', href: contact.links.cv });
+    expect(defaultBarActions[1]).toMatchObject({
+      label: 'Save contact (.vcf)',
+      href: '/alexander-ponomarenko.vcf',
+      download: true,
+    });
   });
 });
 
