@@ -7,7 +7,7 @@ acs: ["AC-03", "AC-05", "AC-07", "AC-10", "AC-11"]
 files_hint: ["src/data/home.ts", "src/data/home.test.ts", "src/data/site.ts", "src/scripts/home/sections.ts", "src/scripts/home/sections.test.ts"]
 owner: "Alexander Ponomarenko"
 estimate: "M"
-status: "todo"
+status: "done"
 ---
 
 # T2 — Add the typed home content, the projects feature switch and the section numbering

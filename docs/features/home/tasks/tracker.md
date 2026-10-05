@@ -9,9 +9,9 @@ Estimates: S about a quarter of a day, M about half a day, L up to one day.
 
 | # | Task | Layer | Owner | Estimate | Blocked by | Status |
 |---|---|---|---|---|---|---|
-| T1 | [Add the Work region coordinates to contact.ts and build the structured Person data from it](./t01-contact-geo-and-person.md) | domain | Alexander Ponomarenko | S | — | todo |
-| T2 | [Add the typed home content, the projects feature switch and the section numbering](./t02-home-content-data.md) | domain | Alexander Ponomarenko | M | — | todo |
-| T3 | [Add the icons the home page needs and the optional check icon of the Toast](./t03-icons-and-toast-check.md) | ui | Alexander Ponomarenko | S | — | todo |
+| T1 | [Add the Work region coordinates to contact.ts and build the structured Person data from it](./t01-contact-geo-and-person.md) | domain | Alexander Ponomarenko | S | — | done |
+| T2 | [Add the typed home content, the projects feature switch and the section numbering](./t02-home-content-data.md) | domain | Alexander Ponomarenko | M | — | done |
+| T3 | [Add the icons the home page needs and the optional check icon of the Toast](./t03-icons-and-toast-check.md) | ui | Alexander Ponomarenko | S | — | done |
 | T4 | [Render head meta, the structured-data block and the main minimum height in BaseLayout](./t04-layout-head-meta.md) | wiring | Alexander Ponomarenko | M | — | todo |
 | T5 | [Give the Sticky action bar its actions from a page option, all secondary](./t05-bar-page-actions.md) | ui | Alexander Ponomarenko | M | T3 | todo |
 | T6 | [Make the Sticky action bar collapsible with a native details tab and move the clearance to the tab](./t06-bar-collapse.md) | ui | Alexander Ponomarenko | M | T5 | todo |

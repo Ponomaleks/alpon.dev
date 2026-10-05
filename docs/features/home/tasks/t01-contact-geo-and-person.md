@@ -7,7 +7,7 @@ acs: ["AC-26", "AC-27"]
 files_hint: ["src/data/contact.ts", "src/data/person.ts", "src/data/person.test.ts", "scripts/check-contact.ts", "scripts/check-contact.test.ts"]
 owner: "Alexander Ponomarenko"
 estimate: "S"
-status: "todo"
+status: "done"
 ---
 
 # T1 — Add the Work region coordinates to contact.ts and build the structured Person data from it

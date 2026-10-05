@@ -7,7 +7,7 @@ acs: ["AC-14", "AC-15"]
 files_hint: ["src/components/ui/Icon.astro", "src/components/ui/actions.test.ts", "src/components/ui/Toast.astro", "src/scripts/shell/toast.ts", "src/scripts/shell/toast.test.ts"]
 owner: "Alexander Ponomarenko"
 estimate: "S"
-status: "todo"
+status: "done"
 ---
 
 # T3 — Add the icons the home page needs and the optional check icon of the Toast
