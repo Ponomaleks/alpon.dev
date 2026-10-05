@@ -66,7 +66,7 @@ updated_at: "2026-10-04"
 | toast-shown | A script dispatches `fjord:toast` | A Toast in the polite live region, bottom centre; above the bar while the bar is on screen. Takes no focus, leaves by itself | Toast / ToastRegion | AC-30, wireframe S-6 |
 | page-transition | A link to another page of the site, transitions supported, motion allowed | Content cross-fades, the header stays still. Otherwise the new page simply opens | Header | AC-32 |
 | reduced-motion | `prefers-reduced-motion: reduce` | Nothing slides, grows or loops: skip link, menu, Toast appear instantly or fade; theme changes at once; bar-static applies; header-scrolled still switches | all Shell parts | AC-28 |
-| interactive states | Hover, keyboard focus, pressed on any Shell control | The control changes colour only on hover and pressed and does not move; where motion is allowed the Button arrow and the external-link icon nudge on hover and keyboard focus, and with reduced motion they stay still (AC-28); the Fjord focus ring on `:focus-visible`; target at least 44 × 44; nothing is told by hover alone | Button, IconButton, TextLink, ThemeToggle | AC-25, D-08 |
+| interactive states | Hover, keyboard focus, pressed on any Shell control | The control changes colour on hover and pressed; where motion is allowed the Button arrow and the external-link icon nudge on hover and keyboard focus, and a pressed Button sinks 1 px and shrinks to 0.985, a pressed IconButton to 0.94, as in the page design; with reduced motion nothing moves (AC-28); the Fjord focus ring on `:focus-visible`; target at least 44 × 44; nothing is told by hover alone | Button, IconButton, TextLink, ThemeToggle | AC-25, D-08 |
 | loading | N/A: static HTML, no client data fetch | — | — | repo ADR-0001 |
 | empty | N/A: fixed content from `src/data/contact.ts`; a missing fact fails the build check, it is not rendered empty | — | — | AC-15 |
 | error | N/A: no error UI in the Shell. Failures are silent by design (theme-storage-blocked) or are the no-script state | — | — | AC-11, sad.md §8 Error handling |
@@ -170,7 +170,7 @@ Rebuilt from the page design (`Misc.jsx` `Lost`), replacing the interim page of 
 | default, two columns | Same, screen 1024 and wider | same; text 5 parts, map 7 parts, centred vertically | wireframe 1440 below |
 | Shell states | See §Shell states. All apply except `cta-band` | as there | S-1 to S-6 |
 | cta-band | N/A: left out on this page; the footer follows the content | — | AC-17 |
-| button hover / focus / pressed | Pointer hover, keyboard focus, press on "Back to home" | Button: colour only, Fjord focus ring; the Button does not move, its arrow nudges where motion is allowed and stays still with reduced motion | AC-25, AC-28 |
+| button hover / focus / pressed | Pointer hover, keyboard focus, press on "Back to home" | Button: colour, Fjord focus ring; where motion is allowed its arrow nudges and the pressed Button sinks and shrinks as in the page design; with reduced motion nothing moves | AC-25, AC-28 |
 | screen reader | Assistive technology reads the page content | Code line, heading, body, "Back to home" are announced. The whole map panel is `aria-hidden` (map, pin label, coordinates) | AC-19 |
 | with-projects | N/A: owned by step 7. With no Published project "See projects" is **not rendered** | — | AC-18, D-03 |
 | requested address shown | N/A: never rendered; the body ends after "…has moved." | — | AC-17, D-04 |

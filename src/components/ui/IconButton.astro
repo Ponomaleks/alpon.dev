@@ -63,7 +63,14 @@ const { icon, label, disabled = false, 'data-demo-state': demoState } = Astro.pr
     .fj-iconbtn {
       transition:
         background-color var(--fjord-duration-200) var(--fjord-ease-out),
-        color var(--fjord-duration-200) var(--fjord-ease-out);
+        color var(--fjord-duration-200) var(--fjord-ease-out),
+        transform var(--fjord-duration-120) var(--fjord-ease-out);
+    }
+
+    /* The design's press; with reduced motion the control stays still (AC-28). */
+    .fj-iconbtn:active:not(:disabled),
+    .fj-iconbtn[data-demo-state='active'] {
+      transform: scale(0.94);
     }
   }
 </style>

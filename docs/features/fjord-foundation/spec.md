@@ -230,6 +230,8 @@ Superseded by base-components AC-18.
 
   **Status, 2026-10-04:** the rebuild is done by base-components (AC-17, AC-07). This question stays open until the Design match row of base-components §6 is confirmed at 0 unlisted differences in the PR review; it is then closed with a reference to AC-17, AC-07 and that row.
 
+  **Closed, 2026-10-05:** the Owner accepted the Not-found design match in the base-components PR. See base-components AC-17, AC-07 and the Design match row of its §6; the accepted differences are its §1.3.
+
   The current 404 is an interim page and does not follow Misc.jsx. Any difference from Misc.jsx, listed here or not, is in scope for the step 3 rebuild. The list is a checklist, not an exhaustive diff.
 
   Intentional and already documented (§1 Traceability, `screens.md`): the requested path is not echoed (the design's "Nothing lives at /path" is omitted), no "See projects" until step 7, no Header, Footer or sticky action bar (the design's "View CV / Get in touch" at 390) until step 3. Decision: do not rebuild in this feature. Items 1–15 go to the PR's design-deviation list, and roadmap step 3 rebuilds the page per the site design and re-baselines the 404 visuals. AC-07's wording ("Page not found", "404 · Ikke funnet") and P-41 are updated by the step 3 spec. Owner: Alexander Ponomarenko. Due: step 3 (Base components).

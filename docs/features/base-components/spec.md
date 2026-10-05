@@ -2,7 +2,7 @@
 status: Draft
 owner: "Alexander Ponomarenko"
 reviewers: ["Tech Lead", "Security Lead"]
-updated_at: "2026-10-04"
+updated_at: "2026-10-05"
 feature_size: "S"
 ---
 
@@ -38,6 +38,7 @@ Traceability:
 - Change log, 2026-10-04 (implement stage, decided by the Owner): AC-26 now states the targeted token rules of ADR-0004 instead of allow lists; the §6 Contrast row gates text, control boundaries and the focus ring, and only reports decorative `aria-hidden` lines; the arrow and icon nudges of the page design stay where motion is allowed (`screens.md` interactive states, AC-28 for reduced motion); text widths may use math on a measure token. Nothing else changed.
 - Change log, 2026-10-04 (design match, decided by the Owner): the header is 64 high below 768 with a 17 px wordmark and a 36 px "Get in touch"; the theme switch is 38 high; these keep a 44 px target through an overlay (D-08). Footer text links are as high as their line, so AC-25 and the §6 Touch targets row name that exception. The page keeps one bottom reserve for the Sticky action bar (the footer's), not two. Nothing else changed.
 - Change log, 2026-10-04 (review round 1, decided by the Owner): AC-32 is verified by checks of the built CSS (`src/styles/view-transitions.test.ts`) and of the computed `view-transition-name` (`tests/e2e/transitions.spec.ts`), not by a motion-allowed browser test of the page transition, because that browser test was a race in Chromium and a flaky test must not sit in a required check. Nothing else changed.
+- Change log, 2026-10-05 (ship stage, decided by the Owner): §1.3 gained D-14 to D-18, the differences the Owner accepted in the PR. Button and IconButton move when pressed, as in the page design, where motion is allowed (`screens.md` interactive states; the old allow lists were the only reason they did not); the Sticky action bar has the float shadow; the outlined header "Get in touch" changes on hover; a Stat row takes an accessible name from the page; the Toast text has the design line height. No AC text changed.
 - The e2e suite runs with reduced motion emulated, so page and theme transitions never make it unstable; AC-29 has its own test with motion allowed; AC-32 is verified by checks of the built CSS (see the change log above).
 
 ### 1.1 New or extended
@@ -92,6 +93,11 @@ Decided by the Owner; they go to the PR's design-difference list as they are.
 | D-11 | Sticky action bar slides away on scroll down | same with scripts on; stays in place with scripts off or reduced motion | AC-09 |
 | D-12 | Mobile menu is a modal dialog driven by script | mechanism chosen at the design stage, platform features first; a dialog is acceptable. If the mechanism needs a script, the menu button is not shown with scripts off, for the same reason as D-09 | Owner decision; AC-04 to AC-06 are the contract |
 | D-13 | Header gains its bottom border on scroll, driven by script in the prototype | same with scripts on; with scripts off the header has no scroll border | one mechanism in every browser (design ADR-0003); the border is a visual cue and navigation does not depend on it. AC-03 is read with this row |
+| D-14 | Footer text links follow the 44 px rule of the other Shell controls | 21 px high (their line), 27 px between centres at 390, with the tight spacing of the page design | Owner decision: WCAG 2.2 AA target size (2.5.8) by spacing, not the 44 px Shell rule (`CLAUDE.md` quality bar; AC-25) |
+| D-15 | Literal sizes: Button arrow nudge 3 px; band body 52ch; Not-found body 46ch; SectionHeader 760 px wide; Stat unit size and margin | the nearest token: 2 px; 48ch; 48ch; 768 px; type and space tokens | tokens only (AC-26) |
+| D-16 | On-spruce theme switch has lichen text; the skip link shows on `:focus`; the Not-found code line is the Eyebrow component; Stat columns come from an inline custom property; profile links open a new tab | snow text (lichen measures 4.28:1); shown on `:focus-visible` with the focus ring; a plain `<p>` with the same look; `data-count` on the row (1 to 6); the same tab | contrast, keyboard use and the security policy (AC-25, AC-27); the plain code line and same-tab links were accepted by the Owner on 2026-10-05 |
+| D-17 | At 390 the page has the `.x-main` bottom padding and the footer reserve | one bottom reserve for the Sticky action bar, the footer's; the Not-found page is 1359 high against 1335 | Owner decision (change log, design match) |
+| D-18 | The Shell needs two font files on first paint | the home page requests five (adds Grotesk 500, Mono 400 and 500 for the Shell); the two preloads are unchanged | every weight the design uses ships as its own file (`CLAUDE.md` Design rules) |
 
 Not a difference: the coordinates printed on the Not-found map stay "59.91° N · 10.75° E". They are decoration, hidden from assistive technology, and are not a location fact; the single-source rule for contact data does not cover them.
 

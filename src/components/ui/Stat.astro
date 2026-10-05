@@ -12,15 +12,18 @@ interface Props extends Partial<StatItem> {
   /** A row of stats; when given, the single-stat props are ignored. */
   items?: StatItem[];
   compact?: boolean;
+  /** The accessible name of the row, set by the page (`label` is a single stat's own label). */
+  rowLabel?: string;
 }
 
-const { items, compact = false, ...single } = Astro.props;
+const { items, compact = false, rowLabel, ...single } = Astro.props;
 const stats: StatItem[] = items ?? (single.value === undefined ? [] : [single as StatItem]);
 ---
 
 <ul
   class:list={['stats', { 'stats--compact': compact, 'stats--row': items !== undefined }]}
   data-count={items?.length}
+  aria-label={rowLabel}
 >
   {stats.map((s) => (
     <li class="stat">

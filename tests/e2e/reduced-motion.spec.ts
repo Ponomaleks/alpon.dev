@@ -129,6 +129,26 @@ test('the arrow and icon nudges stay still, also on hover and in the hover sampl
   await expect(home.locator('.fj-btn__arrow')).toHaveCSS('transform', 'none');
 });
 
+const PRESSED = ':is(.fj-btn, .fj-iconbtn)[data-demo-state="active"]';
+const pressedTransforms = (page: Page) =>
+  page.locator(PRESSED).evaluateAll((els) => els.map((el) => getComputedStyle(el).transform));
+
+test('a pressed Button or IconButton does not move, in the pressed samples and under a real press (AC-28)', async ({
+  page,
+}) => {
+  await page.goto('/styleguide');
+  const samples = await pressedTransforms(page);
+  expect(samples.length).toBeGreaterThanOrEqual(3);
+  expect(new Set(samples)).toEqual(new Set(['none']));
+
+  await page.goto('/does-not-exist');
+  const home = page.locator('main a.fj-btn');
+  await home.hover();
+  await page.mouse.down();
+  await expect(home).toHaveCSS('transform', 'none');
+  await page.mouse.up();
+});
+
 test.describe('with motion allowed', () => {
   test.use({ reducedMotion: 'no-preference' });
 
@@ -137,5 +157,15 @@ test.describe('with motion allowed', () => {
   }) => {
     await page.goto('/styleguide');
     expect((await transforms(page)).some((value) => value !== 'none')).toBe(true);
+  });
+
+  test('the pressed samples move as the design does: the Button sinks and shrinks, the IconButton shrinks', async ({
+    page,
+  }) => {
+    await page.goto('/styleguide');
+    const button = page.locator('.fj-btn[data-demo-state="active"]').first();
+    await expect(button).toHaveCSS('transform', 'matrix(0.985, 0, 0, 0.985, 0, 1)');
+    const icon = page.locator('.fj-iconbtn[data-demo-state="active"]').first();
+    await expect(icon).toHaveCSS('transform', 'matrix(0.94, 0, 0, 0.94, 0, 0)');
   });
 });

@@ -143,3 +143,30 @@ test.describe('Wordmark on spruce', () => {
     expect(colours.dev).toBe(colours.snow);
   });
 });
+
+test.describe('Header with the forced secondary call to action', () => {
+  test.use({ viewport: { width: 1440, height: 900 } });
+
+  test('"Get in touch" changes on hover, like a secondary Button', async ({ page }) => {
+    await page.goto('/styleguide');
+    const action = page.locator('header[data-sample][data-cta="secondary"] .header__cta .fj-btn');
+    await expect(action).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+    const border = await action.evaluate((el) => getComputedStyle(el).borderTopColor);
+    await action.hover();
+    await expect(action).not.toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+    await expect(action).not.toHaveCSS('border-top-color', border);
+  });
+});
+
+test.describe('Sticky action bar', () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+
+  test('the sample and the live bar carry the float shadow of the page design', async ({
+    page,
+  }) => {
+    await page.goto('/styleguide');
+    await expect(page.locator('.mobile-bar[data-sample]')).not.toHaveCSS('box-shadow', 'none');
+    await page.goto('/');
+    await expect(page.locator('[data-shell-bar]')).not.toHaveCSS('box-shadow', 'none');
+  });
+});

@@ -85,6 +85,11 @@ describe('Badge ring and Toast rise (design form)', () => {
     expect(src('Badge.astro')).not.toMatch(/outline/);
   });
 
+  it('the Toast text has the design line height (snug), from its token', () => {
+    const toast = src('Toast.astro').match(/\.toast,[^{]*\{([^}]*)\}/)?.[1] ?? '';
+    expect(toast).toMatch(/line-height:\s*var\(--fjord-leading-snug\)/);
+  });
+
   it('the Toast rises with transform by a token distance, and only fades under reduced motion', () => {
     const toast = src('Toast.astro');
     const rise = toast.match(/@keyframes toast-in\s*\{([\s\S]*?\})\s*\}/)?.[1] ?? '';
@@ -146,6 +151,16 @@ describe('Stat (AC-25: final number in the page, no count-up)', () => {
     expect(text(html)).toContain('4');
     expect(text(html)).toContain('Live projects');
     expect(html).not.toMatch(/<script\b/i);
+  });
+
+  it('a row takes an optional accessible name from the page; without it there is none', async () => {
+    const items = [
+      { value: '1', label: 'One' },
+      { value: '2', label: 'Two' },
+    ];
+    const named = await render('Stat', { items, rowLabel: 'Key numbers' });
+    expect(named).toMatch(/<ul\b[^>]*aria-label="Key numbers"/);
+    expect(await render('Stat', { items })).not.toMatch(/aria-label/);
   });
 
   it('the component file has no script and no count-up code', () => {

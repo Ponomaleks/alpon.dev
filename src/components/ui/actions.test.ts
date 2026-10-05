@@ -258,19 +258,36 @@ describe('interactive states in the built CSS', () => {
     );
   });
 
-  it('hover and pressed never move the control itself: only the arrow and the link icon nudge', () => {
-    const stateRules = rules().filter(([sel]) =>
-      /:hover|:active|\[data-demo-state=(hover|active)\]/.test(sel),
-    );
-    expect(stateRules.length).toBeGreaterThan(0);
-    for (const [sel, body] of stateRules) {
+  it('hover never moves the control itself: only the arrow and the link icon nudge', () => {
+    const hover = rules().filter(([sel]) => /:hover|\[data-demo-state=hover\]/.test(sel));
+    expect(hover.length).toBeGreaterThan(0);
+    for (const [sel, body] of hover) {
       if (!/transform\s*:/.test(body)) continue;
       for (const part of sel.split(','))
         expect(part.trim(), `${sel} { ${body} }`).toMatch(/\s\.(fj-btn__arrow|fj-link__icon)$/);
     }
-    const pressed = stateRules.filter(([sel]) => /:active|\[data-demo-state=active\]/.test(sel));
-    for (const [sel, body] of pressed) expect(`${sel} { ${body} }`).not.toMatch(/transform\s*:/);
   });
+
+  // The design's press (actions.css): the Button sinks 1px (the hairline token) and shrinks, the
+  // IconButton shrinks.
+  // `transform` values are an accepted gap of ADR-0004, so the design literals are written as is.
+  it.each([
+    ['fj-btn', /transform:\s*translateY\(var\(--fjord-border-width\)\)\s*scale\(0?\.985\)/],
+    ['fj-iconbtn', /transform:\s*scale\(0?\.94\)/],
+  ] as const)(
+    '.%s moves when pressed, as in the design, and in its pressed sample',
+    (cls, move) => {
+      const pressed = rules().filter(
+        ([sel, body]) => new RegExp(`\\.${cls}(?![-\\w])[^,]*:active`).test(sel) && move.test(body),
+      );
+      expect(pressed.length).toBe(1);
+      const [sel = ''] = pressed[0] ?? [];
+      expect(sel).toContain(`.${cls}[data-demo-state=active]`);
+      // A disabled control does not react to a press.
+      const live = sel.split(',').find((part) => part.includes(':active')) ?? '';
+      expect(live).toMatch(/:not\(:disabled\)|:not\(\[aria-disabled=true\]\)/);
+    },
+  );
 
   it('the button arrow nudges with transform, as in the design, on hover and keyboard focus', () => {
     const nudge = rules().find(([sel]) => sel.includes('.fj-btn:hover .fj-btn__arrow'));

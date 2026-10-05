@@ -124,6 +124,10 @@ describe('MobileBar: layout (design .fj-actionbar)', () => {
     expect(source()).not.toMatch(/flex:\s*1 1 0/);
   });
 
+  it('floats above the page with the design shadow', () => {
+    expect(bar()).toMatch(/box-shadow:\s*var\(--fjord-shadow-float\)/);
+  });
+
   it('slides away with transform, as in the design, under a no-preference guard', () => {
     expect(source()).toMatch(
       /\.mobile-bar\[inert\]\s*\{\s*transform:\s*translateY\(calc\(100% \+ var\(--fjord-space-2\)\)\)/,

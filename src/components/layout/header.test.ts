@@ -201,6 +201,22 @@ describe('Header: built CSS', () => {
     expect(css).toMatch(/:has\(\s*\[data-shell-bar\]:not\(\[inert\]\)/);
   });
 
+  it('an outlined call to action still answers to hover and press, like a secondary Button', () => {
+    const hover = [...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)].filter(([, sel = '']) =>
+      /\.header__cta[^,{]*\.fj-btn:hover/.test(sel),
+    );
+    const selectors = hover.map(([, sel = '']) => sel).join(',');
+    // Both ways into the outlined style: forced by the page, and beside a visible bar.
+    expect(selectors).toMatch(/\[data-cta=["']?secondary["']?\][^,]*\.fj-btn:hover/);
+    expect(selectors).toMatch(/:has\([^,]*data-shell-bar[^,]*\.fj-btn:hover/);
+    expect(selectors).toMatch(/\.fj-btn:active/);
+    for (const [, , body = ''] of hover) {
+      expect(body).toMatch(/background-color:\s*var\(--fjord-color-accent-soft\)/);
+      expect(body).toMatch(/border-color:\s*var\(--fjord-color-text\)/);
+    }
+    expect(hover.length).toBeGreaterThan(0);
+  });
+
   it('marks the current link with the inset line of the design, not a border', () => {
     const marker =
       css.match(/\.header__nav[^{},]*\[aria-current=["']?page["']?\][^{},]*\{([^}]*)\}/)?.[1] ?? '';

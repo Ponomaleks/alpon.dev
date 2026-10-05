@@ -197,12 +197,25 @@ const links = [
       color: var(--fjord-color-text);
       border-color: var(--fjord-color-border-strong);
     }
+
+    :global(:root:has([data-shell-bar]:not([inert]))) .header__cta :global(.fj-btn:hover),
+    :global(:root:has([data-shell-bar]:not([inert]))) .header__cta :global(.fj-btn:active) {
+      background-color: var(--fjord-color-accent-soft);
+      border-color: var(--fjord-color-text);
+    }
   }
 
   .header[data-cta='secondary'] .header__cta :global(.fj-btn) {
     background-color: transparent;
     color: var(--fjord-color-text);
     border-color: var(--fjord-color-border-strong);
+  }
+
+  /* The outlined action answers to hover and press as a secondary Button does. */
+  .header[data-cta='secondary'] .header__cta :global(.fj-btn:hover),
+  .header[data-cta='secondary'] .header__cta :global(.fj-btn:active) {
+    background-color: var(--fjord-color-accent-soft);
+    border-color: var(--fjord-color-text);
   }
 
   @media (min-width: 768px) {

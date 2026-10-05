@@ -159,14 +159,21 @@ const classes = [
     display: inline-flex;
   }
 
-  /* Reduced motion = fades only: colour transitions and the arrow nudge only without it. The
-     control itself never moves; hover and pressed change its colours only. */
+  /* Reduced motion = fades only: the colour transitions, the arrow nudge and the press only
+     without it. Hover changes colours; a press sinks and shrinks the control, as in the design. */
   @media (prefers-reduced-motion: no-preference) {
     .fj-btn {
       transition:
         background-color var(--fjord-duration-200) var(--fjord-ease-out),
         border-color var(--fjord-duration-200) var(--fjord-ease-out),
-        color var(--fjord-duration-200) var(--fjord-ease-out);
+        color var(--fjord-duration-200) var(--fjord-ease-out),
+        transform var(--fjord-duration-120) var(--fjord-ease-out);
+    }
+
+    /* The design's translateY(1px): the distance is the 1px hairline token, not a literal. */
+    .fj-btn:active:not(:disabled):not([aria-disabled='true']),
+    .fj-btn[data-demo-state='active'] {
+      transform: translateY(var(--fjord-border-width)) scale(0.985);
     }
 
     .fj-btn__arrow {
