@@ -7,7 +7,7 @@ acs: ["AC-13", "AC-14", "AC-15", "AC-16", "AC-17"]
 files_hint: ["src/components/home/ContactBlock.astro", "src/components/brand/QrTile.astro", "src/components/home/contact-block.test.ts", "src/scripts/home/copy-email.ts", "src/scripts/home/copy-email.test.ts"]
 owner: "Alexander Ponomarenko"
 estimate: "M"
-status: "todo"
+status: "done"
 ---
 
 # T14 — Build the Contact block with the copy-email action, Save contact, the mail-link sentence and the QR tile

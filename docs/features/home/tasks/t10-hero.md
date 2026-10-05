@@ -7,7 +7,7 @@ acs: ["AC-01", "AC-03", "AC-04", "AC-31"]
 files_hint: ["src/components/home/Hero.astro", "src/components/home/hero.test.ts", "src/scripts/home/parallax.ts", "src/scripts/home/parallax.test.ts"]
 owner: "Alexander Ponomarenko"
 estimate: "M"
-status: "todo"
+status: "done"
 ---
 
 # T10 — Build the Hero section with the Now line and the pointer parallax
