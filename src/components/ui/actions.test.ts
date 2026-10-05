@@ -12,7 +12,25 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 const repo = fileURLToPath(new URL('../../../', import.meta.url));
 const ui = (name: string) => join(repo, 'src/components/ui', name).replaceAll('\\', '/');
-const ICONS = ['arrow-right', 'menu', 'x', 'file-text', 'map-pin'] as const;
+const ICONS = [
+  'arrow-right',
+  'menu',
+  'x',
+  'file-text',
+  'map-pin',
+  // T3 (AC-14, AC-15): the icons the home page needs.
+  'play',
+  'pause',
+  'check',
+  'chevron-down',
+  'chevron-up',
+  'copy',
+  'download',
+  'mail',
+  'phone',
+  'linkedin',
+  'github',
+] as const;
 let out = '';
 let page = '';
 let css = '';
@@ -117,6 +135,8 @@ describe('Icon', () => {
       expect(svg).toMatch(/stroke="currentColor"/);
       expect(svg).toMatch(/stroke-width="1\.5"/);
       expect(svg).toMatch(/fill="none"/);
+      expect(svg).not.toMatch(/\sstyle=/);
+      expect(svg).toMatch(/<path\sd="[^"]{8,}"/);
       expect(svg).toMatch(/<(path|line|circle|polyline|rect)\b/);
     },
   );

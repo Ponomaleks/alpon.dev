@@ -50,6 +50,18 @@ const { sample = false, message, meta, lang } = Astro.props;
     line-height: var(--fjord-leading-snug);
   }
 
+  /* The optional check icon: decorative, drawn before the message from the data-icon state. */
+  .toast[data-icon='check']::before,
+  .toast-region :global(.toast[data-icon='check'])::before {
+    content: '';
+    flex: none;
+    inline-size: var(--fjord-space-4);
+    block-size: var(--fjord-space-4);
+    background-color: currentColor;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E")
+      center / contain no-repeat;
+  }
+
   .toast__meta,
   .toast-region :global(.toast__meta) {
     font-family: var(--fjord-font-mono);
