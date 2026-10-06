@@ -49,15 +49,21 @@ test.describe('footer at 390', () => {
     for (const link of await links.all()) expect(await height(link)).toBe(21);
   });
 
-  test('the page ends with one 96 px reserve for the bar, not two', async ({ page }) => {
+  test('the footer keeps its 96 px and the page ends with one tab-to-bar reserve, not two', async ({
+    page,
+  }) => {
     await open(page, 390);
     await expect(page.locator('body')).toHaveCSS('padding-bottom', '0px');
     await expect(page.locator('footer.fj-footer')).toHaveCSS('padding-bottom', '96px');
     const gap = await page.evaluate(() => {
       const footer = document.querySelector('footer.fj-footer');
       if (!footer) throw new Error('no footer');
+      // AC-39: the end-of-page space is the body::after block, counted from the top of the tab.
+      const reserve = parseFloat(getComputedStyle(document.body, '::after').height);
       return (
-        document.documentElement.scrollHeight - (footer.getBoundingClientRect().bottom + scrollY)
+        document.documentElement.scrollHeight -
+        (footer.getBoundingClientRect().bottom + scrollY) -
+        reserve
       );
     });
     expect(Math.abs(gap)).toBeLessThan(1);

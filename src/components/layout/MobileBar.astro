@@ -1,5 +1,6 @@
 ---
 import Button from '../ui/Button.astro';
+import Icon from '../ui/Icon.astro';
 import type { BarAction } from '../../data/shell-actions';
 
 // Sticky action bar below 768 (AC-07, AC-08, AC-09). The live bar carries the hook H-2; `sample`
@@ -12,11 +13,21 @@ interface Props {
 const { actions, sample = false } = Astro.props;
 ---
 
-<div
+<details
   class="mobile-bar"
+  open
   data-shell-bar={sample ? undefined : ''}
   data-sample={sample ? '' : undefined}
 >
+  <summary class="mobile-bar__tab">
+    <span class="mobile-bar__label">Quick actions</span>
+    <span class="mobile-bar__chevron mobile-bar__chevron--down">
+      <Icon name="chevron-down" />
+    </span>
+    <span class="mobile-bar__chevron mobile-bar__chevron--up">
+      <Icon name="chevron-up" />
+    </span>
+  </summary>
   {actions.map((action) => (
     <Button
       href={action.href}
@@ -28,7 +39,7 @@ const { actions, sample = false } = Astro.props;
       {action.label}
     </Button>
   ))}
-</div>
+</details>
 
 <script>
   import { applyBarAction, decideBar } from '../../scripts/shell/action-bar';
@@ -47,7 +58,10 @@ const { actions, sample = false } = Astro.props;
         decideBar({
           prev,
           next,
-          focusInside: bar.contains(document.activeElement),
+          // Keyboard focus only (G-4): a pointer tap on the tab leaves focus there but is not keyboard use.
+          focusInside:
+            bar.contains(document.activeElement) &&
+            (document.activeElement?.matches(':focus-visible') ?? false),
           reducedMotion: reduced.matches,
         }),
       );
@@ -71,7 +85,7 @@ const { actions, sample = false } = Astro.props;
   .mobile-bar {
     position: fixed;
     inset-inline: 0;
-    inset-block-end: 0;
+    inset-block-end: env(safe-area-inset-bottom);
     z-index: var(--fjord-z-actionbar);
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -80,6 +94,68 @@ const { actions, sample = false } = Astro.props;
     background-color: var(--fjord-color-bg-raised);
     border-block-start: var(--fjord-border-width) solid var(--fjord-color-border);
     box-shadow: var(--fjord-shadow-float);
+  }
+
+  /* Collapsed: only the tab stays, in the bottom end corner above the safe area. */
+  .mobile-bar:not([open]) {
+    padding: 0;
+    background-color: transparent;
+    border-block-start-width: 0;
+    box-shadow: none;
+  }
+
+  .mobile-bar::details-content {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--fjord-space-2);
+  }
+
+  .mobile-bar__tab {
+    position: absolute;
+    inset-block-end: 100%;
+    inset-inline-end: var(--fjord-space-4);
+    display: grid;
+    place-items: center;
+    inline-size: var(--fjord-tap-min);
+    block-size: var(--fjord-tap-min);
+    color: var(--fjord-color-text);
+    background-color: var(--fjord-color-bg-raised);
+    border: var(--fjord-border-width) solid var(--fjord-color-border);
+    border-radius: var(--fjord-radius-md) var(--fjord-radius-md) 0 0;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .mobile-bar:not([open]) > .mobile-bar__tab {
+    border-radius: var(--fjord-radius-md);
+    box-shadow: var(--fjord-shadow-float);
+  }
+
+  .mobile-bar__tab::-webkit-details-marker {
+    display: none;
+  }
+
+  .mobile-bar__label {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .mobile-bar__chevron {
+    display: flex;
+  }
+
+  .mobile-bar[open] .mobile-bar__chevron--up,
+  .mobile-bar:not([open]) .mobile-bar__chevron--down {
+    display: none;
+  }
+
+  .mobile-bar[inert] > .mobile-bar__tab {
+    opacity: 0;
   }
 
   .mobile-bar[data-sample] {

@@ -89,16 +89,22 @@ const { sample = false, message, meta, lang } = Astro.props;
   }
 
   /* Hook H-2: a Sticky action bar that is not inert is on screen below 768; keep the design's
-     offset above it. The bar is one button (tap-min) high plus its padding and top border. */
+     offset above the top of its tab. The bar is one button (tap-min) high plus its padding and top
+     border; the tab (tap-min) sits on top of it. Collapsed, only the tab stays. */
   :global(:root:has([data-shell-bar]:not([inert]))) .toast-region {
     bottom: calc(
-      var(--fjord-tap-min) + 2 * var(--fjord-space-3) + var(--fjord-border-width) +
-        var(--fjord-space-6)
+      var(--fjord-tap-min) + var(--fjord-tap-min) + 2 * var(--fjord-space-3) +
+        var(--fjord-border-width) + var(--fjord-space-6) + env(safe-area-inset-bottom)
     );
   }
 
+  :global(:root:has([data-shell-bar]:not([open]):not([inert]))) .toast-region {
+    bottom: calc(var(--fjord-tap-min) + var(--fjord-space-6) + env(safe-area-inset-bottom));
+  }
+
   @media (min-width: 768px) {
-    :global(:root:has([data-shell-bar]:not([inert]))) .toast-region {
+    :global(:root:has([data-shell-bar]:not([inert]))) .toast-region,
+    :global(:root:has([data-shell-bar]:not([open]):not([inert]))) .toast-region {
       bottom: var(--fjord-space-6);
     }
   }

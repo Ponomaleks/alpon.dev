@@ -116,15 +116,45 @@ pre {
   display: none;
 }
 
-/* Sticky action bar clearance (AC-07, hook H-2): below 768 a page that has the bar keeps its last
-   lines and any focused element clear of it; from 768 the bar is hidden and the reserve is reset. */
+/* Sticky action bar clearance (AC-07, AC-39, hook H-2): below 768 a page that has the bar keeps its
+   last lines and any focused element clear of it, counted from the top of the tab (tap-min above
+   the bar). Open: tab + bar (one button, its padding and top border). Collapsed: the tab only.
+   Both sit above the safe area. From 768 the bar is hidden and the reserve is reset. */
 :root:has([data-shell-bar]) {
-  scroll-padding-bottom: var(--fjord-space-24);
+  scroll-padding-bottom: calc(
+    var(--fjord-tap-min) + var(--fjord-tap-min) + 2 * var(--fjord-space-3) +
+      var(--fjord-border-width) + var(--fjord-space-4) + env(safe-area-inset-bottom)
+  );
+}
+
+:root:has([data-shell-bar]) body::after {
+  content: '';
+  display: block;
+  block-size: calc(
+    var(--fjord-tap-min) + var(--fjord-tap-min) + 2 * var(--fjord-space-3) +
+      var(--fjord-border-width) + var(--fjord-space-4) + env(safe-area-inset-bottom)
+  );
+}
+
+:root:has([data-shell-bar]:not([open])) {
+  scroll-padding-bottom: calc(
+    var(--fjord-tap-min) + var(--fjord-space-4) + env(safe-area-inset-bottom)
+  );
+}
+
+:root:has([data-shell-bar]:not([open])) body::after {
+  block-size: calc(var(--fjord-tap-min) + var(--fjord-space-4) + env(safe-area-inset-bottom));
 }
 
 @media (min-width: 768px) {
-  :root:has([data-shell-bar]) {
+  :root:has([data-shell-bar]),
+  :root:has([data-shell-bar]:not([open])) {
     scroll-padding-bottom: 0;
+  }
+
+  :root:has([data-shell-bar]) body::after,
+  :root:has([data-shell-bar]:not([open])) body::after {
+    block-size: 0;
   }
 }
 

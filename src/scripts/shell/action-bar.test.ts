@@ -98,3 +98,50 @@ describe('applyBarAction: the script writes only inert', () => {
     expect(b.calls).toEqual([]);
   });
 });
+
+describe('applyBarAction: a collapsed bar is left alone (AC-39)', () => {
+  function details(open: boolean) {
+    const calls: string[] = [];
+    let inert = false;
+    return {
+      calls,
+      open,
+      get inert() {
+        return inert;
+      },
+      set inert(value: boolean) {
+        calls.push(`inert=${value}`);
+        inert = value;
+      },
+    };
+  }
+
+  it('writes nothing for hide or show while the details element is closed', () => {
+    const b = details(false);
+    applyBarAction(b, 'hide');
+    applyBarAction(b, 'show');
+    applyBarAction(b, 'none');
+    expect(b.calls).toEqual([]);
+    expect(b.inert).toBe(false);
+  });
+
+  it('does not clear an inert flag by itself while closed', () => {
+    const b = details(false);
+    b.inert = true;
+    b.calls.length = 0;
+    applyBarAction(b, 'show');
+    expect(b.calls).toEqual([]);
+    expect(b.inert).toBe(true);
+  });
+
+  it('behaves as before once the bar is restored with the tab', () => {
+    const b = details(false);
+    applyBarAction(b, 'hide');
+    expect(b.inert).toBe(false);
+    b.open = true;
+    applyBarAction(b, 'hide');
+    expect(b.inert).toBe(true);
+    applyBarAction(b, 'show');
+    expect(b.inert).toBe(false);
+  });
+});

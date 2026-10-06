@@ -281,7 +281,7 @@ describe('page option mobileBar', () => {
 describe('page option mobileBarActions (AC-38, ADR-0002)', () => {
   /** The anchors inside the bar's root element. */
   const barAnchors = (source: string) => {
-    const bar = source.match(/<div[^>]*data-shell-bar[^>]*>([\s\S]*?)<\/div>/)?.[1] ?? '';
+    const bar = source.match(/<details[^>]*data-shell-bar[^>]*>([\s\S]*?)<\/details>/)?.[1] ?? '';
     return [...bar.matchAll(/<a\b[^>]*>[\s\S]*?<\/a>/g)].map((m) => m[0]);
   };
 

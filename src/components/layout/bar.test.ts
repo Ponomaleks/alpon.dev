@@ -130,6 +130,31 @@ describe('MobileBar: live', () => {
   });
 });
 
+describe('MobileBar: collapsible (AC-39, D-11)', () => {
+  const root = () => made('live').match(/<details\b[^>]*>[\s\S]*<\/details>/)?.[0] ?? '';
+  const openTag = () => root().match(/^<details\b[^>]*>/)?.[0] ?? '';
+  const summary = () => root().match(/<summary\b[^>]*>[\s\S]*?<\/summary>/)?.[0] ?? '';
+
+  it('the hook element is a native <details open>', () => {
+    expect(openTag()).toMatch(/\bdata-shell-bar\b/);
+    expect(openTag()).toMatch(/\sopen(?:=""|\s|>)/);
+  });
+
+  it('has a <summary> named "Quick actions" with a chevron icon', () => {
+    expect(summary()).toMatch(/Quick actions/);
+    expect(summary()).toMatch(/<svg\b[^>]*aria-hidden="true"/);
+  });
+
+  it('keeps both actions inside the details element, after the summary', () => {
+    const html = root();
+    expect(html.indexOf('<summary')).toBeGreaterThanOrEqual(0);
+    expect(anchors(html)).toHaveLength(2);
+    expect(html.indexOf('View CV')).toBeGreaterThan(html.indexOf('</summary>'));
+    expect(html.indexOf('Save contact (.vcf)')).toBeGreaterThan(html.indexOf('</summary>'));
+    expect(summary()).not.toMatch(/<a\b/);
+  });
+});
+
 describe('MobileBar: custom pair', () => {
   it('renders the pair it is given, in order, and not the default one', () => {
     const [first, second, ...rest] = anchors(made('custom'));
