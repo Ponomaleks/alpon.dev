@@ -7,7 +7,7 @@ acs: ["AC-13", "AC-14", "AC-15", "AC-16", "AC-17", "AC-26", "AC-35"]
 files_hint: ["tests/e2e/contact.spec.ts", "tests/e2e/parity.spec.ts", "docs/stub-parity.md"]
 owner: "Alexander Ponomarenko"
 estimate: "M"
-status: "todo"
+status: "done"
 ---
 
 # T21 — Verify the Contact block and head meta end to end and turn on P-20 to P-24

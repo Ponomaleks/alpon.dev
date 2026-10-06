@@ -7,7 +7,7 @@ acs: ["AC-33", "AC-34", "AC-40"]
 files_hint: ["tests/e2e/header-states.spec.ts", "tests/e2e/primary-count.spec.ts"]
 owner: "Alexander Ponomarenko"
 estimate: "M"
-status: "todo"
+status: "done"
 ---
 
 # T22 — Verify the 18 header states and the primary-button count on every Visitor page

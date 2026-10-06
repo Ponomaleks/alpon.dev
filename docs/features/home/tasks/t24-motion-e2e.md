@@ -7,7 +7,7 @@ acs: ["AC-06", "AC-30", "AC-31", "AC-36", "AC-41"]
 files_hint: ["tests/e2e/motion.spec.ts", "tests/e2e/reduced-motion.spec.ts"]
 owner: "Alexander Ponomarenko"
 estimate: "M"
-status: "todo"
+status: "done"
 ---
 
 # T24 — Verify Ambient motion, the Motion control, count-up, reveal, parallax and the band contours end to end

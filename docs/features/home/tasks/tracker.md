@@ -29,10 +29,10 @@ Estimates: S about a quarter of a day, M about half a day, L up to one day.
 | T18 | [Add the placeholder check and the built half of the contact check, and run both after the build](./t18-placeholder-and-contact-checks.md) | wiring | Alexander Ponomarenko | M | T15 | done |
 | T19 | [Split the script budgets, add the portrait and contrast checks and hold the Lighthouse budget on the home page](./t19-budgets-contrast-lighthouse.md) | tests | Alexander Ponomarenko | M | T15, T17 | blocked |
 | T20 | [Verify the first phone screen, the sections, touch targets and the scripts-off page end to end](./t20-home-e2e.md) | tests | Alexander Ponomarenko | M | T15 | done |
-| T21 | [Verify the Contact block and head meta end to end and turn on P-20 to P-24](./t21-contact-e2e-parity.md) | tests | Alexander Ponomarenko | M | T15 | todo |
-| T22 | [Verify the 18 header states and the primary-button count on every Visitor page](./t22-header-states-primary-count-e2e.md) | tests | Alexander Ponomarenko | M | T15 | todo |
+| T21 | [Verify the Contact block and head meta end to end and turn on P-20 to P-24](./t21-contact-e2e-parity.md) | tests | Alexander Ponomarenko | M | T15 | done |
+| T22 | [Verify the 18 header states and the primary-button count on every Visitor page](./t22-header-states-primary-count-e2e.md) | tests | Alexander Ponomarenko | M | T15 | done |
 | T23 | [Verify the Shell contact links and focus at the contact place in three browsers and turn on P-50](./t23-contact-place-focus-p50.md) | tests | Alexander Ponomarenko | M | T21 | todo |
-| T24 | [Verify Ambient motion, the Motion control, count-up, reveal, parallax and the band contours end to end](./t24-motion-e2e.md) | tests | Alexander Ponomarenko | M | T15 | todo |
+| T24 | [Verify Ambient motion, the Motion control, count-up, reveal, parallax and the band contours end to end](./t24-motion-e2e.md) | tests | Alexander Ponomarenko | M | T15 | done |
 | T25 | [Add the home axe checks and the visual baselines for the home page, the Styleguide and the Not-found page](./t25-axe-and-visual-baselines.md) | tests | Alexander Ponomarenko | M | T15, T17 | todo |
 | T26 | [Close the document pointers, register the built components and draft the pull request with the Claims list](./t26-docs-and-claims-4a.md) | docs | Alexander Ponomarenko | M | T18, T19, T20, T21, T22, T23, T24, T25 | todo |
 
