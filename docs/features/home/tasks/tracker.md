@@ -27,7 +27,7 @@ Estimates: S about a quarter of a day, M about half a day, L up to one day.
 | T16 | [Add the home component sections to the Styleguide](./t16-styleguide-home-sections.md) | ui | Alexander Ponomarenko | M | T9, T11, T12, T13, T14 | done |
 | T17 | [Update the changed Shell and base samples on the Styleguide](./t17-styleguide-shell-samples.md) | ui | Alexander Ponomarenko | M | T6, T7, T8, T16 | done |
 | T18 | [Add the placeholder check and the built half of the contact check, and run both after the build](./t18-placeholder-and-contact-checks.md) | wiring | Alexander Ponomarenko | M | T15 | done |
-| T19 | [Split the script budgets, add the portrait and contrast checks and hold the Lighthouse budget on the home page](./t19-budgets-contrast-lighthouse.md) | tests | Alexander Ponomarenko | M | T15, T17 | blocked |
+| T19 | [Split the script budgets, add the portrait and contrast checks and hold the Lighthouse budget on the home page](./t19-budgets-contrast-lighthouse.md) | tests | Alexander Ponomarenko | M | T15, T17 | done |
 | T20 | [Verify the first phone screen, the sections, touch targets and the scripts-off page end to end](./t20-home-e2e.md) | tests | Alexander Ponomarenko | M | T15 | done |
 | T21 | [Verify the Contact block and head meta end to end and turn on P-20 to P-24](./t21-contact-e2e-parity.md) | tests | Alexander Ponomarenko | M | T15 | done |
 | T22 | [Verify the 18 header states and the primary-button count on every Visitor page](./t22-header-states-primary-count-e2e.md) | tests | Alexander Ponomarenko | M | T15 | done |
