@@ -71,7 +71,7 @@ test.describe('static files and headers', () => {
   });
 
   test('P-15 fonts are immutable, CV files revalidate hourly', async ({ request }) => {
-    const font = await request.get('/fonts/schibsted-grotesk-400.woff2');
+    const font = await request.get('/fonts/schibsted-grotesk-wght.woff2');
     expect(font.headers()['cache-control']).toContain('immutable');
     const cv = await request.get('/cv/alexander-ponomarenko-cv-en.pdf');
     expect(cv.headers()['cache-control']).toContain('max-age=3600');
@@ -164,12 +164,12 @@ test.describe('home page', () => {
     await page.keyboard.press('Tab');
     await expect(page.getByRole('link', { name: 'Skip to content' })).toBeFocused();
   });
-  test('P-26 Schibsted Grotesk 400 and 600 are preloaded', async ({ page }) => {
+  test('P-26 the two brand font files are preloaded', async ({ page }) => {
     await page.goto('/');
     const preloads = page.locator('link[rel="preload"][as="font"][type="font/woff2"][crossorigin]');
     await expect(preloads).toHaveCount(2);
     expect(await preloads.evaluateAll((links) => links.map((l) => l.getAttribute('href')))).toEqual(
-      ['/fonts/schibsted-grotesk-400.woff2', '/fonts/schibsted-grotesk-600.woff2'],
+      ['/fonts/schibsted-grotesk-wght.woff2', '/fonts/jetbrains-mono-wght.woff2'],
     );
   });
 });

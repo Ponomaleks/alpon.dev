@@ -5,8 +5,9 @@
 //   - a page's own scripts (files only that page loads) ≤ 10 KB gzip together (home AC-02);
 //   - the four portrait files present and ≤ 40 KB each (home AC-02);
 //   - 404.html ≤ 20 KB gzip;
-//   - exactly 2 font preloads per page, ≤ 60 KB combined;
-//   - every shipped font file ≤ 30 KB.
+//   - exactly 2 font preloads per page, ≤ 80 KB combined;
+//   - every shipped font file ≤ 50 KB (a variable file holds every weight of its family; the
+//     limits were 60 KB and 30 KB for static files, home sad §8 Fonts).
 // Fails naming the file or page and the measured size; prints every measured size for the CI log.
 //
 // Run from the repo root: node scripts/check-budgets.ts
@@ -24,8 +25,8 @@ export const BUDGETS = {
   portraitBytes: 40 * KB,
   notFoundGzip: 20 * KB,
   preloadCount: 2,
-  preloadBytes: 60 * KB,
-  fontBytes: 30 * KB,
+  preloadBytes: 80 * KB,
+  fontBytes: 50 * KB,
 };
 
 export const PORTRAIT_FILES = [340, 680].flatMap((w) =>
@@ -135,7 +136,7 @@ export function checkBudgets({ bootstrap, dist }: BudgetInput): {
       failures.push(`${name(page)}: preloads ${preloads.length} font(s), expected exactly 2`);
     else if (preloadSize > BUDGETS.preloadBytes)
       failures.push(
-        `${name(page)}: preloaded fonts are ${kb(preloadSize)} combined, over the 60 KB budget`,
+        `${name(page)}: preloaded fonts are ${kb(preloadSize)} combined, over the 80 KB budget`,
       );
   }
 
@@ -143,7 +144,7 @@ export function checkBudgets({ bootstrap, dist }: BudgetInput): {
     const size = statSync(font).size;
     report.push(`${name(font)}: ${kb(size)}`);
     if (size > BUDGETS.fontBytes)
-      failures.push(`${name(font)} is ${kb(size)}, over the 30 KB budget`);
+      failures.push(`${name(font)} is ${kb(size)}, over the 50 KB budget`);
   }
 
   for (const file of PORTRAIT_FILES) {

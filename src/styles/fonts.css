@@ -1,60 +1,21 @@
 /* Fjord fonts (sad §8 Fonts). Only @font-face rules live here (ADR-0003 exclusion contract).
-   Brand faces: self-hosted woff2 subsets from tools/fonts/subset.py.
+   Brand faces: one self-hosted variable woff2 per family, weight axis 400 to 700 (home sad §1,
+   Decision override), subset by tools/fonts/subset.py.
    Fallback faces: local Arial / Roboto with the overrides from tools/fonts/fallback-metrics.json,
    so text keeps its size and position when the brand font swaps in. */
 
 @font-face {
   font-family: 'Schibsted Grotesk';
-  src: url('/fonts/schibsted-grotesk-400.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Schibsted Grotesk';
-  src: url('/fonts/schibsted-grotesk-500.woff2') format('woff2');
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Schibsted Grotesk';
-  src: url('/fonts/schibsted-grotesk-600.woff2') format('woff2');
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Schibsted Grotesk';
-  src: url('/fonts/schibsted-grotesk-700.woff2') format('woff2');
-  font-weight: 700;
+  src: url('/fonts/schibsted-grotesk-wght.woff2') format('woff2');
+  font-weight: 400 700;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
   font-family: 'JetBrains Mono';
-  src: url('/fonts/jetbrains-mono-400.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'JetBrains Mono';
-  src: url('/fonts/jetbrains-mono-500.woff2') format('woff2');
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'JetBrains Mono';
-  src: url('/fonts/jetbrains-mono-700.woff2') format('woff2');
-  font-weight: 700;
+  src: url('/fonts/jetbrains-mono-wght.woff2') format('woff2');
+  font-weight: 400 700;
   font-style: normal;
   font-display: swap;
 }

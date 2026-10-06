@@ -6,7 +6,8 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { checkBudgets } from './check-budgets.ts';
 
 // Spec §6 budgets (AC-06, sad QG-2): bootstrap ≤ 1 KB unminified, initial JS ≤ 50 KB gzip per
-// page, exactly 2 font preloads ≤ 60 KB combined, every shipped font ≤ 30 KB.
+// page, exactly 2 font preloads ≤ 80 KB combined, every shipped font ≤ 50 KB (home sad §8 Fonts:
+// a variable file holds every weight of its family).
 
 const KB = 1024;
 const dirs: string[] = [];
@@ -101,24 +102,24 @@ describe('checkBudgets', () => {
     );
   });
 
-  it('fails two preloads over 60 KB combined, naming the page and the sizes', () => {
+  it('fails two preloads over 80 KB combined, naming the page and the sizes', () => {
     const { failures } = checkBudgets(
       fixture({
         ...healthy(),
-        'dist/fonts/a-400.woff2': bytes(29 * KB),
-        'dist/fonts/a-600.woff2': bytes(32 * KB),
+        'dist/fonts/a-400.woff2': bytes(40 * KB),
+        'dist/fonts/a-600.woff2': bytes(41 * KB),
       }),
     );
     expect(failures).toContainEqual(
-      expect.stringMatching(/index\.html.*preloaded fonts.*61\.0 KB.*60 KB/),
+      expect.stringMatching(/index\.html.*preloaded fonts.*81\.0 KB.*80 KB/),
     );
   });
 
-  it('fails any shipped font over 30 KB, naming the file and size', () => {
+  it('fails any shipped font over 50 KB, naming the file and size', () => {
     const { failures } = checkBudgets(
-      fixture({ ...healthy(), 'dist/fonts/a-700.woff2': bytes(31 * KB) }),
+      fixture({ ...healthy(), 'dist/fonts/a-700.woff2': bytes(51 * KB) }),
     );
-    expect(failures).toContainEqual(expect.stringMatching(/a-700\.woff2.*31\.0 KB.*30 KB/));
+    expect(failures).toContainEqual(expect.stringMatching(/a-700\.woff2.*51\.0 KB.*50 KB/));
   });
 
   // Home AC-02 / backlog B-09: a script file more than one page loads is a Shell script (5 KB gzip

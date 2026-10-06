@@ -115,13 +115,13 @@ describe.each([
     expect(scripts[0]?.[2]).toBe(bootstrap);
   });
 
-  it('preloads exactly Schibsted Grotesk 400 and 600 as crossorigin woff2', () => {
+  it('preloads exactly the two variable brand files as crossorigin woff2', () => {
     const preloads = [...head(page).matchAll(/<link\b[^>]*rel="preload"[^>]*>/g)].map(
       ([tag]) => tag,
     );
     expect(preloads).toHaveLength(2);
-    expect(preloads[0]).toContain('href="/fonts/schibsted-grotesk-400.woff2"');
-    expect(preloads[1]).toContain('href="/fonts/schibsted-grotesk-600.woff2"');
+    expect(preloads[0]).toContain('href="/fonts/schibsted-grotesk-wght.woff2"');
+    expect(preloads[1]).toContain('href="/fonts/jetbrains-mono-wght.woff2"');
     for (const tag of preloads) {
       expect(tag).toContain('as="font"');
       expect(tag).toContain('type="font/woff2"');
