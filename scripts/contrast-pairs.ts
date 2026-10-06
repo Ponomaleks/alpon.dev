@@ -89,6 +89,41 @@ export const PAIRS: Pair[] = [
   pair('border-strong', 'bg-sunken', 'decorative', PAGE),
 ];
 
+export interface HomePair {
+  component: string;
+  fg: string;
+  bg: string;
+  kind: GatedKind;
+  themes: Theme[];
+}
+
+const home = (
+  component: string,
+  fg: string,
+  bg: string,
+  kind: GatedKind,
+  themes: Theme[],
+): HomePair => ({ component, fg: c(fg), bg: c(bg), kind, themes });
+
+// Home AC-33 / AC-02: the pairs the home components and the header over the hero render. Each must
+// also be a gated entry of PAIRS (a test keeps the two in step).
+export const HOME_PAIRS: HomePair[] = [
+  home('Hero', 'text', 'bg', 'text', PAGE),
+  home('Hero', 'text-muted', 'bg', 'text', PAGE),
+  home('Hero', 'link', 'bg', 'text', PAGE),
+  home('Hero', 'border-strong', 'bg', 'ui', PAGE),
+  home('KeyFacts', 'text', 'bg-raised', 'text', PAGE),
+  home('KeyFacts', 'text-muted', 'bg-raised', 'text', PAGE),
+  home('ExperienceList', 'text', 'bg', 'text', PAGE),
+  home('ExperienceList', 'text-muted', 'bg', 'text', PAGE),
+  home('ExperienceList', 'link', 'bg', 'text', PAGE),
+  home('ExperienceList', 'focus-ring', 'bg', 'ui', PAGE),
+  home('Header over hero', 'text', 'bg', 'text', ALL),
+  home('Header over hero', 'cta-text', 'cta-bg', 'text', ALL),
+  home('Header over hero', 'focus-ring', 'bg', 'ui', ALL),
+  home('Header over hero', 'border-strong', 'bg', 'ui', ALL),
+];
+
 export interface KnownFailure {
   fg: string;
   bg: string;
