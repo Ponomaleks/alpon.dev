@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import stylelint from 'stylelint';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { buildSite, repo, type SiteBuild } from '../../scripts/test-utils/build-site.ts';
+import { SECTIONS as VISUAL_SECTIONS } from '../../tests/visual/styleguide-sections.ts';
 
 // SCR-04 Styleguide on the built output (AC-21, AC-22; screens.md SCR-04).
 
@@ -439,5 +440,12 @@ describe('changed base samples (T17, SCR-04)', () => {
     expect(refusal[0]?.split(/<\/span>/)[0]).not.toContain('data-icon');
     expect(toasts().filter((t) => /^<span\b[^>]*\sdata-icon=/.test(t))).toHaveLength(1);
     expect(toasts()).toHaveLength(2);
+  });
+});
+
+describe('visual baselines cover every section (home T25)', () => {
+  it('the list of the visual spec is the list of data-section blocks on the built page, in order', () => {
+    const onPage = [...html().matchAll(/<section [^>]*data-section="([^"]+)"/g)].map((m) => m[1]);
+    expect([...VISUAL_SECTIONS]).toEqual(onPage);
   });
 });
