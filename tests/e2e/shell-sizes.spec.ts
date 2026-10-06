@@ -49,12 +49,12 @@ test.describe('footer at 390', () => {
     for (const link of await links.all()) expect(await height(link)).toBe(21);
   });
 
-  test('the footer keeps its 96 px and the page ends with one tab-to-bar reserve, not two', async ({
+  test('the footer adds no room for the bar and the page ends with one reserve, the body::after block', async ({
     page,
   }) => {
     await open(page, 390);
     await expect(page.locator('body')).toHaveCSS('padding-bottom', '0px');
-    await expect(page.locator('footer.fj-footer')).toHaveCSS('padding-bottom', '96px');
+    await expect(page.locator('footer.fj-footer')).toHaveCSS('padding-bottom', '32px');
     const gap = await page.evaluate(() => {
       const footer = document.querySelector('footer.fj-footer');
       if (!footer) throw new Error('no footer');

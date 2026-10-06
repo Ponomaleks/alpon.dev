@@ -57,8 +57,8 @@ for (const { name, path } of pages) {
       await open(page, path);
       await scrollTo(page, 100000);
       const bar = await barBox(page);
-      // The reserve for the bar is the footer's own bottom padding (as in the page design), so the
-      // footer box runs under the bar; its last line, the base line, must end above it.
+      // The reserve for the bar is the body::after block of base.css (home T6); the last line of
+      // the footer, the base line, must end above the bar.
       const last = await box(page.locator('footer .fj-footer__base'));
       expect(last.y + last.height).toBeLessThanOrEqual(bar.y);
     });
@@ -440,5 +440,99 @@ test.describe('Not-found: with reduced motion the bar changes instantly (AC-39)'
     );
     expect(Math.round(after.bottom)).toBe(600);
     expect(Math.round(after.height)).toBe(Math.round(before.height));
+  });
+});
+
+// One bottom reserve (home T6, backlog B-08): the room for the bar is the body::after block alone.
+// The footer keeps the bottom padding it has on a wide screen and adds nothing for the bar.
+test.describe('one bottom reserve at 390 (AC-39, B-08)', () => {
+  test.use({ reducedMotion: 'reduce' });
+
+  /** The end of the page: space under the last footer line, the footer's own padding, the reserve. */
+  const endOfPage = (page: Page) =>
+    page.evaluate(() => {
+      const footer = document.querySelector('footer.fj-footer');
+      const last = document.querySelector('footer .fj-footer__base');
+      if (!footer || !last) throw new Error('no footer');
+      const after = getComputedStyle(document.body, '::after');
+      return {
+        below:
+          document.documentElement.scrollHeight - (last.getBoundingClientRect().bottom + scrollY),
+        footerPadding: parseFloat(getComputedStyle(footer).paddingBottom),
+        reserve: after.content === 'none' ? 0 : parseFloat(after.height),
+      };
+    });
+
+  /** The footer's bottom padding on a wide screen, where no page has the bar. */
+  async function widePadding(page: Page, path: string) {
+    await page.setViewportSize({ width: 834, height: 844 });
+    await page.goto(path);
+    return (await endOfPage(page)).footerPadding;
+  }
+
+  for (const { name, path } of pages) {
+    for (const collapsed of [false, true]) {
+      const state = collapsed ? 'collapsed' : 'open';
+
+      test(`${name}, bar ${state}: the space under the last footer line is the footer padding plus the clearance of that state, once`, async ({
+        page,
+      }) => {
+        const wide = await widePadding(page, path);
+        await page.setViewportSize({ width: 390, height: 844 });
+        await page.goto(path);
+        if (collapsed) await page.locator(TAB).click();
+        await expectExpanded(page, !collapsed);
+
+        // The clearance of the state: from the top of the tab to the bottom edge, plus the gap
+        // kept above the tab (--fjord-space-4).
+        const tab = await box(page.locator(TAB));
+        const gap = await page.evaluate(() =>
+          parseFloat(
+            getComputedStyle(document.documentElement).getPropertyValue('--fjord-space-4'),
+          ),
+        );
+        const clearance = 844 - tab.y + gap;
+
+        const end = await endOfPage(page);
+        // The footer has no padding of its own for the bar: the same as on a wide screen.
+        expect(end.footerPadding).toBe(wide);
+        expect(Math.abs(end.reserve - clearance)).toBeLessThan(1);
+        expect(Math.abs(end.below - (end.footerPadding + end.reserve))).toBeLessThan(1);
+      });
+
+      test(`${name}, bar ${state}: the tab and the bar cover 0 px of the last footer line and of a focused footer link`, async ({
+        page,
+      }) => {
+        await page.setViewportSize({ width: 390, height: 600 });
+        await page.goto(path);
+        if (collapsed) await page.locator(TAB).click();
+        await toEnd(page);
+        const last = await box(page.locator('footer .fj-footer__base'));
+        expect(overlap(last, await box(page.locator(TAB)))).toBe(0);
+        if (!collapsed) expect(overlap(last, await box(page.locator(BAR)))).toBe(0);
+
+        const link = page.locator('footer a[href]').last();
+        await link.focus();
+        await expect(link).toBeFocused();
+        await page.waitForTimeout(300);
+        const focused = await box(link);
+        expect(overlap(focused, await box(page.locator(TAB)))).toBe(0);
+        if (!collapsed) expect(overlap(focused, await box(page.locator(BAR)))).toBe(0);
+      });
+    }
+  }
+
+  test('a page without the bar has no bottom reserve at all (the Styleguide, mobileBar off)', async ({
+    page,
+  }) => {
+    const wide = await widePadding(page, '/styleguide');
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/styleguide');
+    await expect(page.locator(BAR)).toHaveCount(0);
+    const end = await endOfPage(page);
+    expect(end.reserve).toBe(0);
+    expect(end.footerPadding).toBe(wide);
+    expect(Math.abs(end.below - end.footerPadding)).toBeLessThan(1);
+    await expect(page.locator('body')).toHaveCSS('padding-bottom', '0px');
   });
 });
