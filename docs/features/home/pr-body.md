@@ -15,10 +15,11 @@ The budget is unchanged (CLAUDE.md, Quality bar): four categories â‰¥ 95, LCP â‰
 | Where | Method | Page | Performance | FCP | LCP | TBT | CLS |
 |---|---|---|---|---|---|---|---|
 | Cloudflare preview of the branch, `https://feat-home-alpon-dev.ponomalex-work.workers.dev/` | 2026-10-06, the Owner: Chrome DevTools in incognito, no extensions, Lighthouse 13.4.1, mobile, simulated throttling, one run | `/` | 99 | 1.18 s | 1.59 s | 81 ms | 0 |
-| Local, the Owner's Windows machine | 2026-10-06: `npm run lhci` (Lighthouse 12.6.1 in Playwright's headless Chromium, mobile, simulated throttling, 3 runs, `wrangler dev` at `127.0.0.1:8788`) | `/` | 99 | 1.14 to 1.36 s | median about 1.98 to 2.01 s (single runs 1.98 to 2.17 s) | 0 to 113 ms | 0 |
-| Local, same method | 2026-10-06 | `/404` | 100 | 0.93 to 1.03 s | 1.68 to 1.70 s | 0 ms | 0 |
+| Local, the Owner's Windows machine | 2026-10-06 and 2026-10-07: `npm run lhci` (Lighthouse 12.6.1 in Playwright's headless Chromium, mobile, simulated throttling, 3 runs, `wrangler dev` at `127.0.0.1:8788`) | `/` | 99 | 1.14 to 1.36 s | 1972, 1968, 1971 ms on 2026-10-07; earlier runs 2121, 2120, 1968 ms (passed) and 2014, 2020, 2168 ms (failed) | 0 to 113 ms | 0 |
+| Local, same method | 2026-10-07 | `/404` | 100 | 0.91 to 0.96 s | 1662, 1669, 1669 ms | 0 ms | 0 |
 
 - On the preview, accessibility and best practices are 100. **SEO is 69 there only because `workers.dev` preview addresses send `x-robots-tag: noindex`**; `alpon.dev` does not send it.
+- `lhci` asserts on the best of the three runs (`aggregationMethod` is not set in `lighthouserc.cjs`, and the default of `@lhci/cli` is `optimistic`: the value most likely to pass).
 - The budget is met on the production-like host. Locally `/` sits at the LCP limit (backlog B-38): if that blocks pushes it goes to the Owner as a decision, the limit is not changed.
 - CI numbers (Linux Chromium) are added here when the run of this pull request finishes.
 
@@ -38,6 +39,7 @@ The budget is unchanged (CLAUDE.md, Quality bar): four categories â‰¥ 95, LCP â‰
 
 ## Known open points
 
-- Workers Builds reported a failure for commit `0bfb705` on GitHub although the preview above is served; the Owner is sending the build log. The Workers and deploy configuration is unchanged.
+- Workers Builds reported a failure for commit `0bfb705` on GitHub at first and passed later; the Owner is sending the build log of the failed attempt. The Workers and deploy configuration is unchanged.
+- `upgrade-insecure-requests` left the Content-Security-Policy in a separate pull request to `v2` (Ponomaleks/alpon.dev#4, merged into this branch): WebKit applied it to the local test server and every WebKit test hung. This feature itself does not change the security policy (AC-32).
 
 ðŸ¤– Generated with [Claude Code](https://claude.com/claude-code)
