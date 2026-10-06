@@ -65,14 +65,6 @@ const now = nowLine(project);
   </div>
 </section>
 
-<script>
-  import { initMotion } from '../../scripts/home/motion';
-  import { initParallax } from '../../scripts/home/parallax';
-
-  initMotion({ document, storage: sessionStorage, matchMedia: (q) => matchMedia(q) });
-  initParallax({ document, matchMedia: (q) => matchMedia(q) });
-</script>
-
 <style>
   .hero {
     position: relative;

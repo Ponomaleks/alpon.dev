@@ -90,7 +90,7 @@ describe.each([
   it('inlines the bootstrap verbatim as the first and only inline script', () => {
     // The Shell's behaviour is external module bundles (`src=`); inline code is the bootstrap only.
     const scripts = [...html(page).matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/g)].filter(
-      ([, attrs = '']) => !/\ssrc=/.test(` ${attrs}`),
+      ([, attrs = '']) => !/\ssrc=/.test(` ${attrs}`) && !/ld\+json/.test(attrs),
     );
     expect(scripts).toHaveLength(1);
     expect(scripts[0]?.[1]?.trim()).toBe('');

@@ -15,16 +15,18 @@ interface Props {
   items?: Entry[];
   /** Styleguide: the list alone, without the heading column; entries may force a heading state. */
   sample?: boolean;
+  /** Section number in the eyebrow, e.g. "02". */
+  index?: string;
 }
 
-const { items = experience as Entry[], sample = false } = Astro.props;
+const { items = experience as Entry[], sample = false, index = '03' } = Astro.props;
 ---
 
 <section class="experience" aria-label="Experience">
   <div class:list={['experience__wrap', { 'experience__wrap--sample': sample }]}>
     {!sample && (
       <div class="experience__head">
-        <SectionHeader index="03" eyebrow="Experience" title="Where I’ve worked" />
+        <SectionHeader index={index} eyebrow="Experience" title="Where I’ve worked" />
         <Link href="/cv">Full CV</Link>
       </div>
     )}

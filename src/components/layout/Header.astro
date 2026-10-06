@@ -237,6 +237,11 @@ const links = [
     border-block-end-color: transparent;
   }
 
+  /* The theme switch track is a raised white surface by default; on spruce it is the sunken tint. */
+  :global(:root[data-theme='dag']) .header[data-over-hero] .header__theme :global(.theme-toggle) {
+    background-color: var(--fjord-color-accent-soft);
+  }
+
   @media (min-width: 768px) {
     :global(:root[data-theme='dag']) .header[data-over-hero] .header__cta :global(.fj-btn),
     :global(:root[data-theme='natt']) .header[data-over-hero] .header__cta :global(.fj-btn) {

@@ -13,19 +13,6 @@ import { keyFacts } from '../../data/home';
   </div>
 </section>
 
-<script>
-  import { initCountUp } from '../../scripts/home/count-up';
-
-  const root = document.querySelector('[data-count-up]');
-  if (root) {
-    initCountUp(root, {
-      ObserverCtor: 'IntersectionObserver' in window ? IntersectionObserver : null,
-      reducedMotion: matchMedia('(prefers-reduced-motion: reduce)').matches,
-      frame: (cb) => requestAnimationFrame(cb),
-    });
-  }
-</script>
-
 <style>
   .key-facts {
     position: relative;

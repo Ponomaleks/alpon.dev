@@ -1,34 +1,58 @@
 ---
-// SCR-01 home placeholder (fjord-foundation screens.md) until step 4: proves that a page with
-// only a title and a description gets the whole Fjord base (AC-13).
+// SCR-01 home (AC-01): Hero, Key facts, About, Experience and Contact, numbered from the
+// sections that are rendered. Recommendations and Selected projects are not rendered yet.
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/home/Hero.astro';
+import KeyFacts from '../components/home/KeyFacts.astro';
+import About from '../components/home/About.astro';
+import ExperienceList from '../components/home/ExperienceList.astro';
+import ContactBlock from '../components/home/ContactBlock.astro';
+import { contact } from '../data/contact';
+import { buildPerson } from '../data/person';
+import { homeBandActions } from '../data/shell-actions';
+import { numberSections } from '../scripts/home/sections';
+
+const numbers = numberSections({ projects: false, recommendations: false });
 ---
 
 <BaseLayout
   title="Alexander Ponomarenko · Software Engineer"
   description="Alexander Ponomarenko, Software Engineer and Full Stack Developer based in Oslo, Norway."
+  headerOverHero
+  ctaBandActions={homeBandActions('en')}
+  structuredData={buildPerson(contact)}
 >
-  <div class="home" id="contact">
-    <h1>Alexander Ponomarenko</h1>
-    <p>
-      Software Engineer · Full Stack Developer · <span lang="no">Oslo, Norge</span>
-    </p>
+  <Hero />
+  <KeyFacts />
+  <div data-reveal-section>
+    <About index={numbers.about} />
   </div>
+  <div data-reveal-section>
+    <ExperienceList index={numbers.experience} />
+  </div>
+  <section class="contact-place" id="contact" tabindex="-1" data-reveal-section>
+    <ContactBlock index={numbers.contact} />
+  </section>
+  <script>
+    import '../scripts/home/index';
+  </script>
 </BaseLayout>
 
-<style>
-  .home {
-    max-width: var(--fjord-content-max);
-    padding: var(--fjord-space-section) var(--fjord-grid-margin);
+<style is:global>
+  .contact-place {
+    scroll-margin-top: var(--fjord-scroll-offset);
+  }
+  .contact-place:focus {
+    outline: none;
   }
 
-  h1 {
-    font-size: var(--fjord-text-h1);
+  [data-reveal='pending'] {
+    opacity: 0;
+    transform: translateY(var(--fjord-space-4));
   }
-
-  p {
-    margin: var(--fjord-space-3) 0 0;
-    color: var(--fjord-color-text-muted);
-    font-size: var(--fjord-text-lead);
+  [data-reveal='in'] {
+    transition:
+      opacity var(--fjord-duration-560) var(--fjord-ease-out),
+      transform var(--fjord-duration-560) var(--fjord-ease-out);
   }
 </style>

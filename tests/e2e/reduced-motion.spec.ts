@@ -46,14 +46,18 @@ async function frames(page: Page, selector: string, count = 20) {
 async function movingAnimations(page: Page) {
   return page.evaluate((source) => {
     const motion = new RegExp(source);
-    return document.getAnimations().flatMap((a) => {
-      const props = new Set<string>();
-      (a.effect as KeyframeEffect | null)
-        ?.getKeyframes()
-        .forEach((k) => Object.keys(k).forEach((p) => props.add(p)));
-      if (a instanceof CSSTransition) props.add(a.transitionProperty);
-      return [...props].filter((p) => motion.test(p));
-    });
+    // A paused animation does not move: the home hero keeps its loops paused under reduced motion.
+    return document
+      .getAnimations()
+      .filter((a) => a.playState !== 'paused')
+      .flatMap((a) => {
+        const props = new Set<string>();
+        (a.effect as KeyframeEffect | null)
+          ?.getKeyframes()
+          .forEach((k) => Object.keys(k).forEach((p) => props.add(p)));
+        if (a instanceof CSSTransition) props.add(a.transitionProperty);
+        return [...props].filter((p) => motion.test(p));
+      });
   }, MOTION.source);
 }
 

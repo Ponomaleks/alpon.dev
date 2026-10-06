@@ -69,7 +69,13 @@ for (const { name, path, band } of pages) {
       });
       const header = page.locator('header[data-header]');
       await expect(header).not.toHaveAttribute('data-scrolled', /.*/);
-      await page.evaluate(() => window.scrollTo(0, 600));
+      // Past the hero too: over the home hero the header has no border (home spec AC-33).
+      await page.evaluate(() =>
+        window.scrollTo(
+          0,
+          (document.querySelector('[data-hero]')?.getBoundingClientRect().bottom ?? 0) + 600,
+        ),
+      );
       await expect(header).toHaveAttribute('data-scrolled', '');
       await expect(header).toHaveCSS('border-bottom-style', 'solid');
       const color = await header.evaluate((el) => getComputedStyle(el).borderBottomColor);
@@ -134,10 +140,18 @@ for (const { name, path, band } of pages) {
       await expect(heading).toBeVisible();
       const section = page.locator('section.fj-band');
       await expect(section.getByText(/hiring in the Oslo area/)).toBeVisible();
-      await expect(section.getByRole('link', { name: 'Get in touch' })).toHaveAttribute(
-        'href',
-        '/#contact',
-      );
+      // The home page gives the band its own pair (home spec AC-11): Save contact, Download CV.
+      if (path === '/') {
+        await expect(section.getByRole('link', { name: 'Save contact' })).toHaveAttribute(
+          'href',
+          '/alexander-ponomarenko.vcf',
+        );
+      } else {
+        await expect(section.getByRole('link', { name: 'Get in touch' })).toHaveAttribute(
+          'href',
+          '/#contact',
+        );
+      }
       const download = section.getByRole('link', { name: 'Download CV' });
       await expect(download).toHaveAttribute('href', '/cv/alexander-ponomarenko-cv-en.pdf');
       await expect(download).toHaveAttribute('download', '');

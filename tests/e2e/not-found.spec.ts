@@ -203,7 +203,11 @@ test.describe('reduced motion', () => {
         await link.focus();
         await link.hover();
       }
-      expect(await page.evaluate(() => document.getAnimations().length)).toBe(0);
+      expect(
+        await page.evaluate(
+          () => document.getAnimations().filter((a) => a.playState !== 'paused').length,
+        ),
+      ).toBe(0);
       expect(await movingTransitions(page)).toEqual([]);
     });
   }

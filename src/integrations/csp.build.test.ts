@@ -149,7 +149,13 @@ function inlineScript(html: string): string {
   const found: string[] = [];
   const walk = (node: unknown) => {
     const n = node as { tagName?: string; attrs?: { name: string }[]; childNodes?: unknown[] };
-    if (n.tagName === 'script' && !n.attrs?.some((a) => a.name === 'src'))
+    if (
+      n.tagName === 'script' &&
+      !n.attrs?.some((a) => a.name === 'src') &&
+      !n.attrs?.some(
+        (a) => a.name === 'type' && (a as { value?: string }).value === 'application/ld+json',
+      )
+    )
       found.push((n.childNodes ?? []).map((c) => (c as { value?: string }).value ?? '').join(''));
     n.childNodes?.forEach(walk);
   };
