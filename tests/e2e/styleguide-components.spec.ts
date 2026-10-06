@@ -149,7 +149,9 @@ test.describe('Header with the forced secondary call to action', () => {
 
   test('"Get in touch" changes on hover, like a secondary Button', async ({ page }) => {
     await page.goto('/styleguide');
-    const action = page.locator('header[data-sample][data-cta="secondary"] .header__cta .fj-btn');
+    const action = page.locator(
+      'header[data-sample][data-over-hero][data-cta="secondary"][data-sample-theme="dag"] .header__cta .fj-btn',
+    );
     await expect(action).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
     const border = await action.evaluate((el) => getComputedStyle(el).borderTopColor);
     await action.hover();
@@ -165,8 +167,23 @@ test.describe('Sticky action bar', () => {
     page,
   }) => {
     await page.goto('/styleguide');
-    await expect(page.locator('.mobile-bar[data-sample]')).not.toHaveCSS('box-shadow', 'none');
+    await expect(page.locator('.mobile-bar[data-sample]').first()).not.toHaveCSS(
+      'box-shadow',
+      'none',
+    );
     await page.goto('/');
     await expect(page.locator('[data-shell-bar]')).not.toHaveCSS('box-shadow', 'none');
+  });
+
+  test('the open sample shows its two actions and the tab; the collapsed one only the tab (AC-39)', async ({
+    page,
+  }) => {
+    await page.goto('/styleguide');
+    const bars = page.locator('[data-section="Sticky action bar"] .mobile-bar[data-sample]');
+    await expect(bars).toHaveCount(2);
+    await expect(bars.nth(0).getByRole('link')).toHaveCount(2);
+    await expect(bars.nth(0).getByRole('link').first()).toBeVisible();
+    await expect(bars.nth(1).getByRole('link').first()).toBeHidden();
+    for (const i of [0, 1]) await expect(bars.nth(i).locator('summary')).toBeVisible();
   });
 });

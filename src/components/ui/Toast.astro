@@ -7,13 +7,15 @@ interface Props {
   message?: string;
   meta?: string;
   lang?: string;
+  /** Sample only: the check icon of a success Toast. */
+  icon?: 'check';
 }
 
-const { sample = false, message, meta, lang } = Astro.props;
+const { sample = false, message, meta, lang, icon } = Astro.props;
 ---
 
 {sample ? (
-  <span class="toast">
+  <span class="toast" data-icon={icon}>
     <span lang={lang}>{message}</span>
     {meta && <span class="toast__meta">{meta}</span>}
   </span>

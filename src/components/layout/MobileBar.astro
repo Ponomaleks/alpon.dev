@@ -8,14 +8,16 @@ import type { BarAction } from '../../data/shell-actions';
 interface Props {
   actions: readonly [BarAction, BarAction];
   sample?: boolean;
+  /** Sample only: draws the bar collapsed, to its tab. */
+  collapsed?: boolean;
 }
 
-const { actions, sample = false } = Astro.props;
+const { actions, sample = false, collapsed = false } = Astro.props;
 ---
 
 <details
   class="mobile-bar"
-  open
+  open={!(sample && collapsed)}
   data-shell-bar={sample ? undefined : ''}
   data-sample={sample ? '' : undefined}
 >

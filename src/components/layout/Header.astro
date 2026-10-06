@@ -20,6 +20,8 @@ interface Props {
   linkState?: 'hover' | 'focus';
   /** Renders `data-over-hero`: the home hero reaches below the header (AC-33, ADR-0001). */
   overHero?: boolean;
+  /** Sample only: the theme the sample is drawn in, whatever the page theme is. */
+  sampleTheme?: 'dag' | 'natt';
 }
 
 const {
@@ -30,6 +32,7 @@ const {
   scrolled = false,
   linkState,
   overHero = false,
+  sampleTheme,
 } = Astro.props;
 const links = [
   { key: 'cv', label: 'CV', href: contact.links.cv },
@@ -46,6 +49,8 @@ const links = [
   data-sample={sample ? '' : undefined}
   data-scrolled={sample && scrolled ? '' : undefined}
   data-over-hero={overHero ? '' : undefined}
+  data-theme={sample ? sampleTheme : undefined}
+  data-sample-theme={sample ? sampleTheme : undefined}
 >
   <div class="header__in">
     <Wordmark onSpruce={variant === 'on-spruce'} />
@@ -219,7 +224,8 @@ const links = [
      its default look. Dag: the spruce surface of the hero, no border. The values are those of
      .fjord-on-spruce in tokens.css, written from core tokens because a state attribute cannot apply
      that class; the raised surface of Dag is the white of its hover. */
-  :global(:root[data-theme='dag']) .header[data-over-hero] {
+  :global(:root[data-theme='dag']) .header[data-over-hero],
+  .header[data-sample][data-over-hero][data-sample-theme='dag'] {
     --fjord-color-bg: var(--fjord-spruce);
     --fjord-color-text: var(--fjord-snow);
     --fjord-color-text-muted: var(--fjord-lichen);
@@ -237,14 +243,18 @@ const links = [
     border-block-end-color: transparent;
   }
 
-  /* The theme switch track is a raised white surface by default; on spruce it is the sunken tint. */
-  :global(:root[data-theme='dag']) .header[data-over-hero] .header__theme :global(.theme-toggle) {
+  /* The theme switch keeps its raised (white) ground in Dag; on the spruce surface it takes the soft tint. */
+  :global(:root[data-theme='dag']) .header[data-over-hero] .header__theme :global(.theme-toggle),
+  .header[data-sample][data-over-hero][data-sample-theme='dag']
+    .header__theme
+    :global(.theme-toggle) {
     background-color: var(--fjord-color-accent-soft);
   }
 
   @media (min-width: 768px) {
     :global(:root[data-theme='dag']) .header[data-over-hero] .header__cta :global(.fj-btn),
-    :global(:root[data-theme='natt']) .header[data-over-hero] .header__cta :global(.fj-btn) {
+    :global(:root[data-theme='natt']) .header[data-over-hero] .header__cta :global(.fj-btn),
+    .header[data-sample][data-over-hero][data-sample-theme] .header__cta :global(.fj-btn) {
       background-color: transparent;
       color: var(--fjord-color-text);
       border-color: var(--fjord-color-border-strong);
@@ -253,7 +263,9 @@ const links = [
     :global(:root[data-theme='dag']) .header[data-over-hero] .header__cta :global(.fj-btn:hover),
     :global(:root[data-theme='dag']) .header[data-over-hero] .header__cta :global(.fj-btn:active),
     :global(:root[data-theme='natt']) .header[data-over-hero] .header__cta :global(.fj-btn:hover),
-    :global(:root[data-theme='natt']) .header[data-over-hero] .header__cta :global(.fj-btn:active) {
+    :global(:root[data-theme='natt']) .header[data-over-hero] .header__cta :global(.fj-btn:active),
+    .header[data-sample][data-over-hero][data-sample-theme] .header__cta :global(.fj-btn:hover),
+    .header[data-sample][data-over-hero][data-sample-theme] .header__cta :global(.fj-btn:active) {
       background-color: var(--fjord-color-accent-soft);
       border-color: var(--fjord-color-text);
     }

@@ -129,15 +129,33 @@ describe('Shell samples (AC-21, SCR-04)', () => {
     expect(s).not.toContain('data-needs-script');
   });
 
-  it('shows five sample headers: default, bordered, on spruce, secondary cta, current link', () => {
+  it('shows seven sample headers: four base ones and three over the hero (AC-33)', () => {
     const headers = opening('header', 'Header variants');
-    expect(headers).toHaveLength(5);
+    expect(headers).toHaveLength(7);
     for (const h of headers) expect(h).toContain('data-sample');
     expect(headers.filter((h) => h.includes('data-scrolled'))).toHaveLength(1);
     expect(headers.filter((h) => h.includes('data-variant="on-spruce"'))).toHaveLength(1);
-    expect(headers.filter((h) => h.includes('data-cta="secondary"'))).toHaveLength(1);
     expect(section('Header variants').match(/aria-current="page"/g)).toHaveLength(1);
     expect(section('Header variants')).not.toContain('data-header-sentinel');
+  });
+
+  it('shows the header over the hero in Dag primary, Dag secondary and Natt secondary (AC-33)', () => {
+    const over = opening('header', 'Header variants').filter((h) => /\sdata-over-hero\b/.test(h));
+    expect(over).toHaveLength(3);
+    const themeOf = (h: string) => h.match(/\sdata-sample-theme="(dag|natt)"/)?.[1];
+    const secondary = (h: string) => /\sdata-cta="secondary"/.test(h);
+    expect(over.map((h) => [themeOf(h), secondary(h)])).toEqual([
+      ['dag', false],
+      ['dag', true],
+      ['natt', true],
+    ]);
+  });
+
+  it('shows no header sample of the removed bar-dependent secondary rule (D-14)', () => {
+    const lone = opening('header', 'Header variants').filter(
+      (h) => /\sdata-cta="secondary"/.test(h) && !/\sdata-over-hero\b/.test(h),
+    );
+    expect(lone).toEqual([]);
   });
 
   it('shows the mobile menu panel as a static sample with a current link, no dialog', () => {
@@ -157,11 +175,54 @@ describe('Shell samples (AC-21, SCR-04)', () => {
     expect(s).not.toContain('data-shell-bar');
   });
 
+  it('shows the bar open with the tab and collapsed, each with the tab (AC-38, AC-39)', () => {
+    const bars = section('Sticky action bar').match(
+      /<details\b[^>]*\bmobile-bar\b[^>]*>[\s\S]*?<\/details>/g,
+    );
+    expect(bars).toHaveLength(2);
+    const [openBar = '', collapsed = ''] = bars ?? [];
+    const isOpen = (b: string) => /^<details\b[^>]*\sopen(?=[\s>=])/.test(b);
+    expect(isOpen(openBar)).toBe(true);
+    expect(isOpen(collapsed)).toBe(false);
+    for (const b of [openBar, collapsed]) {
+      expect(b).toMatch(/<summary\b[^>]*mobile-bar__tab/);
+      expect(b).toContain('Quick actions');
+      expect(b).toContain('data-sample');
+      expect(b).not.toContain('data-shell-bar');
+      expect(b).not.toContain('fj-btn--primary');
+      expect(b).toContain('View CV');
+      expect(b).toContain('Save contact (.vcf)');
+    }
+  });
+
   it('shows the closing band as samples: default and on spruce', () => {
     const s = section('Closing band');
     expect((s.match(/fj-band\b/g) ?? []).length).toBeGreaterThanOrEqual(2);
     expect(s).toContain('Let’s build something good together.');
     expect(s).toContain('data-sample');
+  });
+
+  it('shows both closing band pairs: the default pair and the home pair (AC-40)', () => {
+    const bands = section('Closing band')
+      .split(/<div data-sample\b/)
+      .slice(1)
+      .filter((b) => b.includes('fj-band'));
+    const dflt = bands.filter((b) => b.includes('Get in touch'));
+    const home = bands.filter((b) => b.includes('Save contact (.vcf)'));
+    expect(dflt.length).toBeGreaterThanOrEqual(1);
+    expect(home.length).toBeGreaterThanOrEqual(1);
+    for (const b of dflt) {
+      expect(b).toContain('Download CV');
+      expect(b).not.toContain('Save contact');
+      expect(b.match(/fj-btn--primary/g)).toHaveLength(1);
+    }
+    for (const b of home) {
+      expect(b).toContain('Download CV');
+      expect(b).not.toContain('Get in touch');
+      expect(b).not.toContain('fj-btn--primary');
+      expect(b.match(/fj-btn--secondary/g)).toHaveLength(2);
+    }
+    expect(dflt.length + home.length).toBe(bands.length);
   });
 
   it('marks every sample root with data-sample', () => {
@@ -324,5 +385,59 @@ describe('home component sections (T16, SCR-04)', () => {
       expect(src).not.toMatch(
         /KeyFacts|Hero|ContactBlock|Portrait|MotionControl|home|count-up|copy-email|parallax|motion/i,
       );
+  });
+});
+
+// T17: the changed base samples (AC-14, AC-15, screens.md SCR-04 "Changed sections").
+describe('changed base samples (T17, SCR-04)', () => {
+  it('lists the eleven new icon names', () => {
+    const s = section('Icon');
+    for (const n of [
+      'play',
+      'pause',
+      'check',
+      'chevron-down',
+      'chevron-up',
+      'copy',
+      'download',
+      'mail',
+      'phone',
+      'linkedin',
+      'github',
+    ])
+      expect(s).toMatch(new RegExp(String.raw`<code\b[^>]*>${n}</code>`));
+  });
+
+  it('notes that countUp shows the final number in the Stat section', () => {
+    const s = section('Stat');
+    expect(s).toMatch(/countUp/);
+    expect(s).toMatch(/final number/i);
+    expect(s).not.toContain('data-count-to');
+  });
+
+  it('shows the ridge and the corner Contours', () => {
+    expect(section('Contours').match(/<svg\b/g)?.length ?? 0).toBeGreaterThanOrEqual(2);
+  });
+
+  const toasts = () =>
+    section('Toast')
+      .split(/(?=<span\b[^>]*class="toast(?:\s[^"]*)?"[^>]*>)/)
+      .filter((t) => /^<span\b[^>]*class="toast(?:\s[^"]*)?"/.test(t));
+
+  it('shows the Toast success sample with the check icon, "Kopiert" and an address (AC-14)', () => {
+    const ok = toasts().filter((t) => /^<span\b[^>]*\sdata-icon="check"/.test(t));
+    expect(ok).toHaveLength(1);
+    expect(ok[0]).toContain('Kopiert');
+    expect(ok[0]).toMatch(/toast__meta[^>]*>[^<]*@/);
+  });
+
+  it('shows the Toast refusal sample in English without the check icon (AC-15)', () => {
+    const refusal = toasts().filter((t) =>
+      /Couldn(?:'|’|&#39;)t copy\. Select the address to copy it\./.test(t),
+    );
+    expect(refusal).toHaveLength(1);
+    expect(refusal[0]?.split(/<\/span>/)[0]).not.toContain('data-icon');
+    expect(toasts().filter((t) => /^<span\b[^>]*\sdata-icon=/.test(t))).toHaveLength(1);
+    expect(toasts()).toHaveLength(2);
   });
 });

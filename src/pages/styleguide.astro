@@ -18,7 +18,7 @@ import Header from '../components/layout/Header.astro';
 import MobileMenu from '../components/layout/MobileMenu.astro';
 import MobileBar from '../components/layout/MobileBar.astro';
 import CtaBand from '../components/layout/CtaBand.astro';
-import { defaultBarActions } from '../data/shell-actions';
+import { defaultBarActions, homeBandActions } from '../data/shell-actions';
 import Contours from '../components/brand/Contours.astro';
 import TerrainMap from '../components/brand/TerrainMap.astro';
 import Wordmark from '../components/brand/Wordmark.astro';
@@ -213,6 +213,10 @@ const stateLabel = { hover: 'Hover', focus: 'Focus', active: 'Pressed' } as cons
 
     <section data-section="Stat" class="sg__section">
       <h2>Stat</h2>
+      <p class="sg__note">
+        The numbers count up when they scroll into view (countUp). Without scripts, or with reduced
+        motion, they show the final number at once.
+      </p>
       {/* Sample values in the forms the page design uses; they are not facts about anyone. */}
       <Stat
         rowLabel="Sample numbers"
@@ -256,7 +260,8 @@ const stateLabel = { hover: 'Hover', focus: 'Focus', active: 'Pressed' } as cons
     <section data-section="Toast" class="sg__section">
       <h2>Toast</h2>
       <div class="sg__row">
-        <Toast sample message="Kopiert" meta="alpon@example.com" lang="no" />
+        <Toast sample icon="check" message="Kopiert" meta="alpon@example.com" lang="no" />
+        <Toast sample message="Couldn't copy. Select the address to copy it." lang="en" />
         <span data-needs-script id="sg-show-toast">
           <Button variant="secondary">Show toast</Button>
         </span>
@@ -314,8 +319,10 @@ const stateLabel = { hover: 'Hover', focus: 'Focus', active: 'Pressed' } as cons
         <Header sample linkState="hover" />
         <Header sample scrolled linkState="focus" />
         <Header sample variant="on-spruce" />
-        <Header sample cta="secondary" />
         <Header sample current="cv" />
+        <Header sample overHero sampleTheme="dag" />
+        <Header sample overHero cta="secondary" sampleTheme="dag" />
+        <Header sample overHero cta="secondary" sampleTheme="natt" />
       </div>
     </section>
 
@@ -331,6 +338,9 @@ const stateLabel = { hover: 'Hover', focus: 'Focus', active: 'Pressed' } as cons
       <div class="sg__phone sg__phone--bar">
         <MobileBar sample actions={defaultBarActions} />
       </div>
+      <div class="sg__phone sg__phone--bar">
+        <MobileBar sample collapsed actions={defaultBarActions} />
+      </div>
     </section>
 
     <section data-section="Closing band" class="sg__section">
@@ -341,6 +351,12 @@ const stateLabel = { hover: 'Hover', focus: 'Focus', active: 'Pressed' } as cons
         </div>
         <div data-sample>
           <CtaBand cvLang="no" />
+        </div>
+        <div data-sample>
+          <CtaBand actions={homeBandActions()} />
+        </div>
+        <div data-sample>
+          <CtaBand cvLang="no" actions={homeBandActions('no')} />
         </div>
       </div>
     </section>
@@ -481,6 +497,12 @@ const stateLabel = { hover: 'Hover', focus: 'Focus', active: 'Pressed' } as cons
   h2 {
     margin: 0 0 var(--fjord-space-6);
     font-size: var(--fjord-text-h3);
+  }
+
+  .sg__note {
+    margin: 0 0 var(--fjord-space-4);
+    max-width: var(--fjord-measure-narrow);
+    line-height: var(--fjord-leading-body);
   }
 
   .sg__gap {

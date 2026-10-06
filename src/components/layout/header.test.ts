@@ -259,14 +259,16 @@ describe('Header: over the hero (AC-33, ADR-0001)', () => {
     expect(named(html, 'Get in touch')).toHaveLength(1);
   });
 
-  it('every selector that reads data-over-hero is scoped to :root[data-theme]', () => {
+  it('every selector that reads data-over-hero is scoped to :root[data-theme] or a sample theme', () => {
     const rules = [...sheet.matchAll(/([^{}@]+)\{[^{}]*\}/g)].filter(([, sel = '']) =>
       /data-over-hero/.test(sel),
     );
     expect(rules.length, 'over-hero rules').toBeGreaterThan(0);
     for (const [, sel = ''] of rules)
       for (const one of sel.split(',').filter((part) => /data-over-hero/.test(part)))
-        expect(one, one.trim()).toMatch(/:root\[data-theme=["']?(dag|natt)["']?\]/);
+        expect(one, one.trim()).toMatch(
+          /:root\[data-theme=["']?(dag|natt)["']?\]|\[data-sample\]\[data-over-hero\]\[data-sample-theme(=["']?(dag|natt)["']?)?\]/,
+        );
   });
 
   it('has over-hero rules for both Dag and Natt', () => {
