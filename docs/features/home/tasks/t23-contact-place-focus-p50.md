@@ -7,7 +7,7 @@ acs: ["AC-18", "AC-35"]
 files_hint: ["tests/e2e/contact-place.spec.ts", "playwright.config.ts", ".github/workflows/ci.yml", "tests/e2e/parity.spec.ts", "docs/stub-parity.md", "src/scripts/shell/menu.ts"]
 owner: "Alexander Ponomarenko"
 estimate: "M"
-status: "todo"
+status: "done"
 ---
 
 # T23 — Verify the Shell contact links and focus at the contact place in three browsers and turn on P-50
