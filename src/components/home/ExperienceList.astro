@@ -74,6 +74,10 @@ const { items = experience as Entry[], sample = false, index = '03' } = Astro.pr
     display: grid;
     gap: var(--fjord-space-10) var(--fjord-grid-gutter);
   }
+  /* The page design's section spacing; a Styleguide sample is not a section. */
+  .experience__wrap:not(.experience__wrap--sample) {
+    padding-top: var(--fjord-space-section);
+  }
   .experience__head {
     display: flex;
     flex-direction: column;

@@ -346,3 +346,37 @@ test.describe('scripts off (AC-32)', () => {
     await expect(page.locator('main [data-needs-script]')).toBeHidden();
   });
 });
+
+test.describe('section layout (page design: every section in the page container)', () => {
+  for (const width of [390, 834, 1440]) {
+    test(`About, Experience and Contact share the left edge and the section spacing at ${width}`, async ({
+      page,
+    }) => {
+      await open(page, width);
+      const headings = ['#about h2', 'section[aria-label="Experience"] h2', '#contact h2'].map(
+        (selector) => page.locator(selector),
+      );
+      const boxes = await Promise.all(headings.map((heading) => box(heading)));
+      const [about, experience, contact] = boxes;
+      if (!about || !experience || !contact) throw new Error('a section heading is missing');
+      // One container: the three headings start on the same line, inside the page margin.
+      expect(about.x).toBeGreaterThan(0);
+      expect(experience.x).toBe(about.x);
+      expect(contact.x).toBe(about.x);
+
+      // One rhythm: each section keeps the same distance from the section above it.
+      const gapAbove = (selector: string) =>
+        page.evaluate((sel) => {
+          const section = document.querySelector(sel);
+          const heading = section?.querySelector('h2');
+          if (!section || !heading) throw new Error(`no section for ${sel}`);
+          return Math.round(
+            heading.getBoundingClientRect().top - section.getBoundingClientRect().top,
+          );
+        }, selector);
+      const aboutGap = await gapAbove('#about');
+      expect(await gapAbove('section[aria-label="Experience"]')).toBe(aboutGap);
+      expect(await gapAbove('#contact')).toBe(aboutGap);
+    });
+  }
+});

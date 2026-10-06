@@ -31,7 +31,9 @@ const numbers = numberSections({ projects: false, recommendations: false });
     <ExperienceList index={numbers.experience} />
   </div>
   <section class="contact-place" id="contact" tabindex="-1" data-reveal-section>
-    <ContactBlock index={numbers.contact} />
+    <div class="contact-place__wrap">
+      <ContactBlock index={numbers.contact} />
+    </div>
   </section>
   <script>
     import '../scripts/home/index';
@@ -39,8 +41,16 @@ const numbers = numberSections({ projects: false, recommendations: false });
 </BaseLayout>
 
 <style is:global>
+  /* The page design's section: its spacing above and the page container around the block. */
   .contact-place {
+    padding-top: var(--fjord-space-section);
     scroll-margin-top: var(--fjord-scroll-offset);
+  }
+  .contact-place__wrap {
+    width: 100%;
+    max-width: calc(var(--fjord-content-max) + 2 * var(--fjord-grid-margin));
+    margin-inline: auto;
+    padding-inline: var(--fjord-grid-margin);
   }
   .contact-place:focus {
     outline: none;
