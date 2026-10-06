@@ -7,7 +7,7 @@ acs: ["AC-39"]
 files_hint: ["src/components/layout/MobileBar.astro", "src/components/layout/bar.test.ts", "src/scripts/shell/action-bar.ts", "src/scripts/shell/action-bar.test.ts", "src/styles/base.css", "src/components/ui/Toast.astro", "tests/e2e/action-bar.spec.ts"]
 owner: "Alexander Ponomarenko"
 estimate: "M"
-status: "todo"
+status: "done"
 ---
 
 # T6 — Make the Sticky action bar collapsible with a native details tab and move the clearance to the tab

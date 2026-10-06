@@ -7,7 +7,7 @@ acs: ["AC-40", "AC-41"]
 files_hint: ["src/data/shell-actions.ts", "src/components/layout/CtaBand.astro", "src/components/layout/static-parts.test.ts", "src/layouts/BaseLayout.astro", "src/layouts/BaseLayout.test.ts", "stylelint.config.js", "scripts/lint/"]
 owner: "Alexander Ponomarenko"
 estimate: "M"
-status: "todo"
+status: "done"
 ---
 
 # T8 — Give the closing band its actions from a page option, its top margin and scroll-tied contours

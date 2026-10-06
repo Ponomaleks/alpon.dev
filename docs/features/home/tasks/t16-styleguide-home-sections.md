@@ -7,7 +7,7 @@ acs: ["AC-02", "AC-05", "AC-07", "AC-08", "AC-13", "AC-17"]
 files_hint: ["src/pages/styleguide.astro", "src/pages/_styleguide.test.ts"]
 owner: "Alexander Ponomarenko"
 estimate: "M"
-status: "todo"
+status: "done"
 ---
 
 # T16 — Add the home component sections to the Styleguide
