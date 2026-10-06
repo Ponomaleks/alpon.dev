@@ -75,8 +75,12 @@ ${build.stderr}`);
   page = readFileSync(join(dist, 'header-fixture.html'), 'utf8');
   const assets = join(dist, '_astro');
   let files: string[];
+  // The stylesheet of the fixture page (one per page; other pages repeat the Shell rules in theirs).
+  const linked = [...page.matchAll(/<link rel="stylesheet" href="\/_astro\/([^"]+)"/g)].map(
+    (m) => m[1] ?? '',
+  );
   try {
-    files = readdirSync(assets).filter((f) => f.endsWith('.css'));
+    files = readdirSync(assets).filter((f) => linked.includes(f));
   } catch {
     files = [];
   }
@@ -272,8 +276,10 @@ describe('Header: over the hero (AC-33, ADR-0001)', () => {
   });
 
   it('takes the Dag over-hero colours from the on-spruce rule of tokens.css, with no copy of its own', () => {
-    const rules = [...sheet.matchAll(/([^{}@]+)[{]([^{}]*)[}]/g)].filter(([, sel = '']) =>
-      /data-over-hero/.test(sel),
+    // The fixture page links the header's styles only; the tokens are read from their source.
+    const tokens = readFileSync(join(repo, 'src/styles/tokens.css'), 'utf8');
+    const rules = [...`${tokens}\n${sheet}`.matchAll(/([^{}@]+)[{]([^{}]*)[}]/g)].filter(
+      ([, sel = '']) => /data-over-hero/.test(sel),
     );
     // The one rule that sets on-spruce values for the header is the generated one, shared with the class.
     const setters = rules.filter(([, , body = '']) => /--fjord-color-bg\s*:/.test(body));

@@ -65,20 +65,38 @@ describe.each([
     expect(order.slice(3, 5)).toEqual(['link:preload', 'link:preload']);
     expect(order[5]).toBe('link:stylesheet');
     expect(firstOf('title')).toBe(6);
-    // The head contract fixes the order and says "stylesheets". The layout ships two: the global
-    // one (tokens, fonts, base) at position 5, and the Shell's component bundle. A page's own
-    // scoped styles would be a further sheet; the fixture page has none, so it gets exactly these.
-    if (page === 'fixture.html') {
-      expect(order.filter((i) => i === 'link:stylesheet')).toHaveLength(2);
-      const sheets = [
-        ...head(page).matchAll(/<link\b[^>]*rel="stylesheet"[^>]*href="([^"]+)"/g),
-      ].map((m) => m[1] ?? '');
-      expect(sheets[0]).toMatch(/\/global\.[^/]*\.css$/);
-      expect(sheets[1]).toMatch(/\/BaseLayout\.[^/]*\.css$/);
-    }
+    // One stylesheet per page (home T19): the global styles (tokens, fonts, base), the Shell's
+    // components and the page's own styles are joined after the build, in that order, into the one
+    // file at position 5. Each link is a request before the first paint.
+    expect(order.filter((i) => i === 'link:stylesheet')).toHaveLength(1);
+    const sheets = [...head(page).matchAll(/<link\b[^>]*rel="stylesheet"[^>]*href="([^"]+)"/g)].map(
+      (m) => m[1] ?? '',
+    );
+    expect(sheets[0]).toMatch(/^\/_astro\/page\.[0-9a-f]{8}\.css$/);
     expect(firstOf('meta:description')).toBeGreaterThan(firstOf('title'));
     expect(firstOf('link:icon')).toBeGreaterThan(firstOf('meta:description'));
     expect(order).not.toContain('style');
+  });
+
+  it('gets the Shell styles after the global ones in its one stylesheet, and no other file is left', () => {
+    const href = head(page).match(/<link\b[^>]*rel="stylesheet"[^>]*href="([^"]+)"/)?.[1] ?? '';
+    const css = readFileSync(join(out, 'dist', href), 'utf8');
+    expect(css.indexOf('--fjord-color-bg')).toBeGreaterThanOrEqual(0);
+    expect(css.indexOf('.skip-link')).toBeGreaterThan(css.indexOf(':focus-visible'));
+    // Every CSS file of the build is the one stylesheet of some page.
+    const linked = new Set(
+      readdirSync(join(out, 'dist'), { recursive: true, encoding: 'utf8' })
+        .filter((file) => file.endsWith('.html'))
+        .flatMap((file) =>
+          [
+            ...readFileSync(join(out, 'dist', file), 'utf8').matchAll(
+              /<link rel="stylesheet" href="\/_astro\/([^"]+)"/g,
+            ),
+          ].map((m) => m[1] ?? ''),
+        ),
+    );
+    const built = readdirSync(join(out, 'dist', '_astro')).filter((file) => file.endsWith('.css'));
+    expect(built.sort()).toEqual([...linked].sort());
   });
 
   it('has a plain viewport with no viewport-fit (no safe-area padding yet, review F-18)', () => {

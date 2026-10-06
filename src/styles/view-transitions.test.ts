@@ -50,12 +50,11 @@ function rules(css: string, within: string[] = []): Rule[] {
 }
 
 const all = (): Rule[] => {
+  // Each page has one stylesheet that holds the Shell styles; one file is the whole rule set.
   const assets = join(site.out, '_astro');
-  return readdirSync(assets)
-    .filter((file) => file.endsWith('.css'))
-    .flatMap((file) =>
-      rules(readFileSync(join(assets, file), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '')),
-    );
+  const [file] = readdirSync(assets).filter((name) => name.endsWith('.css'));
+  if (!file) throw new Error('the build has no stylesheet');
+  return rules(readFileSync(join(assets, file), 'utf8').replace(/\/\*[\s\S]*?\*\//g, ''));
 };
 
 const declarations = (rule: Rule | undefined): Record<string, string> =>
