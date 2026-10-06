@@ -23,9 +23,9 @@ Estimates: S about a quarter of a day, M about half a day, L up to one day.
 | T12 | [Build the About section with the QuickFacts list](./t12-about-quick-facts.md) | ui | Alexander Ponomarenko | S | T2 | done |
 | T13 | [Build the experience list from native details entries](./t13-experience-list.md) | ui | Alexander Ponomarenko | M | T2, T3 | done |
 | T14 | [Build the Contact block with the copy-email action, Save contact, the mail-link sentence and the QR tile](./t14-contact-block.md) | ui | Alexander Ponomarenko | M | T1, T3 | done |
-| T15 | [Compose the home page from its sections, page options, the script entry and the contact place](./t15-compose-home-page.md) | wiring | Alexander Ponomarenko | L | T4, T6, T7, T8, T10, T11, T12, T13, T14 | todo |
+| T15 | [Compose the home page from its sections, page options, the script entry and the contact place](./t15-compose-home-page.md) | wiring | Alexander Ponomarenko | L | T4, T6, T7, T8, T10, T11, T12, T13, T14 | done |
 | T16 | [Add the home component sections to the Styleguide](./t16-styleguide-home-sections.md) | ui | Alexander Ponomarenko | M | T9, T11, T12, T13, T14 | done |
-| T17 | [Update the changed Shell and base samples on the Styleguide](./t17-styleguide-shell-samples.md) | ui | Alexander Ponomarenko | M | T6, T7, T8, T16 | todo |
+| T17 | [Update the changed Shell and base samples on the Styleguide](./t17-styleguide-shell-samples.md) | ui | Alexander Ponomarenko | M | T6, T7, T8, T16 | done |
 | T18 | [Add the placeholder check and the built half of the contact check, and run both after the build](./t18-placeholder-and-contact-checks.md) | wiring | Alexander Ponomarenko | M | T15 | todo |
 | T19 | [Split the script budgets, add the portrait and contrast checks and hold the Lighthouse budget on the home page](./t19-budgets-contrast-lighthouse.md) | tests | Alexander Ponomarenko | M | T15, T17 | todo |
 | T20 | [Verify the first phone screen, the sections, touch targets and the scripts-off page end to end](./t20-home-e2e.md) | tests | Alexander Ponomarenko | M | T15 | todo |

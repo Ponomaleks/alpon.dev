@@ -7,7 +7,7 @@ acs: ["AC-14", "AC-33", "AC-38", "AC-39", "AC-40"]
 files_hint: ["src/pages/styleguide.astro", "src/pages/_styleguide.test.ts", "tests/e2e/styleguide.spec.ts", "tests/e2e/styleguide-components.spec.ts"]
 owner: "Alexander Ponomarenko"
 estimate: "M"
-status: "todo"
+status: "done"
 ---
 
 # T17 — Update the changed Shell and base samples on the Styleguide

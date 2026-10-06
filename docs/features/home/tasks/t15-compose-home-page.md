@@ -7,7 +7,7 @@ acs: ["AC-01", "AC-04", "AC-11", "AC-18", "AC-32", "AC-36", "AC-40"]
 files_hint: ["src/pages/index.astro", "src/pages/_index.test.ts", "src/scripts/home/index.ts", "src/scripts/home/reveal.ts", "src/scripts/home/reveal.test.ts", "tests/e2e/smoke.spec.ts", "tests/a11y/smoke.spec.ts"]
 owner: "Alexander Ponomarenko"
 estimate: "L"
-status: "todo"
+status: "done"
 ---
 
 # T15 — Compose the home page from its sections, page options, the script entry and the contact place
