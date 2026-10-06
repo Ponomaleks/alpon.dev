@@ -1,4 +1,4 @@
-import { expect, test, type Locator, type Page } from '@playwright/test';
+import { devices, expect, test, type Locator, type Page } from '@playwright/test';
 
 // Reduced motion on the Shell parts (base-components T20): AC-28, AC-30. Nothing slides, grows or
 // loops: no transform change and no running animation on a transform-like property.
@@ -171,5 +171,117 @@ test.describe('with motion allowed', () => {
     await expect(button).toHaveCSS('transform', 'matrix(0.985, 0, 0, 0.985, 0, 1)');
     const icon = page.locator('.fj-iconbtn[data-demo-state="active"]').first();
     await expect(icon).toHaveCSS('transform', 'matrix(0.94, 0, 0, 0.94, 0, 0)');
+  });
+});
+
+// Home, reduced motion and scripts off (home T24, AC-31, AC-41): no Ambient motion starts, no
+// Motion control, final numbers, no reveal, no parallax properties, a still band.
+const homeLoops = (page: Page) =>
+  page.evaluate(
+    () =>
+      document
+        .getAnimations()
+        .filter(
+          (a) => a.playState === 'running' && a.effect?.getComputedTiming().iterations === Infinity,
+        ).length,
+  );
+
+const bandMoving = (page: Page) =>
+  page.evaluate(() => {
+    const band = document.querySelector('.fj-band');
+    return document.getAnimations().filter((a) => {
+      const target = (a.effect as KeyframeEffect | null)?.target;
+      return !!band && !!target && band.contains(target) && a.playState === 'running';
+    }).length;
+  });
+
+const parallaxProps = (page: Page) =>
+  page
+    .locator('[data-contours-parallax]')
+    .evaluate((el) => [el.style.getPropertyValue('--fj-px'), el.style.getPropertyValue('--fj-py')]);
+
+test.describe('the home page with reduced motion (AC-31, AC-41)', () => {
+  test('0 running loops, no Motion control, final numbers, no reveal', async ({ page }) => {
+    await page.goto('/');
+    expect(await homeLoops(page)).toBe(0);
+    await expect(page.locator('[data-hero]')).not.toHaveAttribute('data-motion', /.*/);
+    await expect(page.getByRole('button', { name: /^(Pause|Play) animation$/ })).toHaveCount(0);
+    await expect(page.locator('[data-motion-control]')).toBeHidden();
+
+    const trim = (list: string[]) => list.map((t) => t.trim());
+    const finals = trim(await page.locator('.stat__final').allTextContents());
+    expect(finals.length).toBe(4);
+    await page.evaluate(() => document.querySelector('.key-facts')?.scrollIntoView());
+    await page.waitForTimeout(1600);
+    expect(trim(await page.locator('[data-count-to]').allTextContents())).toEqual(finals);
+    await expect(page.locator('[data-count-up]')).not.toHaveAttribute('data-count-state', /.*/);
+
+    expect(await page.locator('[data-reveal]').count()).toBe(0);
+    await expect(page.locator('.contact-place')).toHaveCSS('opacity', '1');
+    expect(await homeLoops(page)).toBe(0);
+  });
+
+  test('--fj-px and --fj-py stay unset under a fine pointer', async ({ page, isMobile }) => {
+    test.skip(isMobile, 'needs a fine pointer');
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/');
+    const hero = await page.locator('[data-hero]').boundingBox();
+    if (!hero) throw new Error('no hero');
+    await page.mouse.move(hero.x + 20, hero.y + 20);
+    await page.mouse.move(hero.x + hero.width - 20, hero.y + hero.height - 20, { steps: 6 });
+    await page.waitForTimeout(200);
+    expect(await parallaxProps(page)).toEqual(['', '']);
+    await expect(page.locator('[data-contours-parallax]')).toHaveCSS('translate', 'none');
+  });
+
+  test('the closing band is still', async ({ page }) => {
+    await page.goto('/');
+    await page.locator('.fj-band').scrollIntoViewIfNeeded();
+    await page.waitForTimeout(300);
+    expect(await bandMoving(page)).toBe(0);
+  });
+
+  test('scripts off: 0 loops, no control, nothing hidden, still band', async ({ page }) => {
+    await page.route('**/_astro/**/*.js', (route) => route.abort());
+    await page.goto('/');
+    expect(await homeLoops(page)).toBe(0);
+    await expect(page.locator('[data-motion-control]')).toBeHidden();
+    expect(await page.locator('[data-reveal]').count()).toBe(0);
+    expect(await bandMoving(page)).toBe(0);
+  });
+});
+
+test.describe('a touch-only device with motion allowed (AC-31)', () => {
+  test.use({ reducedMotion: 'no-preference' });
+
+  test('the contours do not follow the pointer: --fj-px and --fj-py stay unset', async ({
+    browser,
+    baseURL,
+  }) => {
+    const context = await browser.newContext({ ...devices['Pixel 7'], baseURL });
+    const page = await context.newPage();
+    await page.goto('/');
+    expect(await page.evaluate(() => matchMedia('(hover: none)').matches)).toBe(true);
+    await page.evaluate(() => {
+      const hero = document.querySelector('[data-hero]');
+      const r = hero?.getBoundingClientRect();
+      if (!hero || !r) return;
+      for (const [fx, fy] of [
+        [0.2, 0.2],
+        [0.8, 0.8],
+      ]) {
+        hero.dispatchEvent(
+          new PointerEvent('pointermove', {
+            bubbles: true,
+            pointerType: 'touch',
+            clientX: r.left + r.width * fx,
+            clientY: r.top + r.height * fy,
+          }),
+        );
+      }
+    });
+    await page.waitForTimeout(200);
+    expect(await parallaxProps(page)).toEqual(['', '']);
+    await context.close();
   });
 });

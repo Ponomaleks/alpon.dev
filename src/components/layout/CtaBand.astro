@@ -38,18 +38,22 @@ const { cvLang = 'en', actions = defaultBandActions(cvLang) } = Astro.props;
 <style>
   .fj-band {
     position: relative;
-    overflow: hidden;
+    overflow: clip;
     margin-top: var(--fjord-space-section);
     padding: var(--fjord-space-section) 0;
   }
 
-  /* The contours drift as the band scrolls into view (AC-41). Scroll-tied, never time-based: no
+  /* The timeline belongs to the band itself: the contours' own box clips (overflow hidden), so a
+     view() on the layer would bind to that never-scrolling box. The contours drift as the band scrolls into view (AC-41). Scroll-tied, never time-based: no
      duration, loop or transition; skipped without support and under reduced motion. */
   @supports (animation-timeline: view()) {
     @media (prefers-reduced-motion: no-preference) {
+      .fj-band {
+        view-timeline: --fj-band block;
+      }
       .fj-band :global(.contours__layer) {
         animation: fj-band-contours var(--fjord-ease-linear) both;
-        animation-timeline: view();
+        animation-timeline: --fj-band;
         animation-range: entry 0% cover 100%;
       }
     }

@@ -248,11 +248,15 @@ describe('CtaBand style (AC-41, D-13)', () => {
     expect(own).toMatch(/margin(?:-top|-block-start)?\s*:\s*var\(--fjord-space-section\)/);
   });
 
-  it('declares the scroll-driven animation in the band, with view() as its timeline', () => {
+  it('declares the scroll-driven animation in the band, with a view timeline (view() or the band named one)', () => {
     const driven = bandBlocks().filter((b) => b.body.includes('animation-timeline'));
     expect(driven.length).toBeGreaterThan(0);
+    const compact = (b: Block) => b.body.replace(/\s+/g, '');
+    const named = bandBlocks().some((b) => /(?<![-\w])view-timeline:--[\w-]+/.test(compact(b)));
     for (const b of driven)
-      expect(b.body.replace(/\s+/g, '')).toContain('animation-timeline:view(');
+      expect(compact(b)).toMatch(
+        named ? /animation-timeline:(view\(|--[\w-]+)/ : /animation-timeline:view\(/,
+      );
     expect(bandBlocks().some((b) => timed(b))).toBe(true);
   });
 

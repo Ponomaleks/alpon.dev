@@ -11,7 +11,21 @@ const ObserverCtor = 'IntersectionObserver' in window ? IntersectionObserver : n
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 initHeroHeader();
-initMotion({ document, storage: sessionStorage, matchMedia: matches });
+// Reading sessionStorage can throw when the browser blocks it: keep the choice in memory then.
+function pickStorage(): Pick<Storage, 'getItem' | 'setItem' | 'removeItem'> {
+  try {
+    return sessionStorage;
+  } catch {
+    const memory = new Map<string, string>();
+    return {
+      getItem: (key) => memory.get(key) ?? null,
+      setItem: (key, value) => void memory.set(key, value),
+      removeItem: (key) => void memory.delete(key),
+    };
+  }
+}
+
+initMotion({ document, storage: pickStorage(), matchMedia: matches });
 initParallax({ document, matchMedia: matches });
 
 const countUpRoot = document.querySelector('[data-count-up]');
