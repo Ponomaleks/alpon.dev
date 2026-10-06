@@ -80,6 +80,11 @@ const { items = experience as Entry[], sample = false, index = '03' } = Astro.pr
     align-items: flex-start;
     gap: var(--fjord-space-4);
   }
+  .experience__head :global(.fj-link) {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--fjord-tap-min);
+  }
   @media (min-width: 1024px) {
     .experience__wrap:not(.experience__wrap--sample) {
       grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
