@@ -7,7 +7,7 @@ acs: ["AC-02", "AC-33"]
 files_hint: ["scripts/check-budgets.ts", "scripts/check-budgets.test.ts", "scripts/contrast-pairs.ts", "scripts/check-contrast.test.ts", "lighthouserc.cjs", "src/components/home/Portrait.astro"]
 owner: "Alexander Ponomarenko"
 estimate: "M"
-status: "done"
+status: "blocked"
 ---
 
 # T19 — Split the script budgets, add the portrait and contrast checks and hold the Lighthouse budget on the home page
