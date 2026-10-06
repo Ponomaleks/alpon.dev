@@ -7,7 +7,7 @@ acs: ["AC-32", "AC-38"]
 files_hint: ["tests/a11y/home.spec.ts", "tests/visual/home.spec.ts", "tests/visual/styleguide.spec.ts", "tests/visual/not-found.spec.ts", "tests/visual/__screenshots__/"]
 owner: "Alexander Ponomarenko"
 estimate: "M"
-status: "done"
+status: "review"
 ---
 
 # T25 — Add the home axe checks and the visual baselines for the home page, the Styleguide and the Not-found page

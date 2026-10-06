@@ -33,7 +33,7 @@ Estimates: S about a quarter of a day, M about half a day, L up to one day.
 | T22 | [Verify the 18 header states and the primary-button count on every Visitor page](./t22-header-states-primary-count-e2e.md) | tests | Alexander Ponomarenko | M | T15 | done |
 | T23 | [Verify the Shell contact links and focus at the contact place in three browsers and turn on P-50](./t23-contact-place-focus-p50.md) | tests | Alexander Ponomarenko | M | T21 | done |
 | T24 | [Verify Ambient motion, the Motion control, count-up, reveal, parallax and the band contours end to end](./t24-motion-e2e.md) | tests | Alexander Ponomarenko | M | T15 | done |
-| T25 | [Add the home axe checks and the visual baselines for the home page, the Styleguide and the Not-found page](./t25-axe-and-visual-baselines.md) | tests | Alexander Ponomarenko | M | T15, T17 | done |
+| T25 | [Add the home axe checks and the visual baselines for the home page, the Styleguide and the Not-found page](./t25-axe-and-visual-baselines.md) | tests | Alexander Ponomarenko | M | T15, T17 | review |
 | T26 | [Close the document pointers, register the built components and draft the pull request with the Claims list](./t26-docs-and-claims-4a.md) | docs | Alexander Ponomarenko | M | T18, T19, T20, T21, T22, T23, T24, T25 | todo |
 
 ## Phase 4b
