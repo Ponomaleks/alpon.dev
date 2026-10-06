@@ -1,10 +1,14 @@
 // Contact check (base-components AC-15, AC-16). Compares src/data/contact.ts with the static
 // vCard and validates lastUpdated against the day of the run.
 //
-// Run from the repo root: node scripts/check-contact.ts
+// Built half (home AC-27): the Person data, the mail-link sentence and the hero coordinates in
+// dist/index.html against contact.ts.
+//
+// Run from the repo root: node scripts/check-contact.ts [--built]
 
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { contact, type Contact } from '../src/data/contact.ts';
+import { buildPerson } from '../src/data/person.ts';
 
 type Fields = Pick<
   Contact,
@@ -77,7 +81,75 @@ export function checkContact(c: Fields, vcfText: string, today: Date): string[] 
   return [...problems, ...checkLastUpdated(c.lastUpdated, today)];
 }
 
-if (import.meta.main) {
+/** Person data, mail-link sentence and hero coordinates of the built home page against contact.ts. */
+export function checkBuiltContact(c: Contact, html: string): string[] {
+  const problems: string[] = [];
+  const blocks = html.matchAll(
+    /<script[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/gi,
+  );
+  let found: Record<string, unknown> | undefined;
+  for (const block of blocks) {
+    try {
+      const data = JSON.parse(block[1] ?? '') as Record<string, unknown>;
+      if (data['@type'] === 'Person') found = data;
+    } catch {
+      // not JSON: treated as missing below
+    }
+  }
+  if (!found) {
+    problems.push('person: no Person structured data (ld+json) on the built page');
+  } else {
+    const want = buildPerson(c);
+    const address = (found.address ?? {}) as Record<string, unknown>;
+    const compare = (field: string, expected: unknown, actual: unknown) => {
+      if (JSON.stringify(expected) !== JSON.stringify(actual))
+        problems.push(
+          `person.${field}: contact.ts has ${JSON.stringify(expected)}, built page has ${JSON.stringify(actual)}`,
+        );
+    };
+    compare('name', want.name, found.name);
+    compare('jobTitle', want.jobTitle, found.jobTitle);
+    compare('email', want.email, found.email);
+    compare('telephone', want.telephone, found.telephone);
+    compare('addressLocality', want.address.addressLocality, address.addressLocality);
+    compare('addressCountry', want.address.addressCountry, address.addressCountry);
+    compare('sameAs', want.sameAs, found.sameAs);
+  }
+
+  const sentence = /<p[^>]*class="[^"]*\bcontact__sentence\b[^"]*"[^>]*>([\s\S]*?)<\/p>/i.exec(
+    html,
+  );
+  const mail = sentence ? /href="mailto:([^"?]*)/i.exec(sentence[1] ?? '')?.[1] : undefined;
+  if (mail !== c.email)
+    problems.push(
+      `mail-link: contact.ts has "${c.email}", built page sentence has ${mail ? `"${mail}"` : 'no mailto link'}`,
+    );
+
+  const { lat, lon } = c.workRegionGeo;
+  const expected = `${lat.toFixed(2)}° N, ${lon.toFixed(2)}° E`;
+  const coords = /\d+\.\d+° N, \d+\.\d+° E/.exec(html)?.[0];
+  if (coords !== expected)
+    problems.push(
+      `hero coordinates: contact.ts has "${expected}", built page has ${coords ? `"${coords}"` : 'nothing'}`,
+    );
+  return problems;
+}
+
+if (import.meta.main && process.argv.includes('--built')) {
+  const page = 'dist/index.html';
+  if (!existsSync(page)) {
+    console.error(`contact check failed: ${page} not found, run the build first`);
+    process.exit(1);
+  }
+  const problems = checkBuiltContact(contact, readFileSync(page, 'utf8'));
+  if (problems.length > 0) {
+    console.error(`built contact check failed:\n  ${problems.join('\n  ')}`);
+    process.exit(1);
+  }
+  console.log(
+    'contact: the built home page matches contact.ts (Person data, mail link, coordinates)',
+  );
+} else if (import.meta.main) {
   const vcf = readFileSync('public/alexander-ponomarenko.vcf', 'utf8');
   const problems = checkContact(contact, vcf, new Date());
   if (problems.length > 0) {

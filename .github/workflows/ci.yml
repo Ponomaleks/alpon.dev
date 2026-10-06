@@ -43,6 +43,9 @@ jobs:
       - name: Budgets (bootstrap, initial JS, font preloads, font files)
         run: npm run check:budgets
 
+      - name: Built page checks (placeholder text, contact facts on the home page)
+        run: npm run check:placeholders && npm run check:contact:built
+
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
 
