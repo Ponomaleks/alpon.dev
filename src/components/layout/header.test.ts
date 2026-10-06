@@ -271,6 +271,22 @@ describe('Header: over the hero (AC-33, ADR-0001)', () => {
         );
   });
 
+  it('takes the Dag over-hero colours from the on-spruce rule of tokens.css, with no copy of its own', () => {
+    const rules = [...sheet.matchAll(/([^{}@]+)[{]([^{}]*)[}]/g)].filter(([, sel = '']) =>
+      /data-over-hero/.test(sel),
+    );
+    // The one rule that sets on-spruce values for the header is the generated one, shared with the class.
+    const setters = rules.filter(([, , body = '']) => /--fjord-color-bg\s*:/.test(body));
+    expect(setters).toHaveLength(1);
+    expect(setters[0]?.[1]).toMatch(/\.fjord-on-spruce\s*,/);
+    expect(setters[0]?.[1]).toMatch(/:root\[data-theme=["']?dag["']?\] \.header\[data-over-hero\]/);
+    // The header's own over-hero rules redefine one token at most: the border it does not draw.
+    const redefined = rules
+      .filter((rule) => rule !== setters[0])
+      .flatMap(([, , body = '']) => body.match(/--fjord-[a-z0-9-]+(?=\s*:)/g) ?? []);
+    expect([...new Set(redefined)]).toEqual(['--fjord-color-border']);
+  });
+
   it('has over-hero rules for both Dag and Natt', () => {
     expect(sheet).toMatch(/:root\[data-theme=["']?dag["']?\][^{},]*\[data-over-hero\]/);
     expect(sheet).toMatch(/:root\[data-theme=["']?natt["']?\][^{},]*\[data-over-hero\]/);

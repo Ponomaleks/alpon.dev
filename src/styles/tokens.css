@@ -296,7 +296,9 @@
   }
 }
 
-.fjord-on-spruce {
+.fjord-on-spruce,
+:root[data-theme="dag"] .header[data-over-hero],
+.header[data-sample][data-over-hero][data-sample-theme="dag"] {
   --fjord-color-bg: var(--fjord-spruce);
   --fjord-color-bg-raised: #2B5446;
   --fjord-color-bg-sunken: rgba(191, 211, 201, .12);

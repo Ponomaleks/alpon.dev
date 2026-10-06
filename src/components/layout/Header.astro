@@ -221,25 +221,11 @@ const links = [
   }
 
   /* Over the home hero (AC-33, ADR-0001). Only under a theme, so without scripts the header keeps
-     its default look. Dag: the spruce surface of the hero, no border. The values are those of
-     .fjord-on-spruce in tokens.css, written from core tokens because a state attribute cannot apply
-     that class; the raised surface of Dag is the white of its hover. */
+     its default look. Dag: the spruce surface of the hero; its colours come from the on-spruce rule
+     of tokens.css, which names this selector. Here only the border the header does not draw. */
   :global(:root[data-theme='dag']) .header[data-over-hero],
   .header[data-sample][data-over-hero][data-sample-theme='dag'] {
-    --fjord-color-bg: var(--fjord-spruce);
-    --fjord-color-text: var(--fjord-snow);
-    --fjord-color-text-muted: var(--fjord-lichen);
-    --fjord-color-link: var(--fjord-snow);
-    --fjord-color-focus-ring: var(--fjord-contour);
     --fjord-color-border: transparent;
-    --fjord-color-border-strong: color-mix(in srgb, var(--fjord-lichen) 60%, transparent);
-    --fjord-color-accent-soft: color-mix(in srgb, var(--fjord-lichen) 12%, transparent);
-    --fjord-color-cta-bg: var(--fjord-stone);
-    --fjord-color-cta-text: var(--fjord-spruce);
-    --fjord-color-cta-hover: var(--fjord-color-bg-raised);
-    color-scheme: dark;
-    background-color: var(--fjord-color-bg);
-    color: var(--fjord-color-text);
     border-block-end-color: transparent;
   }
 

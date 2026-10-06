@@ -43,7 +43,7 @@ function expectedLook(theme: Theme, position: Position, width: number): Look {
         ? {
             kind: 'secondary',
             color: 'var(--fjord-snow)',
-            border: 'color-mix(in srgb, var(--fjord-lichen) 60%, transparent)',
+            border: 'rgba(191, 211, 201, 0.6)', // --fjord-color-border-strong of the on-spruce rule
           }
         : { kind: 'primary', bg: 'var(--fjord-stone)', color: 'var(--fjord-spruce)' },
     };

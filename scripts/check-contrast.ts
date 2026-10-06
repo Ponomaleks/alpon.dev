@@ -31,7 +31,13 @@ export interface ContrastResult {
 }
 
 function ruleDeclarations(sheet: Stylesheet, selector: string): Declaration[] {
-  const rule = sheet.rules.find((r) => r.selector === selector);
+  // A rule may list several selectors (the on-spruce rule also names the header over the hero).
+  const rule = sheet.rules.find((r) =>
+    r.selector
+      .split(',')
+      .map((part) => part.trim())
+      .includes(selector),
+  );
   if (!rule) throw new Error(`tokens.css has no ${selector} block`);
   return rule.declarations;
 }

@@ -65,12 +65,34 @@ describe('generateTokens', () => {
       '[data-theme="dag"] {',
       '[data-theme="natt"] {',
       `@media (prefers-color-scheme: dark) {`,
-      '.fjord-on-spruce {',
+      '.fjord-on-spruce,',
       '@media (min-width: 768px) {',
       '@media (min-width: 1024px) {',
     ].map((part) => css.indexOf(part));
     expect(order.every((i) => i >= 0)).toBe(true);
     expect([...order].sort((a, b) => a - b)).toEqual(order);
+  });
+
+  it('the on-spruce values are written once, for the class and for the Dag header over the hero', () => {
+    const css = generateTokens(real());
+    // One rule, three selectors (home AC-33): the class, the live header over the hero in Dag and
+    // its Styleguide sample. No second copy of the values anywhere.
+    expect(css).toContain(
+      [
+        '.fjord-on-spruce,',
+        ':root[data-theme="dag"] .header[data-over-hero],',
+        '.header[data-sample][data-over-hero][data-sample-theme="dag"] {',
+      ].join('\n'),
+    );
+    expect(css.match(/--fjord-color-cta-hover:/g)).toHaveLength(
+      (css.match(/--fjord-color-cta-bg:/g) ?? []).length,
+    );
+    const body = block(css, '.header[data-sample][data-over-hero][data-sample-theme="dag"]');
+    expect(value(body, '--fjord-color-bg')).toBe('var(--fjord-spruce)');
+    expect(value(body, '--fjord-color-cta-hover')).toBeDefined();
+    // Natt keeps its own header: the Natt override stays on the class alone.
+    expect(css).toContain('[data-theme="natt"] .fjord-on-spruce {');
+    expect(css).not.toMatch(/\[data-theme="natt"\][^{}]*\[data-over-hero\]/);
   });
 
   it(':root carries the brand palette, Dag semantics, non-color tokens and color-scheme light', () => {
@@ -377,10 +399,14 @@ describe('site copy of the design system (base-components AC-26)', () => {
         buffer = '';
       } else if (ch === ';') {
         const colon = buffer.indexOf(':');
-        out.set(
-          `${stack.join(' > ')} | ${buffer.slice(0, colon).trim()}`,
-          buffer.slice(colon + 1).trim(),
-        );
+        // A rule that lists several selectors holds the declaration for each of them.
+        const rule = stack.at(-1) ?? '';
+        const selectors = rule.startsWith('@') ? [rule] : rule.split(',').map((s) => s.trim());
+        for (const selector of selectors)
+          out.set(
+            `${[...stack.slice(0, -1), selector].join(' > ')} | ${buffer.slice(0, colon).trim()}`,
+            buffer.slice(colon + 1).trim(),
+          );
         buffer = '';
       } else buffer += ch;
     }
