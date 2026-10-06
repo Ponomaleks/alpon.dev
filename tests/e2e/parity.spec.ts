@@ -87,11 +87,78 @@ test.describe('static files and headers', () => {
 });
 
 test.describe('home page', () => {
-  test.fixme('P-20 shows name and role', async () => {});
-  test.fixme('P-21 contact data is visible and linked', async () => {});
-  test.fixme('P-22 copy-email button copies and confirms "Kopiert"', async () => {});
-  test.fixme('P-23 "Save contact" downloads the vCard', async () => {});
-  test.fixme('P-24 head meta, Open Graph and JSON-LD Person', async () => {});
+  test('P-20 shows name and role', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Alexander Ponomarenko');
+    const hero = page.locator('main .hero');
+    await expect(hero).toContainText('Software Engineer');
+    await expect(hero).toContainText('Full Stack Developer');
+  });
+
+  test('P-21 contact data is visible and linked', async ({ page }) => {
+    await page.goto('/');
+    const block = page.locator('#contact');
+    const links = [
+      ['+47 405 94 584', 'tel:+4740594584'],
+      ['ponomaleks@gmail.com', 'mailto:ponomaleks@gmail.com'],
+      ['linkedin.com/in/ponomalex', 'https://www.linkedin.com/in/ponomalex/'],
+      ['github.com/ponomaleks', 'https://github.com/ponomaleks'],
+    ] as const;
+    for (const [text, href] of links) {
+      const link = block.getByRole('link', { name: text, exact: true });
+      await expect(link).toBeVisible();
+      await expect(link).toHaveAttribute('href', href);
+    }
+    await expect(block.getByText('Oslo, Norge')).toBeVisible();
+  });
+
+  test('P-22 copy-email button copies and confirms "Kopiert"', async ({ page, context }) => {
+    await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+    await page.goto('/');
+    await page.locator('#contact [data-copy-email]').click();
+    await expect(page.getByRole('status')).toContainText('Kopiert');
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe('ponomaleks@gmail.com');
+  });
+
+  test('P-23 "Save contact" downloads the vCard', async ({ page }) => {
+    await page.goto('/');
+    const link = page.locator('#contact').getByRole('link', { name: 'Save contact (.vcf)' });
+    await expect(link).toHaveAttribute('href', '/alexander-ponomarenko.vcf');
+    await expect(link).toHaveAttribute('download', /.*/);
+    const [download] = await Promise.all([page.waitForEvent('download'), link.click()]);
+    expect(download.suggestedFilename()).toMatch(/\.vcf$/);
+  });
+
+  test('P-24 head meta, Open Graph and JSON-LD Person', async ({ page }) => {
+    await page.goto('/');
+    const meta = (selector: string) => page.locator(selector).getAttribute('content');
+    await expect(page).toHaveTitle(/Alexander Ponomarenko/);
+    expect(await meta('meta[name="description"]')).toBeTruthy();
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+      'href',
+      'https://alpon.dev/',
+    );
+    expect(await meta('meta[property="og:title"]')).toBeTruthy();
+    expect(await meta('meta[property="og:description"]')).toBeTruthy();
+    expect(await meta('meta[property="og:url"]')).toBe('https://alpon.dev/');
+    expect(await meta('meta[property="og:image"]')).toBe('https://alpon.dev/og.png');
+    expect(await meta('meta[property="og:image:width"]')).toBe('1200');
+    expect(await meta('meta[property="og:image:height"]')).toBe('630');
+    expect(await meta('meta[name="twitter:card"]')).toBe('summary_large_image');
+    const raw = await page.locator('script[type="application/ld+json"]').textContent();
+    const person = JSON.parse(raw ?? '{}');
+    expect(person['@type']).toBe('Person');
+    expect(person.name).toBe('Alexander Ponomarenko');
+    expect(person.jobTitle).toBe('Software Engineer');
+    expect(person.email).toBe('ponomaleks@gmail.com');
+    expect(person.telephone).toBe('+47 405 94 584');
+    expect(person.address.addressLocality).toBe('Oslo');
+    expect(person.address.addressCountry).toBe('NO');
+    expect(person.sameAs).toEqual([
+      'https://www.linkedin.com/in/ponomalex/',
+      'https://github.com/ponomaleks',
+    ]);
+  });
   test('P-25 skip link is the first focusable element', async ({ page }) => {
     await page.goto('/');
     await page.keyboard.press('Tab');
