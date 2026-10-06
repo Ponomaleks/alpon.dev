@@ -348,3 +348,97 @@ test.describe('Not-found: a collapsed bar stays collapsed while scrolling (AC-39
     await expect(bar).toBeInViewport();
   });
 });
+
+// Toast above the tab and the instant change with reduced motion (home T6b, AC-39).
+
+const TOAST = '[data-toast-region] .toast';
+
+for (const collapsed of [false, true]) {
+  const state = collapsed ? 'collapsed' : 'open';
+
+  test(`Not-found: a Toast sits above the tab with 0 px overlap, bar ${state} (AC-39)`, async ({
+    page,
+  }) => {
+    await openNotFound(page);
+    if (collapsed) await page.locator(TAB).click();
+    await expectExpanded(page, !collapsed);
+    await page.evaluate(() =>
+      document.dispatchEvent(
+        new CustomEvent('fjord:toast', { detail: { message: 'Kopiert', meta: 'hei@alpon.dev' } }),
+      ),
+    );
+    const toast = page.locator(TOAST);
+    await expect(toast).toBeVisible();
+    // Let the Toast entrance animation settle before measuring.
+    await page.waitForTimeout(400);
+    const toastBox = await box(toast);
+    const tabBox = await box(page.locator(TAB));
+    expect(overlap(toastBox, tabBox)).toBe(0);
+    expect(toastBox.y + toastBox.height).toBeLessThanOrEqual(tabBox.y);
+    if (!collapsed) {
+      expect(toastBox.y + toastBox.height).toBeLessThanOrEqual((await box(page.locator(BAR))).y);
+    }
+  });
+}
+
+test.describe('Not-found: with reduced motion the bar changes instantly (AC-39)', () => {
+  test.use({ reducedMotion: 'reduce' });
+
+  test('collapsing and restoring run no transition or animation on the bar or the tab', async ({
+    page,
+  }) => {
+    await openNotFound(page);
+    const running = () =>
+      page.evaluate(
+        ([bar, tab]) => {
+          const nodes = [document.querySelector(bar), document.querySelector(tab)];
+          const durations = nodes.map((node) => {
+            const style = node ? getComputedStyle(node) : null;
+            return [style?.transitionDuration, style?.animationDuration].join(' ');
+          });
+          const live = document
+            .getAnimations()
+            .filter((a) => {
+              const target = (a.effect as KeyframeEffect | null)?.target;
+              return !!target && nodes.some((n) => n && (n === target || n.contains(target)));
+            })
+            .map((a) => a.constructor.name);
+          return { durations, live };
+        },
+        [BAR, TAB],
+      );
+    const settled = (r: { durations: string[]; live: string[] }) => {
+      expect(r.live).toEqual([]);
+      for (const d of r.durations)
+        expect(d.split(' ').every((v) => parseFloat(v) === 0)).toBe(true);
+    };
+    settled(await running());
+    await page.locator(TAB).click();
+    settled(await running());
+    await expectExpanded(page, false);
+    await page.locator(TAB).click();
+    settled(await running());
+    await expectExpanded(page, true);
+  });
+
+  test('the tab and the bar are at their final place in the frame after the click', async ({
+    page,
+  }) => {
+    await openNotFound(page);
+    const before = await box(page.locator(TAB));
+    await page.locator(TAB).click();
+    // Read in the next frame, with no waiting: an instant change is already done.
+    const after = await page.evaluate(
+      (selector) =>
+        new Promise<{ y: number; height: number; bottom: number }>((resolve) =>
+          requestAnimationFrame(() => {
+            const r = document.querySelector(selector)?.getBoundingClientRect();
+            resolve({ y: r?.y ?? 0, height: r?.height ?? 0, bottom: r?.bottom ?? 0 });
+          }),
+        ),
+      TAB,
+    );
+    expect(Math.round(after.bottom)).toBe(600);
+    expect(Math.round(after.height)).toBe(Math.round(before.height));
+  });
+});
