@@ -79,5 +79,5 @@ Note: CLAUDE.md plans `/cv`, `/cv/en`, `/cv/no` as CV pages later. The spec that
 
 | Id | Behaviour | Test |
 |---|---|---|
-| P-50 | The Shell's contact links (header, menu, bar, band) reach the contact place. Owner: step 4 | fixme |
+| P-50 | The Shell's contact links (header, menu, bar, band) reach the contact place. Owner: step 4 | active (header and menu in parity.spec.ts; all four in contact-place.spec.ts) |
 | P-51 | The Shell's CV links (header, menu, bar) reach the CV page. Owner: step 5 | fixme |

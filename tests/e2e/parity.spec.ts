@@ -198,6 +198,14 @@ test.describe('404', () => {
 });
 
 test.describe('Not in the stub: Shell links', () => {
-  test.fixme('P-50 Shell contact links reach the contact place', async () => {});
+  test('P-50 Shell contact links (header, menu) reach the contact place', async ({ page }) => {
+    await page.goto('/this-path-does-not-exist');
+    await page.locator('header').getByRole('link', { name: 'Get in touch' }).click();
+    await expect(page).toHaveURL(/\/#contact$/);
+    await expect(
+      page.locator('#contact').getByRole('heading', { name: 'Get in touch' }),
+    ).toBeInViewport();
+    await expect.poll(() => page.evaluate(() => document.activeElement?.id ?? '')).toBe('contact');
+  });
   test.fixme('P-51 Shell CV links reach the CV page', async () => {});
 });

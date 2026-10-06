@@ -21,6 +21,21 @@ export default defineConfig({
   projects: [
     { name: 'desktop', use: { ...devices['Desktop Chrome'] } },
     { name: 'mobile', use: { ...devices['Pixel 7'] } },
+    // Firefox and WebKit run only in CI (owner decision 2026-10-06), on the contact place spec.
+    ...(process.env.CI
+      ? [
+          {
+            name: 'firefox',
+            testMatch: /contact-place\.spec\.ts/,
+            use: { ...devices['Desktop Firefox'] },
+          },
+          {
+            name: 'webkit',
+            testMatch: /contact-place\.spec\.ts/,
+            use: { ...devices['Desktop Safari'] },
+          },
+        ]
+      : []),
   ],
   webServer: {
     command: `npm run build && npx wrangler dev --port ${PORT}`,

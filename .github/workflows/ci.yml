@@ -46,8 +46,8 @@ jobs:
       - name: Built page checks (placeholder text, contact facts on the home page)
         run: npm run check:placeholders && npm run check:contact:built
 
-      - name: Install Playwright Chromium
-        run: npx playwright install --with-deps chromium
+      - name: Install Playwright Chromium, Firefox and WebKit
+        run: npx playwright install --with-deps chromium firefox webkit
 
       # The fallback-face e2e and mobile Lighthouse must exercise the metric-matched Roboto fallback,
       # as on Android: install Roboto and make sure no Arial is present (fjord-foundation sad §11).
