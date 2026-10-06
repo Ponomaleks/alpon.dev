@@ -7,7 +7,7 @@ acs: ["AC-27", "AC-28"]
 files_hint: ["scripts/check-placeholders.ts", "scripts/check-placeholders.test.ts", "scripts/check-contact.ts", "scripts/check-contact.test.ts", "package.json", ".github/workflows/ci.yml"]
 owner: "Alexander Ponomarenko"
 estimate: "M"
-status: "todo"
+status: "done"
 ---
 
 # T18 — Add the placeholder check and the built half of the contact check, and run both after the build

@@ -7,7 +7,7 @@ acs: ["AC-01", "AC-02", "AC-03", "AC-04", "AC-05", "AC-07", "AC-08", "AC-11", "A
 files_hint: ["tests/e2e/home.spec.ts"]
 owner: "Alexander Ponomarenko"
 estimate: "M"
-status: "todo"
+status: "done"
 ---
 
 # T20 — Verify the first phone screen, the sections, touch targets and the scripts-off page end to end
