@@ -30,21 +30,23 @@ export interface ContrastResult {
   checked: number;
 }
 
+// A rule may list several selectors (the on-spruce rule also names the header over the hero, the
+// Natt rules also name a hero).
+const names = (rule: { selector: string }, selector: string) =>
+  rule.selector
+    .split(',')
+    .map((part) => part.trim())
+    .includes(selector);
+
 function ruleDeclarations(sheet: Stylesheet, selector: string): Declaration[] {
-  // A rule may list several selectors (the on-spruce rule also names the header over the hero).
-  const rule = sheet.rules.find((r) =>
-    r.selector
-      .split(',')
-      .map((part) => part.trim())
-      .includes(selector),
-  );
+  const rule = sheet.rules.find((r) => names(r, selector));
   if (!rule) throw new Error(`tokens.css has no ${selector} block`);
   return rule.declarations;
 }
 
 function noJsNatt(sheet: Stylesheet): Declaration[] {
   const media = sheet.media.find((m) => m.query === '@media (prefers-color-scheme: dark)');
-  const rule = media?.rules.find((r) => r.selector === ':root:not([data-theme])');
+  const rule = media?.rules.find((r) => names(r, ':root:not([data-theme])'));
   if (!rule) throw new Error('tokens.css has no no-JS Natt block');
   return rule.declarations;
 }

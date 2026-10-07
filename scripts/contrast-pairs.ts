@@ -36,6 +36,7 @@ const pair = (fg: string, bg: string, kind: PairKind, themes: Theme[]): Pair => 
 
 const PAGE: Theme[] = ['Dag', 'Natt'];
 const ALL: Theme[] = ['Dag', 'Natt', 'on-spruce'];
+const HERO: Theme[] = ['Natt', 'on-spruce'];
 
 export const PAIRS: Pair[] = [
   // Body and secondary text on every ground.
@@ -108,10 +109,11 @@ const home = (
 // Home AC-33 / AC-02: the pairs the home components and the header over the hero render. Each must
 // also be a gated entry of PAIRS (a test keeps the two in step).
 export const HOME_PAIRS: HomePair[] = [
-  home('Hero', 'text', 'bg', 'text', PAGE),
-  home('Hero', 'text-muted', 'bg', 'text', PAGE),
-  home('Hero', 'link', 'bg', 'text', PAGE),
-  home('Hero', 'border-strong', 'bg', 'ui', PAGE),
+  // The hero stands on spruce in Dag and on the night ground in Natt (page design, Home.jsx).
+  home('Hero', 'text', 'bg', 'text', HERO),
+  home('Hero', 'text-muted', 'bg', 'text', HERO),
+  home('Hero', 'link', 'bg', 'text', HERO),
+  home('Hero', 'border-strong', 'bg', 'ui', HERO),
   home('KeyFacts', 'text', 'bg-raised', 'text', PAGE),
   home('KeyFacts', 'text-muted', 'bg-raised', 'text', PAGE),
   home('ExperienceList', 'text', 'bg', 'text', PAGE),

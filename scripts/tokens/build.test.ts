@@ -129,6 +129,25 @@ describe('generateTokens', () => {
     expect(natt.map(([p]) => p)).toContain('--fjord-shadow-float');
   });
 
+  it('a hero keeps the Natt ground: its selector shares the Natt rule and the no-JS Natt block', () => {
+    const css = generateTokens(real());
+    // Page design: `'x-hero' + (dark ? ' x-hero--natt' : ' fjord-on-spruce')`. The theme cannot
+    // remove the class, so in Natt the hero takes the Natt values again, above the on-spruce ones.
+    expect(css).toContain(':root[data-theme="natt"] [data-hero],\n[data-theme="natt"] {');
+    expect(css).toContain('  :root:not([data-theme]) [data-hero],\n  :root:not([data-theme]) {');
+    // No second copy of the Natt values.
+    expect(css.match(/--fjord-color-bg: #111A17;/g)).toHaveLength(2);
+    // Every token the on-spruce rules set is set again by the Natt rule, so nothing of spruce stays.
+    const natt = declarations(nattBlock(css)).map(([p]) => p);
+    const spruce = [
+      ...declarations(block(css, '.header[data-sample][data-over-hero][data-sample-theme="dag"]')),
+      ...declarations(block(css, '[data-theme="natt"] .fjord-on-spruce')),
+    ]
+      .map(([p]) => p)
+      .filter((p) => p.startsWith('--') || p === 'color-scheme' || p === 'color');
+    expect(natt).toEqual(expect.arrayContaining(spruce));
+  });
+
   it('fails on a brand vs handoff palette conflict, naming the token and both values', () => {
     const sources = real();
     const colors = sources.handoff.colors.replace(

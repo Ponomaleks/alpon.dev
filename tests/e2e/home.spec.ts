@@ -380,3 +380,93 @@ test.describe('section layout (page design: every section in the page container)
     });
   }
 });
+
+// The hero against the page design (Home.jsx, site.css): the ground by theme, the badge row and
+// the Now line. Expected colours are resolved from the site's own tokens in the page.
+const SPACE_5 = 20;
+
+/** Resolves a colour expression against the root tokens (the page ground, not the hero's). */
+const rootColor = (page: Page, value: string) =>
+  page.evaluate((v) => {
+    const probe = document.createElement('span');
+    document.documentElement.append(probe);
+    probe.style.setProperty('color', v);
+    const out = getComputedStyle(probe).color;
+    probe.remove();
+    return out;
+  }, value);
+
+const heroLook = (page: Page) =>
+  page.evaluate(() => {
+    const cs = (sel: string) => getComputedStyle(document.querySelector(sel) as Element);
+    const hero = cs('main .hero');
+    return {
+      ground: hero.backgroundColor,
+      borderWidth: hero.borderBottomWidth,
+      border: hero.borderBottomColor,
+      name: cs('main .hero__name').color,
+      roleOne: cs('main .hero__role span:first-child').color,
+      roleTwo: cs('main .hero__role span + span').color,
+      dot: cs('main .hero__dot').backgroundColor,
+    };
+  });
+
+for (const scripts of ['on', 'off'] as const) {
+  test.describe(`hero ground by theme, scripts ${scripts} (page design: x-hero--natt / fjord-on-spruce)`, () => {
+    test.use({ javaScriptEnabled: scripts === 'on' });
+
+    test('Dag: the hero stands on spruce, with no line under it', async ({ page }) => {
+      await page.emulateMedia({ colorScheme: 'light', reducedMotion: 'reduce' });
+      await open(page, 1440, 900);
+      const look = await heroLook(page);
+      expect(look.ground).toBe(await rootColor(page, 'var(--fjord-spruce)'));
+      expect(look.borderWidth).toBe('0px');
+      expect(look.name).toBe(await rootColor(page, 'var(--fjord-snow)'));
+      expect(look.roleOne).toBe(await rootColor(page, 'var(--fjord-snow)'));
+      expect(look.roleTwo).toBe(await rootColor(page, 'var(--fjord-lichen)'));
+      expect(look.dot).toBe(await rootColor(page, 'var(--fjord-contour)'));
+    });
+
+    test('Natt: the hero stands on the page ground, with a border under it and the link colour on the first role and the Now dot', async ({
+      page,
+    }) => {
+      await page.emulateMedia({ colorScheme: 'dark', reducedMotion: 'reduce' });
+      await open(page, 1440, 900);
+      const look = await heroLook(page);
+      expect(look.ground).toBe(await rootColor(page, 'var(--fjord-color-bg)'));
+      expect(look.ground).not.toBe(await rootColor(page, 'var(--fjord-spruce-deep)'));
+      expect(look.borderWidth).toBe('1px');
+      expect(look.border).toBe(await rootColor(page, 'var(--fjord-color-border)'));
+      expect(look.name).toBe(await rootColor(page, 'var(--fjord-color-text)'));
+      expect(look.roleOne).toBe(await rootColor(page, 'var(--fjord-color-link)'));
+      expect(look.roleTwo).toBe(await rootColor(page, 'var(--fjord-color-text-muted)'));
+      expect(look.dot).toBe(await rootColor(page, 'var(--fjord-color-link)'));
+    });
+  });
+}
+
+test.describe('hero badge row and Now line (page design: .x-hero__text, .x-hero__now)', () => {
+  for (const width of [390, 834, 1440]) {
+    test(`the eyebrow follows the badge at the design gap at ${width}`, async ({ page }) => {
+      await open(page, width, 900);
+      const badge = await box(page.locator('main .hero .badge'));
+      const eyebrow = await box(page.locator('main .hero__eyebrow'));
+      expect(eyebrow.y - (badge.y + badge.height)).toBeCloseTo(SPACE_5, 0);
+      // The row is as tall as the badge: the Motion control's reserved place adds nothing.
+      const row = await box(page.locator('main .hero__badges'));
+      expect(row.height).toBeCloseTo(badge.height, 0);
+    });
+  }
+
+  test('the Now dot sits level with "Nå:" when the line wraps at 390', async ({ page }) => {
+    await open(page, 390);
+    const now = page.locator('main .hero__now');
+    const label = await box(now.locator('[lang="no"]'));
+    const dot = await box(now.locator('.hero__dot'));
+    const line = await box(now);
+    expect(line.height, 'the line wraps').toBeGreaterThan(label.height * 1.5);
+    expect(dot.width).toBe(7);
+    expect(dot.height).toBe(7);
+    expect(Math.abs(dot.y + dot.height / 2 - (label.y + label.height / 2))).toBeLessThanOrEqual(1);
+  });
+});

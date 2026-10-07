@@ -26,7 +26,7 @@ const now = nowLine(project);
   <div class="hero__in">
     <div class="hero__text">
       <div class="hero__badges">
-        <Badge status="open" label="Open to work" detail="Oslo area" />
+        <Badge status="open" label="Open to work" detail="Oslo area" pulse />
         <MotionControl />
       </div>
       <p class="hero__eyebrow">
@@ -53,8 +53,10 @@ const now = nowLine(project);
         )}
       </div>
       <p class="hero__now">
-        <span class="hero__dot" aria-hidden="true"></span>
-        <span>
+        <span class="hero__mark" aria-hidden="true">
+          <span class="hero__dot" />
+        </span>
+        <span class="hero__now-text">
           <span lang="no">Nå:</span> {now}
         </span>
       </p>
@@ -71,8 +73,16 @@ const now = nowLine(project);
     overflow: hidden;
     padding: var(--fjord-space-hero-top) 0 var(--fjord-space-hero-bottom);
   }
-  :global([data-theme='natt']) .hero {
+  /* Natt: the hero moves to the night ground (page design: .x-hero--natt). Its colours come from
+     the Natt rule of tokens.css, which names [data-hero]; here the line under it. The second rule
+     is the same look with scripts off on a dark device (no data-theme, as the no-JS Natt block). */
+  :global(:root[data-theme='natt']) .hero {
     border-bottom: var(--fjord-border-width) solid var(--fjord-color-border);
+  }
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme])) .hero {
+      border-bottom: var(--fjord-border-width) solid var(--fjord-color-border);
+    }
   }
   .hero__in {
     position: relative;
@@ -106,6 +116,13 @@ const now = nowLine(project);
     gap: var(--fjord-space-3);
     width: 100%;
   }
+  /* T-5: the Motion control keeps its 44px target at the end of the row and adds no height to it.
+     Its margin box is 0 high and centred, so the row is as tall as the badge and the eyebrow
+     follows at the design gap (.x-hero__text gap). */
+  .hero__badges :global(.motion-control) {
+    flex: none;
+    margin-block: calc(var(--fjord-tap-min) / -2);
+  }
   .hero__eyebrow {
     display: flex;
     flex-wrap: wrap;
@@ -138,8 +155,13 @@ const now = nowLine(project);
     font-weight: var(--fjord-weight-regular);
     color: var(--fjord-color-text-muted);
   }
-  :global([data-theme='natt']) .hero__role span:first-child {
+  :global(:root[data-theme='natt']) .hero__role span:first-child {
     color: var(--fjord-color-link);
+  }
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme])) .hero__role span:first-child {
+      color: var(--fjord-color-link);
+    }
   }
   .hero__lead {
     margin: var(--fjord-space-1) 0 0;
@@ -164,24 +186,41 @@ const now = nowLine(project);
       flex: none;
     }
   }
+  /* The design's three flex items wrap "Nå:" onto a line of its own on a phone; here the label and
+     the text are one item, so the text runs on after "Nå:" and the dot stays on the first line. */
   .hero__now {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: var(--fjord-space-2);
     margin: var(--fjord-space-1-5) 0 0;
     font-family: var(--fjord-font-mono);
     font-size: var(--fjord-text-mono-label);
     color: var(--fjord-color-text-muted);
   }
-  .hero__dot {
+  /* The mark is one line high (1lh), so the dot is centred on the first line of the text. */
+  .hero__mark {
     flex: none;
-    width: var(--fjord-space-2);
-    height: var(--fjord-space-2);
+    display: flex;
+    align-items: center;
+    height: 1lh;
+  }
+  /* 7px, as the design's .x-now-dot. */
+  .hero__dot {
+    width: calc(var(--fjord-space-2) - var(--fjord-border-width));
+    height: calc(var(--fjord-space-2) - var(--fjord-border-width));
     border-radius: var(--fjord-radius-round);
     background: var(--fjord-contour);
   }
-  :global([data-theme='natt']) .hero__dot {
+  .hero__now-text {
+    min-width: 0;
+  }
+  :global(:root[data-theme='natt']) .hero__dot {
     background: var(--fjord-color-link);
+  }
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme])) .hero__dot {
+      background: var(--fjord-color-link);
+    }
   }
   .hero__media {
     display: flex;

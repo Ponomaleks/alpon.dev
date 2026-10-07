@@ -25,20 +25,23 @@ async function loops(page: Page) {
 
 const isDrift = (name: string) => name.includes('contours-drift');
 const isFloat = (name: string) => name.includes('portrait-float');
+// The pulse of the availability badge's dot (Owner decision): the third piece of Ambient motion.
+const isPulse = (name: string) => name.includes('badge-pulse');
 
 async function expectRunning(page: Page) {
   await expect.poll(async () => (await loops(page)).some(isDrift)).toBe(true);
   await expect.poll(async () => (await loops(page)).some(isFloat)).toBe(true);
+  await expect.poll(async () => (await loops(page)).some(isPulse)).toBe(true);
 }
 
 async function expectStopped(page: Page) {
   await expect
-    .poll(async () => (await loops(page)).filter((n) => isDrift(n) || isFloat(n)))
+    .poll(async () => (await loops(page)).filter((n) => isDrift(n) || isFloat(n) || isPulse(n)))
     .toEqual([]);
 }
 
 test.describe('the Motion control (AC-30)', () => {
-  test('hero drift and portrait float run, the control pauses both within 100 ms and resumes them', async ({
+  test('hero drift, portrait float and badge pulse run, the control pauses all within 100 ms and resumes them', async ({
     page,
   }) => {
     await page.goto('/');
@@ -58,12 +61,13 @@ test.describe('the Motion control (AC-30)', () => {
           (a) =>
             a instanceof CSSAnimation &&
             (a.animationName.includes('contours-drift') ||
-              a.animationName.includes('portrait-float')),
+              a.animationName.includes('portrait-float') ||
+              a.animationName.includes('badge-pulse')),
         )
         .map((a) => a.playState);
       return { ms: performance.now() - t0, states };
     });
-    expect(result.states.length).toBeGreaterThanOrEqual(2);
+    expect(result.states.length).toBeGreaterThanOrEqual(3);
     expect(result.states.every((s) => s === 'paused')).toBe(true);
     expect(result.ms).toBeLessThan(100);
 
@@ -74,6 +78,75 @@ test.describe('the Motion control (AC-30)', () => {
     await expect(control).toHaveAccessibleName('Pause animation');
     await expect(control).toHaveAttribute('aria-pressed', 'false');
     await expectRunning(page);
+  });
+
+  test('only the dot of the hero badge pulses: its ring, and nothing else on the page', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    await expectRunning(page);
+    const pulses = await page.evaluate(() =>
+      document
+        .getAnimations()
+        .filter((a) => a instanceof CSSAnimation && a.animationName.includes('badge-pulse'))
+        .map((a) => {
+          const effect = a.effect as KeyframeEffect;
+          return {
+            inHero: !!effect.target?.closest('[data-hero]'),
+            dot: effect.target?.className ?? '',
+            pseudo: effect.pseudoElement,
+            props: effect.getKeyframes().flatMap((k) => Object.keys(k)),
+          };
+        }),
+    );
+    expect(pulses).toHaveLength(1);
+    expect(pulses[0]?.inHero).toBe(true);
+    expect(pulses[0]?.dot).toContain('badge__dot');
+    expect(pulses[0]?.pseudo).toBe('::after');
+    // Compositor-only: the ring scales and fades, nothing is laid out again.
+    const animated = new Set(pulses[0]?.props);
+    for (const meta of ['offset', 'computedOffset', 'easing', 'composite']) animated.delete(meta);
+    expect([...animated].sort()).toEqual(['opacity', 'transform']);
+  });
+
+  test('the control sits at the end of the badge row, 44 x 44, and adds no height (T-5)', async ({
+    page,
+  }) => {
+    for (const width of [390, 1440]) {
+      await page.setViewportSize({ width, height: 844 });
+      await page.goto('/');
+      const control = page.getByRole('button', CONTROL);
+      await expect(control).toBeVisible();
+      const box = async (selector: string) => {
+        const found = await page.locator(selector).boundingBox();
+        if (!found) throw new Error(`no box for ${selector}`);
+        return found;
+      };
+      const [badge, row, button, eyebrow, text] = await Promise.all([
+        box('main .hero .badge'),
+        box('main .hero__badges'),
+        box('[data-motion-control]'),
+        box('main .hero__eyebrow'),
+        box('main .hero__text'),
+      ]);
+      expect(button.width).toBeGreaterThanOrEqual(44);
+      expect(button.height).toBeGreaterThanOrEqual(44);
+      expect(row.height).toBeCloseTo(badge.height, 0);
+      expect(eyebrow.y - (badge.y + badge.height)).toBeCloseTo(20, 0);
+      // End of the row, centred on the badge, clear of the badge and of the eyebrow.
+      expect(button.x + button.width).toBeCloseTo(text.x + text.width, 0);
+      expect(button.y + button.height / 2).toBeCloseTo(badge.y + badge.height / 2, 0);
+      expect(button.x).toBeGreaterThanOrEqual(badge.x + badge.width);
+      expect(button.y + button.height).toBeLessThanOrEqual(eyebrow.y);
+
+      // No layout shift between the motion states: pausing moves nothing.
+      await control.click();
+      await expect(control).toHaveAccessibleName('Play animation');
+      expect(await box('main .hero .badge')).toEqual(badge);
+      expect(await box('[data-motion-control]')).toEqual(button);
+      await control.click();
+      await expect(control).toHaveAccessibleName('Pause animation');
+    }
   });
 
   test('paused, the hero stops where it is', async ({ page }) => {
@@ -311,7 +384,7 @@ test.describe('sections fade in once (AC-36)', () => {
 });
 
 test.describe('pointer parallax under the real policy (AC-31)', () => {
-  test('a fine pointer moves the contours layer and no policy violation is reported', async ({
+  test('a fine pointer moves the contours layer against it and no policy violation is reported', async ({
     page,
     isMobile,
     baseURL,
@@ -348,6 +421,14 @@ test.describe('pointer parallax under the real policy (AC-31)', () => {
     await expect
       .poll(() => layer.evaluate((el) => getComputedStyle(el).translate))
       .not.toMatch(/^(none|0px( 0px)?)$/);
+    // Page design (Home.jsx): `(e.clientX / innerWidth - 0.5) * -20`. The pointer rests right of
+    // and below the centre, so the layer has gone left and up.
+    const offset = await layer.evaluate((el) => [
+      Number.parseFloat(el.style.getPropertyValue('--fj-px')),
+      Number.parseFloat(el.style.getPropertyValue('--fj-py')),
+    ]);
+    expect(offset[0]).toBeLessThan(0);
+    expect(offset[1]).toBeLessThan(0);
     expect(
       await page.evaluate(() => (window as unknown as { __violations: string[] }).__violations),
     ).toEqual([]);

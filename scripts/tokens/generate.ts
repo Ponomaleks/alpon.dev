@@ -17,6 +17,16 @@ const ON_SPRUCE_SELECTORS = [
   ':root[data-theme="dag"] .header[data-over-hero]',
   '.header[data-sample][data-over-hero][data-sample-theme="dag"]',
 ].join(',\n');
+/**
+ * A hero (`[data-hero]`) stands on spruce in Dag only; in Natt it moves to the night ground (page
+ * design: `'x-hero' + (dark ? ' x-hero--natt' : ' fjord-on-spruce')`). The theme cannot remove the
+ * class, so the hero's selector shares the Natt rule and the no-JS Natt block: it takes the Natt
+ * values again, above the on-spruce ones. It comes first, so each rule still ends in its own name.
+ */
+const HERO = '[data-hero]';
+const NO_JS_ROOT = ':root:not([data-theme])';
+const NATT_SELECTORS = [`:root${NATT} ${HERO}`, NATT].join(',\n');
+const NO_JS_NATT_SELECTORS = [`${NO_JS_ROOT} ${HERO}`, NO_JS_ROOT].join(',\n  ');
 /** Contour and terrain line colours are named tokens in the handoff and inlined where used. */
 const LINE_TOKEN_REF = /var\((--fjord-(?:contour|terrain)-line-[a-z-]+)\)/g;
 const NO_JS_NATT = '@media (prefers-color-scheme: dark)';
@@ -247,8 +257,8 @@ export function generateTokens(sources: Sources): string {
     HEADER,
     rule(':root', root.entries()),
     rule(DAG, dag.entries()),
-    rule(NATT, natt),
-    `${NO_JS_NATT} {\n${rule(':root:not([data-theme])', natt, '  ')}\n}`,
+    rule(NATT_SELECTORS, natt),
+    `${NO_JS_NATT} {\n${rule(NO_JS_NATT_SELECTORS, natt, '  ')}\n}`,
     rule(ON_SPRUCE_SELECTORS, inlineLineTokens(collect(sheets, ON_SPRUCE).entries(), root)),
     rule(NATT_ON_SPRUCE, collect(sheets, NATT_ON_SPRUCE).entries()),
     ...responsive.map(

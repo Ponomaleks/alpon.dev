@@ -95,3 +95,50 @@ describe('MotionControl (AC-30, AC-31)', () => {
     expect(src).not.toMatch(/display:\s*none/);
   });
 });
+
+// Owner decision (not in the page design, whose ring is static): the ring of the hero's
+// availability dot pulses. It is Ambient motion like the float and the drift: declared paused,
+// running only under data-motion="running", so the one Motion control pauses it too (ADR-0003).
+describe('Badge pulse (AC-30, ADR-0003)', () => {
+  const badge = async (props: Record<string, unknown>) => {
+    const mod = await server.ssrLoadModule('/src/components/ui/Badge.astro');
+    return markup(await container.renderToString(mod.default, { props }));
+  };
+  const src = () => readFileSync(`${dir}../ui/Badge.astro`, 'utf8');
+
+  it('pulses only when asked: the hero badge does, a plain Badge does not', async () => {
+    expect(await badge({ status: 'open', label: 'Open to work' })).not.toMatch(/data-pulse/);
+    expect(await badge({ status: 'open', label: 'Open to work', pulse: true })).toMatch(
+      /<span\b[^>]*class="[^"]*\bbadge\b[^"]*"[^>]*\sdata-pulse(?:=""|\s|>)/,
+    );
+    const hero = markup(await render('Hero'));
+    expect(hero.match(/<span\b[^>]*\bdata-pulse\b[^>]*>/g)).toHaveLength(1);
+    expect(hero.match(/<span\b[^>]*\bdata-pulse\b[^>]*>/)?.[0]).toMatch(/data-status="open"/);
+  });
+
+  it('animates the ring of the open dot with motion tokens, paused by default', () => {
+    const rule =
+      src().match(
+        /\.badge\[data-pulse\]\[data-status='open'\] \.badge__dot::after\s*\{([^}]*)\}/,
+      )?.[1] ?? '';
+    expect(rule).toMatch(
+      /animation:\s*badge-pulse\s+var\(--fjord-duration-[a-z0-9-]+\)\s+var\(--fjord-ease-[a-z-]+\)\s+infinite/,
+    );
+    expect(rule).toMatch(/animation-play-state:\s*paused/);
+  });
+
+  it('runs only under data-motion="running"', () => {
+    expect(src()).toMatch(
+      /\[data-motion=['"]running['"]\][^{]*\.badge\[data-pulse\][^{]*::after\s*\{[^}]*animation-play-state:\s*running/,
+    );
+    expect(src().match(/animation-play-state:\s*running/g)).toHaveLength(1);
+  });
+
+  it('starts from the static ring of the design and changes transform and opacity only', () => {
+    const frames = src().match(/@keyframes badge-pulse\s*\{([\s\S]*?\})\s*\}/)?.[1] ?? '';
+    const props = [...frames.matchAll(/([a-z-]+)\s*:/g)].map(([, p]) => p);
+    expect(new Set(props)).toEqual(new Set(['transform', 'opacity']));
+    expect(frames).toMatch(/from\s*\{[^}]*opacity:\s*var\(--fjord-opacity-faint\)/);
+    expect(frames).toMatch(/to\s*\{[^}]*opacity:\s*0\b/);
+  });
+});
