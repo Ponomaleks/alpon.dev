@@ -47,7 +47,7 @@ describe('About', () => {
     expect(keys).toEqual(['Based in', 'Focus', 'Stack', 'Languages']);
     expect(quickFacts.map((f) => f.k)).toEqual(keys);
     const values = [...html.matchAll(/<dd\b[^>]*>([\s\S]*?)<\/dd>/g)].map((m) => text(m[1] ?? ''));
-    expect(values).toEqual(quickFacts.map((f) => text(f.v)));
+    expect(values).toEqual(quickFacts.flatMap((f) => f.v).map(text));
   });
 
   it('gives the residence with the work region and the work permit', async () => {
@@ -62,6 +62,18 @@ describe('About', () => {
     expect(html).toContain('Norwegian, intermediate');
     expect(html).toContain('Ukrainian, native');
     expect(html).not.toMatch(/\b[ABC][12]\b/);
+  });
+
+  it('gives each language its own description in the Languages row', async () => {
+    const html = await renderAbout();
+    const row = html.match(/<dt\b[^>]*>\s*Languages\s*<\/dt>([\s\S]*?)<\/div>/)?.[1] ?? '';
+    const lines = [...row.matchAll(/<dd\b[^>]*>([\s\S]*?)<\/dd>/g)].map((m) => text(m[1] ?? ''));
+    expect(lines).toEqual([
+      'English, upper-intermediate',
+      'Norwegian, intermediate',
+      'Ukrainian, native',
+    ]);
+    expect(text(row)).not.toContain('·');
   });
 
   it('has no image, logo, meter or progress element', async () => {

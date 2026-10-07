@@ -1,5 +1,6 @@
 ---
 // Quick facts (AC-07): a mono description list with a fixed key column and hairline rows.
+// A fact with several values (the languages) shows one per line, each its own description.
 import type { QuickFact } from '../../data/home';
 
 interface Props {
@@ -13,7 +14,9 @@ const { items } = Astro.props;
   {items.map((item) => (
     <div class="quick__row">
       <dt>{item.k}</dt>
-      <dd>{item.v}</dd>
+      {[item.v].flat().map((line) => (
+        <dd>{line}</dd>
+      ))}
     </div>
   ))}
 </dl>
@@ -28,7 +31,7 @@ const { items } = Astro.props;
   .quick__row {
     display: grid;
     grid-template-columns: calc(var(--fjord-space-24)) minmax(0, 1fr);
-    gap: var(--fjord-space-3);
+    column-gap: var(--fjord-space-3);
     padding: var(--fjord-space-4) 0;
     border-top: var(--fjord-border-width) solid var(--fjord-color-border);
   }
@@ -44,6 +47,7 @@ const { items } = Astro.props;
     color: var(--fjord-color-text-muted);
   }
   dd {
+    grid-column: 2;
     margin: 0;
     font-family: var(--fjord-font-mono);
     font-size: var(--fjord-text-ui-sm);

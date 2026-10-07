@@ -97,9 +97,12 @@ describe('home content', () => {
 
   it('shows the plain language labels with no level codes', () => {
     const languages = quickFacts.find((q) => q.k === 'Languages');
-    expect(languages?.v).toBe(
-      'English, upper-intermediate \u00b7 Norwegian, intermediate \u00b7 Ukrainian, native',
-    );
+    // One entry per language, so each is shown on its own line (Owner decision, 2026-10-07).
+    expect(languages?.v).toEqual([
+      'English, upper-intermediate',
+      'Norwegian, intermediate',
+      'Ukrainian, native',
+    ]);
     for (const s of strings([quickFacts, intro])) expect(s).not.toMatch(/\b[ABC][12]\b/);
   });
 

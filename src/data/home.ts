@@ -12,7 +12,8 @@ export interface KeyFact {
 
 export interface QuickFact {
   k: string;
-  v: string;
+  /** One value, or several that are shown one per line. */
+  v: string | string[];
 }
 
 export interface ExperienceEntry {
@@ -74,7 +75,8 @@ export const quickFacts: QuickFact[] = [
   },
   {
     k: 'Languages',
-    v: 'English, upper-intermediate \u00b7 Norwegian, intermediate \u00b7 Ukrainian, native',
+    // One per line at every width (Owner decision, 2026-10-07; the design joins them in one line).
+    v: ['English, upper-intermediate', 'Norwegian, intermediate', 'Ukrainian, native'],
   },
 ];
 
