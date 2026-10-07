@@ -91,7 +91,7 @@ flowchart TD
     L -->|"'Copy' beside the email"| C{"Do scripts run?"}
     C -->|"no (AC-15)"| C1["'Copy' is not offered at all. The address stays a mail link that can be selected"]
     C -->|"yes"| C2{"Does the browser allow clipboard access?"}
-    C2 -->|"yes (AC-14)"| C3["The address is on the clipboard. A Toast with a check mark says 'Kopiert' with the address, is announced and leaves by itself. Below 768 it sits above the Sticky action bar, or above its tab when the bar is collapsed"]
+    C2 -->|"yes (AC-14)"| C3["The address is on the clipboard. A Toast with a check mark says 'Copied' with the address, is announced and leaves by itself. Below 768 it sits above the Sticky action bar, or above its tab when the bar is collapsed"]
     C2 -->|"no (AC-15)"| C4["No confirmation. The Visitor is told to copy the address by hand"]
     L -->|"'Save contact (.vcf)' (AC-16)"| D["The contact card downloads: name, title 'Software Engineer', phone, email, profiles, Work region"]
     L --> Q{"Screen 1024 or wider?"}

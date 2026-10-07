@@ -37,7 +37,7 @@ The site itself is a portfolio piece: code quality, accessibility and performanc
 
 ## Content rules
 
-- English for main content. Norwegian for small warm details: "Hei", "Ta kontakt", "Kopiert", "Nå", "Oslo, Norge", "Skann meg", "Ikke funnet", "Sist oppdatert". The shell's call to action is English, "Get in touch", as in the page design; BRAND.md's "Norwegian for the call to action" applies to labels such as "Ta kontakt", not to the shell buttons.
+- English for main content. Norwegian for small warm details: "Hei", "Ta kontakt", "Nå", "Oslo, Norge", "Skann meg", "Ikke funnet", "Sist oppdatert". The shell's call to action is English, "Get in touch", as in the page design; BRAND.md's "Norwegian for the call to action" applies to labels such as "Ta kontakt", not to the shell buttons. Button labels and their states are interface text and stay English: the copy confirmation is "Copied", in the Copy button and in the Toast (home spec D-18).
 - Voice: modest and concrete. No "passionate", "rockstar", superlatives.
 - Dashes are allowed in user-facing text: the long dash (U+2014) and the en dash (U+2013) as used in the design copy (e.g. date ranges `Nov 2022 – Jan 2026`).
 - Never name the EPAM client or its events directly (NDA). Indirect descriptions are allowed and the design copy is the reference (e.g. "a global B2B software leader (Fortune Global 500)", "an international conference series", "28,000+ attendees").

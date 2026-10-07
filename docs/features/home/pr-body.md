@@ -145,7 +145,7 @@ Confirmed differences:
 - D-15: contact row label "Region".
 - D-16: one language per line.
 - D-17: two-column experience entries from 768 to 1023 only.
-- D-18: "Copy" shows "Kopiert" after a copy that worked, as the design does, but not after a refused one; its name stays "Copy" and the Toast announces; no check icon below 768.
+- D-18: "Copy" shows "Copied" (English, no check icon, the design's width) after a copy that worked, where the design shows "✓ Kopiert", and nothing after a refused one; its name stays "Copy"; the Toast says "Copied" with the address in English. "Kopiert" leaves the Norwegian list in `CLAUDE.md`; this differs from BRAND.md's list of Norwegian details (Owner decision).
 
 (D-07 left the spec with the Message form.)
 
@@ -177,102 +177,90 @@ Every number and status a Visitor can read on the home page, as built at `1668cd
 
 ### Hero
 
-| # | Claim, as shown | Where | Source | Owner |
-|---|---|---|---|---|
-| 1 | "Open to work" | hero, availability badge | `src/components/home/Hero.astro`, Badge `label` | - [ ] |
-| 2 | "Oslo area" | hero, availability badge | `src/components/home/Hero.astro`, Badge `detail` | - [ ] |
-| 3 | "Oslo, Norge" | hero eyebrow; menu panel; Contact block row "Region" | `src/data/contact.ts` `workRegion` | - [ ] |
-| 4 | "59.91° N, 10.75° E" | hero eyebrow, beside "Oslo, Norge" | `src/data/contact.ts` `workRegionGeo.lat`, `workRegionGeo.lon` | - [ ] |
-| 5 | "Software Engineer" and "Full Stack Developer" | hero, roles | `src/components/home/Hero.astro` | - [ ] |
-| 6 | "Nå: alpon.dev" (the current project) | hero, Now line | `src/data/home.ts` `nowProject`; `docs/features/home/owner-inputs.md` | - [ ] |
-| 7 | "MSc Computer Science at Woolf University" | hero, Now line | `src/data/home.ts` `MSC` (used by `nowLine`) | - [ ] |
+- [ ] **1.** "Open to work". Where: hero, availability badge. Source: `src/components/home/Hero.astro`, Badge `label`
+- [ ] **2.** "Oslo area". Where: hero, availability badge. Source: `src/components/home/Hero.astro`, Badge `detail`
+- [ ] **3.** "Oslo, Norge". Where: hero eyebrow; menu panel; Contact block row "Region". Source: `src/data/contact.ts` `workRegion`
+- [ ] **4.** "59.91° N, 10.75° E". Where: hero eyebrow, beside "Oslo, Norge". Source: `src/data/contact.ts` `workRegionGeo.lat`, `workRegionGeo.lon`
+- [ ] **5.** "Software Engineer" and "Full Stack Developer". Where: hero, roles. Source: `src/components/home/Hero.astro`
+- [ ] **6.** "Nå: alpon.dev" (the current project). Where: hero, Now line. Source: `src/data/home.ts` `nowProject`; `docs/features/home/owner-inputs.md`
+- [ ] **7.** "MSc Computer Science at Woolf University". Where: hero, Now line. Source: `src/data/home.ts` `MSC` (used by `nowLine`)
 
 ### Key facts
 
-| # | Claim, as shown | Where | Source | Owner |
-|---|---|---|---|---|
-| 8 | "3+ yrs" "Software Engineer in enterprise teams" | key facts, first | `src/data/home.ts` `keyFacts[0]` `value`, `suffix`, `unit`, `label` | - [ ] |
-| 9 | "EPAM Systems · 2022 – 2026" | key facts, first, context line | `src/data/home.ts` `keyFacts[0].context` | - [ ] |
-| 10 | "~40" "Students taught React fundamentals" | key facts, second | `src/data/home.ts` `keyFacts[1]` `value`, `prefix`, `label` | - [ ] |
-| 11 | "Alfred Nobel University · 2 groups" | key facts, second, context line | `src/data/home.ts` `keyFacts[1].context` | - [ ] |
-| 12 | "~2000" "Participants in the IT Marathon where I led an Angular team" | key facts, third | `src/data/home.ts` `keyFacts[2]` `value`, `prefix`, `label` | - [ ] |
-| 13 | "EPAM IT Marathons · 2023 – 2025" | key facts, third, context line | `src/data/home.ts` `keyFacts[2].context` | - [ ] |
-| 14 | "100+" "Repositories on GitHub" | key facts, fourth | `src/data/home.ts` `keyFacts[3]` `value`, `suffix`, `label` | - [ ] |
-| 15 | "github.com/ponomaleks" | key facts, fourth, context line | `src/data/home.ts` `keyFacts[3].context` | - [ ] |
+- [ ] **8.** "3+ yrs" "Software Engineer in enterprise teams". Where: key facts, first. Source: `src/data/home.ts` `keyFacts[0]` `value`, `suffix`, `unit`, `label`
+- [ ] **9.** "EPAM Systems · 2022 – 2026". Where: key facts, first, context line. Source: `src/data/home.ts` `keyFacts[0].context`
+- [ ] **10.** "~40" "Students taught React fundamentals". Where: key facts, second. Source: `src/data/home.ts` `keyFacts[1]` `value`, `prefix`, `label`
+- [ ] **11.** "Alfred Nobel University · 2 groups". Where: key facts, second, context line. Source: `src/data/home.ts` `keyFacts[1].context`
+- [ ] **12.** "~2000" "Participants in the IT Marathon where I led an Angular team". Where: key facts, third. Source: `src/data/home.ts` `keyFacts[2]` `value`, `prefix`, `label`
+- [ ] **13.** "EPAM IT Marathons · 2023 – 2025". Where: key facts, third, context line. Source: `src/data/home.ts` `keyFacts[2].context`
+- [ ] **14.** "100+" "Repositories on GitHub". Where: key facts, fourth. Source: `src/data/home.ts` `keyFacts[3]` `value`, `suffix`, `label`
+- [ ] **15.** "github.com/ponomaleks". Where: key facts, fourth, context line. Source: `src/data/home.ts` `keyFacts[3].context`
 
 ### About
 
-| # | Claim, as shown | Where | Source | Owner |
-|---|---|---|---|---|
-| 16 | "I’m a frontend-focused full stack engineer. I build web applications with React, Angular and TypeScript, and backend services with Python and FastAPI." | About, introduction | `src/data/home.ts` `intro` | - [ ] |
-| 17 | "For the last years I worked at EPAM Systems on a large enterprise event platform, led a small Angular team" | About, introduction | `src/data/home.ts` `intro` | - [ ] |
-| 18 | "mentored around 40 students" | About, introduction | `src/data/home.ts` `intro` | - [ ] |
-| 19 | "Now I’m based in the Oslo area and looking for a team to build good products with." | About, introduction | `src/data/home.ts` `intro` | - [ ] |
-| 20 | "Based in": "Nittedal, Oslo area" (Residence and Work region) | About, quick facts | `src/data/home.ts` `quickFacts[0].v` | - [ ] |
-| 21 | "Norwegian work permit" | About, quick facts, "Based in" | `src/data/home.ts` `quickFacts[0].v` | - [ ] |
-| 22 | "Focus": "Frontend, with backend experience" | About, quick facts | `src/data/home.ts` `quickFacts[1].v` | - [ ] |
-| 23 | "Stack": "React · Angular · TypeScript · Next.js · Python · FastAPI" | About, quick facts | `src/data/home.ts` `quickFacts[2].v` | - [ ] |
-| 24 | "English, upper-intermediate" | About, quick facts, "Languages" | `src/data/home.ts` `quickFacts[3].v[0]` | - [ ] |
-| 25 | "Norwegian, intermediate" | About, quick facts, "Languages" | `src/data/home.ts` `quickFacts[3].v[1]` | - [ ] |
-| 26 | "Ukrainian, native" | About, quick facts, "Languages" | `src/data/home.ts` `quickFacts[3].v[2]` | - [ ] |
+- [ ] **16.** "I’m a frontend-focused full stack engineer. I build web applications with React, Angular and TypeScript, and backend services with Python and FastAPI.". Where: About, introduction. Source: `src/data/home.ts` `intro`
+- [ ] **17.** "For the last years I worked at EPAM Systems on a large enterprise event platform, led a small Angular team". Where: About, introduction. Source: `src/data/home.ts` `intro`
+- [ ] **18.** "mentored around 40 students". Where: About, introduction. Source: `src/data/home.ts` `intro`
+- [ ] **19.** "Now I’m based in the Oslo area and looking for a team to build good products with.". Where: About, introduction. Source: `src/data/home.ts` `intro`
+- [ ] **20.** "Based in": "Nittedal, Oslo area" (Residence and Work region). Where: About, quick facts. Source: `src/data/home.ts` `quickFacts[0].v`
+- [ ] **21.** "Norwegian work permit". Where: About, quick facts, "Based in". Source: `src/data/home.ts` `quickFacts[0].v`
+- [ ] **22.** "Focus": "Frontend, with backend experience". Where: About, quick facts. Source: `src/data/home.ts` `quickFacts[1].v`
+- [ ] **23.** "Stack": "React · Angular · TypeScript · Next.js · Python · FastAPI". Where: About, quick facts. Source: `src/data/home.ts` `quickFacts[2].v`
+- [ ] **24.** "English, upper-intermediate". Where: About, quick facts, "Languages". Source: `src/data/home.ts` `quickFacts[3].v[0]`
+- [ ] **25.** "Norwegian, intermediate". Where: About, quick facts, "Languages". Source: `src/data/home.ts` `quickFacts[3].v[1]`
+- [ ] **26.** "Ukrainian, native". Where: About, quick facts, "Languages". Source: `src/data/home.ts` `quickFacts[3].v[2]`
 
 ### Experience
 
 The first entry is open on arrival; the others open on demand.
 
-| # | Claim, as shown | Where | Source | Owner |
-|---|---|---|---|---|
-| 27 | "Software Engineer (Consultant)" at "EPAM Systems" | entry 1, heading | `src/data/home.ts` `experience[0].role`, `.org` | - [ ] |
-| 28 | "Nov 2022 – Jan 2026" | entry 1, period | `src/data/home.ts` `experience[0].period` | - [ ] |
-| 29 | "Global digital engineering company" | entry 1, note under the period | `src/data/home.ts` `experience[0].location` | - [ ] |
-| 30 | The marker of the most recent role: the timeline dot of entry 1 is filled in the link colour | entry 1, timeline | `src/data/home.ts` `experience[0].current` | - [ ] |
-| 31 | "Four client and internal projects in enterprise teams, from SaaS customization to data-heavy interfaces." | entry 1, summary | `src/data/home.ts` `experience[0].summary` | - [ ] |
-| 32 | "Reusable, accessible React components and design-system tokens in Adobe Experience Manager for a conference series with 28,000+ attendees at the flagship event." | entry 1, point 1 | `src/data/home.ts` `experience[0].points[0]` | - [ ] |
-| 33 | "Rebranded and extended third-party RainFocus portals for registration, live broadcasts and in-session chat." | entry 1, point 2 | `src/data/home.ts` `experience[0].points[1]` | - [ ] |
-| 34 | "Search and interactive map modules over Elasticsearch APIs for a defense analytics product." | entry 1, point 3 | `src/data/home.ts` `experience[0].points[2]` | - [ ] |
-| 35 | "Features, testing and one sprint as Scrum Master on EPAM University’s assessment platform (Angular)." | entry 1, point 4 | `src/data/home.ts` `experience[0].points[3]` | - [ ] |
-| 36 | Tags "React", "TypeScript", "Angular", "Redux", "Storybook", "LESS", "AEM" | entry 1, tags | `src/data/home.ts` `experience[0].stack` | - [ ] |
-| 37 | "Angular Team Lead and Technical Expert" at "EPAM IT Marathons" | entry 2, heading | `src/data/home.ts` `experience[1].role`, `.org` | - [ ] |
-| 38 | "2023 – 2025" | entry 2, period | `src/data/home.ts` `experience[1].period` | - [ ] |
-| 39 | "Internal projects" | entry 2, note under the period | `src/data/home.ts` `experience[1].location` | - [ ] |
-| 40 | "Progressed from Angular Developer to Team Lead, building MVPs from scratch." | entry 2, summary | `src/data/home.ts` `experience[1].summary` | - [ ] |
-| 41 | "Led three frontend developers supporting a public development programme with ~2,000 participants." | entry 2, point 1 | `src/data/home.ts` `experience[1].points[0]` | - [ ] |
-| 42 | "Gave a technical session on EPAM’s YouTube channel." | entry 2, point 2 | `src/data/home.ts` `experience[1].points[1]` | - [ ] |
-| 43 | Tags "Angular", "TypeScript" | entry 2, tags | `src/data/home.ts` `experience[1].stack` | - [ ] |
-| 44 | "React course author and mentor" at "Alfred Nobel University" | entry 3, heading | `src/data/home.ts` `experience[2].role`, `.org` | - [ ] |
-| 45 | "EPAM mentorship" (shown in the place of a period; the entry has no dates) | entry 3, period | `src/data/home.ts` `experience[2].period` | - [ ] |
-| 46 | "Third-year CS students" | entry 3, note under the period | `src/data/home.ts` `experience[2].location` | - [ ] |
-| 47 | "Designed and taught a React fundamentals course for ~40 students: 10 lectures and 10 workshops per group, final exam." | entry 3, summary | `src/data/home.ts` `experience[2].summary` | - [ ] |
-| 48 | Tag "React" | entry 3, tags | `src/data/home.ts` `experience[2].stack` | - [ ] |
-| 49 | "Agency Group Manager / Insurance Specialist" at "Universalna Insurance Company (Fairfax Financial Holdings)" | entry 4, heading | `src/data/home.ts` `experience[3].role`, `.org` | - [ ] |
-| 50 | "Dec 2010 – Nov 2021" | entry 4, period | `src/data/home.ts` `experience[3].period` | - [ ] |
-| 51 | "Ukraine" | entry 4, note under the period | `src/data/home.ts` `experience[3].location` | - [ ] |
-| 52 | "Led an agency group for eleven years and grew personal sales 20×." | entry 4, summary | `src/data/home.ts` `experience[3].summary` | - [ ] |
-| 53 | "Trained agents and partners in sessions for up to 100 people." | entry 4, summary | `src/data/home.ts` `experience[3].summary` | - [ ] |
-| 54 | "Moved into software engineering in 2021 through full-time retraining." | entry 4, point 1 | `src/data/home.ts` `experience[3].points[0]` | - [ ] |
+- [ ] **27.** "Software Engineer (Consultant)" at "EPAM Systems". Where: entry 1, heading. Source: `src/data/home.ts` `experience[0].role`, `.org`
+- [ ] **28.** "Nov 2022 – Jan 2026". Where: entry 1, period. Source: `src/data/home.ts` `experience[0].period`
+- [ ] **29.** "Global digital engineering company". Where: entry 1, note under the period. Source: `src/data/home.ts` `experience[0].location`
+- [ ] **30.** The marker of the most recent role: the timeline dot of entry 1 is filled in the link colour. Where: entry 1, timeline. Source: `src/data/home.ts` `experience[0].current`
+- [ ] **31.** "Four client and internal projects in enterprise teams, from SaaS customization to data-heavy interfaces.". Where: entry 1, summary. Source: `src/data/home.ts` `experience[0].summary`
+- [ ] **32.** "Reusable, accessible React components and design-system tokens in Adobe Experience Manager for a conference series with 28,000+ attendees at the flagship event.". Where: entry 1, point 1. Source: `src/data/home.ts` `experience[0].points[0]`
+- [ ] **33.** "Rebranded and extended third-party RainFocus portals for registration, live broadcasts and in-session chat.". Where: entry 1, point 2. Source: `src/data/home.ts` `experience[0].points[1]`
+- [ ] **34.** "Search and interactive map modules over Elasticsearch APIs for a defense analytics product.". Where: entry 1, point 3. Source: `src/data/home.ts` `experience[0].points[2]`
+- [ ] **35.** "Features, testing and one sprint as Scrum Master on EPAM University’s assessment platform (Angular).". Where: entry 1, point 4. Source: `src/data/home.ts` `experience[0].points[3]`
+- [ ] **36.** Tags "React", "TypeScript", "Angular", "Redux", "Storybook", "LESS", "AEM". Where: entry 1, tags. Source: `src/data/home.ts` `experience[0].stack`
+- [ ] **37.** "Angular Team Lead and Technical Expert" at "EPAM IT Marathons". Where: entry 2, heading. Source: `src/data/home.ts` `experience[1].role`, `.org`
+- [ ] **38.** "2023 – 2025". Where: entry 2, period. Source: `src/data/home.ts` `experience[1].period`
+- [ ] **39.** "Internal projects". Where: entry 2, note under the period. Source: `src/data/home.ts` `experience[1].location`
+- [ ] **40.** "Progressed from Angular Developer to Team Lead, building MVPs from scratch.". Where: entry 2, summary. Source: `src/data/home.ts` `experience[1].summary`
+- [ ] **41.** "Led three frontend developers supporting a public development programme with ~2,000 participants.". Where: entry 2, point 1. Source: `src/data/home.ts` `experience[1].points[0]`
+- [ ] **42.** "Gave a technical session on EPAM’s YouTube channel.". Where: entry 2, point 2. Source: `src/data/home.ts` `experience[1].points[1]`
+- [ ] **43.** Tags "Angular", "TypeScript". Where: entry 2, tags. Source: `src/data/home.ts` `experience[1].stack`
+- [ ] **44.** "React course author and mentor" at "Alfred Nobel University". Where: entry 3, heading. Source: `src/data/home.ts` `experience[2].role`, `.org`
+- [ ] **45.** "EPAM mentorship" (shown in the place of a period; the entry has no dates). Where: entry 3, period. Source: `src/data/home.ts` `experience[2].period`
+- [ ] **46.** "Third-year CS students". Where: entry 3, note under the period. Source: `src/data/home.ts` `experience[2].location`
+- [ ] **47.** "Designed and taught a React fundamentals course for ~40 students: 10 lectures and 10 workshops per group, final exam.". Where: entry 3, summary. Source: `src/data/home.ts` `experience[2].summary`
+- [ ] **48.** Tag "React". Where: entry 3, tags. Source: `src/data/home.ts` `experience[2].stack`
+- [ ] **49.** "Agency Group Manager / Insurance Specialist" at "Universalna Insurance Company (Fairfax Financial Holdings)". Where: entry 4, heading. Source: `src/data/home.ts` `experience[3].role`, `.org`
+- [ ] **50.** "Dec 2010 – Nov 2021". Where: entry 4, period. Source: `src/data/home.ts` `experience[3].period`
+- [ ] **51.** "Ukraine". Where: entry 4, note under the period. Source: `src/data/home.ts` `experience[3].location`
+- [ ] **52.** "Led an agency group for eleven years and grew personal sales 20×.". Where: entry 4, summary. Source: `src/data/home.ts` `experience[3].summary`
+- [ ] **53.** "Trained agents and partners in sessions for up to 100 people.". Where: entry 4, summary. Source: `src/data/home.ts` `experience[3].summary`
+- [ ] **54.** "Moved into software engineering in 2021 through full-time retraining.". Where: entry 4, point 1. Source: `src/data/home.ts` `experience[3].points[0]`
 
 ### Contact, closing band and footer
 
-| # | Claim, as shown | Where | Source | Owner |
-|---|---|---|---|---|
-| 55 | "ponomaleks@gmail.com" | Contact block row "Email" and the mail-link sentence; menu panel; footer | `src/data/contact.ts` `email` | - [ ] |
-| 56 | "+47 405 94 584" | Contact block row "Phone"; menu panel; footer | `src/data/contact.ts` `phone` | - [ ] |
-| 57 | "linkedin.com/in/ponomalex" | Contact block row "LinkedIn"; footer | `src/data/contact.ts` `linkedin` | - [ ] |
-| 58 | "github.com/ponomaleks" | Contact block row "GitHub"; footer | `src/data/contact.ts` `github` | - [ ] |
-| 59 | "Email is fastest. Phone and LinkedIn work too." | Contact block, lead | `src/components/home/ContactBlock.astro` | - [ ] |
-| 60 | "If your team is hiring in the Oslo area, I’d like to hear about it." | closing band | `src/components/layout/CtaBand.astro` | - [ ] |
-| 61 | "Based in": "Nittedal, Norge" (Residence) | footer | `src/data/contact.ts` `residence.name` | - [ ] |
-| 62 | "60.07° N, 10.87° E" | footer, under the Residence | `src/data/contact.ts` `residence.lat`, `residence.lon` | - [ ] |
-| 63 | "Sist oppdatert 2026-10-04" | footer | `src/data/contact.ts` `lastUpdated` | - [ ] |
-| 64 | The contact card "Save contact (.vcf)" downloads, and the QR tile: name, title "Software Engineer", phone, email, both profiles, address Oslo, Norway | Contact block, closing band, Sticky action bar; QR tile from 1024 | `public/alexander-ponomarenko.vcf`, checked against `src/data/contact.ts` by `scripts/check-contact.ts`; `public/qr/qr-vcard-{dag,natt}.svg` (static, a shortened card) | - [ ] |
+- [ ] **55.** "ponomaleks@gmail.com". Where: Contact block row "Email" and the mail-link sentence; menu panel; footer. Source: `src/data/contact.ts` `email`
+- [ ] **56.** "+47 405 94 584". Where: Contact block row "Phone"; menu panel; footer. Source: `src/data/contact.ts` `phone`
+- [ ] **57.** "linkedin.com/in/ponomalex". Where: Contact block row "LinkedIn"; footer. Source: `src/data/contact.ts` `linkedin`
+- [ ] **58.** "github.com/ponomaleks". Where: Contact block row "GitHub"; footer. Source: `src/data/contact.ts` `github`
+- [ ] **59.** "Email is fastest. Phone and LinkedIn work too.". Where: Contact block, lead. Source: `src/components/home/ContactBlock.astro`
+- [ ] **60.** "If your team is hiring in the Oslo area, I’d like to hear about it.". Where: closing band. Source: `src/components/layout/CtaBand.astro`
+- [ ] **61.** "Based in": "Nittedal, Norge" (Residence). Where: footer. Source: `src/data/contact.ts` `residence.name`
+- [ ] **62.** "60.07° N, 10.87° E". Where: footer, under the Residence. Source: `src/data/contact.ts` `residence.lat`, `residence.lon`
+- [ ] **63.** "Sist oppdatert 2026-10-04". Where: footer. Source: `src/data/contact.ts` `lastUpdated`
+- [ ] **64.** The contact card "Save contact (.vcf)" downloads, and the QR tile: name, title "Software Engineer", phone, email, both profiles, address Oslo, Norway. Where: Contact block, closing band, Sticky action bar; QR tile from 1024. Source: `public/alexander-ponomarenko.vcf`, checked against `src/data/contact.ts` by `scripts/check-contact.ts`; `public/qr/qr-vcard-{dag,natt}.svg` (static, a shortened card)
 
 ### Read outside the page (search results and link previews)
 
-| # | Claim, as shown | Where | Source | Owner |
-|---|---|---|---|---|
-| 65 | "Alexander Ponomarenko · Software Engineer" | page title, preview card title | `src/pages/index.astro`, `title` | - [ ] |
-| 66 | "Alexander Ponomarenko, Software Engineer and Full Stack Developer based in Oslo, Norway." | page description, preview card | `src/pages/index.astro`, `description` | - [ ] |
-| 67 | Structured Person data: job title "Software Engineer", address Oslo, NO, email, phone, both profiles | `application/ld+json` block | `src/data/person.ts` `buildPerson`, from `src/data/contact.ts` | - [ ] |
+- [ ] **65.** "Alexander Ponomarenko · Software Engineer". Where: page title, preview card title. Source: `src/pages/index.astro`, `title`
+- [ ] **66.** "Alexander Ponomarenko, Software Engineer and Full Stack Developer based in Oslo, Norway.". Where: page description, preview card. Source: `src/pages/index.astro`, `description`
+- [ ] **67.** Structured Person data: job title "Software Engineer", address Oslo, NO, email, phone, both profiles. Where: `application/ld+json` block. Source: `src/data/person.ts` `buildPerson`, from `src/data/contact.ts`
 
 Not in this list: Recommendations (phase 4b adds a row per quote with the person's agreement) and Selected projects (not rendered, AC-11).
 

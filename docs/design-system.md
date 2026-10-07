@@ -123,6 +123,6 @@ All values come from `src/styles/tokens.css` (`--fjord-*`, generated, do not edi
 - **Empty states:** `EmptyState` (eyebrow + title + body + optional action). A section with nothing published is hidden rather than shown empty (roadmap: projects never go public empty).
 - **Loading:** none on static pages: content is rendered at build time, and fonts use matched fallbacks. `Skeleton` only for islands that fetch.
 - **Validation:** inline error attached to the field (`aria-describedby`). Timing is decided in the spec of the first form (CV contact).
-- **Microcopy tone:** modest and concrete, English for main content, Norwegian for small warm details ("Hei", "Ta kontakt", "Kopiert", "Ikke funnet", …; `lang="no"`). No superlatives, numbers verified or `[placeholder]` (`CLAUDE.md` §Content rules).
+- **Microcopy tone:** modest and concrete, English for main content, Norwegian for small warm details ("Hei", "Ta kontakt", "Ikke funnet", …; `lang="no"`). No superlatives, numbers verified or `[placeholder]` (`CLAUDE.md` §Content rules).
 - **Motion:** motion tokens only. With `prefers-reduced-motion: reduce`, fades only and no loops. View Transitions are progressive enhancement.
 - **Accessibility:** WCAG 2.2 AA, 44px touch targets, visible `:focus-visible`, no hover-only information.

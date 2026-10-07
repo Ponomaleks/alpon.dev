@@ -49,7 +49,7 @@ Note: CLAUDE.md plans `/cv`, `/cv/en`, `/cv/no` as CV pages later. The spec that
 |---|---|---|
 | P-20 | Shows name "Alexander Ponomarenko" and role "Software Engineer" / "Full Stack Developer" | active |
 | P-21 | Contact data visible and linked: phone `+47 405 94 584` (`tel:+4740594584`), email `ponomaleks@gmail.com` (`mailto:`), LinkedIn `linkedin.com/in/ponomalex`, GitHub `github.com/ponomaleks`, "Oslo, Norge" | active |
-| P-22 | Copy-email button copies the address and confirms (stub: "Copied"; v2 copy rule: "Kopiert") | active |
+| P-22 | Copy-email button copies the address and confirms (stub: "Copied"; v2: "Copied", home spec D-18) | active |
 | P-23 | "Save contact" links to `/alexander-ponomarenko.vcf` with a `download` attribute | active |
 | P-24 | Head meta: title, description, canonical `https://alpon.dev/`, `og:*` with `og:image=https://alpon.dev/og.png` 1200×630, `twitter:card=summary_large_image`, JSON-LD `Person` (name, jobTitle, email, telephone, Oslo/NO address, `sameAs` LinkedIn + GitHub) | active |
 | P-25 | Skip link is the first focusable element | active |

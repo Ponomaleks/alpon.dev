@@ -67,8 +67,8 @@ S-7  Sticky action bar at 390 — bar-open, bar-collapsed, Toast above the tab (
 bar-open                                  bar-collapsed
 +--------------------------------------+  +--------------------------------------+
 |   page content                       |  |   page content                       |
-|        ( ✓ Kopiert  address )        |  |                                      |
-|                               +----+ |  |        ( ✓ Kopiert  address )        |
+|        ( ✓ Copied   address )        |  |                                      |
+|                               +----+ |  |        ( ✓ Copied   address )        |
 |                               | ⌄  | |  |                               +----+ |
 +===============================+    +=+  |                               | ⌃  | |
 | [ ▤ View CV     ] [ ⇩ Save contact ] |  +-------------------------------+----+-+
@@ -125,7 +125,7 @@ The whole page design, content first. Page options: `headerOverHero: true`, `cta
 | qr shown | Screen at least 1024 | QrTile for the current theme, 132 wide, caption "Skann meg" (`lang="no"`) under the tile inside the figure, text alternative, and beside the figure the hint "Point your phone’s camera here to open my contact card." | QrTile; AC-17; H-3 |
 | qr hidden | Screen below 1024 | No tile and no hint | AC-17 |
 | copy offered | Scripts on | "Copy" with the copy icon at the right end of the email row: the design's 32 px control inside a 44 × 44 target (spec D-18) | `ui/CopyButton`, Icon (`copy`); AC-14 |
-| copy success | The browser allows the clipboard write | Toast with the check icon: "Kopiert" (`lang="no"`) and the address; announced, leaves by itself; above the tab below 768. The "Copy" control shows "Kopiert" (`lang="no"`, success colour; with the check icon from 768) for the copied duration and returns to "Copy"; same size, same name (spec D-18) | CopyButton (done state), Toast, Icon (`check`); AC-14 |
+| copy success | The browser allows the clipboard write | Toast with the check icon: "Copied" and the address, in English; announced, leaves by itself; above the tab below 768. The "Copy" control shows "Copied" (success colour, no icon) for the copied duration and returns to "Copy"; same size, same name (spec D-18) | CopyButton (done state), Toast, Icon (`check`); AC-14 |
 | copy refused (error) | The browser refuses or has no clipboard access | Toast without the check icon, in English: "Couldn't copy. Select the address to copy it." No confirmation. The address stays a selectable mail link | CopyButton, Toast; AC-15; sad.md §6 "Flagged by the flows" item 1 |
 | copy not offered | Scripts off, or the page script did not load | "Copy" is not displayed and leaves no gap; the address stays a selectable mail link | AC-15, AC-32 |
 | closing band, home | End of the page, right under the contact section | CtaBand with "Save contact (.vcf)" and "Download CV" (English PDF), both secondary, `download`; no "Get in touch". Contours as in §Shell state changes `cta-band` | CtaBand, Button ×2 (secondary); AC-40, AC-41, D-12; H-3 |
@@ -302,7 +302,7 @@ Delta only. Page options, the real Header and Footer, the demo states and every 
 |---|---|---|
 | Icon | Icon | adds `play`, `pause`, `check`, `chevron-down`, `chevron-up`, `copy` and the contact icons |
 | Stat | Stat | unchanged look; note that `countUp` shows the final number here |
-| Toast | Toast | success with the check icon ("Kopiert" and an address); the refusal message without an icon. "Show toast" as before |
+| Toast | Toast | success with the check icon ("Copied" and an address); the refusal message without an icon. "Show toast" as before |
 | Contours | Contours | adds the corner shape as used in the hero, static |
 | Header variants | Header (samples in the flow) | adds over-hero in Dag with primary and with secondary "Get in touch", and over-hero in Natt with secondary; removes the sample that showed the bar-dependent secondary rule |
 | Sticky action bar | MobileBar (inline samples) | bar-open with the default pair and the tab; bar-collapsed |
