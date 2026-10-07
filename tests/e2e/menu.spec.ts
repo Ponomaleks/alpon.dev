@@ -322,13 +322,70 @@ test.describe('mobile menu scrolling (R2)', () => {
 
 // Owner design review: the panel's top bar repeats the header's, so the wordmark stays where it
 // is and the close button takes the place of the menu button when the panel opens and closes.
+// Measured once the panel's entrance animation has finished, in the conditions that moved it:
+// a viewport shorter than the panel's content (the top bar used to shrink) and a classic,
+// space-taking scrollbar (the page used to widen under the open panel).
 test.describe('the panel top bar lines up with the header', () => {
   const HOME = 'a[aria-label="alpon.dev, home"]';
-  const rect = async (target: ReturnType<Page['locator']>) => {
-    const found = await target.boundingBox();
-    if (!found) throw new Error('element has no box');
-    return found;
+  type Box = { x: number; y: number; width: number; height: number };
+
+  const headerBoxes = (page: Page) =>
+    page.evaluate((home) => {
+      const box = (el: Element | null | undefined) => {
+        if (!el) throw new Error('element is missing');
+        const { x, y, width, height } = el.getBoundingClientRect();
+        return { x, y, width, height };
+      };
+      return {
+        wordmark: box(document.querySelector(`header[data-header] ${home}`)),
+        button: box(document.querySelector('header[data-header] [aria-controls="mobile-menu"]')),
+      };
+    }, HOME);
+
+  // Waits for every animation of the panel to finish, then reads the final boxes.
+  const panelBoxes = (page: Page) =>
+    page.evaluate(async (home) => {
+      const dialog = document.querySelector('dialog#mobile-menu');
+      if (!dialog) throw new Error('the panel is missing');
+      await Promise.all(dialog.getAnimations({ subtree: true }).map((a) => a.finished));
+      await new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done)));
+      const box = (el: Element | null) => {
+        if (!el) throw new Error('element is missing');
+        const { x, y, width, height } = el.getBoundingClientRect();
+        return { x, y, width, height };
+      };
+      return {
+        wordmark: box(dialog.querySelector(home)),
+        button: box(dialog.querySelector('button[aria-label="Close menu"]')),
+      };
+    }, HOME);
+
+  const expectSamePlaces = (
+    before: { wordmark: Box; button: Box },
+    after: { wordmark: Box; button: Box },
+  ) => {
+    for (const part of ['wordmark', 'button'] as const) {
+      for (const side of ['x', 'y', 'width', 'height'] as const) {
+        expect(
+          Math.abs(after[part][side] - before[part][side]),
+          `${part} ${side}: header ${before[part][side]}, panel ${after[part][side]}`,
+        ).toBeLessThanOrEqual(0.5);
+      }
+    }
   };
+
+  async function measure(page: Page, path: string, scrolled: boolean) {
+    await page.goto(path);
+    if (scrolled) {
+      await page.evaluate(() => window.scrollTo(0, 400));
+      await expect(page.locator('header[data-header]')).toHaveAttribute('data-scrolled', '');
+    }
+    const before = await headerBoxes(page);
+    // The Styleguide has sample headers too: the live one is the header with the scroll state.
+    await page.locator('header[data-header] [aria-controls="mobile-menu"]').click();
+    await expect(panel(page)).toBeVisible();
+    return { before, after: await panelBoxes(page) };
+  }
 
   for (const width of [390, 360]) {
     for (const theme of ['dag', 'natt'] as const) {
@@ -341,33 +398,69 @@ test.describe('the panel top bar lines up with the header', () => {
             reducedMotion: 'reduce',
           });
           await page.setViewportSize({ width, height: 844 });
-          await page.goto('/');
+          const { before, after } = await measure(page, '/', scrolled);
           await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
-          if (scrolled) {
-            await page.evaluate(() => window.scrollTo(0, 400));
-            await expect(page.locator('header[data-header]')).toHaveAttribute('data-scrolled', '');
-          }
-          const header = page.locator('header[data-header]');
-          const before = {
-            wordmark: await rect(header.locator(HOME)),
-            button: await rect(menuButton(page)),
-          };
-          await openMenu(page);
-          // The panel fades in; its boxes do not move with reduced motion.
-          const after = {
-            wordmark: await rect(panel(page).locator(HOME)),
-            button: await rect(panel(page).getByRole('button', { name: 'Close menu' })),
-          };
-          for (const part of ['wordmark', 'button'] as const) {
-            for (const side of ['x', 'y', 'width', 'height'] as const) {
-              expect(
-                Math.abs(after[part][side] - before[part][side]),
-                `${part} ${side}: header ${before[part][side]}, panel ${after[part][side]}`,
-              ).toBeLessThanOrEqual(0.5);
-            }
-          }
+          expectSamePlaces(before, after);
         });
       }
     }
   }
+
+  // The panel's content is about 490 to 530 tall: 480 and 320 are shorter than it, 844 is not.
+  for (const width of [360, 390, 600, 767]) {
+    for (const height of [844, 480, 320]) {
+      for (const motion of ['no-preference', 'reduce'] as const) {
+        test(`at ${width} by ${height}, motion ${motion === 'reduce' ? 'reduced' : 'allowed'}: the places are the same after the entrance animation`, async ({
+          page,
+        }) => {
+          await page.emulateMedia({ reducedMotion: motion });
+          await page.setViewportSize({ width, height });
+          const { before, after } = await measure(page, '/', false);
+          expectSamePlaces(before, after);
+        });
+      }
+    }
+  }
+
+  for (const path of ['/does-not-exist', '/styleguide']) {
+    test(`on ${path} at 390 by 480, page scrolled, motion allowed: the places are the same`, async ({
+      page,
+    }) => {
+      await page.emulateMedia({ reducedMotion: 'no-preference' });
+      await page.setViewportSize({ width: 390, height: 480 });
+      const { before, after } = await measure(page, path, path === '/styleguide');
+      expectSamePlaces(before, after);
+    });
+  }
+
+  // The test browsers hide scrollbars; a desktop browser draws one that takes page width.
+  test('with a classic scrollbar the panel is as wide as the header was, so the close button stays over the menu button', async ({
+    playwright,
+    browserName,
+    isMobile,
+    baseURL,
+  }) => {
+    test.skip(browserName !== 'chromium', 'the scrollbar flag is a Chromium one');
+    test.skip(isMobile, 'a phone draws overlay scrollbars, which take no page width');
+    const browser = await playwright.chromium.launch({ ignoreDefaultArgs: ['--hide-scrollbars'] });
+    try {
+      for (const [width, height] of [
+        [600, 844],
+        [390, 480],
+      ] as const) {
+        const page = await browser.newPage({ baseURL, viewport: { width, height } });
+        await page.goto('/');
+        const drawn = await page.evaluate(
+          () => window.innerWidth - document.documentElement.clientWidth,
+        );
+        expect(drawn, 'the browser draws a classic scrollbar').toBeGreaterThan(0);
+        const before = await headerBoxes(page);
+        await openMenu(page);
+        expectSamePlaces(before, await panelBoxes(page));
+        await page.close();
+      }
+    } finally {
+      await browser.close();
+    }
+  });
 });
