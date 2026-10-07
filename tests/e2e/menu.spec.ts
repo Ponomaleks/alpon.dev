@@ -442,6 +442,8 @@ test.describe('the panel top bar lines up with the header', () => {
   }) => {
     test.skip(browserName !== 'chromium', 'the scrollbar flag is a Chromium one');
     test.skip(isMobile, 'a phone draws overlay scrollbars, which take no page width');
+    // It starts a browser of its own: about 5 s alone, past 30 s once in a full run (backlog B-37).
+    test.setTimeout(90_000);
     const browser = await playwright.chromium.launch({ ignoreDefaultArgs: ['--hide-scrollbars'] });
     try {
       for (const [width, height] of [
