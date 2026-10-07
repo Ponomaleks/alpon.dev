@@ -17,6 +17,8 @@ interface Look {
   word: string;
   dev: string;
   link: string;
+  /** The track of the theme switch. */
+  track: string;
   cta: Cta;
 }
 
@@ -33,12 +35,16 @@ function expectedLook(theme: Theme, position: Position, width: number): Look {
   const scrolled = position !== 'top';
   if (theme === 'dag' && overHero) {
     return {
-      // The spruce surface is solid; the default header is the page ground at 94%.
-      bg: 'var(--fjord-spruce)',
+      // As every header state, the ground at 94% (page design: `.fj-header{background:
+      // color-mix(in srgb,var(--fjord-color-bg) 94%,transparent)}`): here the ground is spruce.
+      bg: 'color-mix(in srgb, var(--fjord-spruce) 94%, transparent)',
       border: CLEAR,
       word: 'var(--fjord-snow)',
       dev: 'var(--fjord-snow)',
       link: 'var(--fjord-lichen)',
+      // --fjord-color-bg-raised of the on-spruce rule, opaque as the design's .fj-seg: the label of
+      // the other theme keeps its contrast while the page ground shows through the bar at the top.
+      track: 'rgb(43, 84, 70)',
       cta: wide
         ? {
             kind: 'secondary',
@@ -65,6 +71,7 @@ function expectedLook(theme: Theme, position: Position, width: number): Look {
     word: 'var(--fjord-color-text)',
     dev: 'var(--fjord-color-link)',
     link: 'var(--fjord-color-text-muted)',
+    track: 'var(--fjord-color-bg-raised)',
     cta: theme === 'natt' && overHero && wide ? secondary : primary,
   };
 }
@@ -87,6 +94,7 @@ async function header(page: Page, look?: Look) {
         word: resolve('color', spec.word),
         dev: resolve('color', spec.dev),
         link: resolve('color', spec.link),
+        track: resolve('background-color', spec.track),
         cta:
           spec.cta.kind === 'primary'
             ? {
@@ -111,6 +119,7 @@ async function header(page: Page, look?: Look) {
         word: cs(el.querySelector('.wordmark')).color,
         dev: cs(el.querySelector('.wordmark span')).color,
         link: cs(el.querySelector('.header__nav a')).color,
+        track: cs(el.querySelector('.theme-toggle')).backgroundColor,
         cta: filled
           ? { kind: 'primary', bg: btn.backgroundColor, color: btn.color }
           : { kind: 'secondary', color: btn.color, border: btn.borderBlockEndColor },

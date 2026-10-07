@@ -293,6 +293,28 @@ describe('Header: over the hero (AC-33, ADR-0001)', () => {
     expect([...new Set(redefined)]).toEqual(['--fjord-color-border']);
   });
 
+  it('Dag over the hero keeps the 94 % ground of every header state, now of spruce', () => {
+    // Page design: `.fj-header{background:color-mix(in srgb,var(--fjord-color-bg) 94%,transparent)}`
+    // comes after `.fjord-on-spruce{background-color:var(--fjord-color-bg)}`, so the bar over the
+    // hero is translucent spruce. Here the generated on-spruce rule would win with its solid
+    // ground, so the header's own Dag over-hero rule states the translucent one again.
+    const rules = [...sheet.matchAll(/([^{}@]+)\{([^{}]*)\}/g)].filter(
+      ([, sel = '']) =>
+        /data-theme=["']?dag/.test(sel) && /data-over-hero/.test(sel) && !/__cta|__theme/.test(sel),
+    );
+    const grounds = rules
+      .map(([, , body = '']) => body.match(/background(?:-color)?\s*:\s*([^;}]+)/)?.[1]?.trim())
+      .filter(Boolean);
+    expect(grounds).toHaveLength(1);
+    expect(grounds[0]?.replace(/\s+/g, '')).toBe(
+      'color-mix(insrgb,var(--fjord-color-bg)94%,transparent)',
+    );
+    // The same rule covers the Styleguide sample.
+    expect(rules.map(([, sel = '']) => sel).join(',')).toMatch(
+      /\[data-sample\]\[data-over-hero\]\[data-sample-theme=["']?dag["']?\]/,
+    );
+  });
+
   it('has over-hero rules for both Dag and Natt', () => {
     expect(sheet).toMatch(/:root\[data-theme=["']?dag["']?\][^{},]*\[data-over-hero\]/);
     expect(sheet).toMatch(/:root\[data-theme=["']?natt["']?\][^{},]*\[data-over-hero\]/);

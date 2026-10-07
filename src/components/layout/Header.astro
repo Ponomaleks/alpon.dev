@@ -222,19 +222,14 @@ const links = [
 
   /* Over the home hero (AC-33, ADR-0001). Only under a theme, so without scripts the header keeps
      its default look. Dag: the spruce surface of the hero; its colours come from the on-spruce rule
-     of tokens.css, which names this selector. Here only the border the header does not draw. */
+     of tokens.css, which names this selector. Here the border the header does not draw, and the
+     header's 94% ground again: that rule also sets a solid ground, which the page design's header
+     overrides (`.fj-header` comes after `.fjord-on-spruce`), so the bar is translucent spruce. */
   :global(:root[data-theme='dag']) .header[data-over-hero],
   .header[data-sample][data-over-hero][data-sample-theme='dag'] {
     --fjord-color-border: transparent;
+    background-color: color-mix(in srgb, var(--fjord-color-bg) 94%, transparent);
     border-block-end-color: transparent;
-  }
-
-  /* The theme switch keeps its raised (white) ground in Dag; on the spruce surface it takes the soft tint. */
-  :global(:root[data-theme='dag']) .header[data-over-hero] .header__theme :global(.theme-toggle),
-  .header[data-sample][data-over-hero][data-sample-theme='dag']
-    .header__theme
-    :global(.theme-toggle) {
-    background-color: var(--fjord-color-accent-soft);
   }
 
   @media (min-width: 768px) {
