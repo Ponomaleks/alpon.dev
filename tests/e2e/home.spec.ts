@@ -553,6 +553,8 @@ test.describe('hero badge row and Now line (page design: .x-hero__text, .x-hero_
         first: rect(first),
         textLines,
         gap: parseFloat(getComputedStyle(now).columnGap),
+        fontSize: parseFloat(getComputedStyle(now).fontSize),
+        lineHeight: parseFloat(getComputedStyle(now).lineHeight),
       };
     });
   const middle = (b: { y: number; height: number }) => b.y + b.height / 2;
@@ -563,7 +565,10 @@ test.describe('hero badge row and Now line (page design: .x-hero__text, .x-hero_
     page,
   }) => {
     await open(page, 390);
-    const { line, dot, label, first, textLines, gap } = await nowParts(page);
+    const { line, dot, label, first, textLines, gap, fontSize, lineHeight } = await nowParts(page);
+    // The design's .fjord-mono-small: the small mono size (11.5 px on a phone) at the mono leading.
+    expect(fontSize).toBeCloseTo(11.5, 1);
+    expect(lineHeight / fontSize).toBeCloseTo(1.5, 2);
     expect(dot.width).toBe(7);
     expect(dot.height).toBe(7);
     expect(
@@ -583,7 +588,10 @@ test.describe('hero badge row and Now line (page design: .x-hero__text, .x-hero_
       page,
     }) => {
       await open(page, width, 900);
-      const { line, dot, label, first, textLines, gap } = await nowParts(page);
+      const { line, dot, label, first, textLines, gap, fontSize, lineHeight } =
+        await nowParts(page);
+      expect(fontSize, 'the small mono size, as .fjord-mono-small').toBeLessThanOrEqual(12);
+      expect(lineHeight / fontSize).toBeCloseTo(1.5, 2);
       expect(textLines).toBe(1);
       expect(line.height).toBeLessThan(label.height * 1.5);
       expect(Math.abs(middle(dot) - middle(label))).toBeLessThanOrEqual(1);

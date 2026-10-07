@@ -183,7 +183,7 @@ const now = nowLine(project);
       flex: none;
     }
   }
-  /* Three items of a wrapping row, as the design's .x-hero__now: on a phone the text does not fit
+  /* The type is the design's .fjord-mono-small. Three items of a wrapping row, as .x-hero__now: on a phone the text does not fit
      beside "Nå:", so "Nå:" keeps the first line with the dot and the text takes the lines below
      (Owner decision, design review). From 768 the three stand on one line. */
   .hero__now {
@@ -193,7 +193,9 @@ const now = nowLine(project);
     gap: var(--fjord-space-2);
     margin: var(--fjord-space-1-5) 0 0;
     font-family: var(--fjord-font-mono);
-    font-size: var(--fjord-text-mono-label);
+    font-size: var(--fjord-text-mono-sm);
+    line-height: var(--fjord-leading-mono);
+    font-variant-numeric: tabular-nums;
     color: var(--fjord-color-text-muted);
   }
   /* 7px, as the design's .x-now-dot. */
