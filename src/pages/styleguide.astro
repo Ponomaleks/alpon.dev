@@ -28,7 +28,10 @@ import Portrait from '../components/home/Portrait.astro';
 import MotionControl from '../components/home/MotionControl.astro';
 import QuickFacts from '../components/home/QuickFacts.astro';
 import ExperienceList from '../components/home/ExperienceList.astro';
+import Recommendations from '../components/home/Recommendations.astro';
+import SelectedProjects from '../components/home/SelectedProjects.astro';
 import type { ExperienceEntry } from '../data/home';
+import { sampleProjects, sampleRecommendations } from '../data/samples';
 
 const iconNames: IconName[] = [
   'arrow-right',
@@ -470,6 +473,26 @@ const stateLabel = { hover: 'Hover', focus: 'Focus', active: 'Pressed' } as cons
         </p>
       ))}
     </section>
+
+    <section data-section="Testimonial" class="sg__section">
+      <h2>Testimonial</h2>
+      <div data-sample>
+        <p class="sg__sample-label">Sample data</p>
+        <Recommendations sample items={sampleRecommendations} />
+      </div>
+    </section>
+
+    <section data-section="Selected projects" class="sg__section">
+      <h2>Selected projects</h2>
+      <p class="sg__note">
+        Dormant section: built, and shown only here until the Projects pages exist. The home page
+        does not render it.
+      </p>
+      <div class="sg__dormant" data-sample>
+        <p class="sg__sample-label">Sample data</p>
+        <SelectedProjects items={sampleProjects} as="h3" />
+      </div>
+    </section>
   </div>
 </BaseLayout>
 
@@ -508,6 +531,24 @@ const stateLabel = { hover: 'Hover', focus: 'Focus', active: 'Pressed' } as cons
     margin: 0 0 var(--fjord-space-4);
     max-width: var(--fjord-measure-narrow);
     line-height: var(--fjord-leading-body);
+  }
+
+  /* Marks a block of sample data (AC-12); the placeholder check skips it (AC-28). */
+  .sg__sample-label {
+    margin: 0 0 var(--fjord-space-5);
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-mono-sm);
+    line-height: var(--fjord-leading-ui);
+    letter-spacing: var(--fjord-tracking-label);
+    color: var(--fjord-color-text-muted);
+  }
+  /* The section brings the page container of the home page; the Styleguide has its own. */
+  .sg__dormant :global(.projects) {
+    padding-top: 0;
+  }
+  .sg__dormant :global(.projects__wrap) {
+    max-width: none;
+    padding-inline: 0;
   }
 
   .sg__gap {

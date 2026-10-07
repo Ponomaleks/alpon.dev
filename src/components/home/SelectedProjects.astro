@@ -12,9 +12,11 @@ interface Props {
   items: Project[];
   /** Section number in the eyebrow, e.g. "02". */
   index?: string;
+  /** Level of the section heading; the Styleguide shows the section under its own h2. */
+  as?: 'h2' | 'h3';
 }
 
-const { items, index = '02' } = Astro.props;
+const { items, index = '02', as = 'h2' } = Astro.props;
 const [first, ...rest] = selectProjects(items);
 ---
 
@@ -22,6 +24,7 @@ const [first, ...rest] = selectProjects(items);
   <div class="projects__wrap">
     <div class="projects__head">
       <SectionHeader
+        as={as}
         id="projects-title"
         index={index}
         eyebrow="Projects"

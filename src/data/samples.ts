@@ -1,8 +1,32 @@
-// Sample data for the Styleguide only (home AC-12): the Dormant Selected projects section is shown
-// there with these projects under a "Sample data" label. They are not real projects; the bracketed
-// result values mark them as samples and are allowed only inside a data-sample block (AC-28).
+// Sample data for the Styleguide only (home AC-12): the Testimonial cards and the Dormant Selected
+// projects section are shown there under a "Sample data" label. None of it is real; the bracketed
+// values mark it as sample and are allowed only inside a data-sample block (AC-28).
 // Copy from design/handoff/site/project/site/data.js.
+import type { Recommendation } from './home';
 import type { Project } from './projects';
+
+/** Two Testimonial cards for the Styleguide. Every value is bracketed: no real person, no real quote. */
+export const sampleRecommendations: Recommendation[] = [
+  {
+    name: '[Name]',
+    role: '[Role, company]',
+    quote:
+      '[Recommendation from LinkedIn. Two or three sentences about working with Alexander, kept verbatim.]',
+    consent: true,
+    profile: '[profile address]',
+    date: '[date]',
+    relationship: '[relationship]',
+  },
+  {
+    name: '[Name]',
+    role: '[Role, company]',
+    quote: '[Second recommendation. What he built, how he worked with the team, what changed.]',
+    consent: true,
+    profile: '[profile address]',
+    date: '[date]',
+    relationship: '[relationship]',
+  },
+];
 
 export const sampleProjects: Project[] = [
   {

@@ -7,7 +7,7 @@ acs: ["AC-12", "AC-28"]
 files_hint: ["src/pages/styleguide.astro", "src/pages/_styleguide.test.ts", "scripts/check-placeholders.test.ts"]
 owner: "Alexander Ponomarenko"
 estimate: "S"
-status: "todo"
+status: "done"
 ---
 
 # T29 — Show Testimonial and the Dormant Selected projects on the Styleguide with marked sample data

@@ -28,4 +28,6 @@ export const SECTIONS = [
   'Contact list',
   'QR tile',
   'Mail-link sentence',
+  'Testimonial',
+  'Selected projects',
 ];
