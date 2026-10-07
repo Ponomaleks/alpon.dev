@@ -2,8 +2,9 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { initParallax } from './parallax';
 
-// AC-31 (T10; sad §1 Decision override, §8 Hero parallax). The hero's contours layer follows the
-// pointer through two custom properties, written with style.setProperty only, never beyond
+// AC-31 (T10; sad §1 Decision override, §8 Hero parallax). The hero's contours layer moves against
+// the pointer, as the page design does (Home.jsx: `(e.clientX / innerWidth - 0.5) * -20`), through
+// two custom properties, written with style.setProperty only, never beyond
 // --fjord-parallax-max (10px), and never under reduced motion or on a coarse pointer.
 // The document and matchMedia are injected; [data-hero] gets the pointer listener and
 // [data-contours-parallax] gets the properties.
@@ -70,7 +71,7 @@ describe('initParallax with a fine pointer and motion allowed', () => {
     expect(new Set(s.writes.map(([n]) => n))).toEqual(new Set(['--fj-px', '--fj-py']));
   });
 
-  it('follows the pointer in the same direction and is neutral at the centre', () => {
+  it('moves against the pointer and is neutral at the centre', () => {
     const mid = setup();
     mid.move(RECT.left + RECT.width / 2, RECT.top + RECT.height / 2);
     const centre = last(mid.writes);
@@ -83,10 +84,11 @@ describe('initParallax with a fine pointer and motion allowed', () => {
     const near = setup();
     near.move(RECT.left, RECT.top);
     const start = last(near.writes);
-    expect(end['--fj-px']).toBeGreaterThan(0);
-    expect(end['--fj-py']).toBeGreaterThan(0);
-    expect(start['--fj-px']).toBeLessThan(0);
-    expect(start['--fj-py']).toBeLessThan(0);
+    // Pointer at the right / bottom edge: the layer goes left / up by the maximum, and the reverse.
+    expect(end['--fj-px']).toBe(-MAX);
+    expect(end['--fj-py']).toBe(-MAX);
+    expect(start['--fj-px']).toBe(MAX);
+    expect(start['--fj-py']).toBe(MAX);
   });
 
   it('never goes beyond the parallax maximum, also for a pointer outside the hero', () => {
