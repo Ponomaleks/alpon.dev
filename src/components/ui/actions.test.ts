@@ -26,6 +26,8 @@ const ICONS = [
   'chevron-up',
   'copy',
   'download',
+  // Design fix (T14): "Save contact (.vcf)" uses the design's add-to-contacts glyph.
+  'user-plus',
   'mail',
   'phone',
   'linkedin',
@@ -52,6 +54,7 @@ import IconButton from '${ui('IconButton.astro')}';
 <div data-case="btn-demo-hover"><Button href="/go" data-demo-state="hover">H</Button></div>
 <div data-case="link-default"><Link href="/about">About</Link></div>
 <div data-case="link-external"><Link href="https://github.com/x" external>GitHub</Link></div>
+<div data-case="link-standalone"><Link href="/cv" standalone>Full CV</Link></div>
 <div data-case="link-demo-focus"><Link href="/about" data-demo-state="focus">F</Link></div>
 <div data-case="iconbtn"><IconButton icon="menu" label="Open menu" /></div>
 <div data-case="iconbtn-disabled"><IconButton icon="x" label="Close menu" disabled /></div>
@@ -208,6 +211,17 @@ describe('Link (TextLink)', () => {
     expect(el).toMatch(/<svg\b[^>]*aria-hidden="true"/);
   });
 
+  it('standalone stays in the tab and carries the standalone class and a hidden arrow', () => {
+    const el = made('link-standalone');
+    expect(el).toMatch(/^\s*<a\b[^>]*href="\/cv"/);
+    expect(classesOf(el)).toContain('fj-link--standalone');
+    expect(classesOf(el)).not.toContain('fj-link--external');
+    expect(el).not.toMatch(/\b(rel|target)=/);
+    expect(el).toMatch(/<span class="fj-link__icon"[^>]*>\s*<svg\b[^>]*aria-hidden="true"/);
+    // The arrow-right path, not the external arrow.
+    expect(el).toContain(made('icon-arrow-right').match(/\bd="([^"]+)"/)?.[1]);
+  });
+
   it('passes data-demo-state through', () => {
     expect(made('link-demo-focus')).toContain('data-demo-state="focus"');
   });
@@ -324,7 +338,7 @@ describe('interactive states in the built CSS', () => {
   });
 
   it('the external link draws its underline on hover and nudges its icon up and right', () => {
-    const base = rules().find(([sel]) => sel === '.fj-link--external');
+    const base = rules().find(([sel]) => sel.split(',').includes('.fj-link--external'));
     expect(base?.[1]).toMatch(/text-decoration:\s*none/);
     expect(base?.[1]).toMatch(/linear-gradient\(currentcolor,\s*currentcolor\)/i);
     const grown = rules().find(([sel]) => sel.includes('.fj-link--external:hover'));
@@ -333,6 +347,24 @@ describe('interactive states in the built CSS', () => {
     const nudge = rules().find(([sel]) => sel.includes('.fj-link--external:hover .fj-link__icon'));
     expect(nudge?.[1]).toMatch(
       /transform:\s*translate\(var\(--fjord-space-0-5\),\s*calc\([^;]*var\(--fjord-space-0-5\)[^;]*\)\)/,
+    );
+  });
+
+  // Design (actions.css): the standalone link shares the growing line and its arrow moves 3px right.
+  it('the standalone link draws its underline on hover and nudges its arrow to the right', () => {
+    const base = rules().find(([sel]) => sel.split(',').includes('.fj-link--standalone'));
+    expect(base?.[1]).toMatch(/text-decoration:\s*none/);
+    expect(base?.[1]).toMatch(/linear-gradient\(currentcolor,\s*currentcolor\)/i);
+    const grown = rules().find(([sel]) => sel.includes('.fj-link--standalone:hover'));
+    expect(grown?.[0]).toContain('.fj-link--standalone:focus-visible');
+    expect(grown?.[1]).toMatch(/background-size:\s*100% /);
+    const nudge = rules().find(([sel]) =>
+      sel.includes('.fj-link--standalone:hover .fj-link__icon'),
+    );
+    expect(nudge?.[0]).toContain('.fj-link--standalone[data-demo-state=hover] .fj-link__icon');
+    // 3px from tokens (2px + the 1px hairline); the build may shorten translateX(x) to translate(x).
+    expect(nudge?.[1]).toMatch(
+      /transform:\s*translateX?\(calc\(var\(--fjord-space-0-5\)\s*\+\s*var\(--fjord-border-width\)\)\)/,
     );
   });
 

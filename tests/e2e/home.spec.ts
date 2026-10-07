@@ -224,6 +224,25 @@ test.describe('About (AC-07)', () => {
       0,
     );
   });
+
+  for (const width of [390, 834, 1440]) {
+    test(`each language is on its own line at ${width}`, async ({ page }) => {
+      await open(page, width, 900);
+      const lines = page.locator('main #about .quick__row').nth(3).locator('dd');
+      await expect(lines).toHaveText([
+        'English, upper-intermediate',
+        'Norwegian, intermediate',
+        'Ukrainian, native',
+      ]);
+      const boxes = [await box(lines.nth(0)), await box(lines.nth(1)), await box(lines.nth(2))];
+      for (let i = 1; i < boxes.length; i++) {
+        const [above, line] = [boxes[i - 1], boxes[i]];
+        if (!above || !line) throw new Error('no box');
+        expect(line.x).toBeCloseTo(above.x, 0);
+        expect(line.y).toBeGreaterThanOrEqual(above.y + above.height - 1);
+      }
+    });
+  }
 });
 
 test.describe('experience (AC-08)', () => {
@@ -244,6 +263,57 @@ test.describe('experience (AC-08)', () => {
     await expect(
       page.locator('main .experience').getByRole('link', { name: 'Full CV' }),
     ).toHaveAttribute('href', '/cv');
+  });
+
+  // Page design (.fj-xp-item): one column, the period above the heading, on a phone and at desktop,
+  // where the list is the narrow column beside the section heading.
+  for (const width of [390, 1024, 1440]) {
+    test(`an entry is one column at ${width}: period, then heading, then body`, async ({
+      page,
+    }) => {
+      await open(page, width, 900);
+      const entry = page.locator('main .experience details').first();
+      const meta = await box(entry.locator('.xp__meta'));
+      const title = await box(entry.locator('.xp__title'));
+      const body = await box(entry.locator('.xp__body'));
+      const chevron = await box(entry.locator('.xp__chevron'));
+      expect(title.x).toBeCloseTo(meta.x, 0);
+      expect(title.y).toBeGreaterThanOrEqual(meta.y + meta.height - 1);
+      expect(body.x).toBeCloseTo(title.x, 0);
+      expect(body.y).toBeGreaterThanOrEqual(title.y + title.height - 1);
+      // The chevron stands beside the heading, not beside the period.
+      expect(chevron.x).toBeGreaterThanOrEqual(title.x + title.width - 1);
+      expect(chevron.y).toBeGreaterThanOrEqual(meta.y + meta.height - 1);
+    });
+  }
+
+  // On a tablet the list is wide: the period takes a fixed 160px column on the left, the heading
+  // and the body share the right one.
+  for (const width of [768, 834, 1023]) {
+    test(`an entry is two columns at ${width}: period left, heading and body right`, async ({
+      page,
+    }) => {
+      await open(page, width, 900);
+      const entry = page.locator('main .experience details').first();
+      const meta = await box(entry.locator('.xp__meta'));
+      const title = await box(entry.locator('.xp__title'));
+      const body = await box(entry.locator('.xp__body'));
+      expect(meta.width).toBeCloseTo(160, 0);
+      expect(title.x).toBeCloseTo(meta.x + 160 + 24, 0);
+      expect(Math.abs(title.y - meta.y)).toBeLessThanOrEqual(8);
+      expect(body.x).toBeCloseTo(title.x, 0);
+      expect(body.y).toBeGreaterThanOrEqual(title.y + title.height - 1);
+    });
+  }
+
+  test('"Full CV" carries an arrow that is not part of its name', async ({ page }) => {
+    await open(page, 1440, 900);
+    const link = page
+      .locator('main .experience')
+      .getByRole('link', { name: 'Full CV', exact: true });
+    await expect(link.locator('svg')).toBeVisible();
+    const arrow = await box(link.locator('svg'));
+    expect(arrow.width).toBeCloseTo(16, 0);
   });
 
   test('a click opens and closes an entry and shows its body', async ({ page }) => {

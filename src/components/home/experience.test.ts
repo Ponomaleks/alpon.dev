@@ -101,6 +101,25 @@ describe('ExperienceList', () => {
     expect(text(link)).toContain('Full CV');
   });
 
+  // Page design (Home.jsx): <TextLink variant="standalone">Full CV</TextLink>, a link with an arrow.
+  it('draws "Full CV" as a standalone link with its arrow', async () => {
+    const html = await render();
+    const link = html.match(/<a\b[^>]*href="\/cv"[^>]*>[\s\S]*?<\/a>/)?.[0] ?? '';
+    expect(link).toMatch(/class="[^"]*\bfj-link--standalone\b/);
+    expect(link).toMatch(/<svg\b[^>]*aria-hidden="true"/);
+    expect(link).not.toMatch(/\b(target|rel)=/);
+  });
+
+  it('puts the period before the role and the organisation in every summary', async () => {
+    const list = entries(await render());
+    experience.forEach((x, i) => {
+      const s = text(list[i]?.summary ?? '');
+      expect(s.indexOf(x.period)).toBeGreaterThanOrEqual(0);
+      expect(s.indexOf(x.period)).toBeLessThan(s.indexOf(x.role));
+      expect(s.indexOf(x.role)).toBeLessThan(s.indexOf(x.org));
+    });
+  });
+
   it('marks the chevron through the [open] selector, without a script', async () => {
     const html = await render();
     expect(html).toMatch(/chevron-down/);

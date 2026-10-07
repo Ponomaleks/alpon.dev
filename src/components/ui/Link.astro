@@ -5,15 +5,18 @@ interface Props {
   href: string;
   /** Leaves the site: adds the arrow icon and rel="noopener noreferrer". */
   external?: boolean;
+  /** A link on its own line that leads on inside the site: adds the arrow that moves on hover. */
+  standalone?: boolean;
   /** Forces a state for the Styleguide (hook H-4). */
   'data-demo-state'?: 'hover' | 'focus' | 'active';
 }
 
-const { href, external = false, 'data-demo-state': demoState } = Astro.props;
+const { href, external = false, standalone = false, 'data-demo-state': demoState } = Astro.props;
+const lone = standalone && !external;
 ---
 
 <a
-  class:list={['fj-link', external && 'fj-link--external']}
+  class:list={['fj-link', external && 'fj-link--external', lone && 'fj-link--standalone']}
   href={href}
   rel={external ? 'noopener noreferrer' : undefined}
   data-demo-state={demoState}
@@ -22,6 +25,11 @@ const { href, external = false, 'data-demo-state': demoState } = Astro.props;
   {external && (
     <span class="fj-link__icon">
       <Icon name="arrow-up-right" />
+    </span>
+  )}
+  {lone && (
+    <span class="fj-link__icon">
+      <Icon name="arrow-right" />
     </span>
   )}
 </a>
@@ -36,6 +44,7 @@ const { href, external = false, 'data-demo-state': demoState } = Astro.props;
   }
 
   /* No underline at rest: a line in the text colour grows from the left on hover and focus. */
+  .fj-link--standalone,
   .fj-link--external {
     display: inline-flex;
     align-items: center;
@@ -53,6 +62,12 @@ const { href, external = false, 'data-demo-state': demoState } = Astro.props;
     display: inline-flex;
   }
 
+  /* The design's 16px arrow beside the standalone link. */
+  .fj-link--standalone .fj-link__icon svg {
+    inline-size: var(--fjord-space-4);
+    block-size: var(--fjord-space-4);
+  }
+
   .fj-link:hover,
   .fj-link:active,
   .fj-link[data-demo-state='hover'],
@@ -61,6 +76,10 @@ const { href, external = false, 'data-demo-state': demoState } = Astro.props;
     text-decoration-color: currentColor;
   }
 
+  .fj-link--standalone:hover,
+  .fj-link--standalone:focus-visible,
+  .fj-link--standalone[data-demo-state='hover'],
+  .fj-link--standalone[data-demo-state='focus'],
   .fj-link--external:hover,
   .fj-link--external:focus-visible,
   .fj-link--external[data-demo-state='hover'],
@@ -82,6 +101,7 @@ const { href, external = false, 'data-demo-state': demoState } = Astro.props;
         text-decoration-color var(--fjord-duration-200) var(--fjord-ease-out);
     }
 
+    .fj-link--standalone,
     .fj-link--external {
       transition:
         background-size var(--fjord-duration-200) var(--fjord-ease-out),
@@ -95,6 +115,12 @@ const { href, external = false, 'data-demo-state': demoState } = Astro.props;
     .fj-link--external:hover .fj-link__icon,
     .fj-link--external[data-demo-state='hover'] .fj-link__icon {
       transform: translate(var(--fjord-space-0-5), calc(-1 * var(--fjord-space-0-5)));
+    }
+
+    /* The design's translateX(3px): 2px and the 1px hairline, so no distance is a literal. */
+    .fj-link--standalone:hover .fj-link__icon,
+    .fj-link--standalone[data-demo-state='hover'] .fj-link__icon {
+      transform: translateX(calc(var(--fjord-space-0-5) + var(--fjord-border-width)));
     }
   }
 </style>
