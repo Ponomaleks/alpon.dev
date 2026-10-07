@@ -112,11 +112,11 @@ test.describe('home page', () => {
     await expect(block.getByText('Oslo, Norge')).toBeVisible();
   });
 
-  test('P-22 copy-email button copies and confirms "Kopiert"', async ({ page, context }) => {
+  test('P-22 copy-email button copies and confirms "Copied"', async ({ page, context }) => {
     await context.grantPermissions(['clipboard-read', 'clipboard-write']);
     await page.goto('/');
     await page.locator('#contact [data-copy-email]').click();
-    await expect(page.getByRole('status')).toContainText('Kopiert');
+    await expect(page.getByRole('status')).toContainText('Copied');
     expect(await page.evaluate(() => navigator.clipboard.readText())).toBe('ponomaleks@gmail.com');
   });
 

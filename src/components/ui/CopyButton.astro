@@ -2,7 +2,8 @@
 // The design's CopyButton (.fj-copy): a small bordered mono control, 32px high. The button itself
 // is the 44px touch target; the visible control is drawn inside it. It only looks like the
 // control: the page script that copies finds it by the data attribute its caller passes.
-// Done state (design: .fj-copy[data-done="true"], "Kopiert" for --fjord-duration-copied): both
+// Done state (design: .fj-copy[data-done="true"] for --fjord-duration-copied; here "Copied" in
+// English and without the check icon, so the control keeps the design's width; spec D-18): both
 // faces are in the markup and share one grid cell, so the control keeps its size; the script only
 // sets `data-done`. The done face is hidden from assistive technology and the first face is only
 // made transparent, so the name stays "Copy" and the Toast alone announces the copy.
@@ -10,7 +11,7 @@ import Icon from './Icon.astro';
 
 interface Props {
   label?: string;
-  /** The label of the done state; Norwegian. */
+  /** The label of the done state. */
   done?: string;
   /** Forces a state for the Styleguide (hook H-4). */
   'data-demo-state'?: 'hover' | 'focus';
@@ -20,7 +21,7 @@ interface Props {
   [hook: `data-${string}`]: string | undefined;
 }
 
-const { label = 'Copy', done = 'Kopiert', ...hooks } = Astro.props;
+const { label = 'Copy', done = 'Copied', ...hooks } = Astro.props;
 ---
 
 <button type="button" class="fj-copy" {...hooks}>
@@ -30,8 +31,7 @@ const { label = 'Copy', done = 'Kopiert', ...hooks } = Astro.props;
       {label}
     </span>
     <span class="fj-copy__face fj-copy__face--done" aria-hidden="true">
-      <Icon name="check" />
-      <span lang="no">{done}</span>
+      {done}
     </span>
   </span>
 </button>
@@ -74,18 +74,6 @@ const { label = 'Copy', done = 'Kopiert', ...hooks } = Astro.props;
 
   .fj-copy__face--done {
     visibility: hidden;
-  }
-
-  /* On a phone the row has no room for a wider control (the address must stay on one line at
-     360), so the done face is "Kopiert" alone; from 768 it has the design's check icon. */
-  .fj-copy__face--done svg {
-    display: none;
-  }
-
-  @media (min-width: 768px) {
-    .fj-copy__face--done svg {
-      display: inline;
-    }
   }
 
   /* The design's 14px icon. */

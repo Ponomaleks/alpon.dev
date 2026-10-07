@@ -1,7 +1,7 @@
 // Copy the email address (AC-14, AC-15; sad §8 Copy email). Activating the Copy button writes the
 // address with the Clipboard API, then asks the Toast to confirm and marks the button done for a
-// short time, as the design's CopyButton does (`data-done="true"`; the styles show "Kopiert").
-// A refusal or a missing API gets the English hand-copy message and never "Kopiert". The script
+// short time, as the design's CopyButton does (`data-done="true"`; the styles show "Copied").
+// A refusal or a missing API gets the English hand-copy message and never "Copied". The script
 // only sets and removes the attribute. The document, navigator and duration are injected.
 
 interface CopyButton {
@@ -49,7 +49,7 @@ export function initCopyEmail({ document: doc, navigator: nav, duration }: CopyE
         clearTimeout(timer);
         button.setAttribute('data-done', 'true');
         timer = setTimeout(reset, duration);
-        toast({ message: 'Kopiert', lang: 'no', meta: address, icon: 'check' });
+        toast({ message: 'Copied', meta: address, icon: 'check' });
       },
       () => {
         reset();

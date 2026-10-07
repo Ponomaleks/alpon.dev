@@ -243,7 +243,8 @@ test.describe('copy the email address (AC-14)', () => {
     const region = page.getByRole('status');
     const toast = region.locator('.toast');
     await expect(toast).toBeVisible();
-    await expect(toast.locator('[lang="no"]')).toHaveText('Kopiert');
+    await expect(toast).toContainText('Copied');
+    await expect(toast.locator('[lang="no"]')).toHaveCount(0);
     await expect(toast).toContainText(EMAIL);
     await expect(toast).toHaveAttribute('data-icon', 'check');
     expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(EMAIL);
@@ -251,11 +252,11 @@ test.describe('copy the email address (AC-14)', () => {
     await expect(toast).toHaveCount(0, { timeout: 10_000 });
   });
 
-  // Owner's design review (reverses D-18): Copy shows the design's own done state ("Kopiert", the
+  // Owner's design review (reverses D-18): Copy shows the design's own done state ("Copied", the
   // success colour) for --fjord-duration-copied and returns to "Copy". The control keeps its size
   // and its name, so the Toast is the one announcement.
   for (const width of [360, 1440]) {
-    test(`at ${width} Copy shows "Kopiert", keeps its size and name, and returns to "Copy"`, async ({
+    test(`at ${width} Copy shows "Copied", keeps its size and name, and returns to "Copy"`, async ({
       page,
     }) => {
       await openIn(page, 'dag', width);
@@ -276,21 +277,26 @@ test.describe('copy the email address (AC-14)', () => {
       await button.click();
       await expect(button).toHaveAttribute('data-done', 'true');
       await expect(doneFace).toBeVisible();
-      await expect(doneFace.locator('[lang="no"]')).toHaveText('Kopiert');
+      await expect(doneFace).toHaveText('Copied');
+      await expect(doneFace.locator('[lang]')).toHaveCount(0);
       await expect(doneFace).toHaveAttribute('aria-hidden', 'true');
       await expect(copyFace).toHaveCSS('opacity', '0');
-      // The check icon needs the room of a wide row.
-      await expect(doneFace.locator('svg')).toBeVisible({ visible: width >= 768 });
+      // No check icon at any width, so the control is as wide as the design's "Copy".
+      await expect(doneFace.locator('svg')).toHaveCount(0);
+      expect((await box(button.locator('.fj-copy__chip'))).width).toBeCloseTo(
+        (await box(copyFace)).width + 26,
+        0,
+      );
       const chip = button.locator('.fj-copy__chip');
       await expect(chip).toHaveCSS('color', await token(page, '--fjord-color-success'));
       await expect(chip).toHaveCSS('border-top-color', await token(page, '--fjord-color-success'));
       // The same name, the same box, the row untouched.
       await expect(button).toHaveAccessibleName('Copy');
-      await expect(page.locator(SECTION).getByRole('button', { name: 'Kopiert' })).toHaveCount(0);
+      await expect(page.locator(SECTION).getByRole('button', { name: 'Copied' })).toHaveCount(0);
       expect(await place(button)).toEqual(before.button);
       expect(await place(address)).toEqual(before.address);
       // The Toast still confirms.
-      await expect(page.getByRole('status').locator('.toast [lang="no"]')).toHaveText('Kopiert');
+      await expect(page.getByRole('status').locator('.toast')).toContainText('Copied');
 
       // Back to "Copy" by itself.
       await expect(button).not.toHaveAttribute('data-done', { timeout: 5_000 });
@@ -302,7 +308,7 @@ test.describe('copy the email address (AC-14)', () => {
 });
 
 test.describe('refused copy (AC-15)', () => {
-  test('a rejected write shows the English message and never "Kopiert"', async ({ page }) => {
+  test('a rejected write shows the English message and never "Copied"', async ({ page }) => {
     await page.addInitScript(() => {
       Object.defineProperty(navigator, 'clipboard', {
         configurable: true,
@@ -314,7 +320,7 @@ test.describe('refused copy (AC-15)', () => {
     const toast = page.getByRole('status').locator('.toast');
     await expect(toast).toBeVisible();
     await expect(toast).toContainText(/select the address/i);
-    await expect(toast).not.toContainText('Kopiert');
+    await expect(toast).not.toContainText('Copied');
     await expect(toast).not.toHaveAttribute('data-icon', 'check');
     await expect(toast.locator('[lang="no"]')).toHaveCount(0);
     // No done state on the button either.

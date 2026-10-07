@@ -268,7 +268,7 @@ const stateLabel = { hover: 'Hover', focus: 'Focus', active: 'Pressed' } as cons
     <section data-section="Toast" class="sg__section">
       <h2>Toast</h2>
       <div class="sg__row">
-        <Toast sample icon="check" message="Kopiert" meta="alpon@example.com" lang="no" />
+        <Toast sample icon="check" message="Copied" meta="alpon@example.com" />
         <Toast sample message="Couldn't copy. Select the address to copy it." lang="en" />
         <span data-needs-script id="sg-show-toast">
           <Button variant="secondary">Show toast</Button>
@@ -477,7 +477,7 @@ const stateLabel = { hover: 'Hover', focus: 'Focus', active: 'Pressed' } as cons
   document.getElementById('sg-show-toast')?.addEventListener('click', () => {
     document.dispatchEvent(
       new CustomEvent('fjord:toast', {
-        detail: { message: 'Kopiert', meta: 'Sample', lang: 'no' },
+        detail: { message: 'Copied', meta: 'Sample' },
       }),
     );
   });

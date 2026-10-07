@@ -140,17 +140,20 @@ describe('ContactBlock', () => {
   // Owner's design review (reverses D-18): the Copy control has the design's own done state.
   // Both faces come from the server; the script only sets `data-done`. The name stays "Copy":
   // the done face is hidden from assistive technology, so only the Toast announces the copy.
-  it('carries both faces of Copy: "Copy" as the name and a hidden Norwegian "Kopiert"', async () => {
+  it('carries both faces of Copy: "Copy" as the name and a hidden "Copied" without an icon', async () => {
     const html = await renderBlock();
     const copy = html.match(/<button\b[^>]*data-copy-email[^>]*>[\s\S]*?<\/button>/)?.[0] ?? '';
     expect(copy).not.toMatch(/<button\b[^>]*\bdata-done\b/);
     expect(copy).not.toMatch(/<button\b[^>]*\baria-label\b/);
     const done = copy.match(/<span\b[^>]*class="fj-copy__face fj-copy__face--done"[^>]*>[\s\S]*$/);
     expect(done?.[0]).toMatch(/^<span\b[^>]*aria-hidden="true"/);
-    expect(done?.[0]).toMatch(/<span\b[^>]*lang="no"[^>]*>\s*Kopiert\s*<\/span>/);
+    // Interface text is English and the done face has no icon, so the control keeps the design's
+    // width (Owner, 2026-10-07).
+    expect(text(done?.[0] ?? '')).toBe('Copied');
+    expect(done?.[0]).not.toContain('lang=');
+    expect(done?.[0]).not.toContain('<svg');
     const icon = readFileSync('src/components/ui/Icon.astro', 'utf8');
     const path = (name: string) => icon.match(new RegExp(`\\b${name}:\\s*'([^']+)'`))?.[1];
-    expect(done?.[0]).toContain(`d="${path('check')}"`);
     const rest = copy.slice(0, done?.index);
     expect(text(rest)).toBe('Copy');
     expect(rest).toContain(`d="${path('copy')}"`);

@@ -2,9 +2,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { initCopyEmail } from './copy-email';
 
 // AC-14, AC-15 (T14; sad §8 Copy email). Activating the Copy button writes the address with the
-// Clipboard API, then dispatches `fjord:toast`. Success: "Kopiert" (lang "no"), the address as
+// Clipboard API, then dispatches `fjord:toast`. Success: "Copied" (English, no lang), the address as
 // meta, icon "check". Refusal or no clipboard: the English refusal message, no icon, never
-// "Kopiert". Contract: initCopyEmail({ document, navigator }); the button is
+// "Copied". Contract: initCopyEmail({ document, navigator }); the button is
 // `[data-copy-email]` and its attribute value is the address; the click listener is on it.
 // Owner's design review (reverses D-18): after a successful write the button also carries
 // `data-done="true"` for `duration` milliseconds (the --fjord-duration-copied token, injected),
@@ -49,7 +49,7 @@ function setup(clipboard: { writeText: (text: string) => Promise<void> } | undef
 }
 
 describe('initCopyEmail', () => {
-  it('writes the address and confirms with Kopiert, the address and the check icon', async () => {
+  it('writes the address and confirms with Copied, the address and the check icon', async () => {
     const written: string[] = [];
     const { toasts, press } = setup({
       writeText: (text) => {
@@ -59,7 +59,7 @@ describe('initCopyEmail', () => {
     });
     await press();
     expect(written).toEqual([ADDRESS]);
-    expect(toasts).toEqual([{ message: 'Kopiert', lang: 'no', meta: ADDRESS, icon: 'check' }]);
+    expect(toasts).toEqual([{ message: 'Copied', meta: ADDRESS, icon: 'check' }]);
   });
 
   it('shows no confirmation before the write has resolved', async () => {
@@ -74,16 +74,16 @@ describe('initCopyEmail', () => {
     expect(toasts).toEqual([]);
     resolve();
     await new Promise((r) => setTimeout(r, 0));
-    expect(toasts.map((t) => t.message)).toEqual(['Kopiert']);
+    expect(toasts.map((t) => t.message)).toEqual(['Copied']);
   });
 
-  it('tells the Visitor to copy by hand when the write is rejected, without icon or Kopiert', async () => {
+  it('tells the Visitor to copy by hand when the write is rejected, without icon or Copied', async () => {
     const { toasts, press } = setup({ writeText: () => Promise.reject(new Error('denied')) });
     await press();
     expect(toasts).toHaveLength(1);
     expect(toasts[0]?.message).toBe(REFUSAL);
     expect(toasts[0]?.icon).toBeUndefined();
-    expect(JSON.stringify(toasts)).not.toContain('Kopiert');
+    expect(JSON.stringify(toasts)).not.toContain('Copied');
   });
 
   it('gives the same refusal when the browser has no clipboard API', async () => {
@@ -92,7 +92,7 @@ describe('initCopyEmail', () => {
     expect(toasts).toHaveLength(1);
     expect(toasts[0]?.message).toBe(REFUSAL);
     expect(toasts[0]?.icon).toBeUndefined();
-    expect(JSON.stringify(toasts)).not.toContain('Kopiert');
+    expect(JSON.stringify(toasts)).not.toContain('Copied');
   });
 });
 
@@ -167,7 +167,7 @@ describe('the done state of the Copy button', () => {
     click();
     await settle();
     expect(done()).toBeNull();
-    expect(toasts.map((t) => t.message)).toEqual(['Kopiert', REFUSAL]);
+    expect(toasts.map((t) => t.message)).toEqual(['Copied', REFUSAL]);
     expect(vi.getTimerCount()).toBe(0);
   });
 

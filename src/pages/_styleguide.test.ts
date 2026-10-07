@@ -100,10 +100,10 @@ describe('built styleguide.html (SCR-04)', () => {
       expect(s.toLowerCase()).toContain(w);
   });
 
-  it('shows the Toast sample with Norwegian meta, outside the live region', () => {
+  it('shows the Toast sample with its meta, outside the live region', () => {
     const s = section('Toast');
-    expect(s).toContain('lang="no"');
-    expect(s).toContain('Kopiert');
+    expect(s).not.toContain('lang="no"');
+    expect(s).toContain('Copied');
     expect(s).toContain('Show toast');
   });
 
@@ -363,10 +363,12 @@ describe('home component sections (T16, SCR-04)', () => {
     const labels = [...s.matchAll(/<dt\b[^>]*>([^<]*)<\/dt>/g)].map((m) => (m[1] ?? '').trim());
     expect(labels).toEqual(['Email', 'Phone', 'LinkedIn', 'GitHub', 'Region']);
     expect(s).not.toContain('Based in');
-    // Default, hover, focus and the done state ("Kopiert", Owner's design review).
+    // Default, hover, focus and the done state ("Copied", Owner's design review).
     expect(s.match(/<button\b[^>]*class="fj-copy"/g)).toHaveLength(4);
     expect(s.match(/<button\b[^>]*class="fj-copy"[^>]*data-done="true"/g)).toHaveLength(1);
-    expect(s).toMatch(/<span\b[^>]*lang="no"[^>]*>\s*Kopiert\s*<\/span>/);
+    expect(s).toMatch(
+      /<span\b[^>]*class="fj-copy__face fj-copy__face--done"[^>]*>\s*Copied\s*<\/span>/,
+    );
     expect(s).not.toMatch(/\bfj-btn--sm\b/);
     expect(s).not.toMatch(/\bfj-link\b/);
     const save = s.match(/<a\b[^>]*href="\/alexander-ponomarenko\.vcf"[\s\S]*?<\/a>/)?.[0] ?? '';
@@ -465,10 +467,10 @@ describe('changed base samples (T17, SCR-04)', () => {
       .split(/(?=<span\b[^>]*class="toast(?:\s[^"]*)?"[^>]*>)/)
       .filter((t) => /^<span\b[^>]*class="toast(?:\s[^"]*)?"/.test(t));
 
-  it('shows the Toast success sample with the check icon, "Kopiert" and an address (AC-14)', () => {
+  it('shows the Toast success sample with the check icon, "Copied" and an address (AC-14)', () => {
     const ok = toasts().filter((t) => /^<span\b[^>]*\sdata-icon="check"/.test(t));
     expect(ok).toHaveLength(1);
-    expect(ok[0]).toContain('Kopiert');
+    expect(ok[0]).toContain('Copied');
     expect(ok[0]).toMatch(/toast__meta[^>]*>[^<]*@/);
   });
 
