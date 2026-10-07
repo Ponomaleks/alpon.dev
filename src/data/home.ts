@@ -31,8 +31,13 @@ export interface ExperienceEntry {
 export interface Recommendation {
   name: string;
   role: string;
+  /** Word for word, paragraphs separated by an empty line. Never edited, shortened or corrected. */
   quote: string;
   consent: boolean;
+  /** Source fields for the Claims list (AC-29). Never rendered. */
+  profile: string;
+  date: string;
+  relationship: string;
 }
 
 export const keyFacts: KeyFact[] = [
@@ -132,8 +137,41 @@ export const experience: ExperienceEntry[] = [
   },
 ];
 
-// Entered in T27, only with the author's consent.
-export const recommendations: Recommendation[] = [];
+// From docs/features/home/owner-inputs.md, word for word (home.test.ts compares them), each with
+// the author's consent.
+export const recommendations: Recommendation[] = [
+  {
+    name: 'Hennadii Shpak',
+    role: 'Senior Software Engineer at EPAM Systems',
+    quote: [
+      'I worked with Oleksandr for over two years and had the opportunity to observe his growth from an EPAM internship student to a strong mid-level specialist.',
+      'Oleksandr has consistently demonstrated high motivation and a strong sense of ownership, always striving to deliver his work with the highest level of quality and responsibility. As his resource manager, I frequently came across positive feedback from project managers, which clearly reflects the reliability and quality of his contributions.',
+      'I would also like to highlight his solid technical expertise. Oleksandr successfully passed two technical assessments in React and JavaScript at the intermediate level, confirming his strong knowledge in these areas.',
+      'In addition, Oleksandr stands out for his initiative and well-developed soft skills. He took on the role of a technical lead for a team of students during a special EPAM event focused on showcasing the key stages of IT product development. Leading the Angular team, he effectively managed all stages of frontend development, and as a result, the team successfully delivered their part on time.',
+      'To sum up, Oleksandr is a dedicated and capable professional who would be a valuable addition to any team.',
+    ].join('\n\n'),
+    consent: true,
+    profile: 'https://www.linkedin.com/in/hennadii-shpak-4435a81a5/',
+    date: 'April 26, 2026',
+    relationship: 'Hennadii managed Alexander directly',
+  },
+  {
+    name: 'Alina Shcherbak',
+    role: 'Frontend Developer at EPAM Systems',
+    quote: [
+      'I had the pleasure of working with Alexander for nearly two years as his Team Lead, and I can confidently say he is a highly reliable and proactive Front-end Developer.',
+      'He consistently demonstrated strong ownership, transparency in his work, and a genuine drive to grow. Alexander is not the kind of person who waits for tasks \u2014 he actively looks for ways to contribute, improve processes, and take on challenging work without hesitation.',
+      'During high-pressure periods with tight deadlines, he showed exceptional dedication, stepping up to ensure the team delivered on time \u2014 even if it meant going the extra mile.',
+      'From my perspective as a lead, Alexander was someone I could fully rely on. When I was away, he took ownership of team responsibilities and ensured everything stayed on track. His supportive attitude, clear communication, and willingness to help others made him a strong pillar within the team.',
+      'On top of his technical skills, he is a great person to work with \u2014 easygoing, respectful, and collaborative.',
+      'I highly recommend Alexander to any team looking for a dependable and motivated engineer who brings both results and a positive team dynamic.',
+    ].join('\n\n'),
+    consent: true,
+    profile: 'https://www.linkedin.com/in/alinka-scherbak-289516124/en/',
+    date: 'April 13, 2026',
+    relationship: 'Alina managed Alexander directly',
+  },
+];
 
 export const nowProject: string | undefined = 'alpon.dev';
 

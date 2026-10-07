@@ -1,0 +1,139 @@
+---
+// Recommendations (AC-09, AC-10): a Testimonial card per Recommendation that has its author's
+// consent. A card prints the quote word for word, paragraph by paragraph, then the name, the role
+// and a link to Alexander's LinkedIn profile, where the originals are. The source fields of a
+// Recommendation (profile address, date, relationship) are never rendered.
+// Layout follows the design's .fj-quote in .x-grid2: one column, two from 768.
+import Link from '../ui/Link.astro';
+import SectionHeader from '../ui/SectionHeader.astro';
+import { contact } from '../../data/contact';
+import { recommendations, visibleRecommendations, type Recommendation } from '../../data/home';
+
+interface Props {
+  /** The Recommendations; the home data by default. One without consent is left out. */
+  items?: Recommendation[];
+  /** Styleguide: the cards alone, without the section and its heading. */
+  sample?: boolean;
+  /** Section number in the eyebrow, e.g. "03". */
+  index?: string;
+}
+
+const { items = recommendations, sample = false, index = '03' } = Astro.props;
+const shown = visibleRecommendations(items).map((r) => ({
+  ...r,
+  // The quotation marks open the first paragraph and close the last one.
+  paragraphs: r.quote
+    .split('\n\n')
+    .map((p, i, all) => (i === 0 ? '“' : '') + p + (i === all.length - 1 ? '”' : '')),
+}));
+---
+
+{sample ? (
+  <div class="recs__grid">
+    {shown.map((r) => (
+      <figure class="quote">
+        <blockquote>
+          {r.paragraphs.map((p) => (
+            <p>{p}</p>
+          ))}
+        </blockquote>
+        <figcaption>
+          <span class="quote__who">
+            <strong>{r.name}</strong>
+            <span>{r.role}</span>
+          </span>
+          <Link href={contact.linkedin} external>
+            On LinkedIn
+          </Link>
+        </figcaption>
+      </figure>
+    ))}
+  </div>
+) : (
+  <section class="recs" aria-labelledby="recommendations-title">
+    <div class="recs__wrap">
+      <SectionHeader
+        id="recommendations-title"
+        index={index}
+        eyebrow="Recommendations"
+        title="From people I’ve worked with"
+      />
+      <Astro.self items={items} sample />
+    </div>
+  </section>
+)}
+
+<style>
+  .recs {
+    padding-top: var(--fjord-space-section);
+  }
+  .recs__wrap {
+    display: flex;
+    flex-direction: column;
+    gap: var(--fjord-space-block);
+    width: 100%;
+    max-width: calc(var(--fjord-content-max) + 2 * var(--fjord-grid-margin));
+    margin-inline: auto;
+    padding-inline: var(--fjord-grid-margin);
+  }
+  .recs__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--fjord-space-14) var(--fjord-grid-gutter);
+  }
+  .quote {
+    display: flex;
+    flex-direction: column;
+    gap: var(--fjord-space-5);
+    margin: 0;
+    padding: var(--fjord-space-7);
+    border: var(--fjord-border-width) solid var(--fjord-color-border);
+    border-radius: var(--fjord-radius-md);
+    background: var(--fjord-color-bg-raised);
+  }
+  .quote blockquote {
+    display: flex;
+    flex-direction: column;
+    gap: var(--fjord-space-4);
+    margin: 0;
+    font-size: var(--fjord-text-lead);
+    line-height: var(--fjord-leading-normal);
+    letter-spacing: var(--fjord-tracking-heading);
+    text-wrap: pretty;
+  }
+  .quote blockquote p {
+    margin: 0;
+  }
+  .quote figcaption {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--fjord-space-2) var(--fjord-space-4);
+    font-size: var(--fjord-text-ui-sm);
+  }
+  .quote__who {
+    display: flex;
+    flex-direction: column;
+    gap: var(--fjord-space-0-5);
+  }
+  .quote__who strong {
+    font-weight: var(--fjord-weight-semibold);
+  }
+  .quote__who span {
+    color: var(--fjord-color-text-muted);
+  }
+  /* A 44px target around the design's link (as in ExperienceList): the hover line stays under
+     the text, at the place the design's 2px bottom padding gives it. */
+  .quote :global(.fj-link) {
+    min-block-size: var(--fjord-tap-min);
+    padding-bottom: 0;
+    line-height: var(--fjord-leading-body);
+    background-position: 0 calc(50% + 0.5em * var(--fjord-leading-body) + var(--fjord-space-0-5));
+  }
+  @media (min-width: 768px) {
+    .recs__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>

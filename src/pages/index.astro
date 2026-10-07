@@ -1,18 +1,22 @@
 ---
-// SCR-01 home (AC-01): Hero, Key facts, About, Experience and Contact, numbered from the
-// sections that are rendered. Recommendations and Selected projects are not rendered yet.
+// SCR-01 home (AC-01): Hero, Key facts, About, Experience, Recommendations and Contact, numbered
+// from the sections that are rendered. Recommendations is rendered only with an agreed quote
+// (AC-09, AC-10); Selected projects is not rendered yet.
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from '../components/home/Hero.astro';
 import KeyFacts from '../components/home/KeyFacts.astro';
 import About from '../components/home/About.astro';
 import ExperienceList from '../components/home/ExperienceList.astro';
+import Recommendations from '../components/home/Recommendations.astro';
 import ContactBlock from '../components/home/ContactBlock.astro';
 import { contact } from '../data/contact';
+import { visibleRecommendations } from '../data/home';
 import { buildPerson } from '../data/person';
 import { homeBandActions } from '../data/shell-actions';
 import { numberSections } from '../scripts/home/sections';
 
-const numbers = numberSections({ projects: false, recommendations: false });
+const hasRecommendations = visibleRecommendations().length > 0;
+const numbers = numberSections({ projects: false, recommendations: hasRecommendations });
 ---
 
 <BaseLayout
@@ -30,6 +34,11 @@ const numbers = numberSections({ projects: false, recommendations: false });
   <div data-reveal-section>
     <ExperienceList index={numbers.experience} />
   </div>
+  {hasRecommendations && (
+    <div data-reveal-section>
+      <Recommendations index={numbers.recommendations} />
+    </div>
+  )}
   <section
     class="contact-place"
     id="contact"
