@@ -117,7 +117,7 @@ test.describe('the look of the rows (design ContactList)', () => {
       expect(look.border).toBe(await token(page, '--fjord-color-border'));
       expect(look.background).toBe('rgba(0, 0, 0, 0)');
       expect(look.font).toContain('JetBrains Mono');
-      const icon = await box(chip.locator('svg'));
+      const icon = await box(chip.locator('.fj-copy__face').first().locator('svg'));
       expect(icon.width).toBeCloseTo(14, 0);
       // Hover: the text colour and the strong border.
       await page.locator(`${SECTION} [data-copy-email]`).hover();
@@ -250,6 +250,55 @@ test.describe('copy the email address (AC-14)', () => {
     // It leaves by itself.
     await expect(toast).toHaveCount(0, { timeout: 10_000 });
   });
+
+  // Owner's design review (reverses D-18): Copy shows the design's own done state ("Kopiert", the
+  // success colour) for --fjord-duration-copied and returns to "Copy". The control keeps its size
+  // and its name, so the Toast is the one announcement.
+  for (const width of [360, 1440]) {
+    test(`at ${width} Copy shows "Kopiert", keeps its size and name, and returns to "Copy"`, async ({
+      page,
+    }) => {
+      await openIn(page, 'dag', width);
+      const button = page.locator(`${SECTION} [data-copy-email]`);
+      const copyFace = button.locator('.fj-copy__face').first();
+      const doneFace = button.locator('.fj-copy__face--done');
+      const address = page.locator(`${SECTION} .contact__row`).first().getByRole('link');
+      // The click scrolls the page: compare the place across the row and the size.
+      const place = async (target: Locator) => {
+        const { x, width, height } = await box(target);
+        return { x, width, height };
+      };
+      const before = { button: await place(button), address: await place(address) };
+      await expect(copyFace).toBeVisible();
+      await expect(doneFace).toBeHidden();
+      await expect(button).not.toHaveAttribute('data-done');
+
+      await button.click();
+      await expect(button).toHaveAttribute('data-done', 'true');
+      await expect(doneFace).toBeVisible();
+      await expect(doneFace.locator('[lang="no"]')).toHaveText('Kopiert');
+      await expect(doneFace).toHaveAttribute('aria-hidden', 'true');
+      await expect(copyFace).toHaveCSS('opacity', '0');
+      // The check icon needs the room of a wide row.
+      await expect(doneFace.locator('svg')).toBeVisible({ visible: width >= 768 });
+      const chip = button.locator('.fj-copy__chip');
+      await expect(chip).toHaveCSS('color', await token(page, '--fjord-color-success'));
+      await expect(chip).toHaveCSS('border-top-color', await token(page, '--fjord-color-success'));
+      // The same name, the same box, the row untouched.
+      await expect(button).toHaveAccessibleName('Copy');
+      await expect(page.locator(SECTION).getByRole('button', { name: 'Kopiert' })).toHaveCount(0);
+      expect(await place(button)).toEqual(before.button);
+      expect(await place(address)).toEqual(before.address);
+      // The Toast still confirms.
+      await expect(page.getByRole('status').locator('.toast [lang="no"]')).toHaveText('Kopiert');
+
+      // Back to "Copy" by itself.
+      await expect(button).not.toHaveAttribute('data-done', { timeout: 5_000 });
+      await expect(doneFace).toBeHidden();
+      await expect(copyFace).toHaveCSS('opacity', '1');
+      expect(await place(button)).toEqual(before.button);
+    });
+  }
 });
 
 test.describe('refused copy (AC-15)', () => {
@@ -268,6 +317,11 @@ test.describe('refused copy (AC-15)', () => {
     await expect(toast).not.toContainText('Kopiert');
     await expect(toast).not.toHaveAttribute('data-icon', 'check');
     await expect(toast.locator('[lang="no"]')).toHaveCount(0);
+    // No done state on the button either.
+    const button = page.locator(`${SECTION} [data-copy-email]`);
+    await expect(button).not.toHaveAttribute('data-done');
+    await expect(button.locator('.fj-copy__face--done')).toBeHidden();
+    await expect(button.locator('.fj-copy__face').first()).toHaveCSS('opacity', '1');
   });
 });
 

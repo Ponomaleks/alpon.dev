@@ -37,7 +37,12 @@ if (countUpRoot) {
   });
 }
 
-initCopyEmail({ document, navigator });
+// The built CSS may serialise 1800ms as "1.8s": read the unit, the script wants milliseconds.
+const copied = getComputedStyle(document.documentElement).getPropertyValue(
+  '--fjord-duration-copied',
+);
+const copiedMs = parseFloat(copied) * (copied.trim().endsWith('ms') ? 1 : 1000);
+initCopyEmail({ document, navigator, duration: copiedMs });
 
 const fragment = decodeURIComponent(location.hash.slice(1));
 initReveal(document.querySelectorAll('[data-reveal-section]'), {

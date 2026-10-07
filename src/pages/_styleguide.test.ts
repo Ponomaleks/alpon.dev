@@ -363,7 +363,10 @@ describe('home component sections (T16, SCR-04)', () => {
     const labels = [...s.matchAll(/<dt\b[^>]*>([^<]*)<\/dt>/g)].map((m) => (m[1] ?? '').trim());
     expect(labels).toEqual(['Email', 'Phone', 'LinkedIn', 'GitHub', 'Region']);
     expect(s).not.toContain('Based in');
-    expect(s.match(/<button\b[^>]*class="fj-copy"/g)).toHaveLength(3);
+    // Default, hover, focus and the done state ("Kopiert", Owner's design review).
+    expect(s.match(/<button\b[^>]*class="fj-copy"/g)).toHaveLength(4);
+    expect(s.match(/<button\b[^>]*class="fj-copy"[^>]*data-done="true"/g)).toHaveLength(1);
+    expect(s).toMatch(/<span\b[^>]*lang="no"[^>]*>\s*Kopiert\s*<\/span>/);
     expect(s).not.toMatch(/\bfj-btn--sm\b/);
     expect(s).not.toMatch(/\bfj-link\b/);
     const save = s.match(/<a\b[^>]*href="\/alexander-ponomarenko\.vcf"[\s\S]*?<\/a>/)?.[0] ?? '';

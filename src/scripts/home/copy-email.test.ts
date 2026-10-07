@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { initCopyEmail } from './copy-email';
 
 // AC-14, AC-15 (T14; sad §8 Copy email). Activating the Copy button writes the address with the
@@ -6,9 +6,13 @@ import { initCopyEmail } from './copy-email';
 // meta, icon "check". Refusal or no clipboard: the English refusal message, no icon, never
 // "Kopiert". Contract: initCopyEmail({ document, navigator }); the button is
 // `[data-copy-email]` and its attribute value is the address; the click listener is on it.
+// Owner's design review (reverses D-18): after a successful write the button also carries
+// `data-done="true"` for `duration` milliseconds (the --fjord-duration-copied token, injected),
+// as the design's CopyButton does. The script only sets and removes that attribute.
 
 const ADDRESS = 'ponomaleks@gmail.com';
 const REFUSAL = "Couldn't copy. Select the address to copy it.";
+const DURATION = 1800;
 
 interface ToastDetail {
   message?: string;
@@ -20,8 +24,11 @@ interface ToastDetail {
 function setup(clipboard: { writeText: (text: string) => Promise<void> } | undefined) {
   const toasts: ToastDetail[] = [];
   let click: () => unknown = () => undefined;
+  const attrs = new Map<string, string>([['data-copy-email', ADDRESS]]);
   const button = {
-    getAttribute: (name: string) => (name === 'data-copy-email' ? ADDRESS : null),
+    getAttribute: (name: string) => attrs.get(name) ?? null,
+    setAttribute: (name: string, value: string) => void attrs.set(name, value),
+    removeAttribute: (name: string) => void attrs.delete(name),
     addEventListener: (type: string, listener: () => unknown) => {
       if (type === 'click') click = listener;
     },
@@ -33,12 +40,12 @@ function setup(clipboard: { writeText: (text: string) => Promise<void> } | undef
       return true;
     },
   };
-  initCopyEmail({ document: doc, navigator: { clipboard } } as never);
+  initCopyEmail({ document: doc, navigator: { clipboard }, duration: DURATION } as never);
   const press = async () => {
     await click();
     await new Promise((resolve) => setTimeout(resolve, 0));
   };
-  return { toasts, press };
+  return { toasts, press, click: () => click(), done: () => attrs.get('data-done') ?? null };
 }
 
 describe('initCopyEmail', () => {
@@ -86,5 +93,93 @@ describe('initCopyEmail', () => {
     expect(toasts[0]?.message).toBe(REFUSAL);
     expect(toasts[0]?.icon).toBeUndefined();
     expect(JSON.stringify(toasts)).not.toContain('Kopiert');
+  });
+});
+
+describe('the done state of the Copy button', () => {
+  beforeEach(() => void vi.useFakeTimers());
+  afterEach(() => void vi.useRealTimers());
+
+  const ok = { writeText: () => Promise.resolve() };
+  const denied = { writeText: () => Promise.reject(new Error('denied')) };
+  const settle = () => vi.advanceTimersByTimeAsync(0);
+
+  it('marks the button done only after the write has resolved', async () => {
+    let resolve: () => void = () => undefined;
+    const { click, done } = setup({
+      writeText: () =>
+        new Promise<void>((r) => {
+          resolve = r;
+        }),
+    });
+    click();
+    await settle();
+    expect(done()).toBeNull();
+    resolve();
+    await settle();
+    expect(done()).toBe('true');
+  });
+
+  it('clears the mark after the duration, not before', async () => {
+    const { click, done } = setup(ok);
+    click();
+    await settle();
+    await vi.advanceTimersByTimeAsync(DURATION - 1);
+    expect(done()).toBe('true');
+    await vi.advanceTimersByTimeAsync(1);
+    expect(done()).toBeNull();
+  });
+
+  it('never marks the button when the write is rejected or there is no clipboard', async () => {
+    for (const clipboard of [denied, undefined]) {
+      const { click, done } = setup(clipboard);
+      click();
+      await settle();
+      expect(done()).toBeNull();
+      await vi.advanceTimersByTimeAsync(DURATION);
+      expect(done()).toBeNull();
+    }
+  });
+
+  it('starts the time again on a second click during the done state', async () => {
+    const { click, done } = setup(ok);
+    click();
+    await settle();
+    await vi.advanceTimersByTimeAsync(1000);
+    click();
+    await settle();
+    await vi.advanceTimersByTimeAsync(DURATION - 1);
+    expect(done()).toBe('true');
+    await vi.advanceTimersByTimeAsync(1);
+    expect(done()).toBeNull();
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it('drops the mark at once when a later click is refused', async () => {
+    let allow = true;
+    const { click, done, toasts } = setup({
+      writeText: () => (allow ? Promise.resolve() : Promise.reject(new Error('denied'))),
+    });
+    click();
+    await settle();
+    expect(done()).toBe('true');
+    allow = false;
+    click();
+    await settle();
+    expect(done()).toBeNull();
+    expect(toasts.map((t) => t.message)).toEqual(['Kopiert', REFUSAL]);
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it('still asks for the Toast exactly once per click', async () => {
+    const { click, toasts } = setup(ok);
+    click();
+    await settle();
+    expect(toasts).toHaveLength(1);
+    click();
+    await settle();
+    expect(toasts).toHaveLength(2);
+    await vi.advanceTimersByTimeAsync(DURATION * 2);
+    expect(toasts).toHaveLength(2);
   });
 });
