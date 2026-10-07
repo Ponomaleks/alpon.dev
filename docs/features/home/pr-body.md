@@ -21,13 +21,19 @@ The budget is unchanged (CLAUDE.md, Quality bar): four categories â‰¥ 95, LCP â‰
 - On the preview, accessibility and best practices are 100. **SEO is 69 there only because `workers.dev` preview addresses send `x-robots-tag: noindex`**; `alpon.dev` does not send it.
 - `lhci` asserts on the best of the three runs (`aggregationMethod` is not set in `lighthouserc.cjs`, and the default of `@lhci/cli` is `optimistic`: the value most likely to pass).
 - The budget is met on the production-like host. Locally `/` sits at the LCP limit (backlog B-38): if that blocks pushes it goes to the Owner as a decision, the limit is not changed.
-- CI numbers (Linux Chromium) are added here when the run of this pull request finishes.
+- CI (Linux Chromium, Lighthouse CI of run 37545199262 on `f91652e`, 2026-10-06): `/` LCP 1985, 1981 and 1996 ms, FCP 1154 to 1164 ms, TBT 0, CLS 0, all four categories 0.99 to 1; `/404` LCP 1680, 1691 and 1682 ms. In the same run the contact place spec passed in Firefox and in WebKit.
 
 ## What CI is asked to show
 
 - Lighthouse CI numbers for `/` and `/404` on Linux Chromium.
 - The contact place spec in Firefox and WebKit (they run only in CI).
 - The visual check status.
+
+## Design review by the Owner (2026-10-07)
+
+Fixed to match the page design: the Dag header over the hero is translucent (94 % spruce) again; the Natt hero has the page ground, a bottom border and the link colour for the first role and the Now dot; the Motion control no longer stretches the badge row (20 px to the eyebrow); the Now dot sits on the first line; the hero contours move against the pointer; an experience entry is one column on a phone and has a 160 px period column on a tablet, and the Experience split is 7 / 5; "Full CV" has its arrow; the contact values are mono, in the text colour, underlined on hover only; "Copy" is the design's 32 px control at the right end of the row; "Save contact (.vcf)" has the user-plus icon, also in the Sticky action bar; "Skann meg" stands under the QR tile with the hint beside it; the mail-link sentence stands beside the list from 1024; the menu panel's top bar lines up with the header.
+
+Differences from the design by Owner decision (spec D-15 to D-18, D-01, D-11): the contact row is labelled "Region", not "Based in"; the languages are one per line; the availability badge dot pulses under the Motion control; the tab of the Sticky action bar is part of the panel, a 12 px strip stays visible when it is collapsed, and the panel slides; two columns for an experience entry only from 768 to 1023; no "Kopiert" state inside "Copy". Not taken here: the header border in Natt stays as specified (AC-33), and BackToTop stays with step 5.
 
 ## Decisions taken during implementation
 

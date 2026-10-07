@@ -89,7 +89,7 @@ Decided by the Owner; they go to the PR's design-difference list as they are.
 
 | Id | Page design | This feature | Reason |
 |---|---|---|---|
-| D-01 | No way to stop the looping motion | one Motion control in the hero pauses and resumes the hero contour drift and the portrait float; the choice lasts for the browser session on the home page | WCAG 2.2 AA, 2.2.2 Pause, Stop, Hide: motion that starts by itself and runs longer than five seconds needs a pause; Owner decision 2026-10-05 |
+| D-01 | No way to stop the looping motion | one Motion control in the hero pauses and resumes the hero contour drift, the portrait float and the pulse of the availability badge dot (added by the Owner on 2026-10-07; the design has a still ring there); the choice lasts for the browser session on the home page | WCAG 2.2 AA, 2.2.2 Pause, Stop, Hide: motion that starts by itself and runs longer than five seconds needs a pause; Owner decision 2026-10-05 |
 | D-02 | The loops run from the first frame | they start only where scripts run and reduced motion is not asked for; otherwise the hero is still and has no Motion control | a Visitor must never get motion they cannot stop |
 | D-03 | Contact block "Based in: Nittedal, Norge" | "Oslo, Norge", the Work region | `CLAUDE.md` Content rules; P-21 |
 | D-04 | Sections below the hero are invisible until a script reveals them | visible by default; where scripts run and motion is allowed they fade in once | content never depends on a script (AC-32) |
@@ -98,10 +98,14 @@ Decided by the Owner; they go to the PR's design-difference list as they are.
 | D-08 | The header over the hero is set by a script | reproduced exactly where scripts run (AC-33); with scripts off the header keeps its default look and a primary "Get in touch" | the state depends on scroll position; contrast holds in both |
 | D-09 | "On LinkedIn" and profile links open a new tab | the same tab | base-components D-16 |
 | D-10 | Sticky action bar: "View CV" and "Get in touch" on every page | the actions are set per page, all in the secondary style: home and Not-found "View CV" and "Save contact (.vcf)", also after step 7; CV (step 5) the language switch and "Download PDF"; project and case-study pages (step 7) "View CV" and "Next project" or "All projects" | Owner decision 2026-10-05: the header already carries "Get in touch" at 390 |
-| D-11 | The Sticky action bar cannot be put away | a small arrow tab collapses it and brings it back; it works with scripts off, and a collapsed bar stays collapsed for the page visit (AC-39). The look of the tab is decided at the design stage within Fjord | Owner decision 2026-10-05 |
+| D-11 | The Sticky action bar cannot be put away | a small arrow tab collapses it and brings it back; it works with scripts off, and a collapsed bar stays collapsed for the page visit (AC-39). The look of the tab was decided by the Owner on 2026-10-07: the tab is part of the panel (one outline, the same surface, rounded top corners, at the end side); collapsed, about 12 px of the panel stays visible under it. Earlier wording: the look of the tab is decided at the design stage within Fjord | Owner decision 2026-10-05 |
 | D-12 | Closing band on the home page: "Get in touch" and "Download CV" | "Save contact (.vcf)" and "Download CV", both secondary; other pages keep the design's pair | the band sits right under the contact section, so it repeats no contact action (AC-34, AC-40) |
 | D-13 | The closing band's contours drift in a time loop | they shift with the Visitor's scrolling, on every page with the band, with scripts on or off; still without browser support or with reduced motion | motion that follows scrolling needs no pause control (WCAG 2.2.2), so the band behaves the same on pages without a Motion control (AC-41) |
 | D-14 | base-components D-06: below 768 the header "Get in touch" is secondary while the Sticky action bar is on screen | dropped; the header follows the page design: on the Not-found, CV, Projects and Thoughts pages it never changes style and "Get in touch" is always primary, only the bottom border appears after scroll; the home page is AC-33 | Owner decision 2026-10-05, measured on the prototype at 390, 834 and 1440; the bar no longer holds a primary button |
+| D-15 | Contact block row label "Based in" | "Region" for the row with "Oslo, Norge" (Owner, 2026-10-07): "Based in" stays for the Residence in the About quick facts and in the footer, so the two do not read as a contradiction | Owner decision 2026-10-07 |
+| D-16 | About quick fact "Languages" as one line | one language per line at every width | Owner decision 2026-10-07: one line reads badly |
+| D-17 | Experience entry: two columns whenever the list is at least 560 px wide (a container query) | two columns from 768 to 1023 only, one column below 768 and from 1024 | container queries are not allowed by the lint rules (base-components ADR-0004) and the repo breakpoints are 360 / 768 / 1024 / 1440; the design's two columns between 592 and 767 are not reproduced |
+| D-18 | "Copy" shows "Kopiert" inside the button | the design's 32 px control at the end of the email row with a 44 px target around it; the confirmation is the Toast (AC-14) | one confirmation, announced once |
 
 Not a difference: the hero coordinates stay 59.91° N, 10.75° E. They belong to the Work region "Oslo, Norge" beside them; the footer keeps the Residence coordinates.
 
@@ -274,7 +278,7 @@ Not a difference: the hero coordinates stay 59.91° N, 10.75° E. They belong to
 
 **Given** a Recruiter in the contact section
 **When** they read the Contact block
-**Then** they see the heading "Get in touch" with the lead "Email is fastest. Phone and LinkedIn work too.", and rows for the email address as a mail link, the phone number as a call link, the LinkedIn and GitHub profiles as links showing their short addresses, and "Based in" with "Oslo, Norge" marked as Norwegian
+**Then** they see the heading "Get in touch" with the lead "Email is fastest. Phone and LinkedIn work too.", and rows for the email address as a mail link, the phone number as a call link, the LinkedIn and GitHub profiles as links showing their short addresses, and "Region" with "Oslo, Norge" marked as Norwegian (D-15)
 
 ### AC-14 (US-02) — happy
 
@@ -334,13 +338,13 @@ Not a difference: the hero coordinates stay 59.91° N, 10.75° E. They belong to
 
 **Given** a Visitor whose browser runs scripts and whose device does not ask for reduced motion
 **When** they activate the Motion control in the hero
-**Then** the hero contour drift and the portrait float both stop where they are, and the control now offers to play; activating it again resumes both. Its name says the action it will take, its state is exposed to assistive technology, it is reachable by keyboard with a visible focus ring, and the choice holds for the rest of the browser session on the home page, also after leaving and coming back, and is gone on a new visit; where the browser does not allow the site to keep it, the choice holds for the current page view
+**Then** the hero contour drift, the portrait float and the pulse of the badge dot all stop where they are, and the control now offers to play; activating it again resumes them. Its name says the action it will take, its state is exposed to assistive technology, it is reachable by keyboard with a visible focus ring, and the choice holds for the rest of the browser session on the home page, also after leaving and coming back, and is gone on a new visit; where the browser does not allow the site to keep it, the choice holds for the current page view
 
 ### AC-31 (US-09) — happy
 
 **Given** a Visitor whose device asks for reduced motion
 **When** they open and scroll the home page
-**Then** no Ambient motion ever starts and no Motion control is shown; the key facts show final numbers; sections do not slide or count; the contours of the hero do not follow the pointer and the contours of the closing band do not follow scrolling; a change of state is instant or at most a fade
+**Then** no Ambient motion ever starts and no Motion control is shown; the key facts show final numbers; sections do not slide or count; the contours of the hero do not move with the pointer (with motion allowed they move against it, as in the design) and the contours of the closing band do not follow scrolling; a change of state is instant or at most a fade
 
 ### AC-32 (US-10) — authorization
 
@@ -386,7 +390,7 @@ In every one of these states the header's text and actions are readable at the c
 
 **Given** a Visitor on a phone, on any page with the Sticky action bar, with scripts on or off
 **When** they activate the small arrow tab of the bar
-**Then** the bar collapses and only the tab remains, as a target of at least 44 px that never covers the last lines of the page or the element that has keyboard focus; activating the tab again brings the bar back. The state is announced to assistive technology and the tab is reachable by keyboard. Once the Visitor has collapsed the bar, scrolling does not bring it back for the rest of that page visit
+**Then** the bar collapses and only the tab remains, with a narrow strip of the panel under it that shows something is tucked away; the tab is a target of at least 44 px that never covers the last lines of the page or the element that has keyboard focus; activating the tab again brings the bar back. The state is announced to assistive technology and the tab is reachable by keyboard. With motion allowed the panel and its tab slide away and back; with reduced motion the change is instant. Once the Visitor has collapsed the bar, scrolling does not bring it back for the rest of that page visit
 
 ### AC-40 (US-02) — happy
 
