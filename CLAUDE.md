@@ -96,7 +96,12 @@ src/
     ui/            Button, Link, Badge, Tag, Stat, SectionHeader, Callout, CodeBlock, ...
     layout/        Header, Footer, ThemeToggle, SkipLink, MobileBar
     brand/         Contours, QrTile
+    home/          Hero, KeyFacts, About, QuickFacts, ExperienceList, ContactBlock, Portrait, MotionControl
     prose/         Prose and its element mappings
+  scripts/
+    home/          page scripts of the home page
+    shell/         Shell scripts (header, menu, theme, action bar, toast)
+  integrations/    build integrations (CSP hash, one stylesheet per page)
   layouts/         BaseLayout.astro
   pages/           index.astro, 404.astro, later cv/, projects/[slug], thoughts/
   content/         content collections (projects, later thoughts)

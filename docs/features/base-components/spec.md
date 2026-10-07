@@ -85,7 +85,7 @@ Decided by the Owner; they go to the PR's design-difference list as they are.
 | D-03 | Not-found page offers "See projects" | hidden | same |
 | D-04 | Not-found body ends "Nothing lives at" plus the address | omitted | the address is never shown back |
 | D-05 | Footer coordinates 59.91° N, 10.75° E | 60.07° N, 10.87° E | the footer shows the Residence; value checked against Wikipedia "Nittedal" on 2026-10-03 (60.07306° N, 10.87222° E), rounded to two decimals |
-| D-06 | Header "Get in touch" is filled at 390 | below 768, outlined (secondary) only while the Sticky action bar is on screen, and filled (primary) once the bar has scrolled away; with scripts off or reduced motion the bar never leaves, so the header action stays outlined. A page can also ask for the secondary style at any width (AC-24) | one primary rule, AC-23 |
+| D-06 | Header "Get in touch" is filled at 390 | below 768, outlined (secondary) only while the Sticky action bar is on screen, and filled (primary) once the bar has scrolled away; with scripts off or reduced motion the bar never leaves, so the header action stays outlined. A page can also ask for the secondary style at any width (AC-24) | one primary rule, AC-23. Dropped by home D-14; the header follows home AC-33 |
 | D-07 | Menu panel shows the single design location | shows the Work region "Oslo, Norge" | the menu contacts are Recruiter-facing |
 | D-08 | Theme switch segments and header links are lower than 44 px | same look, 44 px touch target | `CLAUDE.md` quality bar |
 | D-09 | Theme switch always shown | not offered with scripts off | it could not work |
@@ -224,6 +224,8 @@ Not a difference: the coordinates printed on the Not-found map stay "59.91° N �
 **When** they scroll the page down from its top
 **Then** the header stays at the top of the screen and gains a bottom border, and loses it again at the top of the page; this also happens for a Visitor who prefers reduced motion, because it is a change of state and not movement
 
+Pointer: Replaced on the home page in Dag by home AC-33; in Natt and on every other page this AC stands.
+
 ### AC-04 (US-02) — happy
 
 **Given** a Recruiter on a screen narrower than 768
@@ -248,11 +250,15 @@ Not a difference: the coordinates printed on the Not-found map stay "59.91° N �
 **When** the page is shown
 **Then** a Sticky action bar at the bottom of the screen offers "View CV" and "Get in touch"; it never covers the last lines of the page or the element that has keyboard focus, and it is not shown at 768 and wider
 
+Pointer: The action pair is replaced by home AC-38 (home D-10).
+
 ### AC-08 (US-03) — happy
 
 **Given** the Sticky action bar is shown and scripts are running
 **When** the Recruiter scrolls down, and later scrolls up
 **Then** the bar leaves the screen on the way down and returns on the way up; while it is off screen its two actions cannot receive keyboard focus and are not announced
+
+Pointer: Extended by home AC-39: the return applies only to a bar the Visitor has not collapsed.
 
 ### AC-09 (US-03) — error
 
@@ -326,6 +332,8 @@ Not a difference: the coordinates printed on the Not-found map stay "59.91° N �
 **When** they reach the band above the footer
 **Then** it shows "Let’s build something good together.", the line about hiring in the Oslo area, a primary "Get in touch" and a secondary "Download CV" that downloads the English CV PDF, or the Norwegian one on a page that declares Norwegian as its CV language
 
+Pointer: The action pair is replaced on the home page by home AC-40 (home D-12).
+
 ### AC-21 (US-09) — happy
 
 **Given** the Owner opens the Styleguide
@@ -344,11 +352,15 @@ Not a difference: the coordinates printed on the Not-found map stay "59.91° N �
 **When** the checks count the primary buttons
 **Then** the page content has at most one, and the visible screen at most two. Below 768, on a page that has the Sticky action bar, the header's "Get in touch" uses the secondary style while the bar is on screen and the primary style once the bar has scrolled away, so the contact action is primary exactly once; with scripts off or reduced motion the bar stays on screen and the header action stays secondary. One primary action per screen is a brand rule, and the Shell's contact action counts once
 
+Pointer: The count is replaced by home AC-34; the "secondary while the bar is on screen" clause is dropped by home D-14.
+
 ### AC-24 (US-10) — happy
 
 **Given** the Owner builds a later page on the shared layout
 **When** they set only page options: which navigation link is current, the header variant, leaving out the Sticky action bar, leaving out the closing call-to-action band, and the CV language for the download
 **Then** the page gets the matching Shell with no change to any shared component or layout file; a page for Visitors may leave out the Sticky action bar only if it is the CV page itself or its own content links to the CV
+
+Pointer: The header variant "secondary while the bar is on screen" is dropped by home D-14; the page options for the bar and band actions are home AC-38 and AC-40.
 
 ### AC-25 (US-10) — happy
 
@@ -408,7 +420,7 @@ Not a difference: the coordinates printed on the Not-found map stay "59.91° N �
 | Not-found page weight | HTML ≤ 20 KB gzip, with the map panel inline. If the built page exceeds it, the map is not simplified, because the page design wins: either the map moves to a separate cached SVG file, which must still meet AC-17, AC-19 and AC-26 in Dag and Natt, or the PR proposes a new limit with the measured size; the limit in CI changes only through that proposal | build output size check in CI |
 | Accessibility | 0 axe violations on the home placeholder, the Not-found page and the Styleguide, in Dag and Natt, and with the menu panel open | axe in Playwright |
 | Touch targets | every interactive element of the Shell has a target ≥ 44 × 44 px at 390, counting its overlay (D-08); footer text links: line height, ≥ 24 px between centres (WCAG 2.2 2.5.8 spacing) | e2e box and overlay measurement |
-| Primary buttons | page content ≤ 1, visible screen ≤ 2, at 390 / 834 / 1440, on every page except the Styleguide; at 390 the count is taken in three states: bar on screen (header action secondary), bar scrolled away (header action primary, bar actions not focusable), and scripts off or reduced motion (bar on screen, header action secondary) | e2e count (AC-23) |
+| Primary buttons | page content ≤ 1, visible screen ≤ 2, at 390 / 834 / 1440, on every page except the Styleguide; at 390 the count is taken in three states: bar on screen (header action secondary), bar scrolled away (header action primary, bar actions not focusable), and scripts off or reduced motion (bar on screen, header action secondary). Replaced by home AC-34 and the "Primary buttons" row of home §6; the header-secondary states are dropped by home D-14 | e2e count (AC-23) |
 | Visual regression | ≤ 0.1 % differing pixels per screenshot; the Styleguide is captured per component section, not as one page; Not-found page full page; all at 390 / 834 / 1440 in Dag and Natt; the copyright year is masked | Playwright visual tests in CI |
 | Design match | 0 differences between the Not-found page and `design/screenshots/` at 390 / 834 / 1440 in Dag and Natt other than those listed in §1.3 | manual review in the PR, screenshots side by side |
 | Contrast | every text and background pair the new components render, in Dag, Natt and on spruce: body ≥ 4.5:1; large text, control boundaries (the outline that identifies a Button, input or switch) and the focus ring ≥ 3:1; decorative, `aria-hidden` lines that identify no control (dividers, hairlines, the map route) are measured and reported, not gated | contrast check script in CI |
