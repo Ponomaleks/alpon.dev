@@ -319,3 +319,55 @@ test.describe('mobile menu scrolling (R2)', () => {
     expect(m.gap).toBeLessThanOrEqual(m.padding + 1);
   });
 });
+
+// Owner design review: the panel's top bar repeats the header's, so the wordmark stays where it
+// is and the close button takes the place of the menu button when the panel opens and closes.
+test.describe('the panel top bar lines up with the header', () => {
+  const HOME = 'a[aria-label="alpon.dev, home"]';
+  const rect = async (target: ReturnType<Page['locator']>) => {
+    const found = await target.boundingBox();
+    if (!found) throw new Error('element has no box');
+    return found;
+  };
+
+  for (const width of [390, 360]) {
+    for (const theme of ['dag', 'natt'] as const) {
+      for (const scrolled of [false, true]) {
+        test(`at ${width} in ${theme === 'dag' ? 'Dag' : 'Natt'}, page ${scrolled ? 'scrolled' : 'at the top'}: the wordmark and the close button take the places of the header's wordmark and menu button`, async ({
+          page,
+        }) => {
+          await page.emulateMedia({
+            colorScheme: theme === 'dag' ? 'light' : 'dark',
+            reducedMotion: 'reduce',
+          });
+          await page.setViewportSize({ width, height: 844 });
+          await page.goto('/');
+          await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
+          if (scrolled) {
+            await page.evaluate(() => window.scrollTo(0, 400));
+            await expect(page.locator('header[data-header]')).toHaveAttribute('data-scrolled', '');
+          }
+          const header = page.locator('header[data-header]');
+          const before = {
+            wordmark: await rect(header.locator(HOME)),
+            button: await rect(menuButton(page)),
+          };
+          await openMenu(page);
+          // The panel fades in; its boxes do not move with reduced motion.
+          const after = {
+            wordmark: await rect(panel(page).locator(HOME)),
+            button: await rect(panel(page).getByRole('button', { name: 'Close menu' })),
+          };
+          for (const part of ['wordmark', 'button'] as const) {
+            for (const side of ['x', 'y', 'width', 'height'] as const) {
+              expect(
+                Math.abs(after[part][side] - before[part][side]),
+                `${part} ${side}: header ${before[part][side]}, panel ${after[part][side]}`,
+              ).toBeLessThanOrEqual(0.5);
+            }
+          }
+        });
+      }
+    }
+  }
+});

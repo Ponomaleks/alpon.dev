@@ -115,11 +115,13 @@ const Root = sample ? 'div' : 'dialog';
     overflow: hidden;
   }
 
+  /* The header's own row (same height token and side padding), so the wordmark stays in place
+     and the close button takes the place of the menu button. */
   .menu__top {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    block-size: var(--fjord-header-height-compact);
+    block-size: var(--fjord-header-height);
   }
 
   /* The design's sheet draws the wordmark at 17px, as the Header does: the 16px UI size scaled by 17 / 16. */
