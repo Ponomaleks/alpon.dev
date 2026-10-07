@@ -4,9 +4,9 @@ Phase 4a of **home** (roadmap step 4, [spec](docs/features/home/spec.md)): the h
 
 Base: `v2`. Production (`main`) is not touched.
 
-**State: draft.**
+**State: ready for review.**
 
-- T1 to T24 are `done`. T25 is `review`: the Linux baselines are committed in `1668cd5`, written by the `visual-baselines` workflow on `31994ae`; **the Owner's review of the PNGs is pending**.
+- T1 to T25 are `done`. The Linux baselines are those of `67fa35b`, written by the `visual-baselines` workflow on `68ffcdf` ([run 37640606979](https://github.com/Ponomaleks/alpon.dev/actions/runs/37640606979)); the Owner reviewed the PNGs on 2026-10-07 and found no problems.
 - T26 (this text, the document pointers, the component inventory) is `review` and stays open for one item only: **the Claims list below is not ticked yet** (AC-29). The manual iPhone focus check (T23, AC-18) passed, see below. No number or status on the page has been confirmed by the Owner through this pull request.
 - **Phase 4b is not in this pull request**: Recommendations, Selected projects, their Styleguide sections and baselines (T27 to T30) follow as a separate pull request after this one is merged, branched from the updated `v2` (Owner decision 2026-10-07). Until then AC-09 and AC-12 are open; AC-10 and AC-11 hold because neither section is rendered.
 
@@ -165,9 +165,9 @@ Fixed to match the page design: the Dag header over the hero is translucent agai
 
 Manual iPhone check for AC-18, reported by the Owner on 2026-10-07: a real iPhone, Safari with VoiceOver, on the Workers preview. **Pass in all three cases**: focus lands at the start of the contact section, not at the top of the page. The Owner ticks each case.
 
-- [ ] **1.** Home, menu → "Contact": after the jump VoiceOver announced "03" (the section number); the first swipe right reads the heading, further swipes read the contact rows.
-- [ ] **2.** Home, header "Get in touch": the same.
-- [ ] **3.** Not-found page → "Contact": the navigation works and VoiceOver behaves the same.
+- [x] **1.** Home, menu → "Contact": after the jump VoiceOver announced "03" (the section number); the first swipe right reads the heading, further swipes read the contact rows.
+- [x] **2.** Home, header "Get in touch": the same.
+- [x] **3.** Not-found page → "Contact": the navigation works and VoiceOver behaves the same.
 
 Follow-up from the check, made after it and not re-tested on the device: the bare "03" had no context, so the section number is now hidden from assistive technology and the About, Experience and Contact sections take their names from their headings (`aria-labelledby`). No visual change.
 
@@ -175,7 +175,7 @@ Follow-up from the check, made after it and not re-tested on the device: the bar
 
 - The first Workers Builds attempt for `0bfb705` failed: the preview command in the Cloudflare Workers Builds settings was corrected by the Owner (`npm run build && npx wrangler preview`); nothing in the repo changed.
 - `upgrade-insecure-requests` left the Content-Security-Policy in a separate pull request to `v2` (Ponomaleks/alpon.dev#4, merged into this branch): WebKit applied it to the local test server and every WebKit test hung. This feature itself does not change the security policy (AC-32).
-- The Owner's review of the Linux baselines (T25) and the ticks on the Claims list (T26).
+- The Owner's ticks on the Claims list (T26).
 
 ## Claims list (AC-29)
 
