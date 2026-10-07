@@ -163,11 +163,11 @@ Fixed to match the page design: the Dag header over the hero is translucent agai
 
 ## iPhone focus check (T23)
 
-Manual iPhone check for AC-18, reported by the Owner on 2026-10-07: a real iPhone, Safari with VoiceOver, on the Workers preview. **Pass in all three cases**: focus lands at the start of the contact section, not at the top of the page.
+Manual iPhone check for AC-18, reported by the Owner on 2026-10-07: a real iPhone, Safari with VoiceOver, on the Workers preview. **Pass in all three cases**: focus lands at the start of the contact section, not at the top of the page. The Owner ticks each case.
 
-1. Home, menu → "Contact": after the jump VoiceOver announced "03" (the section number); the first swipe right reads the heading, further swipes read the contact rows.
-2. Home, header "Get in touch": the same.
-3. Not-found page → "Contact": the navigation works and VoiceOver behaves the same.
+- [ ] **1.** Home, menu → "Contact": after the jump VoiceOver announced "03" (the section number); the first swipe right reads the heading, further swipes read the contact rows.
+- [ ] **2.** Home, header "Get in touch": the same.
+- [ ] **3.** Not-found page → "Contact": the navigation works and VoiceOver behaves the same.
 
 Follow-up from the check, made after it and not re-tested on the device: the bare "03" had no context, so the section number is now hidden from assistive technology and the About, Experience and Contact sections take their names from their headings (`aria-labelledby`). No visual change.
 
