@@ -119,9 +119,9 @@ pre {
 /* Sticky action bar clearance (AC-07, AC-39, hook H-2): below 768 a page that has the bar keeps its
    last lines and any focused element clear of it, counted from the top of the tab (tap-min above
    the bar) plus the gap kept above it. Open: tab + bar (one button and its padding; the tab sits
-   on the bar's top border, so the border is not counted twice). Collapsed: the tab only. Both sit
-   above the safe area. This block is the only reserve: the footer adds none (home T6, B-08). From
-   768 the bar is hidden and the reserve is reset. */
+   on the bar's top border, so the border is not counted twice). Collapsed: the tab + the strip of
+   the panel that stays under it. Both sit above the safe area. This block is the only reserve:
+   the footer adds none (home T6, B-08). From 768 the bar is hidden and the reserve is reset. */
 :root:has([data-shell-bar]) {
   scroll-padding-bottom: calc(
     var(--fjord-tap-min) + var(--fjord-tap-min) + 2 * var(--fjord-space-3) + var(--fjord-space-4) +
@@ -140,12 +140,14 @@ pre {
 
 :root:has([data-shell-bar]:not([open])) {
   scroll-padding-bottom: calc(
-    var(--fjord-tap-min) + var(--fjord-space-4) + env(safe-area-inset-bottom)
+    var(--fjord-tap-min) + var(--fjord-space-3) + var(--fjord-space-4) + env(safe-area-inset-bottom)
   );
 }
 
 :root:has([data-shell-bar]:not([open])) body::after {
-  block-size: calc(var(--fjord-tap-min) + var(--fjord-space-4) + env(safe-area-inset-bottom));
+  block-size: calc(
+    var(--fjord-tap-min) + var(--fjord-space-3) + var(--fjord-space-4) + env(safe-area-inset-bottom)
+  );
 }
 
 @media (min-width: 768px) {

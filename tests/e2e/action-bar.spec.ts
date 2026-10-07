@@ -155,6 +155,8 @@ test.describe('bar away and returned, motion allowed (AC-08, G-4, G-5)', () => {
       await scrollTo(page, 800);
       await expect(bar).toHaveAttribute('inert', '');
       await expect(bar).not.toBeInViewport();
+      // The tab is part of the panel and leaves with it.
+      await expect(page.locator(`${BAR} > summary`)).not.toBeInViewport();
       // Not announced and not focusable: Tab never reaches the bar's actions.
       await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
       const reached: string[] = [];
@@ -201,7 +203,8 @@ test.describe('bar away and returned, motion allowed (AC-08, G-4, G-5)', () => {
 });
 
 // Collapsible bar (home T6, AC-39, D-11): a native <details open> whose <summary> is the tab.
-// Checked on the Not-found page at 390, with scripts on and off.
+// Checked on the Not-found page at 390, with scripts on and off. The tab is part of the panel
+// (Owner design review): one outline, and collapsed a strip of the panel stays under the tab.
 
 const TAB = `${BAR} > summary`;
 
@@ -218,6 +221,9 @@ function overlap(a: Rect, b: Rect): number {
   if (horizontal <= 0) return 0;
   return Math.max(0, Math.min(a.y + a.height, b.y + b.height) - Math.max(a.y, b.y));
 }
+
+/** The part of the panel that stays on screen under the tab when collapsed: --fjord-space-3. */
+const STRIP = 12;
 
 async function openNotFound(page: Page) {
   await page.setViewportSize({ width: 390, height: 600 });
@@ -267,9 +273,14 @@ for (const scripts of [true, false]) {
       const tab = await box(page.locator(TAB));
       expect(tab.width).toBeGreaterThanOrEqual(44);
       expect(tab.height).toBeGreaterThanOrEqual(44);
-      // Only the tab stays, in the bottom end corner.
-      expect(Math.round(tab.y + tab.height)).toBe(600);
+      // The tab stays at the end side, with a strip of the panel under it down to the edge.
+      expect(Math.round(tab.y + tab.height)).toBe(600 - STRIP);
       expect(tab.x + tab.width).toBeGreaterThan(390 - 44);
+      const panel = await box(page.locator(BAR));
+      expect(panel.y).toBeLessThanOrEqual(tab.y + tab.height);
+      expect(panel.y + panel.height).toBeGreaterThanOrEqual(600);
+      expect(panel.x).toBe(0);
+      expect(panel.width).toBe(390);
       await page.locator(TAB).click();
       await expectExpanded(page, true);
     });
@@ -289,6 +300,58 @@ for (const scripts of [true, false]) {
       await page.keyboard.press('Enter');
       await expectExpanded(page, true);
     });
+
+    for (const collapsed of [false, true]) {
+      test(`the tab and the panel are one shape, bar ${collapsed ? 'collapsed' : 'open'}`, async ({
+        page,
+      }) => {
+        await openNotFound(page);
+        if (collapsed) await page.locator(TAB).click();
+        await expectExpanded(page, !collapsed);
+        const look = await page.evaluate(
+          ([barSel, tabSel]) => {
+            const bar = document.querySelector(barSel ?? '');
+            const tab = document.querySelector(tabSel ?? '');
+            if (!bar || !tab) throw new Error('no bar');
+            const b = getComputedStyle(bar);
+            const t = getComputedStyle(tab);
+            return {
+              sameSurface: t.backgroundColor === b.backgroundColor,
+              sameLine:
+                t.borderTopColor === b.borderTopColor &&
+                t.borderLeftColor === b.borderTopColor &&
+                t.borderRightColor === b.borderTopColor &&
+                t.borderTopWidth === b.borderTopWidth,
+              // No line between the tab and the panel: the tab's bottom edge is not drawn.
+              openBottom:
+                parseFloat(t.borderBottomWidth) === 0 || t.borderBottomColor === 'rgba(0, 0, 0, 0)',
+              tabShadow: t.boxShadow,
+              barShadow: b.boxShadow,
+              barLine: parseFloat(b.borderTopWidth),
+              radii: [
+                t.borderTopLeftRadius,
+                t.borderTopRightRadius,
+                t.borderBottomRightRadius,
+                t.borderBottomLeftRadius,
+              ].map((r) => parseFloat(r)),
+              // The tab's bottom edge against the panel's top line: it covers the line, no gap.
+              seam: tab.getBoundingClientRect().bottom - bar.getBoundingClientRect().top,
+            };
+          },
+          [BAR, TAB],
+        );
+        expect(look.sameSurface).toBe(true);
+        expect(look.sameLine).toBe(true);
+        expect(look.openBottom).toBe(true);
+        expect(look.seam).toBe(look.barLine);
+        expect(look.radii[0]).toBeGreaterThan(0);
+        expect(look.radii[1]).toBeGreaterThan(0);
+        expect(look.radii.slice(2)).toEqual([0, 0]);
+        // One float shadow, the panel's; the tab casts none onto the panel.
+        expect(look.tabShadow).toBe('none');
+        expect(look.barShadow).not.toBe('none');
+      });
+    }
 
     for (const collapsed of [true, false]) {
       const state = collapsed ? 'collapsed' : 'open';
@@ -438,8 +501,107 @@ test.describe('Not-found: with reduced motion the bar changes instantly (AC-39)'
         ),
       TAB,
     );
-    expect(Math.round(after.bottom)).toBe(600);
+    expect(Math.round(after.bottom)).toBe(600 - STRIP);
     expect(Math.round(after.height)).toBe(Math.round(before.height));
+  });
+});
+
+test.describe('Not-found: with motion allowed the panel slides and the tab travels with it', () => {
+  test.use({ reducedMotion: 'no-preference' });
+
+  /** The running transitions of the bar itself and the tab's place while they run. */
+  const sliding = (page: Page) =>
+    page.evaluate(
+      ([barSel, tabSel]) => {
+        const bar = document.querySelector(barSel ?? '');
+        const tab = document.querySelector(tabSel ?? '');
+        if (!bar || !tab) throw new Error('no bar');
+        const run = bar
+          .getAnimations()
+          .filter((a): a is CSSTransition => a instanceof CSSTransition);
+        return {
+          properties: run.map((a) => a.transitionProperty),
+          durations: run.map((a) => a.effect?.getComputedTiming().duration),
+          tabBottom: tab.getBoundingClientRect().bottom,
+        };
+      },
+      [BAR, TAB],
+    );
+  const settle = (page: Page) =>
+    page.evaluate(
+      (barSel) =>
+        Promise.all(
+          (document.querySelector(barSel)?.getAnimations({ subtree: true }) ?? []).map((a) =>
+            a.finished.catch(() => null),
+          ),
+        ).then(() => null),
+      BAR,
+    );
+  const token = (page: Page, name: string) =>
+    page.evaluate((n) => {
+      const raw = getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+      return raw.endsWith('ms') ? parseFloat(raw) : parseFloat(raw) * 1000;
+    }, name);
+  const contentVisibility = (page: Page) =>
+    page.evaluate((barSel) => {
+      const bar = document.querySelector(barSel);
+      if (!bar) throw new Error('no bar');
+      return getComputedStyle(bar, '::details-content').contentVisibility;
+    }, BAR);
+
+  test('collapse and restore are one transform transition of the panel, by the panel duration token', async ({
+    page,
+  }) => {
+    await openNotFound(page);
+    const duration = await token(page, '--fjord-duration-320');
+    const tab = await box(page.locator(TAB));
+    const open = tab.y + tab.height;
+
+    await page.locator(TAB).click();
+    const down = await sliding(page);
+    expect(down.properties).toEqual(['transform']);
+    expect(down.durations).toEqual([duration]);
+    // Mid-slide the tab is between its two places: it has not jumped to the end.
+    expect(down.tabBottom).toBeGreaterThanOrEqual(open - 1);
+    expect(down.tabBottom).toBeLessThan(600 - STRIP);
+    await settle(page);
+    const closed = await box(page.locator(TAB));
+    expect(Math.round(closed.y + closed.height)).toBe(600 - STRIP);
+    await expectExpanded(page, false);
+
+    await page.locator(TAB).click();
+    const up = await sliding(page);
+    expect(up.properties).toEqual(['transform']);
+    expect(up.durations).toEqual([duration]);
+    expect(up.tabBottom).toBeGreaterThan(open);
+    await settle(page);
+    const back = await box(page.locator(TAB));
+    expect(Math.round(back.y + back.height)).toBe(Math.round(open));
+    await expectExpanded(page, true);
+  });
+
+  test('the actions stay drawn while the panel slides away (where ::details-content is supported)', async ({
+    page,
+  }) => {
+    await openNotFound(page);
+    test.skip(
+      !(await page.evaluate(() => CSS.supports('selector(::details-content)'))),
+      'no ::details-content: the actions leave at once, the panel still slides',
+    );
+    await page.locator(TAB).click();
+    expect(await contentVisibility(page)).toBe('visible');
+    await settle(page);
+    expect(await contentVisibility(page)).toBe('hidden');
+  });
+
+  test('the scripted scroll-away uses the same transition as the tab', async ({ page }) => {
+    await open(page, '/does-not-exist');
+    const duration = await token(page, '--fjord-duration-320');
+    await scrollTo(page, 800);
+    await expect(page.locator(BAR)).toHaveAttribute('inert', '');
+    const away = await sliding(page);
+    expect(away.properties).toEqual(['transform']);
+    expect(away.durations).toEqual([duration]);
   });
 });
 
@@ -496,6 +658,8 @@ test.describe('one bottom reserve at 390 (AC-39, B-08)', () => {
         const end = await endOfPage(page);
         // The footer has no padding of its own for the bar: the same as on a wide screen.
         expect(end.footerPadding).toBe(wide);
+        // Open: tab 44 + bar 68 + gap 16. Collapsed: tab 44 + strip 12 + gap 16.
+        expect(end.reserve).toBe(collapsed ? 72 : 128);
         expect(Math.abs(end.reserve - clearance)).toBeLessThan(1);
         expect(Math.abs(end.below - (end.footerPadding + end.reserve))).toBeLessThan(1);
       });

@@ -216,13 +216,40 @@ describe('MobileBar: layout (design .fj-actionbar)', () => {
     expect(bar()).toMatch(/box-shadow:\s*var\(--fjord-shadow-float\)/);
   });
 
+  it('keeps its height when collapsed, so the slide has the same distance in every browser', () => {
+    expect(bar()).toMatch(/box-sizing:\s*border-box/);
+    expect(bar()).toMatch(
+      /min-block-size:\s*calc\(\s*var\(--fjord-tap-min\) \+ 2 \* var\(--fjord-space-3\) \+ var\(--fjord-border-width\)\s*\)/,
+    );
+  });
+
+  it('draws the tab as part of the panel: same surface and line, open at the bottom, no shadow of its own', () => {
+    const tab = source().match(/\.mobile-bar__tab\s*\{([^}]*)\}/)?.[1] ?? '';
+    expect(tab).toMatch(/background-color:\s*var\(--fjord-color-bg-raised\)/);
+    expect(tab).toMatch(/border:\s*var\(--fjord-border-width\) solid var\(--fjord-color-border\)/);
+    expect(tab).toMatch(/border-block-end-color:\s*transparent/);
+    expect(tab).toMatch(/border-radius:\s*var\(--fjord-radius-md\) var\(--fjord-radius-md\) 0 0/);
+    expect(source()).not.toMatch(/\.mobile-bar__tab[^{]*\{[^}]*box-shadow/);
+  });
+
   it('slides away with transform, as in the design, under a no-preference guard', () => {
+    // Away: the panel and the tab on top of it leave together.
     expect(source()).toMatch(
-      /\.mobile-bar\[inert\]\s*\{\s*transform:\s*translateY\(calc\(100% \+ var\(--fjord-space-2\)\)\)/,
+      /\.mobile-bar\[inert\]\s*\{\s*transform:\s*translateY\(\s*calc\(100% \+ var\(--fjord-tap-min\) \+ var\(--fjord-space-2\)\)\s*\)/,
+    );
+    // Collapsed: the same property, so one transition serves both; a strip of the panel stays.
+    expect(source()).toMatch(
+      /\.mobile-bar:not\(\[open\]\)\s*\{\s*transform:\s*translateY\(\s*calc\(100% - var\(--fjord-space-3\) - var\(--fjord-border-width\)\)\s*\)/,
     );
     expect(source()).toMatch(
       /prefers-reduced-motion: no-preference\)\s*\{\s*\.mobile-bar\s*\{\s*transition:\s*transform var\(--fjord-duration-320\) var\(--fjord-ease-out\)/,
     );
+    // No transition outside that guard: with reduced motion the change is instant (AC-39).
+    const unguarded = source().replace(
+      /@media \(prefers-reduced-motion: no-preference\)\s*\{[\s\S]*?\n {2}\}\n/g,
+      '',
+    );
+    expect(unguarded).not.toMatch(/\btransition\s*:|\banimation\s*:/);
     expect(source()).not.toMatch(/(?<![-\w])translate\s*:/);
   });
 });
