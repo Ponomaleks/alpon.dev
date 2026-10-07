@@ -1,0 +1,83 @@
+---
+// Selected projects (AC-11, AC-12), a Dormant section: built and shown on the Styleguide with
+// marked sample data, rendered on the home page only when step 7 turns the switch on. Up to three
+// featured projects, the first one large, then two compact cards in two columns from 768.
+import Link from '../ui/Link.astro';
+import SectionHeader from '../ui/SectionHeader.astro';
+import ProjectCard from './ProjectCard.astro';
+import { selectProjects, type Project } from '../../data/projects';
+
+interface Props {
+  /** The projects; the featured ones are shown, three at most. */
+  items: Project[];
+  /** Section number in the eyebrow, e.g. "02". */
+  index?: string;
+}
+
+const { items, index = '02' } = Astro.props;
+const [first, ...rest] = selectProjects(items);
+---
+
+<section class="projects" aria-labelledby="projects-title">
+  <div class="projects__wrap">
+    <div class="projects__head">
+      <SectionHeader
+        id="projects-title"
+        index={index}
+        eyebrow="Projects"
+        title="Selected projects"
+        lead="Small products I built and run. Each has a write-up with the problem, the decisions and the numbers."
+      />
+      <Link href="/projects" standalone>
+        All projects
+      </Link>
+    </div>
+    {first && <ProjectCard project={first} variant="featured" />}
+    {rest.length > 0 && (
+      <div class="projects__grid">
+        {rest.map((p, i) => (
+          <ProjectCard project={p} tone={i % 2 ? 'spruce' : 'auto'} />
+        ))}
+      </div>
+    )}
+  </div>
+</section>
+
+<style>
+  .projects {
+    padding-top: var(--fjord-space-section);
+  }
+  .projects__wrap {
+    display: flex;
+    flex-direction: column;
+    gap: var(--fjord-space-block);
+    width: 100%;
+    max-width: calc(var(--fjord-content-max) + 2 * var(--fjord-grid-margin));
+    margin-inline: auto;
+    padding-inline: var(--fjord-grid-margin);
+  }
+  .projects__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--fjord-space-4) var(--fjord-space-6);
+  }
+  /* A 44px target around the design's link, as in ExperienceList. */
+  .projects__head :global(.fj-link) {
+    min-block-size: var(--fjord-tap-min);
+    padding-bottom: 0;
+    line-height: var(--fjord-leading-body);
+    background-position: 0 calc(50% + 0.5em * var(--fjord-leading-body) + var(--fjord-space-0-5));
+  }
+  .projects__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--fjord-space-14) var(--fjord-grid-gutter);
+  }
+  @media (min-width: 768px) {
+    .projects__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>

@@ -187,7 +187,7 @@ describe('built index.html, scripts (AC-32, AC-36)', () => {
 describe('built index.html without an agreed Recommendation (AC-10)', () => {
   let fixture: SiteBuild;
   beforeAll(() => {
-    fixture = buildSite(['--config', 'src/pages/_fixtures/astro.home-fixture.config.mjs']);
+    fixture = buildSite(['--config', 'src/pages/_fixtures/astro.no-consent.config.mjs']);
     if (fixture.status !== 0) throw new Error(fixture.log);
   }, 180_000);
   afterAll(() => fixture?.cleanup());
@@ -209,5 +209,40 @@ describe('built index.html without an agreed Recommendation (AC-10)', () => {
     expect(body()).toMatch(/<section\b[^>]*id="about"/);
     expect(body()).toMatch(/<section\b[^>]*class="experience"/);
     expect(body()).toMatch(/<section\b[^>]*id="contact"/);
+  });
+});
+
+describe('built index.html with a Published project while the switch is off (AC-11)', () => {
+  let fixture: SiteBuild;
+  beforeAll(() => {
+    fixture = buildSite(['--config', 'src/pages/_fixtures/astro.published-project.config.mjs']);
+    if (fixture.status !== 0) throw new Error(fixture.log);
+  }, 180_000);
+  afterAll(() => fixture?.cleanup());
+
+  const body = () =>
+    readFileSync(join(fixture.out, 'index.html'), 'utf8').match(
+      /<main\b[^>]*>([\s\S]*?)<\/main>/,
+    )?.[1] ?? '';
+
+  it('has read the Published fixture project into the collection', () => {
+    const store = readFileSync(join(repo, 'node_modules/.astro/data-store.json'), 'utf8');
+    expect(store).toContain('fixture-project');
+    expect(store).toContain('Fixture Project');
+  });
+
+  it('renders no Selected projects section and no "All projects" link', () => {
+    expect(body()).not.toMatch(/projects-title|<article\b/);
+    expect(textOf(body())).not.toMatch(/selected projects|all projects|fixture/i);
+    expect(body()).not.toMatch(/href="\/projects/);
+  });
+
+  it('numbers the sections without a gap', () => {
+    expect(eyebrowsOf(body())).toEqual([
+      '01 About',
+      '02 Experience',
+      '03 Recommendations',
+      '04 Contact',
+    ]);
   });
 });
