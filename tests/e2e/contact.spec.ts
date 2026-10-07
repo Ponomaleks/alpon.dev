@@ -1,5 +1,5 @@
 import { readFile } from 'node:fs/promises';
-import { expect, test } from '@playwright/test';
+import { expect, test, type Locator, type Page } from '@playwright/test';
 
 // The Contact block end to end (home T21): AC-13 rows and links, AC-14 copy, AC-15 refused copy,
 // AC-16 the contact card download, AC-17 the QR tile. Reduced motion is emulated so nothing moves.
@@ -8,6 +8,30 @@ test.use({ reducedMotion: 'reduce' });
 const EMAIL = 'ponomaleks@gmail.com';
 const SECTION = '#contact';
 
+const box = async (target: Locator) => {
+  const rect = await target.boundingBox();
+  if (!rect) throw new Error('no box');
+  return rect;
+};
+
+/** A colour token as the browser computes it, read from a probe inside the section. */
+const token = (page: Page, name: string) =>
+  page.locator(SECTION).evaluate((section, variable) => {
+    const probe = document.createElement('span');
+    probe.style.color = `var(${variable})`;
+    section.append(probe);
+    const value = getComputedStyle(probe).color;
+    probe.remove();
+    return value;
+  }, name);
+
+async function openIn(page: Page, theme: 'dag' | 'natt', width: number) {
+  await page.setViewportSize({ width, height: 900 });
+  await page.goto('/');
+  await page.evaluate((t) => document.documentElement.setAttribute('data-theme', t), theme);
+  await page.evaluate(() => document.fonts.ready);
+}
+
 test.describe('rows and links (AC-13)', () => {
   test('the heading, the lead and the five rows', async ({ page }) => {
     await page.goto('/');
@@ -15,7 +39,7 @@ test.describe('rows and links (AC-13)', () => {
     await expect(block.getByRole('heading', { name: 'Get in touch' })).toBeVisible();
     await expect(block.getByText('Email is fastest. Phone and LinkedIn work too.')).toBeVisible();
     const labels = await block.locator('dt').allTextContents();
-    expect(labels).toEqual(['Email', 'Phone', 'LinkedIn', 'GitHub', 'Based in']);
+    expect(labels).toEqual(['Email', 'Phone', 'LinkedIn', 'GitHub', 'Region']);
   });
 
   test('every link opens in the same tab with the right target', async ({ page }) => {
@@ -35,10 +59,126 @@ test.describe('rows and links (AC-13)', () => {
     }
   });
 
-  test('"Based in" shows Oslo, Norge marked as Norwegian', async ({ page }) => {
+  test('"Region" shows Oslo, Norge marked as Norwegian', async ({ page }) => {
     await page.goto('/');
-    const based = page.locator(`${SECTION} .contact__row`).nth(4);
-    await expect(based.locator('[lang="no"]')).toHaveText('Oslo, Norge');
+    const region = page.locator(`${SECTION} .contact__row`).nth(4);
+    await expect(region.locator('dt')).toHaveText('Region');
+    await expect(region.locator('[lang="no"]')).toHaveText('Oslo, Norge');
+    await expect(page.locator(SECTION)).not.toContainText('Based in');
+  });
+});
+
+// Page design (ContactList, .fj-contacts): the row values are mono, in the text colour of the
+// theme (snow in Natt) and not underlined; the link colour and an underline come on hover.
+test.describe('the look of the rows (design ContactList)', () => {
+  for (const theme of ['dag', 'natt'] as const) {
+    test(`${theme}: every value is mono, in the text colour, without an underline`, async ({
+      page,
+    }) => {
+      await openIn(page, theme, 1440);
+      const text = await token(page, '--fjord-color-text');
+      if (theme === 'natt') expect(text).toBe(await token(page, '--fjord-snow'));
+      const values = page.locator(`${SECTION} .contact__row dd .contact__value`);
+      await expect(values).toHaveCount(5);
+      for (const value of await values.all()) {
+        const look = await value.evaluate((el) => {
+          const style = getComputedStyle(el);
+          return { color: style.color, line: style.textDecorationLine, font: style.fontFamily };
+        });
+        expect(look.color).toBe(text);
+        expect(look.line).toBe('none');
+        expect(look.font).toContain('JetBrains Mono');
+      }
+    });
+
+    test(`${theme}: a hovered link takes the link colour and an underline`, async ({ page }) => {
+      await openIn(page, theme, 1440);
+      const link = page.locator(`${SECTION} .contact__row`).nth(1).getByRole('link');
+      await link.hover();
+      await expect(link).toHaveCSS('color', await token(page, '--fjord-color-link'));
+      await expect(link).toHaveCSS('text-decoration-line', 'underline');
+    });
+
+    test(`${theme}: Copy is the small muted control with a hairline border`, async ({ page }) => {
+      await openIn(page, theme, 1440);
+      const chip = page.locator(`${SECTION} [data-copy-email] .fj-copy__chip`);
+      const look = await chip.evaluate((el) => {
+        const style = getComputedStyle(el);
+        return {
+          color: style.color,
+          border: style.borderTopColor,
+          background: style.backgroundColor,
+          font: style.fontFamily,
+          height: el.getBoundingClientRect().height,
+        };
+      });
+      expect(look.height).toBe(32);
+      expect(look.color).toBe(await token(page, '--fjord-color-text-muted'));
+      expect(look.border).toBe(await token(page, '--fjord-color-border'));
+      expect(look.background).toBe('rgba(0, 0, 0, 0)');
+      expect(look.font).toContain('JetBrains Mono');
+      const icon = await box(chip.locator('svg'));
+      expect(icon.width).toBeCloseTo(14, 0);
+      // Hover: the text colour and the strong border.
+      await page.locator(`${SECTION} [data-copy-email]`).hover();
+      await expect(chip).toHaveCSS('color', await token(page, '--fjord-color-text'));
+      await expect(chip).toHaveCSS(
+        'border-top-color',
+        await token(page, '--fjord-color-border-strong'),
+      );
+    });
+  }
+
+  for (const width of [390, 834, 1440]) {
+    test(`Copy ends the email row at its right edge at ${width}, with a 44px target`, async ({
+      page,
+    }) => {
+      await openIn(page, 'dag', width);
+      const row = await box(page.locator(`${SECTION} .contact__row`).first());
+      const button = await box(page.locator(`${SECTION} [data-copy-email]`));
+      const chip = await box(page.locator(`${SECTION} [data-copy-email] .fj-copy__chip`));
+      const link = await box(page.locator(`${SECTION} .contact__row`).first().getByRole('link'));
+      expect(chip.x + chip.width).toBeCloseTo(row.x + row.width, 0);
+      expect(chip.x).toBeGreaterThanOrEqual(link.x + link.width);
+      expect(Math.abs(chip.y + chip.height / 2 - (row.y + row.height / 2))).toBeLessThanOrEqual(1);
+      expect(button.height).toBeGreaterThanOrEqual(44);
+      expect(button.width).toBeGreaterThanOrEqual(44);
+    });
+  }
+
+  test('the rows are 56px high with the label in a fixed column', async ({ page }) => {
+    await openIn(page, 'dag', 1440);
+    const rows = page.locator(`${SECTION} .contact__row`);
+    for (let i = 0; i < 5; i++) {
+      const row = await box(rows.nth(i));
+      const value = await box(rows.nth(i).locator('.contact__value'));
+      // 56px and the hairline above (the last row also has one below).
+      expect(row.height).toBeGreaterThanOrEqual(56);
+      expect(row.height).toBeLessThanOrEqual(58);
+      expect(value.x).toBeCloseTo(row.x + 88 + 12, 0);
+    }
+  });
+});
+
+// screens.md H-3: from 1024 the mail-link sentence stands beside the list, where the page design
+// draws the message form; below 1024 it follows "Save contact".
+test.describe('the mail-link sentence beside the list (screens.md H-3)', () => {
+  test('beside the list from 1024', async ({ page }) => {
+    await openIn(page, 'dag', 1024);
+    const list = await box(page.locator(`${SECTION} .contact__list`));
+    const sentence = await box(page.locator(`${SECTION} .contact__sentence`));
+    expect(sentence.x).toBeGreaterThanOrEqual(list.x + list.width);
+    expect(sentence.y).toBeLessThan(list.y + list.height);
+  });
+
+  test('under "Save contact" below 1024', async ({ page }) => {
+    await openIn(page, 'dag', 834);
+    const save = await box(
+      page.locator(SECTION).getByRole('link', { name: 'Save contact (.vcf)' }),
+    );
+    const sentence = await box(page.locator(`${SECTION} .contact__sentence`));
+    expect(sentence.y).toBeGreaterThanOrEqual(save.y + save.height);
+    expect(sentence.x).toBeCloseTo(save.x, 0);
   });
 });
 
@@ -116,6 +256,41 @@ test.describe('QR tile (AC-17)', () => {
       await expect
         .poll(() => shown.evaluate((img: HTMLImageElement) => img.naturalWidth))
         .toBeGreaterThan(0);
+    });
+  }
+
+  // Page design (.fj-qr-figure, .x-qr): "Skann meg" is the figure's caption under the tile, in the
+  // muted mono label style; the hint stands beside the figure, centred on it.
+  for (const theme of ['dag', 'natt'] as const) {
+    test(`${theme}: the caption is under the tile and the hint beside the figure`, async ({
+      page,
+    }) => {
+      await openIn(page, theme, 1440);
+      const tile = page.locator(`${SECTION} .qr`);
+      await tile.scrollIntoViewIfNeeded();
+      const image = await box(tile.locator(`img[data-theme="${theme}"]`));
+      const figure = await box(tile.locator('figure'));
+      const caption = tile.locator('figcaption');
+      const captionBox = await box(caption);
+      const hint = await box(tile.locator('.qr__hint'));
+      expect(image.width).toBeCloseTo(132, 0);
+      expect(captionBox.x).toBeCloseTo(image.x, 0);
+      expect(captionBox.y).toBeCloseTo(image.y + image.height + 8, 0);
+      expect(hint.x).toBeCloseTo(figure.x + figure.width + 20, 0);
+      expect(
+        Math.abs(hint.y + hint.height / 2 - (figure.y + figure.height / 2)),
+      ).toBeLessThanOrEqual(1);
+      await expect(caption).toHaveText('Skann meg');
+      await expect(caption).toHaveAttribute('lang', 'no');
+      await expect(caption).toHaveCSS('color', await token(page, '--fjord-color-text-muted'));
+      await expect(caption).toHaveCSS('font-weight', '500');
+      expect(await caption.evaluate((el) => getComputedStyle(el).fontFamily)).toContain(
+        'JetBrains Mono',
+      );
+      await expect(tile.locator('.qr__hint')).toHaveCSS(
+        'color',
+        await token(page, '--fjord-color-text-muted'),
+      );
     });
   }
 

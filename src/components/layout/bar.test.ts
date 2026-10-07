@@ -194,6 +194,8 @@ describe('BarAction type and the default pair (ADR-0002)', () => {
     expect(defaultBarActions[1]).toMatchObject({
       label: 'Save contact (.vcf)',
       href: '/alexander-ponomarenko.vcf',
+      // The design's add-to-contacts glyph (ContactList: icon "user-plus"), not the download arrow.
+      icon: 'user-plus',
       download: true,
     });
   });

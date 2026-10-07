@@ -15,7 +15,7 @@ export const defaultBarActions: readonly [BarAction, BarAction] = [
   {
     label: 'Save contact (.vcf)',
     href: '/alexander-ponomarenko.vcf',
-    icon: 'download',
+    icon: 'user-plus',
     download: true,
   },
 ];

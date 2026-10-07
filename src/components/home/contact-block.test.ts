@@ -49,12 +49,48 @@ describe('ContactBlock', () => {
   it('has the five rows in order (AC-13)', async () => {
     const html = await renderBlock();
     const t = text(html);
-    const order = ['Email', 'Phone', 'LinkedIn', 'GitHub', 'Based in'].map((k) =>
+    const order = ['Email', 'Phone', 'LinkedIn', 'GitHub', 'Region'].map((k) =>
       t.indexOf(k, t.indexOf('Email is fastest')),
     );
     expect(order.every((i) => i >= 0)).toBe(true);
     expect([...order].sort((a, b) => a - b)).toEqual(order);
     expect(t).toContain(contact.email);
+  });
+
+  // Owner decision (2026-10-07): the work-region row is labelled "Region", so it does not read
+  // like the footer's "Based in" (the residence).
+  it('labels the rows Email, Phone, LinkedIn, GitHub and Region', async () => {
+    const html = await renderBlock();
+    const labels = [...html.matchAll(/<dt\b[^>]*>([\s\S]*?)<\/dt>/g)].map((m) => text(m[1] ?? ''));
+    expect(labels).toEqual(['Email', 'Phone', 'LinkedIn', 'GitHub', 'Region']);
+    expect(text(html)).not.toContain('Based in');
+  });
+
+  // Design (ContactList, .fj-contacts__v): the row values are plain text-coloured mono values,
+  // not underlined text links; (CopyButton, .fj-copy): Copy is the small bordered mono control.
+  it('draws the row links as contact values and Copy as the copy control', async () => {
+    const html = await renderBlock();
+    const rows = html.match(/<dl\b[\s\S]*?<\/dl>/)?.[0] ?? '';
+    const links = [...rows.matchAll(/<a\b([^>]*)>/g)].map((m) => m[1] ?? '');
+    expect(links).toHaveLength(4);
+    for (const attrs of links) {
+      expect(attrs).toMatch(/class="[^"]*\bcontact__value\b/);
+      expect(attrs).not.toMatch(/\bfj-link\b/);
+    }
+    const copy = rows.match(/<button\b[^>]*data-copy-email[^>]*>/)?.[0] ?? '';
+    expect(copy).toMatch(/class="[^"]*\bfj-copy\b/);
+    expect(copy).not.toMatch(/\bfj-btn\b/);
+    expect(copy).toContain('type="button"');
+  });
+
+  it('draws "Save contact (.vcf)" with the add-to-contacts icon (design: user-plus)', async () => {
+    const html = await renderBlock();
+    const save = html.match(/<a\b[^>]*href="\/alexander-ponomarenko\.vcf"[^>]*>[\s\S]*?<\/a>/)?.[0];
+    const icon = readFileSync('src/components/ui/Icon.astro', 'utf8');
+    const path = (name: string) =>
+      icon.match(new RegExp(`'?${name}'?:\\s*'([^']+)'`))?.[1] ?? `no ${name} icon`;
+    expect(save).toContain(`d="${path('user-plus')}"`);
+    expect(save).not.toContain(`d="${path('download')}"`);
   });
 
   it('links the email as mailto and the phone as tel (AC-13)', async () => {
@@ -151,5 +187,19 @@ describe('QrTile', () => {
     const html = await renderQr();
     expect(html).toMatch(/<[a-z]+\b[^>]*\blang="no"[^>]*>\s*Skann meg\s*<\/[a-z]+>/);
     expect(text(html)).toContain('Point your phone’s camera here to open my contact card.');
+  });
+
+  // Design (.fj-qr-figure, .x-qr): the caption is the figure's caption, under the tile; the hint
+  // is a paragraph beside the figure, not part of it.
+  it('captions the figure with "Skann meg" alone and puts the hint beside the figure', async () => {
+    const html = await renderQr();
+    const figure = html.match(/<figure\b[\s\S]*?<\/figure>/)?.[0] ?? '';
+    const caption = figure.match(/<figcaption\b([^>]*)>([\s\S]*?)<\/figcaption>/);
+    expect(caption?.[1]).toContain('lang="no"');
+    expect(text(caption?.[2] ?? '')).toBe('Skann meg');
+    expect(figure.indexOf('<img')).toBeLessThan(figure.indexOf('<figcaption'));
+    expect(text(figure)).not.toContain('camera');
+    const after = html.slice(html.indexOf('</figure>'));
+    expect(after).toMatch(/<p\b[^>]*>\s*Point your phone’s camera here to open my contact card\./);
   });
 });

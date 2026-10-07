@@ -1,0 +1,83 @@
+---
+// The design's CopyButton (.fj-copy): a small bordered mono control, 32px high. The button itself
+// is the 44px touch target; the visible control is drawn inside it. It only looks like the
+// control: the page script that copies finds it by the data attribute its caller passes.
+import Icon from './Icon.astro';
+
+interface Props {
+  label?: string;
+  /** Forces a state for the Styleguide (hook H-4). */
+  'data-demo-state'?: 'hover' | 'focus';
+  /** Hooks for the page script, e.g. data-copy-email. */
+  [hook: `data-${string}`]: string | undefined;
+}
+
+const { label = 'Copy', ...hooks } = Astro.props;
+---
+
+<button type="button" class="fj-copy" {...hooks}>
+  <span class="fj-copy__chip">
+    <Icon name="copy" />
+    {label}
+  </span>
+</button>
+
+<style is:global>
+  .fj-copy {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--fjord-tap-min);
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--fjord-color-text-muted);
+    cursor: pointer;
+  }
+
+  .fj-copy__chip {
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--fjord-space-1-5);
+    height: var(--fjord-space-8);
+    padding: 0 var(--fjord-space-3);
+    border: var(--fjord-border-width) solid var(--fjord-color-border);
+    border-radius: var(--fjord-radius-sm);
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-mono-sm);
+    font-weight: var(--fjord-weight-medium);
+    line-height: var(--fjord-leading-none);
+    white-space: nowrap;
+  }
+
+  /* The design's 14px icon. */
+  .fj-copy__chip svg {
+    inline-size: calc(var(--fjord-space-3) + var(--fjord-space-0-5));
+    block-size: calc(var(--fjord-space-3) + var(--fjord-space-0-5));
+  }
+
+  .fj-copy:hover .fj-copy__chip,
+  .fj-copy[data-demo-state='hover'] .fj-copy__chip {
+    color: var(--fjord-color-text);
+    border-color: var(--fjord-color-border-strong);
+  }
+
+  /* The ring is drawn around the visible control, not around the taller target. */
+  .fj-copy:focus-visible {
+    outline: none;
+  }
+
+  .fj-copy:focus-visible .fj-copy__chip,
+  .fj-copy[data-demo-state='focus'] .fj-copy__chip {
+    outline: var(--fjord-focus-width) solid var(--fjord-color-focus-ring);
+    outline-offset: var(--fjord-focus-offset);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .fj-copy__chip {
+      transition:
+        color var(--fjord-duration-200) var(--fjord-ease-out),
+        border-color var(--fjord-duration-200) var(--fjord-ease-out);
+    }
+  }
+</style>
