@@ -175,6 +175,7 @@ Follow-up from the check, made after it and not re-tested on the device: the bar
 
 - The first Workers Builds attempt for `0bfb705` failed: the preview command in the Cloudflare Workers Builds settings was corrected by the Owner (`npm run build && npx wrangler preview`); nothing in the repo changed.
 - `upgrade-insecure-requests` left the Content-Security-Policy in a separate pull request to `v2` (Ponomaleks/alpon.dev#4, merged into this branch): WebKit applied it to the local test server and every WebKit test hung. This feature itself does not change the security policy (AC-32).
+- CI: the job `check` twice ran into its 20 min limit on `c962ea8` because the Playwright browser download took 7 and then 16 minutes. The browsers are now cached by Playwright version with `actions/cache` v6 (GitHub's own action, MIT; split into restore and save so that a later failure keeps the cache); backlog B-45. No new package.
 - The Owner's ticks on the Claims list (T26).
 
 ## Claims list (AC-29)
