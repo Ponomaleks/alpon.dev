@@ -119,12 +119,14 @@ const tel = `tel:${contact.phone.replace(/[^\d+]/g, '')}`;
     flex-direction: column;
     margin: 0;
   }
-  /* The design's row: an 88px label column, 56px high, a hairline above. */
+  /* The design's row: an 88px label column, 56px high, a hairline above. On a phone the column is
+     60px and the gaps are tighter, so the address stays on one line beside Copy down to 360
+     (Owner's design review). */
   .contact__row {
     display: grid;
-    grid-template-columns: calc(var(--fjord-space-20) + var(--fjord-space-2)) minmax(0, 1fr);
+    grid-template-columns: calc(var(--fjord-space-14) + var(--fjord-space-1)) minmax(0, 1fr);
     align-items: center;
-    column-gap: var(--fjord-space-3);
+    column-gap: var(--fjord-space-2);
     min-block-size: var(--fjord-space-14);
     border-top: var(--fjord-border-width) solid var(--fjord-color-border);
   }
@@ -142,9 +144,19 @@ const tel = `tel:${contact.phone.replace(/[^\d+]/g, '')}`;
   dd {
     display: flex;
     align-items: center;
-    gap: var(--fjord-space-3);
+    gap: var(--fjord-space-1);
     margin: 0;
     min-width: 0;
+  }
+  /* From 768: the widths of the design. */
+  @media (min-width: 768px) {
+    .contact__row {
+      grid-template-columns: calc(var(--fjord-space-20) + var(--fjord-space-2)) minmax(0, 1fr);
+      column-gap: var(--fjord-space-3);
+    }
+    dd {
+      gap: var(--fjord-space-3);
+    }
   }
   /* The design's value (.fj-contacts__v): mono, in the text colour, no underline at rest. */
   .contact__value {

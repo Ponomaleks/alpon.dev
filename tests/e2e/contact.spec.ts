@@ -160,6 +160,58 @@ test.describe('the look of the rows (design ContactList)', () => {
   });
 });
 
+// Owner's design review: on a phone the label column is narrower than the design's 88px, so the
+// address is not broken by one character. From 768 the design's column stays.
+test.describe('the email address stays on one line on a phone', () => {
+  /** The number of line boxes the text of an element takes. */
+  const lines = (target: Locator) =>
+    target.evaluate((el) => {
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      return new Set([...range.getClientRects()].map((rect) => Math.round(rect.top))).size;
+    });
+
+  for (const width of [360, 375, 390]) {
+    test(`at ${width} the address is one line, the row 56px and every label fits`, async ({
+      page,
+    }) => {
+      await openIn(page, 'dag', width);
+      const rows = page.locator(`${SECTION} .contact__row`);
+      const email = rows.first();
+      await expect(email.locator('[data-copy-email]')).toBeVisible();
+      expect(await lines(email.getByRole('link'))).toBe(1);
+      const row = await box(email);
+      expect(row.height).toBeGreaterThanOrEqual(56);
+      expect(row.height).toBeLessThanOrEqual(58);
+      for (const label of await rows.locator('dt').all()) {
+        expect(await lines(label)).toBe(1);
+        expect(await label.evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true);
+      }
+    });
+  }
+
+  test.describe('without scripts', () => {
+    test.use({ javaScriptEnabled: false });
+    for (const width of [360, 375, 390]) {
+      test(`at ${width} the address is one line and Copy is not shown`, async ({ page }) => {
+        await page.setViewportSize({ width, height: 900 });
+        await page.goto('/');
+        const email = page.locator(`${SECTION} .contact__row`).first();
+        await expect(email.locator('[data-copy-email]')).toBeHidden();
+        expect(await lines(email.getByRole('link'))).toBe(1);
+      });
+    }
+  });
+
+  test('from 768 the label column is the 88px of the design', async ({ page }) => {
+    for (const width of [768, 834]) {
+      await openIn(page, 'dag', width);
+      const label = await box(page.locator(`${SECTION} .contact__row dt`).first());
+      expect(label.width).toBe(88);
+    }
+  });
+});
+
 // screens.md H-3: from 1024 the mail-link sentence stands beside the list, where the page design
 // draws the message form; below 1024 it follows "Save contact".
 test.describe('the mail-link sentence beside the list (screens.md H-3)', () => {

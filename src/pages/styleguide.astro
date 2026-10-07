@@ -593,8 +593,8 @@ const stateLabel = { hover: 'Hover', focus: 'Focus', active: 'Pressed' } as cons
 
   .sg__contact-row {
     display: grid;
-    grid-template-columns: calc(var(--fjord-space-20) + var(--fjord-space-2)) minmax(0, 1fr);
-    column-gap: var(--fjord-space-3);
+    grid-template-columns: calc(var(--fjord-space-14) + var(--fjord-space-1)) minmax(0, 1fr);
+    column-gap: var(--fjord-space-2);
     align-items: center;
     min-block-size: var(--fjord-space-14);
     border-top: var(--fjord-border-width) solid var(--fjord-color-border);
@@ -616,9 +616,20 @@ const stateLabel = { hover: 'Hover', focus: 'Focus', active: 'Pressed' } as cons
   .sg__contact dd {
     display: flex;
     align-items: center;
-    gap: var(--fjord-space-3);
+    gap: var(--fjord-space-1);
     margin: 0;
     min-width: 0;
+  }
+
+  /* From 768: the widths of the design. */
+  @media (min-width: 768px) {
+    .sg__contact-row {
+      grid-template-columns: calc(var(--fjord-space-20) + var(--fjord-space-2)) minmax(0, 1fr);
+      column-gap: var(--fjord-space-3);
+    }
+    .sg__contact dd {
+      gap: var(--fjord-space-3);
+    }
   }
 
   .sg__contact-value {
