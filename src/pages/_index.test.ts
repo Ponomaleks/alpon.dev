@@ -32,7 +32,7 @@ describe('built index.html, section order (AC-01)', () => {
       m.search(/<section\b[^>]*\bdata-hero\b/),
       m.search(/<section\b[^>]*aria-label="Key facts"/),
       m.search(/<section\b[^>]*id="about"/),
-      m.search(/<section\b[^>]*aria-label="Experience"/),
+      m.search(/<section\b[^>]*class="experience"/),
       m.search(/<section\b[^>]*id="contact"/),
     ];
     expect(at.every((i) => i >= 0)).toBe(true);

@@ -12,10 +12,15 @@ interface Props {
 const { index } = Astro.props;
 ---
 
-<section class="about" id="about" aria-label="About">
+<section class="about" id="about" aria-labelledby="about-title">
   <div class="about__wrap">
     <div class="about__text">
-      <SectionHeader index={index} eyebrow="About" title="Frontend-focused, full stack." />
+      <SectionHeader
+        id="about-title"
+        index={index}
+        eyebrow="About"
+        title="Frontend-focused, full stack."
+      />
       <p class="about__intro">{intro}</p>
     </div>
     <QuickFacts items={quickFacts} />

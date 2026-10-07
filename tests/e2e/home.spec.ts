@@ -423,8 +423,8 @@ test.describe('section layout (page design: every section in the page container)
       page,
     }) => {
       await open(page, width);
-      const headings = ['#about h2', 'section[aria-label="Experience"] h2', '#contact h2'].map(
-        (selector) => page.locator(selector),
+      const headings = ['#about h2', 'section.experience h2', '#contact h2'].map((selector) =>
+        page.locator(selector),
       );
       const boxes = await Promise.all(headings.map((heading) => box(heading)));
       const [about, experience, contact] = boxes;
@@ -445,7 +445,7 @@ test.describe('section layout (page design: every section in the page container)
           );
         }, selector);
       const aboutGap = await gapAbove('#about');
-      expect(await gapAbove('section[aria-label="Experience"]')).toBe(aboutGap);
+      expect(await gapAbove('section.experience')).toBe(aboutGap);
       expect(await gapAbove('#contact')).toBe(aboutGap);
     });
   }
@@ -602,4 +602,43 @@ test.describe('hero badge row and Now line (page design: .x-hero__text, .x-hero_
       expect(first.x - (label.x + label.width)).toBeCloseTo(gap, 0);
     });
   }
+});
+
+// The section number is visual wayfinding: it is hidden from assistive technology, and each
+// numbered section is named by its heading, so a jump to #contact announces the section by name
+// instead of a bare "03" (found in the manual iPhone check of AC-18).
+test.describe('numbered sections are named by their headings', () => {
+  const sections = [
+    { selector: '#about', number: '01', heading: 'Frontend-focused, full stack.' },
+    { selector: 'section.experience', number: '02', heading: 'Where I’ve worked' },
+    { selector: '#contact', number: '03', heading: 'Get in touch' },
+  ];
+
+  for (const { selector, number, heading } of sections) {
+    test(`${selector} is a region named "${heading}" and its number ${number} is decorative`, async ({
+      page,
+    }) => {
+      await open(page, 390);
+      const section = page.locator(`main ${selector}`);
+      await expect(section).toHaveRole('region');
+      await expect(section).toHaveAccessibleName(heading);
+      await expect(page.getByRole('main').getByRole('region', { name: heading })).toHaveCount(1);
+      const title = section.getByRole('heading', { level: 2, name: heading });
+      await expect(section).toHaveAttribute(
+        'aria-labelledby',
+        (await title.getAttribute('id')) ?? '',
+      );
+      const mark = section.locator('.sechead .eyebrow b');
+      await expect(mark).toHaveText(number);
+      await expect(mark).toBeVisible();
+      await expect(mark).toHaveAttribute('aria-hidden', 'true');
+      expect(await section.locator('.sechead').ariaSnapshot()).not.toContain(number);
+    });
+  }
+
+  test('no heading id is used twice', async ({ page }) => {
+    await open(page, 390);
+    const ids = await page.locator('[id]').evaluateAll((els) => els.map((el) => el.id));
+    expect(new Set(ids).size).toBe(ids.length);
+  });
 });

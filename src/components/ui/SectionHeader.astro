@@ -1,8 +1,12 @@
 ---
 // Section heading at the level it is given, with an optional Eyebrow (index and label) and lead.
+// The index is visual wayfinding and hidden from assistive technology; `id` goes on the heading
+// so that the section around it can take its name from it (aria-labelledby).
 interface Props {
   as?: 'h1' | 'h2' | 'h3';
   title: string;
+  /** Id of the heading, for the aria-labelledby of the section. */
+  id?: string;
   /** Eyebrow number, e.g. "01". */
   index?: string;
   eyebrow?: string;
@@ -10,18 +14,20 @@ interface Props {
   size?: 'sm' | 'md' | 'lg';
 }
 
-const { as: Heading = 'h2', title, index, eyebrow, lead, size = 'md' } = Astro.props;
+const { as: Heading = 'h2', title, id, index, eyebrow, lead, size = 'md' } = Astro.props;
 ---
 
 <header class="sechead" data-size={size}>
   {(index || eyebrow) && (
     <p class="eyebrow">
-      {index && <b>{index}</b>}
+      {index && <b aria-hidden="true">{index}</b>}
       {index && eyebrow && <i aria-hidden="true">/</i>}
       {eyebrow && <span>{eyebrow}</span>}
     </p>
   )}
-  <Heading class="sechead__title">{title}</Heading>
+  <Heading class="sechead__title" id={id}>
+    {title}
+  </Heading>
   {lead && <p class="sechead__lead">{lead}</p>}
 </header>
 

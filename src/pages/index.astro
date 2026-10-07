@@ -30,7 +30,13 @@ const numbers = numberSections({ projects: false, recommendations: false });
   <div data-reveal-section>
     <ExperienceList index={numbers.experience} />
   </div>
-  <section class="contact-place" id="contact" tabindex="-1" data-reveal-section>
+  <section
+    class="contact-place"
+    id="contact"
+    aria-labelledby="contact-title"
+    tabindex="-1"
+    data-reveal-section
+  >
     <div class="contact-place__wrap">
       <ContactBlock index={numbers.contact} />
     </div>

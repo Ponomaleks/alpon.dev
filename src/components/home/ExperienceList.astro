@@ -24,11 +24,20 @@ interface Props {
 const { items = experience as Entry[], sample = false, index = '03' } = Astro.props;
 ---
 
-<section class="experience" aria-label="Experience">
+<section
+  class="experience"
+  aria-labelledby={sample ? undefined : 'experience-title'}
+  aria-label={sample ? 'Experience' : undefined}
+>
   <div class:list={['experience__wrap', { 'experience__wrap--sample': sample }]}>
     {!sample && (
       <div class="experience__head">
-        <SectionHeader index={index} eyebrow="Experience" title="Where I’ve worked" />
+        <SectionHeader
+          id="experience-title"
+          index={index}
+          eyebrow="Experience"
+          title="Where I’ve worked"
+        />
         <Link href="/cv" standalone>
           Full CV
         </Link>

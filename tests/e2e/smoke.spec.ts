@@ -16,7 +16,7 @@ test('home renders its sections in order, numbered, with the contact place', asy
   await expect(page.locator('main h1')).toHaveCount(1);
   await expect(page.locator('main [data-hero]')).toBeVisible();
   await expect(page.locator('main section#about')).toHaveCount(1);
-  await expect(page.locator('main section[aria-label="Experience"]')).toHaveCount(1);
+  await expect(page.locator('main section.experience')).toHaveCount(1);
   const contact = page.locator('main section#contact');
   await expect(contact).toHaveAttribute('tabindex', '-1');
   const eyebrows = await page.locator('main .eyebrow').allTextContents();

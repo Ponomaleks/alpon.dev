@@ -55,7 +55,7 @@ for (const { name, path } of pages) {
 
 test('home has no axe violations with an experience entry open', async ({ page }) => {
   await page.goto('/');
-  const entry = page.locator('main section[aria-label="Experience"] details').last();
+  const entry = page.locator('main section.experience details').last();
   await entry.locator('summary').click();
   await expect(entry).toHaveAttribute('open', '');
   // The click scrolls the section into view and its reveal fades in: axe would read blended colours.
