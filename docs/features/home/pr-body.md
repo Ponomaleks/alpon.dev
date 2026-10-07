@@ -145,7 +145,7 @@ Confirmed differences:
 - D-15: contact row label "Region".
 - D-16: one language per line.
 - D-17: two-column experience entries from 768 to 1023 only.
-- D-18: no "Kopiert" inside "Copy"; the Toast confirms.
+- D-18: "Copy" shows "Kopiert" after a copy that worked, as the design does, but not after a refused one; its name stays "Copy" and the Toast announces; no check icon below 768.
 
 (D-07 left the spec with the Message form.)
 

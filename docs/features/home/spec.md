@@ -105,7 +105,7 @@ Decided by the Owner; they go to the PR's design-difference list as they are.
 | D-15 | Contact block row label "Based in" | "Region" for the row with "Oslo, Norge" (Owner, 2026-10-07): "Based in" stays for the Residence in the About quick facts and in the footer, so the two do not read as a contradiction | Owner decision 2026-10-07 |
 | D-16 | About quick fact "Languages" as one line | one language per line at every width | Owner decision 2026-10-07: one line reads badly |
 | D-17 | Experience entry: two columns whenever the list is at least 560 px wide (a container query) | two columns from 768 to 1023 only, one column below 768 and from 1024 | container queries are not allowed by the lint rules (base-components ADR-0004) and the repo breakpoints are 360 / 768 / 1024 / 1440; the design's two columns between 592 and 767 are not reproduced |
-| D-18 | "Copy" shows "Kopiert" inside the button | the design's 32 px control at the end of the email row with a 44 px target around it; the confirmation is the Toast (AC-14) | one confirmation, announced once |
+| D-18 | "Copy" shows "Kopiert" inside the button, also when the copy fails, and renames the button to "Kopiert" | the button shows "Kopiert" (Norwegian, success colour) for the copied duration after a copy that worked and then returns to "Copy"; a refused copy shows no such state; the accessible name stays "Copy" and the Toast is the one announcement (AC-14, AC-15); below 768 the state has no check icon, and the control keeps one width in both states | Owner decision 2026-10-07 (the button state was first left out and then asked for); a failed copy must never read as done; a phone row has no room for the icon |
 
 Not a difference: the hero coordinates stay 59.91° N, 10.75° E. They belong to the Work region "Oslo, Norge" beside them; the footer keeps the Residence coordinates.
 
@@ -284,7 +284,7 @@ Not a difference: the hero coordinates stay 59.91° N, 10.75° E. They belong to
 
 **Given** a Recruiter whose browser runs scripts
 **When** they activate "Copy" beside the email address
-**Then** the address is on their clipboard and a Toast with a check mark confirms "Kopiert", marked as Norwegian, together with the address; the confirmation is announced to assistive technology and leaves by itself
+**Then** the address is on their clipboard and a Toast with a check mark confirms "Kopiert", marked as Norwegian, together with the address; the confirmation is announced to assistive technology and leaves by itself; the "Copy" control itself shows "Kopiert" for a moment and returns to "Copy", without changing its size or its name (D-18)
 
 ### AC-15 (US-02) — error
 
