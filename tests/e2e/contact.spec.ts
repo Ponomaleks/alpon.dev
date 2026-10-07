@@ -255,7 +255,7 @@ test.describe('copy the email address (AC-14)', () => {
   // Owner's design review (reverses D-18): Copy shows the design's own done state ("Copied", the
   // success colour) for --fjord-duration-copied and returns to "Copy". The control keeps its size
   // and its name, so the Toast is the one announcement.
-  for (const width of [360, 1440]) {
+  for (const width of [360, 768, 1023, 1440]) {
     test(`at ${width} Copy shows "Copied", keeps its size and name, and returns to "Copy"`, async ({
       page,
     }) => {

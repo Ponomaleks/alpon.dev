@@ -561,27 +561,30 @@ test.describe('hero badge row and Now line (page design: .x-hero__text, .x-hero_
 
   // Owner decision (design review): on a phone the line wraps as the page design does. "Nå:" keeps
   // the first line with the dot; the text starts on the next line at the left edge and takes two.
-  test('"Nå:" stands on a line of its own with the dot at 390, and the text follows below', async ({
-    page,
-  }) => {
-    await open(page, 390);
-    const { line, dot, label, first, textLines, gap, fontSize, lineHeight } = await nowParts(page);
-    // The design's .fjord-mono-small: the small mono size (11.5 px on a phone) at the mono leading.
-    expect(fontSize).toBeCloseTo(11.5, 1);
-    expect(lineHeight / fontSize).toBeCloseTo(1.5, 2);
-    expect(dot.width).toBe(7);
-    expect(dot.height).toBe(7);
-    expect(
-      Math.abs(middle(dot) - middle(label)),
-      'the dot is level with "Nå:"',
-    ).toBeLessThanOrEqual(1);
-    expect(dot.x).toBeCloseTo(line.x, 0);
-    expect(label.x - (dot.x + dot.width)).toBeCloseTo(gap, 0);
-    expect(first.y, 'the text starts under "Nå:"').toBeGreaterThanOrEqual(label.y + label.height);
-    expect(first.x, 'the text starts at the left edge').toBeCloseTo(line.x, 0);
-    expect(textLines, 'the text takes two lines').toBe(2);
-    expect(line.height, 'three lines in all').toBeGreaterThan(label.height * 3);
-  });
+  for (const width of [360, 390]) {
+    test(`"Nå:" stands on a line of its own with the dot at ${width}, and the text follows below`, async ({
+      page,
+    }) => {
+      await open(page, width);
+      const { line, dot, label, first, textLines, gap, fontSize, lineHeight } =
+        await nowParts(page);
+      // The design's .fjord-mono-small: the small mono size (11.5 px on a phone) at the mono leading.
+      expect(fontSize).toBeCloseTo(11.5, 1);
+      expect(lineHeight / fontSize).toBeCloseTo(1.5, 2);
+      expect(dot.width).toBe(7);
+      expect(dot.height).toBe(7);
+      expect(
+        Math.abs(middle(dot) - middle(label)),
+        'the dot is level with "Nå:"',
+      ).toBeLessThanOrEqual(1);
+      expect(dot.x).toBeCloseTo(line.x, 0);
+      expect(label.x - (dot.x + dot.width)).toBeCloseTo(gap, 0);
+      expect(first.y, 'the text starts under "Nå:"').toBeGreaterThanOrEqual(label.y + label.height);
+      expect(first.x, 'the text starts at the left edge').toBeCloseTo(line.x, 0);
+      expect(textLines, 'the text takes two lines').toBe(2);
+      expect(line.height, 'three lines in all').toBeGreaterThan(label.height * 3);
+    });
+  }
 
   for (const width of [834, 1440]) {
     test(`the Now line is one line at ${width}: the dot, "Nå:" and the text side by side`, async ({

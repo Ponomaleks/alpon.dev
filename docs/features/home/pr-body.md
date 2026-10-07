@@ -7,7 +7,7 @@ Base: `v2`. Production (`main`) is not touched.
 **State: draft.**
 
 - T1 to T24 are `done`. T25 is `review`: the Linux baselines are committed in `1668cd5`, written by the `visual-baselines` workflow on `31994ae`; **the Owner's review of the PNGs is pending**.
-- T26 (this text, the document pointers, the component inventory) is `review`: **the Claims list below is not ticked yet** (AC-29). No number or status on the page has been confirmed by the Owner through this pull request.
+- T26 (this text, the document pointers, the component inventory) is `review` and stays open for two items only: **the Claims list below is not ticked yet** (AC-29), and the manual iPhone focus check (T23, AC-18) is pending until before Release 1. No number or status on the page has been confirmed by the Owner through this pull request.
 - **Phase 4b is not in this pull request**: Recommendations, Selected projects, their Styleguide sections and baselines (T27 to T30) follow as a separate pull request after this one is merged, branched from the updated `v2` (Owner decision 2026-10-07). Until then AC-09 and AC-12 are open; AC-10 and AC-11 hold because neither section is rendered.
 
 ## What changed
@@ -163,7 +163,7 @@ Fixed to match the page design: the Dag header over the hero is translucent agai
 
 ## iPhone focus check (T23)
 
-Focus at the contact place on a real iPhone: **to be done by the Owner on the Workers preview URL; result to be recorded here.**
+Focus at the contact place on a real iPhone (AC-18): **pending: manual iPhone check, before Release 1.** The Owner has no iPhone at hand; someone will run it later on the Workers preview. It does not block the baselines, the Owner's review, the Claims list or the merge of this pull request into `v2`; it is on the Release 1 checklist ([roadmap](docs/roadmap.md), step 6). The result is recorded here, or in the Release 1 notes if this pull request is already merged.
 
 ## Known open points
 
