@@ -26,7 +26,7 @@ test.describe('Styleguide', () => {
   test('"Show toast" shows the real Toast in the live region', async ({ page }) => {
     await page.goto('/styleguide');
     await page.getByRole('button', { name: 'Show toast' }).click();
-    await expect(page.locator('[data-toast-region] .toast')).toContainText('Kopiert');
+    await expect(page.locator('[data-toast-region] .toast')).toContainText('Copied');
   });
 
   test('the real theme switch changes the page; sample switches keep their selection', async ({

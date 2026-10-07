@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { checkContrast } from './check-contrast.ts';
-import { KNOWN_FAILURES, PAIRS } from './contrast-pairs.ts';
+import { HOME_PAIRS, KNOWN_FAILURES, PAIRS } from './contrast-pairs.ts';
 
 // AC-10: every manifest pair stays readable in Dag, Natt and on spruce; a lowered pair fails
 // naming the pair, the theme and the measured ratio. The two Natt blocks must be identical.
@@ -227,5 +227,57 @@ describe('scripts/check-contrast.ts CLI', () => {
     expect(run.stdout).toMatch(
       /contrast: \d+ pairs pass, 1 known failure\(s\), 2 decorative pair\(s\) not gated\n$/,
     );
+  });
+});
+
+// Home AC-33 / AC-02: the pairs of the home components, in Dag, Natt and on spruce, including the
+// header over the hero. Each entry names the component that renders it and must be a gated pair
+// of the manifest, measured in each listed theme.
+describe('home pairs', () => {
+  const find = (fg: string, bg: string) => PAIRS.find((p) => p.fg === fg && p.bg === bg);
+
+  it('lists the pairs of the home components and of the header over the hero', () => {
+    expect(HOME_PAIRS.map((h) => h.component)).toEqual(
+      expect.arrayContaining(['Hero', 'KeyFacts', 'ExperienceList', 'Header over hero']),
+    );
+    const over = HOME_PAIRS.filter((h) => h.component === 'Header over hero');
+    const uses = over.map((h) => `${h.fg} on ${h.bg}`);
+    expect(uses).toEqual(
+      expect.arrayContaining([
+        '--fjord-color-text on --fjord-color-bg',
+        '--fjord-color-cta-text on --fjord-color-cta-bg',
+        '--fjord-color-focus-ring on --fjord-color-bg',
+        '--fjord-color-border-strong on --fjord-color-bg',
+      ]),
+    );
+    for (const h of over) expect(h.themes).toContain('on-spruce');
+  });
+
+  it('keeps every home pair in the manifest, gated, with the themes it lists', () => {
+    expect(HOME_PAIRS.length).toBeGreaterThan(0);
+    for (const h of HOME_PAIRS) {
+      const listed = find(h.fg, h.bg);
+      expect(listed, `${h.component}: ${h.fg} on ${h.bg}`).toBeDefined();
+      expect(listed?.kind).not.toBe('decorative');
+      expect(listed?.themes).toEqual(expect.arrayContaining(h.themes));
+    }
+  });
+
+  it('measures every home pair in each of its themes', () => {
+    const { measured, failures } = checkContrast(tokens());
+    expect(failures).toEqual([]);
+    for (const h of HOME_PAIRS)
+      for (const theme of h.themes)
+        expect(
+          measured.some((m) => m.fg === h.fg && m.bg === h.bg && m.theme === theme),
+          `${h.component}: ${h.fg} on ${h.bg} · ${theme}`,
+        ).toBe(true);
+  });
+
+  it('uses 4.5:1 for text and 3:1 for control boundaries and the focus ring', () => {
+    const kinds = Object.fromEntries(HOME_PAIRS.map((h) => [`${h.fg} on ${h.bg}`, h.kind]));
+    expect(kinds['--fjord-color-focus-ring on --fjord-color-bg']).toBe('ui');
+    expect(kinds['--fjord-color-border-strong on --fjord-color-bg']).toBe('ui');
+    expect(kinds['--fjord-color-text on --fjord-color-bg']).toBe('text');
   });
 });

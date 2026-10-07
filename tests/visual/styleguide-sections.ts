@@ -1,0 +1,31 @@
+// The data-section blocks of /styleguide, in page order: one visual capture each
+// (styleguide.spec.ts). src/pages/_styleguide.test.ts holds this list to the built page, so a new
+// section cannot be left without a baseline.
+export const SECTIONS = [
+  'Button',
+  'Link',
+  'IconButton',
+  'Icon',
+  'Badge',
+  'Tag',
+  'Stat',
+  'SectionHeader',
+  'Toast',
+  'Contours',
+  'Terrain map',
+  'Wordmark',
+  'Skip link',
+  'Theme switch',
+  'Header variants',
+  'Mobile menu panel',
+  'Sticky action bar',
+  'Closing band',
+  'Portrait',
+  'Motion control',
+  'Key facts',
+  'Quick facts',
+  'Experience list',
+  'Contact list',
+  'QR tile',
+  'Mail-link sentence',
+];

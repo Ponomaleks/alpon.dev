@@ -28,8 +28,8 @@ The site itself is a portfolio piece: code quality, accessibility and performanc
 
 - Use tokens only: every color, font, space, radius, duration and easing comes from `--fjord-*` custom properties in `src/styles/tokens.css`. No hardcoded hex values or magic numbers in components.
 - Two themes: `Dag` (light) and `Natt` (dark). Theme = `data-theme="dag|natt"` on `<html>`, default from `prefers-color-scheme`, user choice saved in localStorage. No flash of wrong theme.
-- One dark color per composition; accent only for text and interactive states, never large fills; one primary CTA per screen. One primary CTA per screen counts buttons in page content. The shell's persistent contact action (header CTA on wide screens, sticky bar on phones) is the same single action and is not counted separately. When the sticky bar is visible, the header CTA uses the secondary style.
-- Fonts: Schibsted Grotesk (400/500/600/700) and JetBrains Mono (400/500/700), self-hosted woff2, Latin subset including æ ø å. Max two families. Every family and weight used by the design system or the page designs is required; ship it (convert the handoff TTFs to subset woff2).
+- One dark color per composition; accent only for text and interactive states, never large fills; one primary CTA per screen. The rule is counted per visible screen: at most two primary buttons, the header's "Get in touch", which is the Shell's single primary action, and at most one from page content. The closing band's "Get in touch" on pages other than home is the same Shell action as the header's (same target) and counts once with it. The sticky action bar on phones takes its actions from the page (home and 404: "View CV" and "Save contact"), uses the secondary style only and can be collapsed by the Visitor. Over the home hero the header follows the page design (home spec AC-33).
+- Fonts: Schibsted Grotesk (400/500/600/700) and JetBrains Mono (400/500/700), self-hosted woff2, Latin subset including æ ø å, delivered by two variable files (weight axis 400–700, one per family; home sad §1). Max two families. Every family and weight used by the design system or the page designs is required; ship it (the variable sources are in `tools/fonts/src/`; `tools/fonts/subset.py` writes the subset woff2).
 - 4px spacing grid, left-aligned asymmetric layouts, breakpoints 360 / 768 / 1024 / 1440.
 - Motion: only via motion tokens. Everything must work with `prefers-reduced-motion: reduce` (fades only, no loops, counters show final values).
 - View Transitions (page navigation, theme switch) are progressive enhancement: feature-detect (`document.startViewTransition` / `@view-transition`), and with `prefers-reduced-motion: reduce` disable them entirely (`@media (prefers-reduced-motion: reduce) { @view-transition { navigation: none; } }`, skip `startViewTransition` in JS and apply the change directly). The UI must work identically without them.
@@ -37,7 +37,7 @@ The site itself is a portfolio piece: code quality, accessibility and performanc
 
 ## Content rules
 
-- English for main content. Norwegian for small warm details: "Hei", "Ta kontakt", "Kopiert", "Nå", "Oslo, Norge", "Skann meg", "Ikke funnet", "Sist oppdatert". The shell's call to action is English, "Get in touch", as in the page design; BRAND.md's "Norwegian for the call to action" applies to labels such as "Ta kontakt", not to the shell buttons.
+- English for main content. Norwegian for small warm details: "Hei", "Ta kontakt", "Nå", "Oslo, Norge", "Skann meg", "Ikke funnet", "Sist oppdatert". The shell's call to action is English, "Get in touch", as in the page design; BRAND.md's "Norwegian for the call to action" applies to labels such as "Ta kontakt", not to the shell buttons. Button labels and their states are interface text and stay English: the copy confirmation is "Copied", in the Copy button and in the Toast (home spec D-18).
 - Voice: modest and concrete. No "passionate", "rockstar", superlatives.
 - Dashes are allowed in user-facing text: the long dash (U+2014) and the en dash (U+2013) as used in the design copy (e.g. date ranges `Nov 2022 – Jan 2026`).
 - Never name the EPAM client or its events directly (NDA). Indirect descriptions are allowed and the design copy is the reference (e.g. "a global B2B software leader (Fortune Global 500)", "an international conference series", "28,000+ attendees").
@@ -96,7 +96,12 @@ src/
     ui/            Button, Link, Badge, Tag, Stat, SectionHeader, Callout, CodeBlock, ...
     layout/        Header, Footer, ThemeToggle, SkipLink, MobileBar
     brand/         Contours, QrTile
+    home/          Hero, KeyFacts, About, QuickFacts, ExperienceList, ContactBlock, Portrait, MotionControl
     prose/         Prose and its element mappings
+  scripts/
+    home/          page scripts of the home page
+    shell/         Shell scripts (header, menu, theme, action bar, toast)
+  integrations/    build integrations (CSP hash, one stylesheet per page)
   layouts/         BaseLayout.astro
   pages/           index.astro, 404.astro, later cv/, projects/[slug], thoughts/
   content/         content collections (projects, later thoughts)

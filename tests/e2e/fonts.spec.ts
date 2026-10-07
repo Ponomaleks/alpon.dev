@@ -1,22 +1,18 @@
 import { expect, test, type Browser, type Page } from '@playwright/test';
 import { platformFonts } from './platform-fonts.ts';
 
-// Brand fonts (AC-05, AC-06, AC-15; sad QG-2): two critical preloads, other weights only when
-// used, every design weight from its own file with æ ø å, and a metric-matched fallback.
+// Brand fonts (AC-05, AC-06, AC-15; sad QG-2): two preloaded variable files (home sad §1 Decision
+// override, weight axis 400–700), every design weight drawn from its family's file with æ ø å and
+// as a weight of its own, and a metric-matched fallback.
 
-const FACES = [
-  ...[400, 500, 600, 700].map((weight) => ({
-    family: 'Schibsted Grotesk',
-    weight,
-    file: `schibsted-grotesk-${weight}`,
-  })),
-  ...[400, 500, 700].map((weight) => ({
-    family: 'JetBrains Mono',
-    weight,
-    file: `jetbrains-mono-${weight}`,
-  })),
-];
-const CRITICAL = ['/fonts/schibsted-grotesk-400.woff2', '/fonts/schibsted-grotesk-600.woff2'];
+const FAMILIES = [
+  { family: 'Schibsted Grotesk', file: 'schibsted-grotesk-wght', weights: [400, 500, 600, 700] },
+  { family: 'JetBrains Mono', file: 'jetbrains-mono-wght', weights: [400, 500, 700] },
+] as const;
+const FACES = FAMILIES.flatMap(({ family, file, weights }) =>
+  weights.map((weight) => ({ family, file, weight })),
+);
+const BRAND_FILES = FAMILIES.map(({ file }) => `/fonts/${file}.woff2`);
 
 /** Every woff2 the page requests, in order. */
 function trackFonts(page: Page): string[] {
@@ -29,45 +25,39 @@ function trackFonts(page: Page): string[] {
 }
 
 for (const path of ['/', '/does-not-exist']) {
-  test(`${path} preloads exactly Schibsted Grotesk 400 and 600`, async ({ page }) => {
+  test(`${path} preloads exactly the two variable brand files`, async ({ page }) => {
     await page.goto(path);
     const preloads = await page
       .locator('link[rel="preload"][as="font"]')
       .evaluateAll((links) => links.map((l) => new URL((l as HTMLLinkElement).href).pathname));
-    expect(preloads).toEqual(CRITICAL);
+    expect(preloads).toEqual(BRAND_FILES);
   });
 }
 
-// The Shell uses Schibsted Grotesk 500 (navigation) and JetBrains Mono 400 and 500 (labels).
-const SHELL_FACES = [
-  '/fonts/jetbrains-mono-400.woff2',
-  '/fonts/jetbrains-mono-500.woff2',
-  '/fonts/schibsted-grotesk-500.woff2',
-];
-
-test('home requests the two critical files and only the weights the Shell uses', async ({
-  page,
-}) => {
+test('home requests the two brand files, each once, and no other font', async ({ page }) => {
   const requested = trackFonts(page);
   await page.goto('/');
   await page.evaluate(() => document.fonts.ready);
-  expect([...new Set(requested)].sort()).toEqual([...CRITICAL, ...SHELL_FACES].sort());
+  expect([...requested].sort()).toEqual([...BRAND_FILES].sort());
 });
 
-test('a weight is fetched only once the page uses it', async ({ page }) => {
+test('a weight the page had not used yet needs no further request', async ({ page }) => {
   const requested = trackFonts(page);
   await page.goto('/');
   await page.evaluate(() => document.fonts.ready);
-  expect(requested).not.toContain('/fonts/schibsted-grotesk-700.woff2');
+  const before = requested.length;
 
-  await page.evaluate(() => {
+  await page.evaluate(async () => {
     const strong = document.createElement('strong');
     strong.id = 'bold';
     strong.textContent = 'Blåbærsyltetøy';
     strong.style.fontWeight = '700';
     document.body.append(strong);
+    await document.fonts.load('700 16px "Schibsted Grotesk"', 'Blåbærsyltetøy');
+    await document.fonts.ready;
   });
-  await expect.poll(() => requested).toContain('/fonts/schibsted-grotesk-700.woff2');
+  await expect(page.locator('#bold')).toBeAttached();
+  expect(requested).toHaveLength(before);
 });
 
 test.describe('every design weight', () => {
@@ -76,7 +66,7 @@ test.describe('every design weight', () => {
     'platform fonts come from Chromium CDP',
   );
 
-  /** Renders æ ø å in one face, optionally with that face's file blocked. */
+  /** Renders æ ø å in one face, optionally with that family's file blocked. */
   async function probe(browser: Browser, face: (typeof FACES)[number], blockOwnFile: boolean) {
     const context = await browser.newContext();
     const page = await context.newPage();
@@ -95,8 +85,8 @@ test.describe('every design weight', () => {
         await document.fonts.load(`${weight} 64px "${family}"`, 'æøå').catch(() => []);
         await document.fonts.ready;
         return [...document.fonts]
-          .filter((f) => f.family.replace(/"/g, '') === family && f.weight === String(weight))
-          .map((f) => f.status);
+          .filter((f) => f.family.replace(/"/g, '') === family)
+          .map((f) => `${f.weight}: ${f.status}`);
       },
       { family: face.family, weight: face.weight },
     );
@@ -112,14 +102,51 @@ test.describe('every design weight', () => {
     }) => {
       const own = await probe(browser, face, false);
       expect(own.requested).toContain(`/fonts/${face.file}.woff2`);
-      expect(own.statuses).toEqual(['loaded']);
+      // One face per family, declared for the whole weight range.
+      expect(own.statuses).toEqual(['400 700: loaded']);
       // Every glyph is drawn by the brand web font, not a local fallback.
       expect(own.fonts.map((f) => [f.familyName, f.isCustomFont])).toEqual([[face.family, true]]);
-      // Without its own file the browser has to fall back (and synthesize bold from a lighter
-      // face): the rendering changes, so the loaded file is what draws this weight.
+      // Without the family's file the browser has to fall back: the rendering changes, so the
+      // loaded file is what draws this weight.
       const blocked = await probe(browser, face, true);
-      expect(blocked.statuses).not.toEqual(['loaded']);
+      expect(blocked.statuses).not.toEqual(['400 700: loaded']);
       expect(own.pixels.equals(blocked.pixels)).toBe(false);
+    });
+  }
+
+  for (const { family, weights } of FAMILIES) {
+    test(`${family} draws ${weights.join(', ')} as weights of their own, each heavier than the last`, async ({
+      page,
+    }) => {
+      // A synthesized bold smears one outline: 500 would look like 400, and 600 like 700. A real
+      // weight axis puts more ink on the canvas at every step.
+      await page.goto('/');
+      const ink = await page.evaluate(
+        async ({ family, weights }) => {
+          await Promise.all(
+            weights.map((w) => document.fonts.load(`${w} 96px "${family}"`, 'æøå')),
+          );
+          return weights.map((weight) => {
+            const canvas = document.createElement('canvas');
+            canvas.width = 900;
+            canvas.height = 160;
+            const context = canvas.getContext('2d');
+            if (!context) throw new Error('no 2d context');
+            context.font = `${weight} 96px "${family}"`;
+            context.fillText('æøå ÆØÅ Hamburg', 10, 110);
+            const { data } = context.getImageData(0, 0, canvas.width, canvas.height);
+            let sum = 0;
+            for (let i = 3; i < data.length; i += 4) sum += data[i] ?? 0;
+            return sum;
+          });
+        },
+        { family, weights: [...weights] },
+      );
+      for (let i = 1; i < ink.length; i++)
+        expect(
+          ink[i],
+          `${weights[i]} against ${weights[i - 1]}: ${ink.join(', ')}`,
+        ).toBeGreaterThan((ink[i - 1] ?? 0) * 1.02);
     });
   }
 });

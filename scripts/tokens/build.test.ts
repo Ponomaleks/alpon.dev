@@ -65,12 +65,34 @@ describe('generateTokens', () => {
       '[data-theme="dag"] {',
       '[data-theme="natt"] {',
       `@media (prefers-color-scheme: dark) {`,
-      '.fjord-on-spruce {',
+      '.fjord-on-spruce,',
       '@media (min-width: 768px) {',
       '@media (min-width: 1024px) {',
     ].map((part) => css.indexOf(part));
     expect(order.every((i) => i >= 0)).toBe(true);
     expect([...order].sort((a, b) => a - b)).toEqual(order);
+  });
+
+  it('the on-spruce values are written once, for the class and for the Dag header over the hero', () => {
+    const css = generateTokens(real());
+    // One rule, three selectors (home AC-33): the class, the live header over the hero in Dag and
+    // its Styleguide sample. No second copy of the values anywhere.
+    expect(css).toContain(
+      [
+        '.fjord-on-spruce,',
+        ':root[data-theme="dag"] .header[data-over-hero],',
+        '.header[data-sample][data-over-hero][data-sample-theme="dag"] {',
+      ].join('\n'),
+    );
+    expect(css.match(/--fjord-color-cta-hover:/g)).toHaveLength(
+      (css.match(/--fjord-color-cta-bg:/g) ?? []).length,
+    );
+    const body = block(css, '.header[data-sample][data-over-hero][data-sample-theme="dag"]');
+    expect(value(body, '--fjord-color-bg')).toBe('var(--fjord-spruce)');
+    expect(value(body, '--fjord-color-cta-hover')).toBeDefined();
+    // Natt keeps its own header: the Natt override stays on the class alone.
+    expect(css).toContain('[data-theme="natt"] .fjord-on-spruce {');
+    expect(css).not.toMatch(/\[data-theme="natt"\][^{}]*\[data-over-hero\]/);
   });
 
   it(':root carries the brand palette, Dag semantics, non-color tokens and color-scheme light', () => {
@@ -105,6 +127,25 @@ describe('generateTokens', () => {
       'color-scheme': 'dark',
     });
     expect(natt.map(([p]) => p)).toContain('--fjord-shadow-float');
+  });
+
+  it('a hero keeps the Natt ground: its selector shares the Natt rule and the no-JS Natt block', () => {
+    const css = generateTokens(real());
+    // Page design: `'x-hero' + (dark ? ' x-hero--natt' : ' fjord-on-spruce')`. The theme cannot
+    // remove the class, so in Natt the hero takes the Natt values again, above the on-spruce ones.
+    expect(css).toContain(':root[data-theme="natt"] [data-hero],\n[data-theme="natt"] {');
+    expect(css).toContain('  :root:not([data-theme]) [data-hero],\n  :root:not([data-theme]) {');
+    // No second copy of the Natt values.
+    expect(css.match(/--fjord-color-bg: #111A17;/g)).toHaveLength(2);
+    // Every token the on-spruce rules set is set again by the Natt rule, so nothing of spruce stays.
+    const natt = declarations(nattBlock(css)).map(([p]) => p);
+    const spruce = [
+      ...declarations(block(css, '.header[data-sample][data-over-hero][data-sample-theme="dag"]')),
+      ...declarations(block(css, '[data-theme="natt"] .fjord-on-spruce')),
+    ]
+      .map(([p]) => p)
+      .filter((p) => p.startsWith('--') || p === 'color-scheme' || p === 'color');
+    expect(natt).toEqual(expect.arrayContaining(spruce));
   });
 
   it('fails on a brand vs handoff palette conflict, naming the token and both values', () => {
@@ -377,10 +418,14 @@ describe('site copy of the design system (base-components AC-26)', () => {
         buffer = '';
       } else if (ch === ';') {
         const colon = buffer.indexOf(':');
-        out.set(
-          `${stack.join(' > ')} | ${buffer.slice(0, colon).trim()}`,
-          buffer.slice(colon + 1).trim(),
-        );
+        // A rule that lists several selectors holds the declaration for each of them.
+        const rule = stack.at(-1) ?? '';
+        const selectors = rule.startsWith('@') ? [rule] : rule.split(',').map((s) => s.trim());
+        for (const selector of selectors)
+          out.set(
+            `${[...stack.slice(0, -1), selector].join(' > ')} | ${buffer.slice(0, colon).trim()}`,
+            buffer.slice(colon + 1).trim(),
+          );
         buffer = '';
       } else buffer += ch;
     }

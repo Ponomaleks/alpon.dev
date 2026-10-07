@@ -47,13 +47,13 @@ Note: CLAUDE.md plans `/cv`, `/cv/en`, `/cv/no` as CV pages later. The spec that
 
 | Id | Behaviour | Test |
 |---|---|---|
-| P-20 | Shows name "Alexander Ponomarenko" and role "Software Engineer" / "Full Stack Developer" | fixme |
-| P-21 | Contact data visible and linked: phone `+47 405 94 584` (`tel:+4740594584`), email `ponomaleks@gmail.com` (`mailto:`), LinkedIn `linkedin.com/in/ponomalex`, GitHub `github.com/ponomaleks`, "Oslo, Norge" | fixme |
-| P-22 | Copy-email button copies the address and confirms (stub: "Copied"; v2 copy rule: "Kopiert") | fixme |
-| P-23 | "Save contact" links to `/alexander-ponomarenko.vcf` with a `download` attribute | fixme |
-| P-24 | Head meta: title, description, canonical `https://alpon.dev/`, `og:*` with `og:image=https://alpon.dev/og.png` 1200×630, `twitter:card=summary_large_image`, JSON-LD `Person` (name, jobTitle, email, telephone, Oslo/NO address, `sameAs` LinkedIn + GitHub) | fixme |
+| P-20 | Shows name "Alexander Ponomarenko" and role "Software Engineer" / "Full Stack Developer" | active |
+| P-21 | Contact data visible and linked: phone `+47 405 94 584` (`tel:+4740594584`), email `ponomaleks@gmail.com` (`mailto:`), LinkedIn `linkedin.com/in/ponomalex`, GitHub `github.com/ponomaleks`, "Oslo, Norge" | active |
+| P-22 | Copy-email button copies the address and confirms (stub: "Copied"; v2: "Copied", home spec D-18) | active |
+| P-23 | "Save contact" links to `/alexander-ponomarenko.vcf` with a `download` attribute | active |
+| P-24 | Head meta: title, description, canonical `https://alpon.dev/`, `og:*` with `og:image=https://alpon.dev/og.png` 1200×630, `twitter:card=summary_large_image`, JSON-LD `Person` (name, jobTitle, email, telephone, Oslo/NO address, `sameAs` LinkedIn + GitHub) | active |
 | P-25 | Skip link is the first focusable element | active |
-| P-26 | Fonts: Schibsted Grotesk 400 and 600 preloaded | active |
+| P-26 | Fonts: the two brand font files preloaded (Schibsted Grotesk and JetBrains Mono, one variable file each; home sad §1) | active |
 
 ## CV viewer (stub: on the home page, `#cv`)
 
@@ -79,5 +79,5 @@ Note: CLAUDE.md plans `/cv`, `/cv/en`, `/cv/no` as CV pages later. The spec that
 
 | Id | Behaviour | Test |
 |---|---|---|
-| P-50 | The Shell's contact links (header, menu, bar, band) reach the contact place. Owner: step 4 | fixme |
+| P-50 | The Shell's contact links (header, menu, bar, band) reach the contact place. Owner: step 4 | active (header and menu in parity.spec.ts; all four in contact-place.spec.ts) |
 | P-51 | The Shell's CV links (header, menu, bar) reach the CV page. Owner: step 5 | fixme |

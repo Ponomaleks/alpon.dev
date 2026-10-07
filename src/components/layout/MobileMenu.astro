@@ -95,9 +95,12 @@ const Root = sample ? 'div' : 'dialog';
     max-block-size: none;
     margin: 0;
     border: 0;
-    /* Scrolls when the viewport is shorter than the content; the foot stays at the bottom otherwise. */
+    /* Scrolls when the viewport is shorter than the content; the foot stays at the bottom otherwise.
+       `scroll`, not `auto`: where a scrollbar takes width (desktop) the page loses its own under the
+       open panel, and the panel's takes that place, so the panel is as wide as the header was and
+       the close button stays over the menu button. An overlay scrollbar takes no width. */
     overflow-x: hidden;
-    overflow-y: auto;
+    overflow-y: scroll;
     overscroll-behavior: contain;
   }
 
@@ -115,11 +118,15 @@ const Root = sample ? 'div' : 'dialog';
     overflow: hidden;
   }
 
+  /* The header's own row (same height token and side padding), so the wordmark stays in place
+     and the close button takes the place of the menu button. It never shrinks: when the viewport
+     is shorter than the content the panel scrolls, and the row keeps the header's height. */
   .menu__top {
     display: flex;
+    flex: none;
     align-items: center;
     justify-content: space-between;
-    block-size: var(--fjord-header-height-compact);
+    block-size: var(--fjord-header-height);
   }
 
   /* The design's sheet draws the wordmark at 17px, as the Header does: the 16px UI size scaled by 17 / 16. */

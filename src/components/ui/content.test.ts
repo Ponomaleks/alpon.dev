@@ -121,7 +121,7 @@ describe('Tag', () => {
   });
 });
 
-describe('Stat (AC-25: final number in the page, no count-up)', () => {
+describe('Stat (AC-25: final number in the page; the count-up is the page script, AC-06)', () => {
   it('prints the final value and label as text, with no script', async () => {
     const html = await render('Stat', { value: '28,000', suffix: '+', label: 'attendees' });
     expect(text(html)).toContain('28,000+');
@@ -163,10 +163,57 @@ describe('Stat (AC-25: final number in the page, no count-up)', () => {
     expect(await render('Stat', { items })).not.toMatch(/aria-label/);
   });
 
-  it('the component file has no script and no count-up code', () => {
+  it('the component file has no script and no animation code (the count-up script is separate)', () => {
     const src = readFileSync(`${dir}Stat.astro`, 'utf8');
     expect(src).not.toMatch(/<script\b/i);
-    expect(src).not.toMatch(/count-?up|requestAnimationFrame|IntersectionObserver/i);
+    expect(src).not.toMatch(/requestAnimationFrame|IntersectionObserver/i);
+  });
+
+  it('without countUp the markup has no counting copy and nothing hidden from assistive technology', async () => {
+    const html = await render('Stat', { value: 40, prefix: '~', label: 'Students' });
+    expect(html).not.toMatch(/data-count-to|aria-hidden/);
+  });
+});
+
+describe('Stat countUp (AC-06, T11)', () => {
+  const squash = (s: string) => s.replace(/[\s\u00a0\u202f]/g, '');
+  const items = [
+    { value: 3, suffix: '+', unit: 'yrs', label: 'Software Engineer' },
+    { value: 2000, prefix: '~', label: 'Participants' },
+  ];
+
+  it('keeps the final number as the text assistive technology reads', async () => {
+    const html = await render('Stat', { items, countUp: true });
+    const readable = html.replace(/<(\w+)\b[^>]*aria-hidden="true"[^>]*>[\s\S]*?<\/\1>/g, '');
+    expect(squash(text(readable))).toContain('3+');
+    expect(squash(text(readable))).toContain('~2000');
+  });
+
+  it('adds one counting copy per value, aria-hidden, carrying value, prefix and suffix', async () => {
+    const html = await render('Stat', { items, countUp: true });
+    const copies = html.match(/<[^>]*data-count-to="[^"]*"[^>]*>/g) ?? [];
+    expect(copies).toHaveLength(2);
+    copies.forEach((tag) => expect(tag).toContain('aria-hidden="true"'));
+    expect(copies[0]).toContain('data-count-to="3"');
+    expect(copies[0]).toContain('data-suffix="+"');
+    expect(copies[1]).toContain('data-count-to="2000"');
+    expect(copies[1]).toContain('data-prefix="~"');
+  });
+
+  it('prints the final number in the counting copy too, so nothing jumps and no script is needed', async () => {
+    const html = await render('Stat', { items, countUp: true });
+    const copy = html.match(/<([a-z]+)\b[^>]*data-count-to="2000"[^>]*>([\s\S]*?)<\/\1>/);
+    expect(squash(text(copy?.[2] ?? ''))).toBe('~2000');
+  });
+
+  it('never hides the counting copy with an inline style or the hidden attribute', async () => {
+    const html = await render('Stat', { items, countUp: true });
+    expect(html).toMatch(/data-count-to/);
+    expect(html).not.toMatch(/\shidden[\s>=]|style="[^"]*(display|visibility)/);
+  });
+
+  it('uses tabular numerals', () => {
+    expect(readFileSync(`${dir}Stat.astro`, 'utf8')).toMatch(/tabular-nums/);
   });
 });
 

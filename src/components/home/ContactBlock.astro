@@ -1,0 +1,216 @@
+---
+// Contact block (AC-13 to AC-17): five rows, Copy on the email row, Save contact, the QR tile and
+// the mail-link sentence. The section wrapper (id="contact") is placed by the page. No primary
+// button here (D-09); data only from contact.ts.
+// Layout follows the page design (.x-split, ContactList, .x-qr): the list, the action and the QR
+// tile in one column; the sentence stands where the design draws the message form, beside the
+// list from 1024 and under "Save contact" below.
+import SectionHeader from '../ui/SectionHeader.astro';
+import Link from '../ui/Link.astro';
+import Button from '../ui/Button.astro';
+import CopyButton from '../ui/CopyButton.astro';
+import QrTile from '../brand/QrTile.astro';
+import { contact } from '../../data/contact';
+
+interface Props {
+  /** Section number in the eyebrow, e.g. "05". */
+  index: string;
+}
+
+const { index } = Astro.props;
+const short = (url: string) => url.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '');
+const tel = `tel:${contact.phone.replace(/[^\d+]/g, '')}`;
+---
+
+<div class="contact">
+  <SectionHeader
+    id="contact-title"
+    index={index}
+    eyebrow="Contact"
+    title="Get in touch"
+    lead="Email is fastest. Phone and LinkedIn work too."
+  />
+  <div class="contact__split">
+    <div class="contact__main">
+      <dl class="contact__list">
+        <div class="contact__row">
+          <dt>Email</dt>
+          <dd>
+            <a class="contact__value" href={`mailto:${contact.email}`}>
+              {contact.email}
+            </a>
+            <span class="contact__copy" data-needs-script>
+              <CopyButton data-copy-email={contact.email} />
+            </span>
+          </dd>
+        </div>
+        <div class="contact__row">
+          <dt>Phone</dt>
+          <dd>
+            <a class="contact__value" href={tel}>
+              {contact.phone}
+            </a>
+          </dd>
+        </div>
+        <div class="contact__row">
+          <dt>LinkedIn</dt>
+          <dd>
+            <a class="contact__value" href={contact.linkedin}>
+              {short(contact.linkedin)}
+            </a>
+          </dd>
+        </div>
+        <div class="contact__row">
+          <dt>GitHub</dt>
+          <dd>
+            <a class="contact__value" href={contact.github}>
+              {short(contact.github)}
+            </a>
+          </dd>
+        </div>
+        <div class="contact__row">
+          <dt>Region</dt>
+          <dd>
+            <span class="contact__value" lang="no">
+              {contact.workRegion}
+            </span>
+          </dd>
+        </div>
+      </dl>
+      <div class="contact__actions">
+        <Button variant="secondary" href="/alexander-ponomarenko.vcf" icon="user-plus" download>
+          Save contact (.vcf)
+        </Button>
+      </div>
+      <QrTile />
+    </div>
+    <p class="contact__sentence">
+      Hiring? <Link href={`mailto:${contact.email}`}>A short email</Link> about the role is the
+      quickest way to reach me.
+    </p>
+  </div>
+</div>
+
+<style>
+  .contact {
+    display: flex;
+    flex-direction: column;
+    gap: var(--fjord-space-block);
+    min-width: 0;
+  }
+  .contact__split {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--fjord-space-10) var(--fjord-grid-gutter);
+  }
+  @media (min-width: 1024px) {
+    .contact__split {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      gap: var(--fjord-space-16);
+    }
+  }
+  .contact__main {
+    display: flex;
+    flex-direction: column;
+    gap: var(--fjord-space-5);
+    min-width: 0;
+  }
+  .contact__list {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+  }
+  /* The design's row: an 88px label column, 56px high, a hairline above. On a phone the column is
+     60px and the gaps are tighter, so the address stays on one line beside Copy down to 360
+     (Owner's design review). */
+  .contact__row {
+    display: grid;
+    grid-template-columns: calc(var(--fjord-space-14) + var(--fjord-space-1)) minmax(0, 1fr);
+    align-items: center;
+    column-gap: var(--fjord-space-2);
+    min-block-size: var(--fjord-space-14);
+    border-top: var(--fjord-border-width) solid var(--fjord-color-border);
+  }
+  .contact__row:last-child {
+    border-bottom: var(--fjord-border-width) solid var(--fjord-color-border);
+  }
+  dt {
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-mono-sm);
+    font-weight: var(--fjord-weight-medium);
+    line-height: var(--fjord-leading-none);
+    letter-spacing: var(--fjord-tracking-label);
+    color: var(--fjord-color-text-muted);
+  }
+  dd {
+    display: flex;
+    align-items: center;
+    gap: var(--fjord-space-1);
+    margin: 0;
+    min-width: 0;
+  }
+  /* From 768: the widths of the design. */
+  @media (min-width: 768px) {
+    .contact__row {
+      grid-template-columns: calc(var(--fjord-space-20) + var(--fjord-space-2)) minmax(0, 1fr);
+      column-gap: var(--fjord-space-3);
+    }
+    dd {
+      gap: var(--fjord-space-3);
+    }
+  }
+  /* The design's value (.fj-contacts__v): mono, in the text colour, no underline at rest. */
+  .contact__value {
+    max-width: 100%;
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-ui);
+    font-weight: var(--fjord-weight-regular);
+    line-height: var(--fjord-leading-snug);
+    color: var(--fjord-color-text);
+    text-decoration: none;
+    overflow-wrap: anywhere;
+  }
+  a.contact__value {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--fjord-tap-min);
+  }
+  a.contact__value:hover {
+    color: var(--fjord-color-link);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+  a.contact__value:focus-visible {
+    outline: var(--fjord-focus-width) solid var(--fjord-color-focus-ring);
+    outline-offset: var(--fjord-focus-offset);
+    border-radius: var(--fjord-radius-xs);
+  }
+  /* Copy ends the row, as the design's third column does. */
+  .contact__copy {
+    display: flex;
+    flex: none;
+    margin-inline-start: auto;
+  }
+  .contact__actions {
+    display: flex;
+  }
+  .contact__main :global(.qr) {
+    margin-top: var(--fjord-space-2);
+  }
+  .contact__sentence {
+    margin: 0;
+    max-width: var(--fjord-measure-narrow);
+    line-height: var(--fjord-leading-body);
+    text-wrap: pretty;
+  }
+  .contact__sentence :global(.fj-link) {
+    display: inline-block;
+    min-block-size: var(--fjord-tap-min);
+    line-height: var(--fjord-tap-min);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    a.contact__value {
+      transition: color var(--fjord-duration-200) var(--fjord-ease-out);
+    }
+  }
+</style>

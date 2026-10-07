@@ -65,20 +65,38 @@ describe.each([
     expect(order.slice(3, 5)).toEqual(['link:preload', 'link:preload']);
     expect(order[5]).toBe('link:stylesheet');
     expect(firstOf('title')).toBe(6);
-    // The head contract fixes the order and says "stylesheets". The layout ships two: the global
-    // one (tokens, fonts, base) at position 5, and the Shell's component bundle. A page's own
-    // scoped styles would be a further sheet; the fixture page has none, so it gets exactly these.
-    if (page === 'fixture.html') {
-      expect(order.filter((i) => i === 'link:stylesheet')).toHaveLength(2);
-      const sheets = [
-        ...head(page).matchAll(/<link\b[^>]*rel="stylesheet"[^>]*href="([^"]+)"/g),
-      ].map((m) => m[1] ?? '');
-      expect(sheets[0]).toMatch(/\/global\.[^/]*\.css$/);
-      expect(sheets[1]).toMatch(/\/BaseLayout\.[^/]*\.css$/);
-    }
+    // One stylesheet per page (home T19): the global styles (tokens, fonts, base), the Shell's
+    // components and the page's own styles are joined after the build, in that order, into the one
+    // file at position 5. Each link is a request before the first paint.
+    expect(order.filter((i) => i === 'link:stylesheet')).toHaveLength(1);
+    const sheets = [...head(page).matchAll(/<link\b[^>]*rel="stylesheet"[^>]*href="([^"]+)"/g)].map(
+      (m) => m[1] ?? '',
+    );
+    expect(sheets[0]).toMatch(/^\/_astro\/page\.[0-9a-f]{8}\.css$/);
     expect(firstOf('meta:description')).toBeGreaterThan(firstOf('title'));
     expect(firstOf('link:icon')).toBeGreaterThan(firstOf('meta:description'));
     expect(order).not.toContain('style');
+  });
+
+  it('gets the Shell styles after the global ones in its one stylesheet, and no other file is left', () => {
+    const href = head(page).match(/<link\b[^>]*rel="stylesheet"[^>]*href="([^"]+)"/)?.[1] ?? '';
+    const css = readFileSync(join(out, 'dist', href), 'utf8');
+    expect(css.indexOf('--fjord-color-bg')).toBeGreaterThanOrEqual(0);
+    expect(css.indexOf('.skip-link')).toBeGreaterThan(css.indexOf(':focus-visible'));
+    // Every CSS file of the build is the one stylesheet of some page.
+    const linked = new Set(
+      readdirSync(join(out, 'dist'), { recursive: true, encoding: 'utf8' })
+        .filter((file) => file.endsWith('.html'))
+        .flatMap((file) =>
+          [
+            ...readFileSync(join(out, 'dist', file), 'utf8').matchAll(
+              /<link rel="stylesheet" href="\/_astro\/([^"]+)"/g,
+            ),
+          ].map((m) => m[1] ?? ''),
+        ),
+    );
+    const built = readdirSync(join(out, 'dist', '_astro')).filter((file) => file.endsWith('.css'));
+    expect(built.sort()).toEqual([...linked].sort());
   });
 
   it('has a plain viewport with no viewport-fit (no safe-area padding yet, review F-18)', () => {
@@ -90,20 +108,20 @@ describe.each([
   it('inlines the bootstrap verbatim as the first and only inline script', () => {
     // The Shell's behaviour is external module bundles (`src=`); inline code is the bootstrap only.
     const scripts = [...html(page).matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/g)].filter(
-      ([, attrs = '']) => !/\ssrc=/.test(` ${attrs}`),
+      ([, attrs = '']) => !/\ssrc=/.test(` ${attrs}`) && !/ld\+json/.test(attrs),
     );
     expect(scripts).toHaveLength(1);
     expect(scripts[0]?.[1]?.trim()).toBe('');
     expect(scripts[0]?.[2]).toBe(bootstrap);
   });
 
-  it('preloads exactly Schibsted Grotesk 400 and 600 as crossorigin woff2', () => {
+  it('preloads exactly the two variable brand files as crossorigin woff2', () => {
     const preloads = [...head(page).matchAll(/<link\b[^>]*rel="preload"[^>]*>/g)].map(
       ([tag]) => tag,
     );
     expect(preloads).toHaveLength(2);
-    expect(preloads[0]).toContain('href="/fonts/schibsted-grotesk-400.woff2"');
-    expect(preloads[1]).toContain('href="/fonts/schibsted-grotesk-600.woff2"');
+    expect(preloads[0]).toContain('href="/fonts/schibsted-grotesk-wght.woff2"');
+    expect(preloads[1]).toContain('href="/fonts/jetbrains-mono-wght.woff2"');
     for (const tag of preloads) {
       expect(tag).toContain('as="font"');
       expect(tag).toContain('type="font/woff2"');
@@ -248,6 +266,22 @@ describe('page option headerCta', () => {
   });
 });
 
+describe('page option headerOverHero (AC-33, ADR-0001)', () => {
+  it('true renders data-over-hero on the header', () => {
+    expect(headerTag(opt('over-hero'))).toMatch(/\sdata-over-hero(?:=""|\s|>)/);
+  });
+
+  it('false is the same as leaving it out: no attribute on the header', () => {
+    expect(headerTag(opt('over-hero-off'))).toBe(headerTag(html('fixture.html')));
+    expect(headerTag(html('fixture.html'))).not.toContain('data-over-hero');
+    expect(headerTag(html('404.html'))).not.toContain('data-over-hero');
+  });
+
+  it('does not change the header call to action: no secondary hook is set for it', () => {
+    expect(headerTag(opt('over-hero'))).not.toContain('data-cta');
+  });
+});
+
 describe('page option mobileBar', () => {
   it('false leaves the Sticky action bar out of the HTML and keeps the rest of the Shell', () => {
     const source = opt('bar-off');
@@ -262,6 +296,39 @@ describe('page option mobileBar', () => {
   });
 });
 
+describe('page option mobileBarActions (AC-38, ADR-0002)', () => {
+  /** The anchors inside the bar's root element. */
+  const barAnchors = (source: string) => {
+    const bar = source.match(/<details[^>]*data-shell-bar[^>]*>([\s\S]*?)<\/details>/)?.[1] ?? '';
+    return [...bar.matchAll(/<a\b[^>]*>[\s\S]*?<\/a>/g)].map((m) => m[0]);
+  };
+
+  it('the default gives "View CV" and "Save contact (.vcf)", both secondary', () => {
+    const [cv, save, ...rest] = barAnchors(html('fixture.html'));
+    expect(rest).toEqual([]);
+    expect(cv).toContain('href="/cv"');
+    expect(cv).toContain('View CV');
+    expect(save).toContain('href="/alexander-ponomarenko.vcf"');
+    expect(save).toContain('Save contact (.vcf)');
+    expect(save).toMatch(/\sdownload(?:=""|\s|>)/);
+    for (const anchor of [cv, save]) {
+      expect(anchor).toContain('fj-btn--secondary');
+      expect(anchor).not.toContain('fj-btn--primary');
+    }
+  });
+
+  it('a page option reaches the bar: its pair replaces the default one', () => {
+    const [first, second, ...rest] = barAnchors(opt('bar-custom'));
+    expect(rest).toEqual([]);
+    expect(first).toContain('href="/projects/example"');
+    expect(first).toContain('Read the case study');
+    expect(second).toContain('href="/brief.pdf"');
+    expect(second).toContain('Get the brief');
+    for (const anchor of [first, second]) expect(anchor).toContain('fj-btn--secondary');
+    expect(opt('bar-custom')).not.toContain('Save contact (.vcf)');
+  });
+});
+
 describe('page option ctaBand', () => {
   it('false leaves the closing band out of the HTML and keeps the rest of the Shell', () => {
     const source = opt('band-off');
@@ -273,6 +340,41 @@ describe('page option ctaBand', () => {
 
   it('true is the default', () => {
     expect(opt('band-on')).toContain('class="fj-band');
+  });
+});
+
+describe('page option ctaBandActions (AC-40, ADR-0002)', () => {
+  /** The anchors inside the closing band. */
+  const bandAnchors = (source: string) => {
+    const band =
+      source.match(/<section\s[^>]*class="fj-band[^>]*>([\s\S]*?)<\/section>/)?.[1] ?? '';
+    return [...band.matchAll(/<a\b[^>]*>[\s\S]*?<\/a>/g)].map((m) => m[0]);
+  };
+
+  it('a page option reaches the band: its pair replaces the default one, variants kept', () => {
+    const source = opt('band-custom');
+    const [first, second, ...rest] = bandAnchors(source);
+    expect(rest).toEqual([]);
+    expect(first).toContain('href="/projects/example"');
+    expect(first).toContain('Read the case study');
+    expect(first).toContain('fj-btn--primary');
+    expect(second).toContain('href="/brief.pdf"');
+    expect(second).toContain('Get the brief');
+    expect(second).toContain('fj-btn--secondary');
+    expect(second).toMatch(/\sdownload(?:=""|\s|>)/);
+    // The header keeps its own "Get in touch", so only the band's anchors are checked.
+    const band = bandAnchors(source).join('');
+    expect(band).not.toContain('Get in touch');
+    expect(band).not.toContain('-cv-en.pdf');
+  });
+
+  it('without the option the band has the default pair: "Get in touch" primary, then "Download CV"', () => {
+    const [first, second, ...rest] = bandAnchors(html('fixture.html'));
+    expect(rest).toEqual([]);
+    expect(first).toContain('Get in touch');
+    expect(first).toContain('fj-btn--primary');
+    expect(second).toContain('Download CV');
+    expect(second).toContain('fj-btn--secondary');
   });
 });
 
@@ -297,5 +399,98 @@ describe('bar clearance (AC-07, hook H-2)', () => {
       .join('\n');
     expect(css).toMatch(/scroll-padding-(bottom|block-end)\s*:/);
     expect(css).toMatch(/:has\(\[data-shell-bar\]/);
+  });
+});
+
+// Head meta and structured data (AC-26, T4; sad §8).
+
+const metaTags = (page: string) => [...head(page).matchAll(/<meta\b[^>]*>/g)].map(([m]) => m);
+/** The content of the meta tag whose property or name is `key`, or undefined. */
+const metaContent = (page: string, key: string) =>
+  metaTags(page)
+    .find((m) => new RegExp(`\\b(?:property|name)="${key}"`).test(m))
+    ?.match(/\bcontent="([^"]*)"/)?.[1];
+const canonicalTag = (page: string) => head(page).match(/<link\b[^>]*rel="canonical"[^>]*>/)?.[0];
+const ldBlocks = (page: string) => [
+  ...head(page).matchAll(/<script\b[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g),
+];
+
+describe.each([
+  ['fixture.html', 'https://alpon.dev/fixture', 'Fixture page'],
+  ['index.html', 'https://alpon.dev/', undefined],
+])('head meta of the indexable %s (AC-26)', (page, url, title) => {
+  it('has the canonical address from the site and the page address', () => {
+    expect(canonicalTag(page)).toContain(`href="${url}"`);
+  });
+
+  it('has og:title, og:description and og:url', () => {
+    expect(metaContent(page, 'og:title')).toBe(
+      title ?? head(page).match(/<title>([^<]*)<\/title>/)?.[1],
+    );
+    expect(metaContent(page, 'og:description')).toBe(metaContent(page, 'description'));
+    expect(metaContent(page, 'og:url')).toBe(url);
+  });
+
+  it('has og:image at 1200 x 630 and the large Twitter card', () => {
+    expect(metaContent(page, 'og:image')).toBe('https://alpon.dev/og.png');
+    expect(metaContent(page, 'og:image:width')).toBe('1200');
+    expect(metaContent(page, 'og:image:height')).toBe('630');
+    expect(metaContent(page, 'twitter:card')).toBe('summary_large_image');
+  });
+});
+
+describe('head meta of the noindex 404 page (AC-26)', () => {
+  it('has no canonical, no og tags and no Twitter card, and keeps noindex', () => {
+    expect(canonicalTag('404.html')).toBeUndefined();
+    expect(
+      metaTags('404.html').filter((m) => /(?:property|name)="(?:og|twitter):/.test(m)),
+    ).toEqual([]);
+    expect(head('404.html')).toContain('<meta name="robots" content="noindex">');
+  });
+});
+
+describe('structuredData (AC-26)', () => {
+  const expected = { '@type': 'Person', name: 'A </script><b>x</b> & <i>', list: [1, 'two'] };
+
+  it('renders exactly one ld+json block in the head that parses back to the object', () => {
+    const blocks = ldBlocks('fixture-structured.html');
+    expect(blocks).toHaveLength(1);
+    expect(JSON.parse(blocks[0]?.[1] ?? '')).toEqual(expected);
+  });
+
+  it('escapes "<" so a value with </script> cannot close the block', () => {
+    const body = ldBlocks('fixture-structured.html')[0]?.[1] ?? '';
+    expect(body).not.toContain('<');
+    expect(body).toContain('\\u003c');
+  });
+
+  it('renders no block when the page passes none, and the build passes the CSP integration', () => {
+    expect(ldBlocks('fixture.html')).toHaveLength(0);
+    expect(readFileSync(join(out, 'dist', '_headers'), 'utf8')).toContain("script-src 'self'");
+  });
+});
+
+describe('main rules in base.css (AC-26, B-18)', () => {
+  const css = () => {
+    const dir = join(out, 'dist/_astro');
+    return readdirSync(dir)
+      .filter((file) => file.endsWith('.css'))
+      .map((file) => readFileSync(join(dir, file), 'utf8'))
+      .join('\n');
+  };
+  const rule = (selector: string) =>
+    [...css().matchAll(/([^{}]+)\{([^{}]*)\}/g)]
+      .filter((m) => (m[1] ?? '').split(',').some((s) => s.trim() === selector))
+      .map((m) => m[2])
+      .join(';');
+
+  // The design value, as a literal: tokens.css has no size for it and sizes are outside the token
+  // rule (base-components ADR-0004).
+  it('gives main the minimum height of the page design', () => {
+    expect(rule('main')).toMatch(/min-height:s*60vh/);
+  });
+
+  it('shows no outline on a focused main', () => {
+    expect(rule('main:focus')).toMatch(/outline:\s*(?:none|0)/);
   });
 });

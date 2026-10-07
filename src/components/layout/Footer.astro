@@ -46,7 +46,8 @@ const year = new Date().getFullYear();
   .fj-footer {
     position: relative;
     overflow: hidden;
-    padding: var(--fjord-space-12) 0 var(--fjord-space-24);
+    /* No room for the Sticky action bar here: the page reserves it once, in base.css (home T6). */
+    padding: var(--fjord-space-12) 0 var(--fjord-space-8);
     border-block-start: var(--fjord-border-width) solid var(--fjord-color-border);
   }
 
@@ -137,14 +138,8 @@ const year = new Date().getFullYear();
   }
 
   /* The grid has 4 / 8 / 12 tracks (--fjord-grid-columns): a column spans four of them, so one
-     per row below 768 and two per row from 768. The bar no longer needs the room below. */
-  @media (min-width: 768px) {
-    .fj-footer {
-      padding-block-end: var(--fjord-space-8);
-    }
-  }
-
-  /* Wide: slogan and the three columns share one row, three of twelve tracks each. */
+     per row below 768 and two per row from 768. Wide: slogan and the three columns share one
+     row, three of twelve tracks each. */
   @media (min-width: 1024px) {
     .fj-footer__slogan,
     .fj-footer__col {

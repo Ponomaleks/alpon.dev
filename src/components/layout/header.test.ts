@@ -6,7 +6,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { contact } from '../../data/contact';
 
-// AC-01, AC-02, AC-03, AC-23 (T10): the Header markup and its CSS. A real production build of a
+// AC-01, AC-02, AC-03, AC-23, AC-33 (T10, T7): the Header markup and its CSS. A real production build of a
 // throwaway fixture page (outside the repo); the test reads the built HTML and CSS. Scroll border
 // behaviour is src/scripts/shell/header.test.ts, the browser checks are T20's.
 
@@ -15,6 +15,7 @@ const layout = (name: string) => join(repo, 'src/components/layout', name).repla
 let out = '';
 let page = '';
 let css = '';
+let sheet = '';
 
 const fixture = `---
 import Header from '${layout('Header.astro')}';
@@ -26,6 +27,8 @@ import Header from '${layout('Header.astro')}';
 <div data-case="spruce"><Header variant="on-spruce" /></div>
 <div data-case="secondary"><Header cta="secondary" /></div>
 <div data-case="sample"><Header sample /></div>
+<div data-case="over-hero"><Header overHero /></div>
+<div data-case="not-over-hero"><Header overHero={false} /></div>
 </body></html>
 `;
 
@@ -72,11 +75,20 @@ ${build.stderr}`);
   page = readFileSync(join(dist, 'header-fixture.html'), 'utf8');
   const assets = join(dist, '_astro');
   let files: string[];
+  // The stylesheet of the fixture page (one per page; other pages repeat the Shell rules in theirs).
+  const linked = [...page.matchAll(/<link rel="stylesheet" href="\/_astro\/([^"]+)"/g)].map(
+    (m) => m[1] ?? '',
+  );
   try {
-    files = readdirSync(assets).filter((f) => f.endsWith('.css'));
+    files = readdirSync(assets).filter((f) => linked.includes(f));
   } catch {
     files = [];
   }
+  // Style rules only: Astro may inline small sheets into the page as <style>.
+  sheet = [...page.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/g)]
+    .map((m) => m[1] ?? '')
+    .concat(files.map((f) => readFileSync(join(assets, f), 'utf8')))
+    .join('\n');
   css = page + files.map((f) => readFileSync(join(assets, f), 'utf8')).join('\n');
 }, 180_000);
 
@@ -197,8 +209,17 @@ describe('Header: variants (AC-23, AC-24)', () => {
 });
 
 describe('Header: built CSS', () => {
-  it('has the :has() rule keyed on the bar hook and :not([inert]) (H-2, AC-23)', () => {
-    expect(css).toMatch(/:has\(\s*\[data-shell-bar\]:not\(\[inert\]\)/);
+  it('has no rule that depends on the Sticky action bar (D-14, AC-33)', () => {
+    // The header's own rules: the Toast clearance and the scroll padding of base.css keep theirs.
+    const headerRules = [...sheet.matchAll(/([^{}]+)[{][^{}]*[}]/g)]
+      .map(([, selector = '']) => selector)
+      .filter((selector) => selector.includes('.header') || selector.includes('[data-header]'))
+      .join(',');
+    expect(headerRules.length, 'the header rules were found').toBeGreaterThan(0);
+    expect(headerRules).not.toContain('data-shell-bar');
+    expect(headerRules).not.toMatch(/:has[(][^)]*inert/);
+    expect(sheet.length, 'the header CSS was found').toBeGreaterThan(0);
+    expect(sheet).toMatch(/\.header__cta/);
   });
 
   it('an outlined call to action still answers to hover and press, like a secondary Button', () => {
@@ -206,9 +227,9 @@ describe('Header: built CSS', () => {
       /\.header__cta[^,{]*\.fj-btn:hover/.test(sel),
     );
     const selectors = hover.map(([, sel = '']) => sel).join(',');
-    // Both ways into the outlined style: forced by the page, and beside a visible bar.
+    // The outlined style is forced by the page only; no bar rule is left (D-14).
     expect(selectors).toMatch(/\[data-cta=["']?secondary["']?\][^,]*\.fj-btn:hover/);
-    expect(selectors).toMatch(/:has\([^,]*data-shell-bar[^,]*\.fj-btn:hover/);
+    expect(selectors).not.toMatch(/data-shell-bar/);
     expect(selectors).toMatch(/\.fj-btn:active/);
     for (const [, , body = ''] of hover) {
       expect(body).toMatch(/background-color:\s*var\(--fjord-color-accent-soft\)/);
@@ -226,5 +247,86 @@ describe('Header: built CSS', () => {
 
   it('styles the scroll border from data-scrolled (AC-03)', () => {
     expect(css).toMatch(/\[data-scrolled\]/);
+  });
+});
+
+describe('Header: over the hero (AC-33, ADR-0001)', () => {
+  it('renders data-over-hero only when asked for it', () => {
+    expect(root(header('over-hero'))).toMatch(/\sdata-over-hero(?:=""|\s|>)/);
+    for (const name of ['plain', 'cv', 'contact', 'spruce', 'secondary', 'sample', 'not-over-hero'])
+      expect(root(header(name)), name).not.toMatch(/data-over-hero/);
+  });
+
+  it('keeps the scroll hook and the single call to action in the over-hero header', () => {
+    const html = header('over-hero');
+    expect(root(html)).toMatch(/\sdata-header(?:=""|\s|>)/);
+    expect(named(html, 'Get in touch')).toHaveLength(1);
+  });
+
+  it('every selector that reads data-over-hero is scoped to :root[data-theme] or a sample theme', () => {
+    const rules = [...sheet.matchAll(/([^{}@]+)\{[^{}]*\}/g)].filter(([, sel = '']) =>
+      /data-over-hero/.test(sel),
+    );
+    expect(rules.length, 'over-hero rules').toBeGreaterThan(0);
+    for (const [, sel = ''] of rules)
+      for (const one of sel.split(',').filter((part) => /data-over-hero/.test(part)))
+        expect(one, one.trim()).toMatch(
+          /:root\[data-theme=["']?(dag|natt)["']?\]|\[data-sample\]\[data-over-hero\]\[data-sample-theme(=["']?(dag|natt)["']?)?\]/,
+        );
+  });
+
+  it('takes the Dag over-hero colours from the on-spruce rule of tokens.css, with no copy of its own', () => {
+    // The fixture page links the header's styles only; the tokens are read from their source.
+    const tokens = readFileSync(join(repo, 'src/styles/tokens.css'), 'utf8');
+    const rules = [...`${tokens}\n${sheet}`.matchAll(/([^{}@]+)[{]([^{}]*)[}]/g)].filter(
+      ([, sel = '']) => /data-over-hero/.test(sel),
+    );
+    // The one rule that sets on-spruce values for the header is the generated one, shared with the class.
+    const setters = rules.filter(([, , body = '']) => /--fjord-color-bg\s*:/.test(body));
+    expect(setters).toHaveLength(1);
+    expect(setters[0]?.[1]).toMatch(/\.fjord-on-spruce\s*,/);
+    expect(setters[0]?.[1]).toMatch(/:root\[data-theme=["']?dag["']?\] \.header\[data-over-hero\]/);
+    // The header's own over-hero rules redefine one token at most: the border it does not draw.
+    const redefined = rules
+      .filter((rule) => rule !== setters[0])
+      .flatMap(([, , body = '']) => body.match(/--fjord-[a-z0-9-]+(?=\s*:)/g) ?? []);
+    expect([...new Set(redefined)]).toEqual(['--fjord-color-border']);
+  });
+
+  it('Dag over the hero keeps the 94 % ground of every header state, now of spruce', () => {
+    // Page design: `.fj-header{background:color-mix(in srgb,var(--fjord-color-bg) 94%,transparent)}`
+    // comes after `.fjord-on-spruce{background-color:var(--fjord-color-bg)}`, so the bar over the
+    // hero is translucent spruce. Here the generated on-spruce rule would win with its solid
+    // ground, so the header's own Dag over-hero rule states the translucent one again.
+    const rules = [...sheet.matchAll(/([^{}@]+)\{([^{}]*)\}/g)].filter(
+      ([, sel = '']) =>
+        /data-theme=["']?dag/.test(sel) && /data-over-hero/.test(sel) && !/__cta|__theme/.test(sel),
+    );
+    const grounds = rules
+      .map(([, , body = '']) => body.match(/background(?:-color)?\s*:\s*([^;}]+)/)?.[1]?.trim())
+      .filter(Boolean);
+    expect(grounds).toHaveLength(1);
+    expect(grounds[0]?.replace(/\s+/g, '')).toBe(
+      'color-mix(insrgb,var(--fjord-color-bg)94%,transparent)',
+    );
+    // The same rule covers the Styleguide sample.
+    expect(rules.map(([, sel = '']) => sel).join(',')).toMatch(
+      /\[data-sample\]\[data-over-hero\]\[data-sample-theme=["']?dag["']?\]/,
+    );
+  });
+
+  it('has over-hero rules for both Dag and Natt', () => {
+    expect(sheet).toMatch(/:root\[data-theme=["']?dag["']?\][^{},]*\[data-over-hero\]/);
+    expect(sheet).toMatch(/:root\[data-theme=["']?natt["']?\][^{},]*\[data-over-hero\]/);
+  });
+
+  it('Dag over the hero draws no border even when scrolled', () => {
+    const rules = [...sheet.matchAll(/([^{}@]+)\{([^{}]*)\}/g)].filter(
+      ([, sel = '']) =>
+        /data-theme=["']?dag/.test(sel) && /data-over-hero/.test(sel) && !/__cta/.test(sel),
+    );
+    expect(rules.map(([, , body = '']) => body).join(';')).toMatch(
+      /border-(block-end-)?(color|width)\s*:|border-block-end\s*:/,
+    );
   });
 });

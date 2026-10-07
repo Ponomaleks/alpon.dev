@@ -93,6 +93,24 @@ test.describe('layout and the bar (AC-17)', () => {
       }
     });
 
+    test(`at ${width}px the sticky bar holds "View CV" and "Save contact (.vcf)", both secondary (AC-38)`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto('/does-not-exist');
+      const links = page.locator('.mobile-bar').getByRole('link');
+      if (width >= 768) {
+        await expect(page.locator('.mobile-bar')).toBeHidden();
+        return;
+      }
+      await expect(links).toHaveCount(2);
+      await expect(links.nth(0)).toHaveAccessibleName('View CV');
+      await expect(links.nth(1)).toHaveAccessibleName('Save contact (.vcf)');
+      await expect(links.nth(1)).toHaveAttribute('href', '/alexander-ponomarenko.vcf');
+      await expect(links.nth(1)).toHaveAttribute('download', /.*/);
+      await expect(page.locator('.mobile-bar .fj-btn--primary')).toHaveCount(0);
+    });
+
     test(`at ${width}px the sticky bar is ${width < 768 ? 'shown' : 'absent'}`, async ({
       page,
     }) => {
@@ -185,7 +203,11 @@ test.describe('reduced motion', () => {
         await link.focus();
         await link.hover();
       }
-      expect(await page.evaluate(() => document.getAnimations().length)).toBe(0);
+      expect(
+        await page.evaluate(
+          () => document.getAnimations().filter((a) => a.playState !== 'paused').length,
+        ),
+      ).toBe(0);
       expect(await movingTransitions(page)).toEqual([]);
     });
   }

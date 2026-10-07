@@ -1,31 +1,33 @@
-"""Subset the brand TTFs (design/brand/fonts) to self-hosted woff2 in public/fonts.
+"""Subset the variable brand TTFs (tools/fonts/src) to self-hosted woff2 in public/fonts.
 
-Latin + Latin Extended-A (incl. æ ø å Æ Ø Å), typographic punctuation (incl. – —), € ™ and
-arrows: the same coverage as the five files shipped with the stub. Existing files are only
-rewritten when they miss a required glyph or with --force.
+One file per family (home sad §1, Decision override): the weight axis is limited to the brand
+range 400-700 first, then the file is subset to Latin + Latin Extended-A (incl. æ ø å Æ Ø Å),
+typographic punctuation (incl. – —), € ™ and arrows: the same coverage and layout features as
+the static files it replaces. Existing files are only rewritten when they miss a required glyph
+or with --force.
 
 Run from the repo root: py tools/fonts/subset.py [--force]
 Needs: py -m pip install --user fonttools brotli
 """
 
 import sys
+from io import BytesIO
 from pathlib import Path
 
 from fontTools import subset
 from fontTools.ttLib import TTFont
+from fontTools.varLib import instancer
 
-SRC = Path("design/brand/fonts")
+SRC = Path("tools/fonts/src")
 OUT = Path("public/fonts")
 
 FACES = {
-    "schibsted-grotesk-400": "SchibstedGrotesk-Regular.ttf",
-    "schibsted-grotesk-500": "SchibstedGrotesk-Medium.ttf",
-    "schibsted-grotesk-600": "SchibstedGrotesk-SemiBold.ttf",
-    "schibsted-grotesk-700": "SchibstedGrotesk-Bold.ttf",
-    "jetbrains-mono-400": "JetBrainsMono-Regular.ttf",
-    "jetbrains-mono-500": "JetBrainsMono-Medium.ttf",
-    "jetbrains-mono-700": "JetBrainsMono-Bold.ttf",
+    "schibsted-grotesk-wght": "SchibstedGrotesk-wght.ttf",
+    "jetbrains-mono-wght": "JetBrainsMono-wght.ttf",
 }
+
+# The brand weights: Schibsted Grotesk 400/500/600/700, JetBrains Mono 400/500/700.
+WEIGHT_RANGE = (400, 700)
 
 UNICODES = (
     "U+0020-007E,U+00A0-017F,U+02BB-02BC,U+02C6,U+02DA,U+02DC,"
@@ -35,7 +37,8 @@ UNICODES = (
 FEATURES = ["calt", "case", "ccmp", "kern", "liga", "locl", "mark", "mkmk", "rlig", "rvrn", "tnum"]
 
 REQUIRED = "æøåÆØÅ–—"
-MAX_BYTES = 30 * 1024
+# A variable file holds every weight of its family (the static files were 30 KB for one weight).
+MAX_BYTES = 50 * 1024
 
 
 def missing_glyphs(path: Path) -> list[str]:
@@ -50,7 +53,12 @@ def build(name: str, ttf: str) -> None:
     # The feature set of the shipped stub files; stylistic extras (frac, sups, dlig, …) are dropped.
     options.layout_features = FEATURES
     options.notdef_outline = True
-    font = subset.load_font(str(SRC / ttf), options)
+    # The axis is narrowed first; the narrowed font is written to memory and read back, because
+    # the subsetter needs the tables as a saved font has them.
+    narrowed = BytesIO()
+    instancer.instantiateVariableFont(TTFont(SRC / ttf), {"wght": WEIGHT_RANGE}).save(narrowed)
+    narrowed.seek(0)
+    font = subset.load_font(narrowed, options)
     subsetter = subset.Subsetter(options)
     subsetter.populate(unicodes=subset.parse_unicodes(UNICODES))
     subsetter.subset(font)

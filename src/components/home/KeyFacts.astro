@@ -1,0 +1,37 @@
+---
+// Key facts panel (AC-05, AC-06): four Stat items from home.ts on a raised panel that overlaps
+// the lower edge of the hero. The panel is the count-up root; the final numbers are in the HTML.
+import Stat from '../ui/Stat.astro';
+import { keyFacts } from '../../data/home';
+---
+
+<section class="key-facts" aria-label="Key facts" data-count-up>
+  <div class="key-facts__wrap">
+    <div class="key-facts__panel">
+      <Stat items={keyFacts} countUp />
+    </div>
+  </div>
+</section>
+
+<style>
+  .key-facts {
+    position: relative;
+    z-index: var(--fjord-z-overlap);
+    margin-top: calc(-1 * var(--fjord-space-14));
+  }
+  .key-facts__wrap {
+    width: 100%;
+    max-width: calc(var(--fjord-content-max) + 2 * var(--fjord-grid-margin));
+    margin-inline: auto;
+    padding-inline: var(--fjord-grid-margin);
+  }
+  .key-facts__panel {
+    padding: var(--fjord-space-6) var(--fjord-space-panel) var(--fjord-space-7);
+    border: var(--fjord-border-width) solid var(--fjord-color-border);
+    border-radius: var(--fjord-radius-md);
+    background: var(--fjord-color-bg-raised);
+  }
+  .key-facts__panel :global(.stat) {
+    border-top-color: var(--fjord-color-border);
+  }
+</style>

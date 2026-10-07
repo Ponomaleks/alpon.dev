@@ -1,6 +1,9 @@
 ---
 // Availability (open / talking / employed) and status (live / progress / archived) as two
 // variants of one component. The label text is always printed; the dot is decoration only.
+// `pulse` (the home hero only, Owner decision; the design's ring is static) lets the ring of the
+// open dot pulse as Ambient motion: paused by default, running only under data-motion="running"
+// on an ancestor, so the hero's Motion control pauses it too (home ADR-0003).
 interface Props {
   kind?: 'availability' | 'status';
   status: 'open' | 'talking' | 'employed' | 'live' | 'progress' | 'archived';
@@ -8,12 +11,14 @@ interface Props {
   label?: string;
   /** Availability only: a short note after the label, e.g. "Oslo area". */
   detail?: string;
+  /** The ring of the open dot pulses while an ancestor has data-motion="running". */
+  pulse?: boolean;
 }
 
-const { kind = 'availability', status, label, detail } = Astro.props;
+const { kind = 'availability', status, label, detail, pulse = false } = Astro.props;
 ---
 
-<span class="badge" data-kind={kind} data-status={status}>
+<span class="badge" data-kind={kind} data-status={status} data-pulse={pulse ? '' : undefined}>
   <span class="badge__dot" aria-hidden="true"></span>
   {label !== undefined ? label : <slot />}
   {detail && (
@@ -59,6 +64,43 @@ const { kind = 'availability', status, label, detail } = Astro.props;
     border: var(--fjord-border-width) solid currentColor;
     border-radius: var(--fjord-radius-round);
     opacity: var(--fjord-opacity-faint);
+  }
+  /* The first frame is the static ring, so paused, reduced motion and scripts off look as the design. */
+  .badge[data-pulse][data-status='open'] .badge__dot::after {
+    animation: badge-pulse var(--fjord-duration-loop) var(--fjord-ease-in-out) infinite;
+    animation-play-state: paused;
+  }
+  :global([data-motion='running']) .badge[data-pulse][data-status='open'] .badge__dot::after {
+    animation-play-state: running;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .badge[data-pulse][data-status='open'] .badge__dot::after {
+      animation: none;
+    }
+  }
+  /* Dag: the hero is on spruce, where a ring in the success colour is lost, so the pulsing ring is
+     drawn in lichen (Owner decision). Natt keeps the colour of the dot, also with scripts off on a
+     dark device. A Badge that does not pulse is not touched. */
+  :global(.fjord-on-spruce) .badge[data-pulse][data-status='open'] .badge__dot::after {
+    border-color: var(--fjord-lichen);
+  }
+  :global(:root[data-theme='natt']) .badge[data-pulse][data-status='open'] .badge__dot::after {
+    border-color: currentColor;
+  }
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme])) .badge[data-pulse][data-status='open'] .badge__dot::after {
+      border-color: currentColor;
+    }
+  }
+  @keyframes badge-pulse {
+    from {
+      transform: scale(1);
+      opacity: var(--fjord-opacity-faint);
+    }
+    to {
+      transform: scale(2);
+      opacity: 0;
+    }
   }
   .badge[data-status='talking'] .badge__dot,
   .badge[data-status='progress'] .badge__dot {

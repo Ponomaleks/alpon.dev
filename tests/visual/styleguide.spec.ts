@@ -1,5 +1,6 @@
 import { existsSync } from 'node:fs';
 import { expect, test } from '@playwright/test';
+import { SECTIONS } from './styleguide-sections.ts';
 
 // /styleguide visual regression (AC-17, spec §6, sad §10): one capture per data-section at
 // 390 / 834 / 1440 × Dag / Natt, ≤ 0.1 % differing pixels against approved Linux baselines.
@@ -8,27 +9,6 @@ import { expect, test } from '@playwright/test';
 // capture contains it.
 
 const MODE = process.env.FJORD_VISUAL;
-
-const SECTIONS = [
-  'Button',
-  'Link',
-  'IconButton',
-  'Icon',
-  'Badge',
-  'Tag',
-  'Stat',
-  'SectionHeader',
-  'Toast',
-  'Contours',
-  'Terrain map',
-  'Wordmark',
-  'Skip link',
-  'Theme switch',
-  'Header variants',
-  'Mobile menu panel',
-  'Sticky action bar',
-  'Closing band',
-];
 
 const slug = (s: string) => s.toLowerCase().replace(/\s+/g, '-');
 

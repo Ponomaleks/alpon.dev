@@ -1,0 +1,120 @@
+---
+// Contact QR (AC-17): the two static files, one shown per data-theme, with the caption and hint.
+// Not generated and not edited (CLAUDE.md). Shown from 1024 only; the phone Visitor taps instead.
+// Layout follows the page design (.fj-qr-figure, .x-qr): the caption under the tile, inside the
+// figure; the hint beside the figure, centred on it.
+const alt = "QR code that opens Alexander Ponomarenko's contact card";
+
+interface Props {
+  /** Styleguide: one fixed asset, shown at any width and in either theme. */
+  sample?: 'dag' | 'natt';
+}
+
+const { sample } = Astro.props;
+---
+
+<div class="qr" data-sample={sample ? '' : undefined}>
+  <figure class="qr__figure">
+    <div class="qr__plate">
+      {sample ? (
+        <img
+          class="qr__img"
+          src={`/qr/qr-vcard-${sample}.svg`}
+          alt={alt}
+          width="132"
+          height="132"
+          loading="lazy"
+        />
+      ) : (
+        <>
+          <img
+            class="qr__img"
+            data-theme="dag"
+            src="/qr/qr-vcard-dag.svg"
+            alt={alt}
+            width="132"
+            height="132"
+            loading="lazy"
+          />
+          <img
+            class="qr__img"
+            data-theme="natt"
+            src="/qr/qr-vcard-natt.svg"
+            alt={alt}
+            width="132"
+            height="132"
+            loading="lazy"
+          />
+        </>
+      )}
+    </div>
+    <figcaption class="qr__caption" lang="no">
+      Skann meg
+    </figcaption>
+  </figure>
+  <p class="qr__hint">Point your phone’s camera here to open my contact card.</p>
+</div>
+
+<style>
+  .qr {
+    display: none;
+    align-items: center;
+    gap: var(--fjord-space-5);
+  }
+  .qr__figure {
+    display: inline-flex;
+    flex-direction: column;
+    gap: var(--fjord-space-2);
+    margin: 0;
+  }
+  .qr__plate {
+    flex: none;
+    inline-size: calc(var(--fjord-space-32) + var(--fjord-space-1));
+    block-size: calc(var(--fjord-space-32) + var(--fjord-space-1));
+  }
+  .qr__img {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+  }
+  .qr__img[data-theme='natt'] {
+    display: none;
+  }
+  :global(:root[data-theme='natt']) .qr__img[data-theme='dag'] {
+    display: none;
+  }
+  :global(:root[data-theme='natt']) .qr__img[data-theme='natt'] {
+    display: block;
+  }
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme])) .qr__img[data-theme='dag'] {
+      display: none;
+    }
+    :global(:root:not([data-theme])) .qr__img[data-theme='natt'] {
+      display: block;
+    }
+  }
+  .qr__caption {
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-mono-label);
+    font-weight: var(--fjord-weight-medium);
+    line-height: var(--fjord-leading-ui);
+    color: var(--fjord-color-text-muted);
+  }
+  /* The design's 24ch: half of the 48ch narrow measure. */
+  .qr__hint {
+    margin: 0;
+    max-inline-size: calc(var(--fjord-measure-narrow) / 2);
+    font-size: var(--fjord-text-body-sm);
+    line-height: var(--fjord-leading-normal);
+    color: var(--fjord-color-text-muted);
+  }
+  .qr[data-sample] {
+    display: flex;
+  }
+  @media (min-width: 1024px) {
+    .qr {
+      display: flex;
+    }
+  }
+</style>

@@ -1,10 +1,13 @@
 // Build-output budgets (fjord-foundation spec §6, sad QG-2), run after `npm run build`:
 //   - the render-blocking theme bootstrap ≤ 1 KB unminified;
 //   - initial JS per page ≤ 50 KB gzip (inline scripts + same-origin <script src> + modulepreload);
-//   - the Shell's scripts ≤ 5 KB gzip together per page (spec §6);
+//   - the Shell's scripts (files two or more pages load) ≤ 5 KB gzip together per page (spec §6);
+//   - a page's own scripts (files only that page loads) ≤ 10 KB gzip together (home AC-02);
+//   - the four portrait files present and ≤ 40 KB each (home AC-02);
 //   - 404.html ≤ 20 KB gzip;
-//   - exactly 2 font preloads per page, ≤ 60 KB combined;
-//   - every shipped font file ≤ 30 KB.
+//   - exactly 2 font preloads per page, ≤ 80 KB combined;
+//   - every shipped font file ≤ 50 KB (a variable file holds every weight of its family; the
+//     limits were 60 KB and 30 KB for static files, home sad §8 Fonts).
 // Fails naming the file or page and the measured size; prints every measured size for the CI log.
 //
 // Run from the repo root: node scripts/check-budgets.ts
@@ -18,11 +21,17 @@ export const BUDGETS = {
   bootstrapBytes: 1 * KB,
   initialJsGzip: 50 * KB,
   shellJsGzip: 5 * KB,
+  pageJsGzip: 10 * KB,
+  portraitBytes: 40 * KB,
   notFoundGzip: 20 * KB,
   preloadCount: 2,
-  preloadBytes: 60 * KB,
-  fontBytes: 30 * KB,
+  preloadBytes: 80 * KB,
+  fontBytes: 50 * KB,
 };
+
+export const PORTRAIT_FILES = [340, 680].flatMap((w) =>
+  ['avif', 'webp'].map((ext) => `img/portrait-v1-${w}.${ext}`),
+);
 
 export interface BudgetInput {
   /** Path of src/scripts/theme-bootstrap.js. */
@@ -68,22 +77,37 @@ export function checkBudgets({ bootstrap, dist }: BudgetInput): {
       `theme-bootstrap.js is ${bootstrapSize} B, over the ${BUDGETS.bootstrapBytes} B budget`,
     );
 
-  for (const page of files(dist, '.html')) {
+  // First pass: the scripts each page loads, keyed by file (inline bodies by content).
+  const loaded = new Map<string, Map<string, number>>();
+  const pages = files(dist, '.html');
+  for (const page of pages) {
     const html = readFileSync(page, 'utf8');
     const tags = [...html.matchAll(/<(script|link)\b[^>]*>/gi)].map((m) => m[0]);
+    const scripts = new Map<string, number>();
+    for (const [, attrs = '', body = ''] of html.matchAll(
+      /<script\b([^>]*)>([\s\S]*?)<\/script>/gi,
+    ))
+      if (!/\ssrc\s*=/i.test(attrs)) scripts.set(`inline:${body}`, gzipSync(body).length);
+    for (const tag of tags) {
+      if (!/^<script/i.test(tag) && !/rel\s*=\s*["']?modulepreload/i.test(tag)) continue;
+      const path = local(dist, attr(tag, 'src') ?? attr(tag, 'href'));
+      if (path) scripts.set(path, gzipSync(readFileSync(path)).length);
+    }
+    loaded.set(page, scripts);
+  }
+  const users = new Map<string, number>();
+  for (const scripts of loaded.values())
+    for (const key of scripts.keys()) users.set(key, (users.get(key) ?? 0) + 1);
 
-    // Initial JS: inline script bodies plus every same-origin script and modulepreload.
-    const inline = [...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)]
-      .filter(([, attrs = '']) => !/\ssrc\s*=/i.test(attrs))
-      .reduce((sum, [, , body = '']) => sum + gzipSync(body).length, 0);
-    const external = new Set(
-      tags
-        .filter((tag) => /^<script/i.test(tag) || /rel\s*=\s*["']?modulepreload/i.test(tag))
-        .map((tag) => local(dist, attr(tag, 'src') ?? attr(tag, 'href')))
-        .filter((path): path is string => path !== null),
-    );
-    const js =
-      inline + [...external].reduce((sum, path) => sum + gzipSync(readFileSync(path)).length, 0);
+  for (const page of pages) {
+    const html = readFileSync(page, 'utf8');
+    const tags = [...html.matchAll(/<(script|link)\b[^>]*>/gi)].map((m) => m[0]);
+    let shell = 0;
+    let own = 0;
+    for (const [key, size] of loaded.get(page) ?? [])
+      if ((users.get(key) ?? 0) > 1) shell += size;
+      else own += size;
+    const js = shell + own;
 
     const preloads = tags.filter(
       (tag) => /rel\s*=\s*["']?preload/i.test(tag) && /as\s*=\s*["']?font/i.test(tag),
@@ -94,12 +118,14 @@ export function checkBudgets({ bootstrap, dist }: BudgetInput): {
     }, 0);
 
     report.push(
-      `${name(page)}: initial JS ${kb(js)} gzip, Shell scripts ${kb(js)} gzip, preloads ${preloads.length} font(s) ${kb(preloadSize)}`,
+      `${name(page)}: initial JS ${kb(js)} gzip, Shell scripts ${kb(shell)} gzip, page scripts ${kb(own)} gzip, preloads ${preloads.length} font(s) ${kb(preloadSize)}`,
     );
     if (js > BUDGETS.initialJsGzip)
       failures.push(`${name(page)}: initial JS is ${kb(js)} gzip, over the 50 KB budget`);
-    if (js > BUDGETS.shellJsGzip)
-      failures.push(`${name(page)}: Shell scripts are ${kb(js)} gzip, over the 5 KB budget`);
+    if (shell > BUDGETS.shellJsGzip)
+      failures.push(`${name(page)}: Shell scripts are ${kb(shell)} gzip, over the 5 KB budget`);
+    if (own > BUDGETS.pageJsGzip)
+      failures.push(`${name(page)}: page scripts are ${kb(own)} gzip, over the 10 KB budget`);
     if (name(page) === '404.html') {
       const weight = gzipSync(html).length;
       report.push(`404.html: weight ${kb(weight)} gzip (≤ 20 KB)`);
@@ -110,7 +136,7 @@ export function checkBudgets({ bootstrap, dist }: BudgetInput): {
       failures.push(`${name(page)}: preloads ${preloads.length} font(s), expected exactly 2`);
     else if (preloadSize > BUDGETS.preloadBytes)
       failures.push(
-        `${name(page)}: preloaded fonts are ${kb(preloadSize)} combined, over the 60 KB budget`,
+        `${name(page)}: preloaded fonts are ${kb(preloadSize)} combined, over the 80 KB budget`,
       );
   }
 
@@ -118,7 +144,19 @@ export function checkBudgets({ bootstrap, dist }: BudgetInput): {
     const size = statSync(font).size;
     report.push(`${name(font)}: ${kb(size)}`);
     if (size > BUDGETS.fontBytes)
-      failures.push(`${name(font)} is ${kb(size)}, over the 30 KB budget`);
+      failures.push(`${name(font)} is ${kb(size)}, over the 50 KB budget`);
+  }
+
+  for (const file of PORTRAIT_FILES) {
+    const path = join(dist, file);
+    if (!existsSync(path)) {
+      failures.push(`${file} is missing`);
+      continue;
+    }
+    const size = statSync(path).size;
+    report.push(`${file}: ${kb(size)}`);
+    if (size > BUDGETS.portraitBytes)
+      failures.push(`${file} is ${kb(size)}, over the 40 KB budget`);
   }
 
   return { failures, report };

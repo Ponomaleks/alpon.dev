@@ -11,6 +11,8 @@ interface Props {
   /** Leading icon. */
   icon?: IconName;
   disabled?: boolean;
+  /** Marks a link as a file download. */
+  download?: boolean;
   /** Forces a state for the Styleguide (hook H-4). */
   'data-demo-state'?: 'hover' | 'focus' | 'active';
 }
@@ -23,6 +25,7 @@ const {
   arrow = false,
   icon,
   disabled = false,
+  download = false,
   'data-demo-state': demoState,
 } = Astro.props;
 
@@ -50,6 +53,7 @@ const classes = [
     class:list={classes}
     href={disabled ? undefined : href}
     aria-disabled={disabled ? 'true' : undefined}
+    download={download || undefined}
     data-demo-state={demoState}
   >
     {icon && <Icon name={icon} />}

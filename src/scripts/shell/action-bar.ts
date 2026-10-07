@@ -25,8 +25,9 @@ export function decideBar({ prev, next, focusInside, reducedMotion }: BarInput):
   return 'show';
 }
 
-/** The only write the script makes: `inert` on the bar. */
-export function applyBarAction(bar: { inert: boolean }, action: BarAction): void {
+/** The only write the script makes: `inert` on the bar. A collapsed bar (details closed) is left alone. */
+export function applyBarAction(bar: { inert: boolean; open?: boolean }, action: BarAction): void {
+  if (bar.open === false) return;
   if (action === 'hide') bar.inert = true;
   else if (action === 'show') bar.inert = false;
 }

@@ -109,6 +109,53 @@ describe('fjord:toast (AC-30)', () => {
     expect(region.text()).toEqual([]);
   });
 
+  describe('optional check icon (AC-14, B-25)', () => {
+    const toastOf = (region: FakeNode) => region.children[0];
+
+    it('with icon "check" the Toast carries data-icon="check" and message and meta stay', () => {
+      const { region, fire } = setup();
+      fire({ message: 'Kopiert', meta: 'a@b.no', lang: 'no', icon: 'check' });
+      expect(toastOf(region)?.attrs['data-icon']).toBe('check');
+      expect(region.text()).toEqual(['Kopiert', 'a@b.no']);
+    });
+
+    it('the script adds no class beyond the Toast ones and no inline style', () => {
+      const { region, fire } = setup();
+      fire({ message: 'Kopiert', meta: 'a@b.no', icon: 'check' });
+      for (const n of region.all()) {
+        expect(n.attrs.style).toBeUndefined();
+        expect(n.attrs.class ?? '').not.toMatch(/icon|check/);
+      }
+    });
+
+    it('without icon there is no data-icon anywhere', () => {
+      const { region, fire } = setup();
+      fire({ message: 'Couldn’t copy' });
+      expect(region.all().some((n) => 'data-icon' in n.attrs)).toBe(false);
+    });
+
+    it('an unknown icon value is ignored', () => {
+      const { region, fire } = setup();
+      fire({ message: 'Hi', icon: 'skull' });
+      expect(region.all().some((n) => 'data-icon' in n.attrs)).toBe(false);
+    });
+
+    it('a replacing Toast without icon clears the icon', () => {
+      const { region, fire } = setup();
+      fire({ message: 'Kopiert', icon: 'check' });
+      fire({ message: 'Refused' });
+      expect(region.text()).toEqual(['Refused']);
+      expect(region.all().some((n) => 'data-icon' in n.attrs)).toBe(false);
+    });
+
+    it('the icon Toast still leaves after the duration', () => {
+      const { region, fire } = setup();
+      fire({ message: 'Kopiert', icon: 'check' });
+      vi.advanceTimersByTime(DURATION);
+      expect(region.children).toEqual([]);
+    });
+  });
+
   it('ignores an event without a message', () => {
     const { region, fire } = setup();
     fire({});

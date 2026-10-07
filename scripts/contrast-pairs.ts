@@ -36,6 +36,7 @@ const pair = (fg: string, bg: string, kind: PairKind, themes: Theme[]): Pair => 
 
 const PAGE: Theme[] = ['Dag', 'Natt'];
 const ALL: Theme[] = ['Dag', 'Natt', 'on-spruce'];
+const HERO: Theme[] = ['Natt', 'on-spruce'];
 
 export const PAIRS: Pair[] = [
   // Body and secondary text on every ground.
@@ -87,6 +88,42 @@ export const PAIRS: Pair[] = [
   // TerrainMap .terrain__trail: the dashed route where it crosses the sunken map frame. The panel
   // is aria-hidden decoration and no control has a strong border on a sunken ground.
   pair('border-strong', 'bg-sunken', 'decorative', PAGE),
+];
+
+export interface HomePair {
+  component: string;
+  fg: string;
+  bg: string;
+  kind: GatedKind;
+  themes: Theme[];
+}
+
+const home = (
+  component: string,
+  fg: string,
+  bg: string,
+  kind: GatedKind,
+  themes: Theme[],
+): HomePair => ({ component, fg: c(fg), bg: c(bg), kind, themes });
+
+// Home AC-33 / AC-02: the pairs the home components and the header over the hero render. Each must
+// also be a gated entry of PAIRS (a test keeps the two in step).
+export const HOME_PAIRS: HomePair[] = [
+  // The hero stands on spruce in Dag and on the night ground in Natt (page design, Home.jsx).
+  home('Hero', 'text', 'bg', 'text', HERO),
+  home('Hero', 'text-muted', 'bg', 'text', HERO),
+  home('Hero', 'link', 'bg', 'text', HERO),
+  home('Hero', 'border-strong', 'bg', 'ui', HERO),
+  home('KeyFacts', 'text', 'bg-raised', 'text', PAGE),
+  home('KeyFacts', 'text-muted', 'bg-raised', 'text', PAGE),
+  home('ExperienceList', 'text', 'bg', 'text', PAGE),
+  home('ExperienceList', 'text-muted', 'bg', 'text', PAGE),
+  home('ExperienceList', 'link', 'bg', 'text', PAGE),
+  home('ExperienceList', 'focus-ring', 'bg', 'ui', PAGE),
+  home('Header over hero', 'text', 'bg', 'text', ALL),
+  home('Header over hero', 'cta-text', 'cta-bg', 'text', ALL),
+  home('Header over hero', 'focus-ring', 'bg', 'ui', ALL),
+  home('Header over hero', 'border-strong', 'bg', 'ui', ALL),
 ];
 
 export interface KnownFailure {

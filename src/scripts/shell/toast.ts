@@ -6,6 +6,8 @@ export interface ToastDetail {
   message?: string;
   meta?: string;
   lang?: string;
+  /** Optional decorative icon shown before the message. Only "check" is known. */
+  icon?: string;
 }
 
 interface ToastNode {
@@ -31,12 +33,14 @@ export function initToast({ document: doc, duration }: ToastEnv): void {
   let timer: ReturnType<typeof setTimeout> | undefined;
 
   doc.addEventListener('fjord:toast', (event) => {
-    const { message, meta, lang } = event.detail ?? {};
+    const { message, meta, lang, icon } = event.detail ?? {};
     const region = doc.querySelector('[role="status"]');
     if (!message || !region) return;
 
     const toast = doc.createElement('span');
     toast.setAttribute('class', 'toast');
+
+    if (icon === 'check') toast.setAttribute('data-icon', 'check');
 
     const text = doc.createElement('span');
     text.textContent = message;

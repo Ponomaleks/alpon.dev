@@ -5,7 +5,10 @@
 const { chromium } = require('@playwright/test');
 
 const PORT = 8788; // not Playwright's 8787
-const baseUrl = `http://localhost:${PORT}`;
+// The address, not the name: on Windows `localhost` is tried over IPv6 first while wrangler dev
+// listens on IPv4, which adds about 10 ms to every request Lighthouse observes and, on the home
+// page, 150 to 200 ms of simulated blocking time that the page does not have (home sad §10).
+const baseUrl = `http://127.0.0.1:${PORT}`;
 
 const budget = {
   'categories:performance': ['error', { minScore: 0.95 }],

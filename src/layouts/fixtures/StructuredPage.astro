@@ -1,0 +1,16 @@
+---
+// A page that passes structuredData (AC-26). Built only by src/layouts/BaseLayout.test.ts into a
+// throwaway directory; it is not a route of the site. The value holds characters that must not
+// break out of the ld+json block.
+import BaseLayout from '../BaseLayout.astro';
+
+const structuredData = { '@type': 'Person', name: 'A </script><b>x</b> & <i>', list: [1, 'two'] };
+---
+
+<BaseLayout
+  title="Structured fixture"
+  description="A page with structured data."
+  structuredData={structuredData}
+>
+  <h1>Structured</h1>
+</BaseLayout>

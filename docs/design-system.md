@@ -3,7 +3,7 @@ status: Living
 tool: code               # figma | pencil | code — the single committed source of the design-tool choice (never sdd.local.md: that file is per-developer + gitignored)
 figma_file: ""           # tool: figma → the Figma file URL/key the canon lives in; else ""
 pen_file: ""             # tool: pencil → the .pen library path (e.g. docs/design/library.pen); else ""
-updated_at: "2026-10-03"
+updated_at: "2026-10-07"
 ---
 
 # Design system — alpon.dev (Fjord)
@@ -33,7 +33,7 @@ The inventory below lists building blocks. A row never defines a page: the "Sour
 ## Design tool
 
 - **Tool:** code. The design comes as a Claude Design handoff (JSX + CSS), not a Figma or Pencil file. `screens.md` carries inline markdown wireframes, and it needs no MCP.
-- **Library location:** pages follow `design/handoff/site/` (`project/site/*.jsx` and `alpon.dev standalone.html`, whole site, including Natt); building blocks come from `design/handoff/design-system/project/` (components, tokens, guidelines). The site bundles a newer copy of the design system in `design/handoff/site/project/_ds/`; where the two copies of a component differ, the site copy is the one the page designs use. All are read-only. The in-repo library is `src/components/{ui,layout,brand,prose}/`. Handoff JSX is a reference only; it is never copied into the Astro site.
+- **Library location:** pages follow `design/handoff/site/` (`project/site/*.jsx` and `alpon.dev standalone.html`, whole site, including Natt); building blocks come from `design/handoff/design-system/project/` (components, tokens, guidelines). The site bundles a newer copy of the design system in `design/handoff/site/project/_ds/`; where the two copies of a component differ, the site copy is the one the page designs use. All are read-only. The in-repo library is `src/components/{ui,layout,brand,home,prose}/`. Handoff JSX is a reference only; it is never copied into the Astro site.
 
 ## Token source
 
@@ -48,39 +48,50 @@ All values come from `src/styles/tokens.css` (`--fjord-*`, generated, do not edi
 
 `screens.md` may use only these names, or declare `NEW: <name>` with a why-no-primitive-fits line (`implement` then registers it here). **Repo** = the component is built in `src/`. **Handoff** = design-only so far, and the first feature that needs it builds it at the target path. States are given where the handoff signature defines them; otherwise see the component's `.d.ts`/`.prompt.md`. Handoff paths are relative to `design/handoff/design-system/project/`.
 
-**Built in the repo** (base-components registers the Shell and the base components here; the handoff rows of built components are removed)
+**Built in the repo** (base-components registers the Shell and the base components here, home phase 4a the home components and the Shell changes; the handoff rows of built components are removed)
 
 | Component | Source (`file:line` / node / URL) | States it supports | Notes |
 |---|---|---|---|
 | BaseLayout | `src/layouts/BaseLayout.astro:1` | — (head contract: lang, title, description, noindex) | fjord-foundation extends it: theme bootstrap, font preloads, tokens → fonts → base |
-| Button | `src/components/ui/Button.astro` | primary / secondary; size; arrow; disabled; hover / focus-visible | one primary CTA per screen; promoted from the Not-found `home-link` |
-| Link | `src/components/ui/Link.astro` | default / hover / focus-visible |  |
+| Button | `src/components/ui/Button.astro` | primary / secondary; size; arrow; icon; `download`; disabled; hover / focus-visible | one primary CTA per screen; promoted from the Not-found `home-link` |
+| Link | `src/components/ui/Link.astro` | default / hover / focus-visible; external; `standalone` (a link on a line of its own, with its arrow) | `standalone` added by home for "Full CV" |
 | IconButton | `src/components/ui/IconButton.astro` | default / hover / focus-visible | 44px target |
-| Icon | `src/components/ui/Icon.astro` | — | 1.5px line icons |
-| Badge (availability, status) | `src/components/ui/Badge.astro` | — |  |
+| Icon | `src/components/ui/Icon.astro` | — | 1.5px line icons; home added `play`, `pause`, `check`, `chevron-down`, `chevron-up`, `copy`, `download`, `user-plus`, `mail`, `phone`, `linkedin`, `github` |
+| Badge (availability, status) | `src/components/ui/Badge.astro` | status; `pulse` (the ring of the open dot, only under `data-motion="running"`) | `pulse` is used by the home hero only (home D-01) |
 | Tag | `src/components/ui/Tag.astro` | — |  |
-| Stat | `src/components/ui/Stat.astro` | — | shows the final number, no count-up |
+| Stat | `src/components/ui/Stat.astro` | single / row; compact; `countUp` | the final number is in the HTML; with `countUp` the page script `src/scripts/home/count-up.ts` counts a hidden copy once (home AC-06) |
 | SectionHeader with Eyebrow | `src/components/ui/SectionHeader.astro` | size; eyebrow; lead |  |
-| Toast and its live region | `src/components/ui/Toast.astro`, script `src/scripts/shell/toast.ts` | tone; message | polite live region; the Styleguide triggers it |
-| Contours | `src/components/brand/Contours.astro` | static | promoted from the Not-found `ridge-contours` |
+| Toast and its live region | `src/components/ui/Toast.astro`, script `src/scripts/shell/toast.ts` | tone; message; optional check icon | polite live region; the check icon is asked for by the `fjord:toast` event (home AC-14) |
+| Contours | `src/components/brand/Contours.astro` | static; `parallax` layer (hero drift and pointer parallax); scroll-tied in the closing band | promoted from the Not-found `ridge-contours`; motion per home AC-30, AC-31, AC-41 |
 | Terrain map panel | `src/components/brand/TerrainMap.astro` | static | map panel of the Not-found page |
 | Wordmark | `src/components/brand/Wordmark.astro` | — |  |
 | SkipLink | `src/components/layout/SkipLink.astro` | default / focus-visible | first focusable element |
-| Header | `src/components/layout/Header.astro` | variants; scroll border (script `src/scripts/shell/header.ts`) |  |
+| Header | `src/components/layout/Header.astro` | variants; scroll border (script `src/scripts/shell/header.ts`); over-hero state `data-over-hero` (script `src/scripts/home/hero-header.ts`) | over the home hero it follows home AC-33 |
 | MobileMenu | `src/components/layout/MobileMenu.astro` | open / closed (script `src/scripts/shell/menu.ts`) | native modal dialog |
 | ThemeToggle | `src/components/layout/ThemeToggle.astro` | dag / natt (script `src/scripts/shell/theme.ts`) | View Transition is progressive and skipped under reduced motion |
-| CtaBand | `src/components/layout/CtaBand.astro` | — |  |
+| CtaBand | `src/components/layout/CtaBand.astro` | actions from a page option (default pair, home pair) | action types in `src/data/shell-actions.ts` (home AC-40); contours follow scrolling (home AC-41) |
 | Footer | `src/components/layout/Footer.astro` | — | data from `src/data/contact.ts` |
-| MobileBar (Sticky action bar) | `src/components/layout/MobileBar.astro` | shown / hidden (script `src/scripts/shell/action-bar.ts`) |  |
-| contact data | `src/data/contact.ts` | — | single source for contacts |
+| MobileBar (Sticky action bar) | `src/components/layout/MobileBar.astro` | shown / hidden (script `src/scripts/shell/action-bar.ts`); open / collapsed by its tab (native `<details>`); actions from a page option | all actions secondary (home AC-38); the tab is part of the panel (home AC-39, D-11) |
+| contact data | `src/data/contact.ts` | — | single source for contacts; Person data built from it in `src/data/person.ts` |
+| Portrait | `src/components/home/Portrait.astro` | still / floating under `data-motion="running"` | AVIF and WebP at 340 and 680 from `public/img/`; width and height reserved (home AC-02) |
+| QrTile | `src/components/brand/QrTile.astro` | Dag / Natt asset; `sample` | static `public/qr/qr-vcard-{dag,natt}.svg`, no QR library; shown from 1024 (home AC-17) |
+| ContactList | built inside `src/components/home/ContactBlock.astro` | — | no file of its own; data from `src/data/contact.ts` (home AC-13) |
+| CopyButton | `src/components/ui/CopyButton.astro` | default / hover / focus-visible | the confirmation is the Toast, not a state of the button (home D-18); the copying is done by `src/scripts/home/copy-email.ts` |
+| ExperienceItem / ExperienceList | `src/components/home/ExperienceList.astro` | entry open / closed (native `<details>`); current; `sample` | one file for the list and its entries (home AC-08) |
+| Hero (NEW) | `src/components/home/Hero.astro` | motion running / paused / none | home AC-01; scripts `src/scripts/home/motion.ts`, `parallax.ts` |
+| MotionControl (NEW) | `src/components/home/MotionControl.astro` | pause / play; hidden without `data-motion`; hover / focus-visible | home AC-30 |
+| KeyFacts (NEW) | `src/components/home/KeyFacts.astro` | — | a panel around Stat with `countUp` (home AC-05) |
+| About (NEW) | `src/components/home/About.astro` | — | home AC-07 |
+| QuickFacts (NEW) | `src/components/home/QuickFacts.astro` | one value / several values, one per line | description list (home AC-07, D-16) |
+| ContactBlock (NEW) | `src/components/home/ContactBlock.astro` | — | the list, "Save contact", QrTile and the mail-link sentence of home IS-03 |
+| home content data | `src/data/home.ts` | — | key facts, introduction, quick facts, experience, the Now line |
+| Shell action data | `src/data/shell-actions.ts` | — | the bar and band actions a page passes as options |
 
 **Design-only (handoff), by group**
 
 | Component | Source (`file:line` / node / URL) | States it supports | Notes |
 |---|---|---|---|
 | OgImage | `components/brand/OgImage.jsx:5` | — | source lives in `tools/`, not deployed |
-| Portrait | `components/brand/Portrait.jsx:4` | see `.d.ts` | |
-| QrTile | `components/brand/QrTile.jsx:4` | Dag / Natt asset | uses static `public/qr/qr-vcard-{dag,natt}.svg`, no QR library |
 | ArchDiagram | `components/casestudy/ArchDiagram.jsx:4` | see `.d.ts` | case studies |
 | Callout | `components/casestudy/Callout.jsx:4` | see `.d.ts` | |
 | Figure | `components/casestudy/Figure.jsx:4` | see `.d.ts` | |
@@ -91,9 +102,6 @@ All values come from `src/styles/tokens.css` (`--fjord-*`, generated, do not edi
 | ProjectCard | `components/content/ProjectCard.jsx:7` | see `.d.ts` | |
 | Testimonial | `components/content/Testimonial.jsx:4` | see `.d.ts` | real quotes only, with name and link; hidden if none |
 | ContactForm | `components/cv/ContactForm.jsx:10` | see `.d.ts` | needs a server endpoint (Worker); requires its own ADR before building (repo ADR-0001) |
-| ContactList | `components/cv/ContactList.jsx:5` | see `.d.ts` | data from `src/data/contact.ts` |
-| CopyButton | `components/cv/CopyButton.jsx:5` | see `.d.ts` | "Kopiert" feedback |
-| ExperienceItem / ExperienceList | `components/cv/ExperienceItem.jsx:5`, `:30` | see `.d.ts` | |
 | LanguageList | `components/cv/LanguageList.jsx:4` | — | plain labels, no CEFR codes |
 | SkillGroup | `components/cv/SkillGroup.jsx:4` | — | no skill bars or percentages |
 | TextField | `components/cv/TextField.jsx:4` | default / hint / error / optional; multiline | |
@@ -115,6 +123,6 @@ All values come from `src/styles/tokens.css` (`--fjord-*`, generated, do not edi
 - **Empty states:** `EmptyState` (eyebrow + title + body + optional action). A section with nothing published is hidden rather than shown empty (roadmap: projects never go public empty).
 - **Loading:** none on static pages: content is rendered at build time, and fonts use matched fallbacks. `Skeleton` only for islands that fetch.
 - **Validation:** inline error attached to the field (`aria-describedby`). Timing is decided in the spec of the first form (CV contact).
-- **Microcopy tone:** modest and concrete, English for main content, Norwegian for small warm details ("Hei", "Ta kontakt", "Kopiert", "Ikke funnet", …; `lang="no"`). No superlatives, numbers verified or `[placeholder]` (`CLAUDE.md` §Content rules).
+- **Microcopy tone:** modest and concrete, English for main content, Norwegian for small warm details ("Hei", "Ta kontakt", "Ikke funnet", …; `lang="no"`). No superlatives, numbers verified or `[placeholder]` (`CLAUDE.md` §Content rules).
 - **Motion:** motion tokens only. With `prefers-reduced-motion: reduce`, fades only and no loops. View Transitions are progressive enhancement.
 - **Accessibility:** WCAG 2.2 AA, 44px touch targets, visible `:focus-visible`, no hover-only information.

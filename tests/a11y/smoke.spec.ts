@@ -34,6 +34,15 @@ for (const { name, path } of pages) {
       test(`${name} has no axe violations`, async ({ page }) => {
         await page.goto(path);
         await page.evaluate(() => document.documentElement.removeAttribute('data-theme'));
+        // Colour transitions started by the removal must finish before the scan reads colours.
+        await page.evaluate(() =>
+          Promise.all(
+            document
+              .getAnimations()
+              .filter((a) => a instanceof CSSTransition)
+              .map((a) => a.finished),
+          ),
+        );
         const background = await page.evaluate(
           () => getComputedStyle(document.documentElement).backgroundColor,
         );
@@ -43,3 +52,20 @@ for (const { name, path } of pages) {
     });
   }
 }
+
+test('home has no axe violations with an experience entry open', async ({ page }) => {
+  await page.goto('/');
+  const entry = page.locator('main section.experience details').last();
+  await entry.locator('summary').click();
+  await expect(entry).toHaveAttribute('open', '');
+  // The click scrolls the section into view and its reveal fades in: axe would read blended colours.
+  await page.evaluate(() =>
+    Promise.all(
+      document
+        .getAnimations()
+        .filter((a) => a instanceof CSSTransition)
+        .map((a) => a.finished),
+    ),
+  );
+  expect((await scan(page)).violations).toEqual([]);
+});
