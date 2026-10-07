@@ -78,6 +78,20 @@ const { kind = 'availability', status, label, detail, pulse = false } = Astro.pr
       animation: none;
     }
   }
+  /* Dag: the hero is on spruce, where a ring in the success colour is lost, so the pulsing ring is
+     drawn in lichen (Owner decision). Natt keeps the colour of the dot, also with scripts off on a
+     dark device. A Badge that does not pulse is not touched. */
+  :global(.fjord-on-spruce) .badge[data-pulse][data-status='open'] .badge__dot::after {
+    border-color: var(--fjord-lichen);
+  }
+  :global(:root[data-theme='natt']) .badge[data-pulse][data-status='open'] .badge__dot::after {
+    border-color: currentColor;
+  }
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme])) .badge[data-pulse][data-status='open'] .badge__dot::after {
+      border-color: currentColor;
+    }
+  }
   @keyframes badge-pulse {
     from {
       transform: scale(1);

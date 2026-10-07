@@ -528,15 +528,67 @@ test.describe('hero badge row and Now line (page design: .x-hero__text, .x-hero_
     });
   }
 
-  test('the Now dot sits level with "Nå:" when the line wraps at 390', async ({ page }) => {
+  /** The Now line's parts: the dot, "Nå:", the text item and the first glyph of the text. */
+  const nowParts = (page: Page) =>
+    page.evaluate(async () => {
+      await document.fonts.ready;
+      const now = document.querySelector('main .hero__now') as HTMLElement;
+      const rect = (el: Element | Range) => {
+        const r = el.getBoundingClientRect();
+        return { x: r.x, y: r.y, width: r.width, height: r.height };
+      };
+      const item = now.querySelector('.hero__now-text') as HTMLElement;
+      const first = document.createRange();
+      const node = item.firstChild as Text;
+      const at = node.data.search(/\S/);
+      first.setStart(node, at);
+      first.setEnd(node, at + 1);
+      const all = document.createRange();
+      all.selectNodeContents(item);
+      const textLines = new Set([...all.getClientRects()].map((r) => Math.round(r.top))).size;
+      return {
+        line: rect(now),
+        dot: rect(now.querySelector('.hero__dot') as Element),
+        label: rect(now.querySelector('[lang="no"]') as Element),
+        first: rect(first),
+        textLines,
+        gap: parseFloat(getComputedStyle(now).columnGap),
+      };
+    });
+  const middle = (b: { y: number; height: number }) => b.y + b.height / 2;
+
+  // Owner decision (design review): on a phone the line wraps as the page design does. "Nå:" keeps
+  // the first line with the dot; the text starts on the next line at the left edge and takes two.
+  test('"Nå:" stands on a line of its own with the dot at 390, and the text follows below', async ({
+    page,
+  }) => {
     await open(page, 390);
-    const now = page.locator('main .hero__now');
-    const label = await box(now.locator('[lang="no"]'));
-    const dot = await box(now.locator('.hero__dot'));
-    const line = await box(now);
-    expect(line.height, 'the line wraps').toBeGreaterThan(label.height * 1.5);
+    const { line, dot, label, first, textLines, gap } = await nowParts(page);
     expect(dot.width).toBe(7);
     expect(dot.height).toBe(7);
-    expect(Math.abs(dot.y + dot.height / 2 - (label.y + label.height / 2))).toBeLessThanOrEqual(1);
+    expect(
+      Math.abs(middle(dot) - middle(label)),
+      'the dot is level with "Nå:"',
+    ).toBeLessThanOrEqual(1);
+    expect(dot.x).toBeCloseTo(line.x, 0);
+    expect(label.x - (dot.x + dot.width)).toBeCloseTo(gap, 0);
+    expect(first.y, 'the text starts under "Nå:"').toBeGreaterThanOrEqual(label.y + label.height);
+    expect(first.x, 'the text starts at the left edge').toBeCloseTo(line.x, 0);
+    expect(textLines, 'the text takes two lines').toBe(2);
+    expect(line.height, 'three lines in all').toBeGreaterThan(label.height * 3);
   });
+
+  for (const width of [834, 1440]) {
+    test(`the Now line is one line at ${width}: the dot, "Nå:" and the text side by side`, async ({
+      page,
+    }) => {
+      await open(page, width, 900);
+      const { line, dot, label, first, textLines, gap } = await nowParts(page);
+      expect(textLines).toBe(1);
+      expect(line.height).toBeLessThan(label.height * 1.5);
+      expect(Math.abs(middle(dot) - middle(label))).toBeLessThanOrEqual(1);
+      expect(Math.abs(middle(first) - middle(label))).toBeLessThanOrEqual(1);
+      expect(first.x - (label.x + label.width)).toBeCloseTo(gap, 0);
+    });
+  }
 });

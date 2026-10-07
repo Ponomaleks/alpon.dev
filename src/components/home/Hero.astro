@@ -53,12 +53,9 @@ const now = nowLine(project);
         )}
       </div>
       <p class="hero__now">
-        <span class="hero__mark" aria-hidden="true">
-          <span class="hero__dot" />
-        </span>
-        <span class="hero__now-text">
-          <span lang="no">Nå:</span> {now}
-        </span>
+        <span class="hero__dot" aria-hidden="true"></span>
+        <span lang="no">Nå:</span>
+        <span class="hero__now-text">{now}</span>
       </p>
     </div>
     <div class="hero__media">
@@ -186,26 +183,22 @@ const now = nowLine(project);
       flex: none;
     }
   }
-  /* The design's three flex items wrap "Nå:" onto a line of its own on a phone; here the label and
-     the text are one item, so the text runs on after "Nå:" and the dot stays on the first line. */
+  /* Three items of a wrapping row, as the design's .x-hero__now: on a phone the text does not fit
+     beside "Nå:", so "Nå:" keeps the first line with the dot and the text takes the lines below
+     (Owner decision, design review). From 768 the three stand on one line. */
   .hero__now {
     display: flex;
-    align-items: flex-start;
+    flex-wrap: wrap;
+    align-items: center;
     gap: var(--fjord-space-2);
     margin: var(--fjord-space-1-5) 0 0;
     font-family: var(--fjord-font-mono);
     font-size: var(--fjord-text-mono-label);
     color: var(--fjord-color-text-muted);
   }
-  /* The mark is one line high (1lh), so the dot is centred on the first line of the text. */
-  .hero__mark {
-    flex: none;
-    display: flex;
-    align-items: center;
-    height: 1lh;
-  }
   /* 7px, as the design's .x-now-dot. */
   .hero__dot {
+    flex: none;
     width: calc(var(--fjord-space-2) - var(--fjord-border-width));
     height: calc(var(--fjord-space-2) - var(--fjord-border-width));
     border-radius: var(--fjord-radius-round);

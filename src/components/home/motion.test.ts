@@ -141,4 +141,33 @@ describe('Badge pulse (AC-30, ADR-0003)', () => {
     expect(frames).toMatch(/from\s*\{[^}]*opacity:\s*var\(--fjord-opacity-faint\)/);
     expect(frames).toMatch(/to\s*\{[^}]*opacity:\s*0\b/);
   });
+
+  // Owner decision (design review): in Dag the hero is on spruce, where a ring in the success
+  // colour is lost. There the pulsing ring is drawn in lichen; Natt keeps the dot's colour, and a
+  // Badge that does not pulse is not touched.
+  it('draws the pulsing ring in lichen on spruce in Dag and in the colour of the dot in Natt', () => {
+    const ring = String.raw`\.badge\[data-pulse\]\[data-status='open'\] \.badge__dot::after`;
+    const rules = (lead: string) =>
+      [...src().matchAll(new RegExp(`${lead}\\s+${ring}\\s*\\{([^}]*)\\}`, 'g'))].map(([, body]) =>
+        (body ?? '').trim(),
+      );
+    expect(rules(String.raw`:global\(\.fjord-on-spruce\)`)).toEqual([
+      'border-color: var(--fjord-lichen);',
+    ]);
+    // Natt, chosen (data-theme) and with scripts off on a dark device: back to the dot's colour.
+    expect(rules(String.raw`:global\(:root\[data-theme='natt'\]\)`)).toEqual([
+      'border-color: currentColor;',
+    ]);
+    const dark = src().match(/@media \(prefers-color-scheme: dark\)\s*\{([\s\S]*?\})\s*\}/)?.[1];
+    expect(dark).toMatch(
+      new RegExp(
+        String.raw`:global\(:root:not\(\[data-theme\]\)\)\s+${ring}\s*\{\s*border-color: currentColor;\s*\}`,
+      ),
+    );
+    // The ring of every open Badge still takes the colour of its dot by default.
+    const base =
+      src().match(/\.badge\[data-status='open'\] \.badge__dot::after\s*\{([^}]*)\}/)?.[1] ?? '';
+    expect(base).toMatch(/border:[^;]*\bcurrentColor;/);
+    expect(src()).not.toMatch(/#[0-9a-f]{3,8}\b|rgba?\(/i);
+  });
 });

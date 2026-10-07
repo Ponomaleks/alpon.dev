@@ -116,6 +116,28 @@ describe('Hero Now line (AC-03)', () => {
     expect(t).not.toContain('alpon.dev');
   });
 
+  // Page design (.x-hero__now): the dot, "Nå:" and the text are three items of a wrapping row, so
+  // on a phone "Nå:" keeps the first line with the dot and the text starts on the next one.
+  it('lays the dot, "Nå:" and the text out as three items of the line', async () => {
+    const html = await renderHero({ nowProject: 'alpon.dev' });
+    const now =
+      html.match(/<p\b[^>]*class="[^"]*\bhero__now\b[^"]*"[^>]*>([\s\S]*?)<\/p>/)?.[1] ?? '';
+    const items = [...now.matchAll(/<span\b([^>]*)>([\s\S]*?)<\/span>/g)].map(
+      ([, attrs, body]) => ({
+        attrs,
+        body: text(body ?? ''),
+      }),
+    );
+    expect(items).toHaveLength(3);
+    expect(items[0]?.attrs).toMatch(/class="[^"]*\bhero__dot\b/);
+    expect(items[0]?.attrs).toMatch(/aria-hidden="true"/);
+    expect(items[0]?.body).toBe('');
+    expect(items[1]?.attrs).toMatch(/lang="no"/);
+    expect(items[1]?.body).toBe('Nå:');
+    expect(items[2]?.attrs).toMatch(/class="[^"]*\bhero__now-text\b/);
+    expect(items[2]?.body).toBe('alpon.dev · MSc Computer Science at Woolf University');
+  });
+
   it('prints no square brackets in either state', async () => {
     for (const props of [{ nowProject: 'alpon.dev' }, { nowProject: '' }, undefined]) {
       const t = text(await renderHero(props));
