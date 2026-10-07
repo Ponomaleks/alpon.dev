@@ -357,6 +357,39 @@ describe('home component sections (T16, SCR-04)', () => {
     expect(s).toMatch(/<span\b[^>]*lang="no"[^>]*>\s*Oslo, Norge/);
   });
 
+  // Design fixes (T14): the row label, the design's copy control and the add-to-contacts icon.
+  it('shows the Contact list as the home page draws it: "Region", the copy control, user-plus', () => {
+    const s = section('Contact list');
+    const labels = [...s.matchAll(/<dt\b[^>]*>([^<]*)<\/dt>/g)].map((m) => (m[1] ?? '').trim());
+    expect(labels).toEqual(['Email', 'Phone', 'LinkedIn', 'GitHub', 'Region']);
+    expect(s).not.toContain('Based in');
+    expect(s.match(/<button\b[^>]*class="fj-copy"/g)).toHaveLength(3);
+    expect(s).not.toMatch(/\bfj-btn--sm\b/);
+    expect(s).not.toMatch(/\bfj-link\b/);
+    const save = s.match(/<a\b[^>]*href="\/alexander-ponomarenko\.vcf"[\s\S]*?<\/a>/)?.[0] ?? '';
+    const glyph = (name: string) =>
+      section('Icon').match(
+        new RegExp(
+          String.raw`<path d="([^"]+)"[^>]*></path>\s*</svg>\s*<code\b[^>]*>${name}</code>`,
+        ),
+      )?.[1] ?? `no ${name} icon`;
+    expect(save).toContain(`d="${glyph('user-plus')}"`);
+  });
+
+  it('shows the standalone link with its arrow, at rest and hovered', () => {
+    const s = section('Link');
+    const lone = s.match(/<a\b[^>]*class="[^"]*fj-link--standalone[^"]*"[\s\S]*?<\/a>/g) ?? [];
+    expect(lone).toHaveLength(2);
+    for (const link of lone) expect(link).toMatch(/<svg\b/);
+    expect(lone.some((link) => /data-demo-state="hover"/.test(link))).toBe(true);
+  });
+
+  it('shows each Quick facts value of a list on its own line', () => {
+    const s = section('Quick facts');
+    const row = s.match(/<dt\b[^>]*>\s*Languages\s*<\/dt>([\s\S]*?)<\/div>/)?.[1] ?? '';
+    expect(row.match(/<dd\b/g)?.length ?? 0).toBeGreaterThanOrEqual(2);
+  });
+
   it('shows the QR tile with the Dag and the Natt asset and "Skann meg"', () => {
     const s = section('QR tile');
     expect(s).toContain('src="/qr/qr-vcard-dag.svg"');
@@ -407,6 +440,10 @@ describe('changed base samples (T17, SCR-04)', () => {
       'github',
     ])
       expect(s).toMatch(new RegExp(String.raw`<code\b[^>]*>${n}</code>`));
+  });
+
+  it('lists the user-plus icon of "Save contact (.vcf)"', () => {
+    expect(section('Icon')).toMatch(/<code\b[^>]*>user-plus<\/code>/);
   });
 
   it('notes that countUp shows the final number in the Stat section', () => {

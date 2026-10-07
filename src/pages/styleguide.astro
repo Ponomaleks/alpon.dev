@@ -5,6 +5,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Button from '../components/ui/Button.astro';
 import Link from '../components/ui/Link.astro';
+import CopyButton from '../components/ui/CopyButton.astro';
 import IconButton from '../components/ui/IconButton.astro';
 import Icon, { type IconName } from '../components/ui/Icon.astro';
 import Badge from '../components/ui/Badge.astro';
@@ -43,6 +44,7 @@ const iconNames: IconName[] = [
   'chevron-up',
   'copy',
   'download',
+  'user-plus',
   'mail',
   'phone',
   'linkedin',
@@ -67,7 +69,7 @@ const quickFactSamples = [
   { k: 'Based in', v: 'Sample place · sample note' },
   { k: 'Focus', v: 'Sample focus' },
   { k: 'Stack', v: 'Sample · Stack · Names' },
-  { k: 'Languages', v: 'Sample language, sample level' },
+  { k: 'Languages', v: ['Sample language, sample level', 'Another language, sample level'] },
 ];
 const entrySample: ExperienceEntry = {
   role: 'Sample role',
@@ -159,6 +161,12 @@ const stateLabel = { hover: 'Hover', focus: 'Focus', active: 'Pressed' } as cons
             {stateLabel[s]}
           </Link>
         ))}
+        <Link href="/" standalone>
+          Standalone
+        </Link>
+        <Link href="/" standalone data-demo-state="hover">
+          Standalone, hover
+        </Link>
         <Link href="https://github.com/" external>
           GitHub
         </Link>
@@ -407,40 +415,36 @@ const stateLabel = { hover: 'Hover', focus: 'Focus', active: 'Pressed' } as cons
         <div class="sg__contact-row">
           <dt>Email</dt>
           <dd>
-            <a class="fj-link" href="mailto:sample@example.com">
+            <a class="sg__contact-value" href="mailto:sample@example.com">
               sample@example.com
             </a>
-            <span data-copy-state="default">
-              <Button variant="secondary" size="sm" icon="copy">
-                Copy
-              </Button>
+            <span class="sg__contact-copy" data-copy-state="default">
+              <CopyButton />
+              <CopyButton data-demo-state="hover" />
+              <CopyButton data-demo-state="focus" />
             </span>
-            <Button variant="secondary" size="sm" icon="copy" data-demo-state="hover">
-              Copy
-            </Button>
-            <Button variant="secondary" size="sm" icon="copy" data-demo-state="focus">
-              Copy
-            </Button>
           </dd>
         </div>
         {contactRows.map(([k, v]) => (
           <div class="sg__contact-row">
             <dt>{k}</dt>
             <dd>
-              <a class="fj-link" href="/">
+              <a class="sg__contact-value" href="/">
                 {v}
               </a>
             </dd>
           </div>
         ))}
         <div class="sg__contact-row">
-          <dt>Based in</dt>
+          <dt>Region</dt>
           <dd>
-            <span lang="no">Oslo, Norge</span>
+            <span class="sg__contact-value" lang="no">
+              Oslo, Norge
+            </span>
           </dd>
         </div>
       </dl>
-      <Button variant="secondary" href="/alexander-ponomarenko.vcf" icon="download" download>
+      <Button variant="secondary" href="/alexander-ponomarenko.vcf" icon="user-plus" download>
         Save contact (.vcf)
       </Button>
     </section>
@@ -582,18 +586,18 @@ const stateLabel = { hover: 'Hover', focus: 'Focus', active: 'Pressed' } as cons
     border-top-color: var(--fjord-color-border);
   }
 
+  /* The same look as home/ContactBlock, rebuilt here (its own component loads the home scripts). */
   .sg__contact {
-    margin: 0 0 var(--fjord-space-6);
+    margin: 0 0 var(--fjord-space-5);
   }
 
   .sg__contact-row {
     display: grid;
-    grid-template-columns: var(--fjord-space-24) minmax(0, 1fr);
-    gap: var(--fjord-space-3);
+    grid-template-columns: calc(var(--fjord-space-20) + var(--fjord-space-2)) minmax(0, 1fr);
+    column-gap: var(--fjord-space-3);
     align-items: center;
-    padding: var(--fjord-space-1) 0;
+    min-block-size: var(--fjord-space-14);
     border-top: var(--fjord-border-width) solid var(--fjord-color-border);
-    min-block-size: var(--fjord-tap-min);
   }
 
   .sg__contact-row:last-child {
@@ -604,17 +608,53 @@ const stateLabel = { hover: 'Hover', focus: 'Focus', active: 'Pressed' } as cons
     font-family: var(--fjord-font-mono);
     font-size: var(--fjord-text-mono-sm);
     font-weight: var(--fjord-weight-medium);
+    line-height: var(--fjord-leading-none);
     letter-spacing: var(--fjord-tracking-label);
     color: var(--fjord-color-text-muted);
   }
 
   .sg__contact dd {
     display: flex;
-    flex-wrap: wrap;
     align-items: center;
     gap: var(--fjord-space-3);
     margin: 0;
+    min-width: 0;
+  }
+
+  .sg__contact-value {
+    font-family: var(--fjord-font-mono);
     font-size: var(--fjord-text-ui);
+    font-weight: var(--fjord-weight-regular);
+    line-height: var(--fjord-leading-snug);
+    color: var(--fjord-color-text);
+    text-decoration: none;
+    overflow-wrap: anywhere;
+  }
+
+  a.sg__contact-value {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--fjord-tap-min);
+  }
+
+  a.sg__contact-value:hover {
+    color: var(--fjord-color-link);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  a.sg__contact-value:focus-visible {
+    outline: var(--fjord-focus-width) solid var(--fjord-color-focus-ring);
+    outline-offset: var(--fjord-focus-offset);
+    border-radius: var(--fjord-radius-xs);
+  }
+
+  .sg__contact-copy {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--fjord-space-3);
+    margin-inline-start: auto;
   }
 
   .sg__sentence {
