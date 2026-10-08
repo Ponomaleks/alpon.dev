@@ -5,7 +5,7 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
   test: {
     include: ['**/*.test.ts'],
-    exclude: ['tests/**', 'node_modules/**', 'dist/**', '.astro/**', 'design/**'],
+    exclude: ['tests/**', 'node_modules/**', 'dist/**', '.astro/**', 'design/**', '.worktrees/**'],
     // Some suites run a real `astro build` (into throwaway directories); concurrent builds
     // share Astro's and Vite's caches and break each other, so test files run one at a time.
     fileParallelism: false,
