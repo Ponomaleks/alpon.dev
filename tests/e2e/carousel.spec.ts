@@ -1,9 +1,11 @@
+import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Locator, type Page } from '@playwright/test';
 
 // Recommendations on the home page (home T31): "Show more" / "Show less" on a long quote (AC-09,
 // D-19) and the carousel that goes round (AC-42, D-20). The page holds two Recommendations, so the
-// carousel is on below 768 (one column) and off from 768 (two columns). Automatic turning is off
-// in the content (AC-43); its rule is unit-tested in src/scripts/home/carousel.test.ts.
+// carousel is on below 768 (one column) and off from 768 (two columns). The cases the content
+// does not reach yet are tested on the same page with its HTML rewritten on the way to the browser
+// (withCards): four cards in two columns from 768, and automatic turning switched on (AC-43).
 
 const SECTION = 'main section[aria-labelledby="recommendations-title"]';
 const CARD = '[data-quote]:not([data-carousel-clone])';
@@ -277,5 +279,309 @@ test.describe('from 768, with two cards in two columns (AC-42)', () => {
     await expect(section.locator(COPY)).toHaveCount(4);
     await expect(section.getByRole('button', { name: 'Next recommendation' })).toBeVisible();
     await settled(page, 'recommendation-1');
+  });
+});
+
+/**
+ * Serves the home page with more Recommendations than it holds (copies of the second card under
+ * new names) and, when asked, with automatic turning on. The page's own scripts and styles run
+ * on it unchanged: only the HTML of the document is rewritten on its way to the browser.
+ */
+async function withCards(page: Page, count: number, { autoplay = false } = {}) {
+  await page.route(
+    (url) => url.pathname === '/',
+    async (route) => {
+      const response = await route.fetch();
+      let html = await response.text();
+      const second = html.match(
+        /<figure\b[^>]*data-quote="recommendation-2"[\s\S]*?<\/figure>/,
+      )?.[0];
+      if (!second) throw new Error('the second Recommendation was not found in the page');
+      const more = Array.from({ length: count - 2 }, (_, i) =>
+        second
+          .replaceAll('recommendation-2', `recommendation-${i + 3}`)
+          .replace('Alina Shcherbak', `Sample Person ${i + 3}`),
+      ).join('');
+      html = html.replace(second, second + more);
+      html = html.replace(/(data-carousel-track[^>]*?\sdata-scroll=")[^"]*"/, '$1sm md"');
+      if (autoplay) html = html.replace(/(<div\b[^>]*class="recs__wrap")/, '$1 data-autoplay');
+      await route.fulfill({ response, body: html });
+    },
+  );
+}
+
+for (const width of [834, 1440]) {
+  test.describe(`the carousel at ${width}, with four cards in two columns (AC-42)`, () => {
+    test.beforeEach(async ({ page }) => {
+      await withCards(page, 4);
+      await open(page, width);
+      await expect
+        .poll(() => inView(page), { timeout: 5000 })
+        .toEqual(['recommendation-1', 'recommendation-2']);
+    });
+
+    test('is on: the arrows show and the row holds four cards', async ({ page }) => {
+      const section = page.locator(SECTION);
+      await expect(section.locator(CARD)).toHaveCount(4);
+      await expect(section.getByRole('button', { name: 'Next recommendation' })).toBeVisible();
+      await expect(section.locator('[data-carousel]')).toHaveAttribute(
+        'aria-roledescription',
+        'carousel',
+      );
+    });
+
+    test('never rests on a copy: both cards in view are real ones on every stop of a lap', async ({
+      page,
+    }) => {
+      const section = page.locator(SECTION);
+      const next = section.getByRole('button', { name: 'Next recommendation' });
+      const laps = [
+        ['recommendation-2', 'recommendation-3'],
+        ['recommendation-3', 'recommendation-4'],
+        ['recommendation-4', 'recommendation-1'],
+        ['recommendation-1', 'recommendation-2'],
+      ];
+      for (const [index, pair] of laps.entries()) {
+        await next.click();
+        await expect.poll(() => inView(page), { timeout: 5000 }).toEqual(pair);
+        await expect(section.locator('[data-carousel-status]')).toHaveText(
+          `Recommendation ${((index + 1) % 4) + 1} of 4`,
+        );
+      }
+    });
+
+    test('at the end of the row the card beside the last one works: it opens and its link is live', async ({
+      page,
+    }) => {
+      const section = page.locator(SECTION);
+      const previous = section.getByRole('button', { name: 'Previous recommendation' });
+      await previous.click();
+      await expect
+        .poll(() => inView(page), { timeout: 5000 })
+        .toEqual(['recommendation-4', 'recommendation-1']);
+      // The second card in view is the real first card, not a copy of it.
+      const first = section.locator('[data-quote="recommendation-1"]:not([data-carousel-clone])');
+      expect(await first.evaluate((el) => (el as HTMLElement).inert)).toBe(false);
+      const toggle = first.getByRole('button', { name: 'Show more' });
+      await toggle.click();
+      await expect(first).toHaveAttribute('data-expanded', '');
+      await expect(first.getByRole('button', { name: 'Show less' })).toBeFocused();
+      await expect(first.getByRole('link', { name: /On LinkedIn/ })).toBeVisible();
+    });
+
+    test('keeps focus on a control of a card while the row goes round under it', async ({
+      page,
+    }) => {
+      const section = page.locator(SECTION);
+      // Tab into the third card: the browser scrolls it into view and the row stops there.
+      const toggle = section.locator(
+        '[data-quote="recommendation-3"]:not([data-carousel-clone]) [data-quote-toggle]',
+      );
+      await toggle.focus();
+      await expect
+        .poll(async () => (await inView(page)).filter((id) => !id.includes('copy')))
+        .toContain('recommendation-3');
+      // Let the row settle and rebuild around the focused card.
+      await page.waitForTimeout(400);
+      await expect(toggle).toBeFocused();
+      await page.keyboard.press('Enter');
+      await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    });
+
+    test('a second fast press on "Next" moves two cards and announces the card that comes to rest', async ({
+      page,
+    }) => {
+      const section = page.locator(SECTION);
+      const next = section.getByRole('button', { name: 'Next recommendation' });
+      await next.click();
+      await next.click();
+      await expect
+        .poll(() => inView(page), { timeout: 5000 })
+        .toEqual(['recommendation-3', 'recommendation-4']);
+      await expect(section.locator('[data-carousel-status]')).toHaveText('Recommendation 3 of 4');
+    });
+
+    test('fast presses at the end of the row stay inside it and still land on real cards', async ({
+      page,
+    }) => {
+      const section = page.locator(SECTION);
+      const next = section.getByRole('button', { name: 'Next recommendation' });
+      for (let press = 0; press < 6; press++) await next.click();
+      // Four cards on is the furthest the row can scroll with two in view: one whole lap.
+      await expect
+        .poll(() => inView(page), { timeout: 5000 })
+        .toEqual(['recommendation-1', 'recommendation-2']);
+      await expect(section.locator('[data-carousel-status]')).toHaveText('Recommendation 1 of 4');
+    });
+
+    test('scrolling the row past the last card, as a swipe does, comes round to real cards', async ({
+      page,
+    }) => {
+      const track = page.locator(`${SECTION} [data-carousel-track]`);
+      const step = await track.evaluate((el) => {
+        const [a, b] = [...el.children] as HTMLElement[];
+        return (b?.offsetLeft ?? 0) - (a?.offsetLeft ?? 0);
+      });
+      await track.evaluate((el, by) => el.scrollBy({ left: by * 4, behavior: 'instant' }), step);
+      await expect
+        .poll(() => inView(page), { timeout: 5000 })
+        .toEqual(['recommendation-1', 'recommendation-2']);
+      await track.evaluate((el, by) => el.scrollBy({ left: -by, behavior: 'instant' }), step);
+      await expect
+        .poll(() => inView(page), { timeout: 5000 })
+        .toEqual(['recommendation-4', 'recommendation-1']);
+    });
+
+    test('has no axe violation in the carousel while it rests at the end of the row', async ({
+      page,
+    }) => {
+      const section = page.locator(SECTION);
+      await section.getByRole('button', { name: 'Previous recommendation' }).click();
+      await expect
+        .poll(() => inView(page), { timeout: 5000 })
+        .toEqual(['recommendation-4', 'recommendation-1']);
+      const result = await new AxeBuilder({ page })
+        .include(SECTION)
+        .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+        .analyze();
+      expect(result.violations).toEqual([]);
+    });
+  });
+}
+
+test.describe('automatic turning, switched on for the test (AC-43)', () => {
+  const INTERVAL = 7000;
+  test.describe.configure({ timeout: 60_000 });
+
+  /**
+   * The page's clock is paused: the interval and the settle timer of the carousel move only when
+   * a test lets time pass. `jump` fires what is due once, as when time has simply gone by.
+   */
+  const jump = (page: Page, ms: number) => page.clock.fastForward(ms);
+
+  /** The cards in view once any scrolling (real time) has ended and the row has settled. */
+  async function resting(page: Page) {
+    await page.waitForTimeout(700);
+    await page.clock.runFor(300);
+    await page.waitForTimeout(50);
+    return inView(page);
+  }
+
+  /** One interval on: the row turns by itself to the given card. */
+  async function untilTurn(page: Page, id: string) {
+    await jump(page, INTERVAL);
+    expect(await resting(page)).toEqual([id]);
+  }
+
+  const away = async (page: Page) => {
+    await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
+    await page.mouse.move(5, 5);
+  };
+
+  async function load(page: Page, autoplay: boolean) {
+    await page.clock.install();
+    await withCards(page, 4, { autoplay });
+    await open(page, 390, 844);
+    await page.clock.pauseAt(Date.now() + 1000);
+    await away(page);
+    expect(await resting(page)).toEqual(['recommendation-1']);
+  }
+
+  /** Opens the page with automatic turning on and lets time pass until the first turn. */
+  async function start(page: Page) {
+    await load(page, true);
+    for (let second = 0; second < 9; second++) {
+      await jump(page, 1000);
+      if ((await resting(page)).join() === 'recommendation-2') return;
+    }
+    throw new Error('the row did not turn by itself within nine seconds');
+  }
+
+  test('moves to the next card once per interval, not sooner, and goes round', async ({ page }) => {
+    await start(page);
+    // The row has just turned: nothing happens for most of an interval.
+    await jump(page, INTERVAL - 3000);
+    expect(await resting(page)).toEqual(['recommendation-2']);
+    await jump(page, 3000);
+    expect(await resting(page)).toEqual(['recommendation-3']);
+    await untilTurn(page, 'recommendation-4');
+    await untilTurn(page, 'recommendation-1');
+    // Turning by itself is not announced.
+    await expect(page.locator(`${SECTION} [data-carousel-status]`)).toHaveText('');
+  });
+
+  test('stops while the pointer is over the row and goes on when it leaves', async ({ page }) => {
+    await start(page);
+    await page.locator(`${SECTION} [data-quote="recommendation-2"]:not(${COPY})`).hover();
+    await jump(page, INTERVAL * 2);
+    expect(await resting(page)).toEqual(['recommendation-2']);
+    await away(page);
+    await untilTurn(page, 'recommendation-3');
+  });
+
+  test('stops while focus is inside the row and goes on when it leaves', async ({ page }) => {
+    await start(page);
+    await page.locator(SECTION).getByRole('button', { name: 'Next recommendation' }).focus();
+    await jump(page, INTERVAL * 2);
+    expect(await resting(page)).toEqual(['recommendation-2']);
+    await away(page);
+    await untilTurn(page, 'recommendation-3');
+  });
+
+  test('stops while a quote is open and goes on when it is closed', async ({ page }) => {
+    await start(page);
+    const toggle = page.locator(
+      `${SECTION} [data-quote="recommendation-2"]:not(${COPY}) [data-quote-toggle]`,
+    );
+    await toggle.click();
+    await away(page);
+    await jump(page, INTERVAL * 2);
+    expect(await resting(page)).toEqual(['recommendation-2']);
+    await toggle.click();
+    await away(page);
+    await untilTurn(page, 'recommendation-3');
+  });
+
+  test('follows the hero’s Motion control: paused there, it stands still', async ({ page }) => {
+    await start(page);
+    const hero = page.locator('[data-hero]');
+    await hero.evaluate((el) => el.setAttribute('data-motion', 'paused'));
+    await jump(page, INTERVAL * 2);
+    expect(await resting(page)).toEqual(['recommendation-2']);
+    await hero.evaluate((el) => el.setAttribute('data-motion', 'running'));
+    await untilTurn(page, 'recommendation-3');
+  });
+
+  test('stops while the page is hidden', async ({ page }) => {
+    await start(page);
+    const setVisibility = (value: string) =>
+      page.evaluate(
+        (state) =>
+          Object.defineProperty(document, 'visibilityState', { value: state, configurable: true }),
+        value,
+      );
+    await setVisibility('hidden');
+    await jump(page, INTERVAL * 2);
+    expect(await resting(page)).toEqual(['recommendation-2']);
+    await setVisibility('visible');
+    await untilTurn(page, 'recommendation-3');
+  });
+
+  test.describe('with reduced motion', () => {
+    test.use({ reducedMotion: 'reduce' });
+
+    test('never moves by itself; the arrows still do', async ({ page }) => {
+      await load(page, true);
+      await jump(page, INTERVAL * 3);
+      expect(await resting(page)).toEqual(['recommendation-1']);
+      await page.locator(SECTION).getByRole('button', { name: 'Next recommendation' }).click();
+      expect(await resting(page)).toEqual(['recommendation-2']);
+    });
+  });
+
+  test('without the switch in the content the row never moves by itself', async ({ page }) => {
+    await load(page, false);
+    await jump(page, INTERVAL * 3);
+    expect(await resting(page)).toEqual(['recommendation-1']);
   });
 });
