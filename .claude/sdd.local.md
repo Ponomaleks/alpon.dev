@@ -30,22 +30,22 @@ effort_reviewer: high
 
 ## What each key does
 
-- **`interview_depth`** — `easy | medium | hard`. Плагін-широкий дефолт для депт-діала Q&A-скіл (`specify` / `clarify` / `design`): скільки скілла вирішує сама vs. допитує вас. Лише **пре-селектить** рекомендований варіант у стартовому питанні — можна перекрити per-run або через `--depth=`. Не впливає на повноту acceptance criteria (це floor на всіх рівнях).
-- **`artifact_language`** — `en | uk` (будь-який мовний тег; дефолт `en`). Мова, якою пишуться **документи пайплайну** — читається **кожною скіллою, що пише артефакт** (spec, SAD, ADR, sequences, data-model, contracts, tasks, test plan, review/fix records, changelog, roadmap, CONTEXT.md). Перемикається лише **проза**; **структура лишається англійською** — заголовки секцій, ключі й значення фронтматера, verdict-літерали, tracker-стани, Mermaid-ключові слова, машинні поля.
-- **`tdd`** — коли `false`, крок RED пропускається і движок пише код напряму (з ворнінгом; ви втрачаєте страхувальну сітку).
-- **`team_mode` / `workflow_mode`** — годують дерево рішень режиму виконання. `team_mode` виграє, коли підходять обидва.
-- **`max_parallel_agents`** — стеля фан-ауту для team/workflow режимів. `1` форсить послідовність.
-- **`isolation`** — `worktree` дає кожному паралельному агенту власний git worktree під `.worktrees/`; `inplace` редагує чекаут напряму і **форсить паралелізм у 1**.
-- **`stop_on_red`** — `true`: red, що пережив ескалацію, зупиняє ран. `false`: задача дропається, її залежні авто-блокуються, інші гілки їдуть далі.
-- **`max_red_retries`** — кількість спроб RED→GREEN до ескалації.
-- **`gate_lint` / `gate_vet`** — вмикати lint / vet у per-task гейт (грейсфулі пропускаються, якщо команду не задетектило).
-- **`require_integration`** — `auto`: ганяти інтеграційні тести, якщо відповідає Docker-демон, інакше позначити NON-red; `always`: BLOCK до диспатчу, якщо Docker відсутній; `never`: пропустити інтеграційний тір повністю.
-- **`auto_commit`** — `per_task` (дефолт), `per_phase`, або `off` (коміти лишаються вам).
-- **`branch_strategy`** — `feature`: гарантувати роботу на фіча-бренчі (створити, якщо ви на дефолтному); `current`: комітити в поточну гілку.
-- **`cmd_*`** — явні оверрайди команд; непорожні значення шорт-серкутять детекцію (escape hatch для нетипових репо).
-- **`model_*` / `effort_*`** — per-role модель + effort для трьох агентів, застосовуються при спавні (перекривають frontmatter агента). Пріоритет: env var > цей сеттінг > frontmatter агента > сесія.
-- **`judgment_model`** — тір-аліас (`haiku|sonnet|opus|fable`), `inherit` (модель сесії), або повний model id; дефолт `opus`. Один перемикач для **всіх judgment-агентів** — `reviewer` / `critic` / `devils-advocate` / `strategist` / `analyst`. Дефолт — це **floor, не pin**: коли ключ не заданий, а сесія йде на сильнішому тірі за `opus`, judgment-агенти диспатчаться з `inherit`. Явне значення завжди шанується буквально. Per-role `model_<role>` виграє для своєї ролі. Повний пріоритет: `env > invocation > model_<role> > judgment_model > frontmatter > session`.
+- **`interview_depth`** — `easy | medium | hard`. Plugin-wide default for the depth dial of the Q&A skills (`specify` / `clarify` / `design`): how much the skill decides itself vs. asks you. It only **pre-selects** the recommended option in the opening question — you can override it per run or with `--depth=`. It does not affect how complete the acceptance criteria are (that is a floor at every level).
+- **`artifact_language`** — `en | uk` (any language tag; default `en`). The language the **pipeline documents** are written in — read by **every skill that writes an artifact** (spec, SAD, ADR, sequences, data-model, contracts, tasks, test plan, review/fix records, changelog, roadmap, CONTEXT.md). Only the **prose** switches; the **structure stays English** — section headings, front-matter keys and values, verdict literals, tracker states, Mermaid keywords, machine fields.
+- **`tdd`** — when `false`, the RED step is skipped and the engine writes code directly (with a warning; you lose the safety net).
+- **`team_mode` / `workflow_mode`** — feed the decision tree of the execution mode. `team_mode` wins when both fit.
+- **`max_parallel_agents`** — fan-out cap for the team/workflow modes. `1` forces sequential execution.
+- **`isolation`** — `worktree` gives each parallel agent its own git worktree under `.worktrees/`; `inplace` edits the checkout directly and **forces parallelism to 1**.
+- **`stop_on_red`** — `true`: a red that survives escalation stops the run. `false`: the task is dropped, its dependants are blocked automatically, the other branches continue.
+- **`max_red_retries`** — the number of RED→GREEN attempts before escalation.
+- **`gate_lint` / `gate_vet`** — include lint / vet in the per-task gate (skipped gracefully if no command was detected).
+- **`require_integration`** — `auto`: run the integration tests if the Docker daemon answers, otherwise mark them NON-red; `always`: BLOCK before dispatch if Docker is absent; `never`: skip the integration tier completely.
+- **`auto_commit`** — `per_task` (default), `per_phase`, or `off` (the commits are left to you).
+- **`branch_strategy`** — `feature`: make sure the work happens on a feature branch (create one if you are on the default branch); `current`: commit to the current branch.
+- **`cmd_*`** — explicit command overrides; non-empty values short-circuit detection (an escape hatch for unusual repositories).
+- **`model_*` / `effort_*`** — per-role model and effort for the three agents, applied at spawn (they override the agent's front matter). Priority: env var > this setting > agent front matter > session.
+- **`judgment_model`** — a tier alias (`haiku|sonnet|opus|fable`), `inherit` (the session model), or a full model id; default `opus`. One switch for **all judgment agents** — `reviewer` / `critic` / `devils-advocate` / `strategist` / `analyst`. The default is a **floor, not a pin**: when the key is not set and the session runs on a tier stronger than `opus`, the judgment agents are dispatched with `inherit`. An explicit value is always honoured literally. A per-role `model_<role>` wins for its role. Full priority: `env > invocation > model_<role> > judgment_model > frontmatter > session`.
 
 ## Reading semantics
 
-Невідомі ключі ігноруються (forward-compatible). Відсутній ключ падає на дефолт вище. Malformed файл → ворнінг і фолбек на all-defaults замість падіння рану.
+Unknown keys are ignored (forward-compatible). A missing key falls back to the default above. A malformed file → a warning and a fallback to all defaults instead of a failed run.

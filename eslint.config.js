@@ -16,6 +16,7 @@ export default defineConfig(
     'test-results/',
     'playwright-report/',
     '.lighthouseci/',
+    '.worktrees/',
   ]),
   js.configs.recommended,
   tseslint.configs.strict,

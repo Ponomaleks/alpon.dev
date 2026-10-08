@@ -115,6 +115,7 @@ tools/             sources for the OG image, contours and CV previews (not deplo
 ## Workflow
 
 - Follow the SDD workflow. Before coding, restate the acceptance criteria from the current SDD spec and list open questions.
+- Language: every document, code comment and commit message in this repository is written in English. The user-facing Norwegian details on the site stay as the content rules say.
 - Small commits, one PR per spec (or per logical part of it). PR description: what changed, screenshots at 390 / 834 / 1440 in both themes, test results, conflicts with the design.
 - After each UI change, run the visual tests and compare with the page-design screenshots in `design/screenshots/`, not with component demos.
 - Every screen in a feature's `screens.md` cites its page design (file and screen in `design/handoff/site/`) as the primary reference; component files are secondary. The "Design match" review compares the built page with the page-design screenshots in `design/screenshots/` and lists every difference.
