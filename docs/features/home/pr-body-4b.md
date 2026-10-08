@@ -7,7 +7,7 @@ Base: `v2`. Production (`main`) is not touched.
 **State: draft, waiting for the Owner.**
 
 - T27, T28, T29 and T31 are `done`. T30 is `review` and waits for two things only the Owner can do:
-  1. **Add the `visual-baselines` label** to this pull request. The `visual` job is expected to be red until then: the home page has a new section (`home-recommendations-*`), its contact section changed (the number is 04), and the Styleguide has two new sections (`Testimonial`, `Selected projects`). Then review the new PNGs.
+  1. Done: the Linux baselines are written by the `visual-baselines` workflow on `c699460` ([run 37793213130](https://github.com/Ponomaleks/alpon.dev/actions/runs/37793213130)) and committed by the Owner's request on 2026-10-08; the label is off. 44 files: 18 new (`home-recommendations`, Styleguide `testimonial` and `selected-projects`) and 26 changed (`home-contact`: the number 04 and the arrows of the two profile links; `home-closing-band`: its contours follow scrolling and the page is longer; Styleguide `contact-list` and `icon`: the profile links and `arrow-left`; two of `mail-link-sentence` at 390, with no visible difference).
   2. **Tick the two rows of the Claims list below** (AC-29).
 
 ## What changed
@@ -49,11 +49,11 @@ Base: `v2`. Production (`main`) is not touched.
 
 **Local gate** (Windows, main checkout, 2026-10-08):
 
-- Unit (Vitest): 947 passed in 50 files.
+- Unit (Vitest): 951 passed in 51 files.
 - Lint (tokens check, contrast, contact, `astro check`, ESLint, Prettier, Stylelint): clean.
 - `npm run build`: passes with the empty `src/content/projects/` (the glob loader prints `No files found matching "*.md"`, a warning).
 - `npm run check:budgets`, `npm run check:placeholders`, `npm run check:contact:built`: pass.
-- Playwright e2e and axe: 1015 passed, 21 skipped (the visual folder runs in CI only). Earlier full runs of the day each had one-off failures that passed on rerun with no change; they are in the backlog with their output (B-44, B-48).
+- Playwright e2e and axe: 1017 passed, 21 skipped (the visual folder runs in CI only). Earlier full runs of the day had one-off failures that passed on rerun with no change; they are in the backlog with their output (B-44, B-48).
 - `npm run lhci`: green. `/`: 99 / 100 / 100 / 100, LCP 2131, 2135 and 1976 ms, CLS 0, TBT 0 ms. `/404`: LCP 1673 to 1685 ms. The home page stays at the local LCP limit as before (backlog B-38).
 
 Two things about the local gate, both in the backlog:
@@ -61,7 +61,7 @@ Two things about the local gate, both in the backlog:
 - In the main checkout `npm run test:unit` and `npm run lint` also read the leftover `.worktrees/` of phase 4a; the gate ran with `vitest run --exclude ".worktrees/**"` and `eslint . --ignore-pattern ".worktrees/**"` (B-47). CI is not affected.
 - A container unit suite timed out several times while a second Vite or Wrangler server of the checkout was running (a preview, later `astro dev`), and passed on rerun (B-46).
 
-**Visual baselines**: not written yet, see State.
+**Visual baselines**: committed, see State.
 
 ## Acceptance criteria
 
