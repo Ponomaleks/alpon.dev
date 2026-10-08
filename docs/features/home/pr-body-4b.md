@@ -49,7 +49,7 @@ Base: `v2`. Production (`main`) is not touched.
 
 **Local gate** (Windows, main checkout, 2026-10-08):
 
-- Unit (Vitest): 942 passed in 50 files.
+- Unit (Vitest): 947 passed in 50 files.
 - Lint (tokens check, contrast, contact, `astro check`, ESLint, Prettier, Stylelint): clean.
 - `npm run build`: passes with the empty `src/content/projects/` (the glob loader prints `No files found matching "*.md"`, a warning).
 - `npm run check:budgets`, `npm run check:placeholders`, `npm run check:contact:built`: pass.
