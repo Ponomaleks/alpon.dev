@@ -7,7 +7,7 @@ acs: ["AC-09", "AC-12", "AC-29"]
 files_hint: ["tests/visual/home.spec.ts", "tests/visual/__screenshots__/", "tests/a11y/home.spec.ts", "docs/design-system.md", "docs/features/home/pr-body.md"]
 owner: "Alexander Ponomarenko"
 estimate: "S"
-status: "review"
+status: "done"
 ---
 
 # T30 — Add the baselines and axe cases of phase 4b and complete the Claims list and the inventory

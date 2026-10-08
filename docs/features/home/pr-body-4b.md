@@ -4,11 +4,11 @@ Phase 4b of **home** (roadmap step 4, [spec](docs/features/home/spec.md)), tasks
 
 Base: `v2`. Production (`main`) is not touched.
 
-**State: draft, waiting for the Owner.**
+**State: ready for the Owner's merge.**
 
-- T27, T28, T29 and T31 are `done`. T30 is `review` and waits for two things only the Owner can do:
-  1. Done: the Linux baselines are written by the `visual-baselines` workflow on `c699460` ([run 37793213130](https://github.com/Ponomaleks/alpon.dev/actions/runs/37793213130)) and committed by the Owner's request on 2026-10-08; the label is off. 44 files: 18 new (`home-recommendations`, Styleguide `testimonial` and `selected-projects`) and 26 changed (`home-contact`: the number 04 and the arrows of the two profile links; `home-closing-band`: its contours follow scrolling and the page is longer; Styleguide `contact-list` and `icon`: the profile links and `arrow-left`; two of `mail-link-sentence` at 390, with no visible difference).
-  2. **Tick the two rows of the Claims list below** (AC-29).
+- T27 to T31 are `done`. The two things only the Owner could do are done:
+  1. The Linux baselines are written by the `visual-baselines` workflow on `c699460` ([run 37793213130](https://github.com/Ponomaleks/alpon.dev/actions/runs/37793213130)) and committed by the Owner's request on 2026-10-08; the label is off. 44 files: 18 new (`home-recommendations`, Styleguide `testimonial` and `selected-projects`) and 26 changed (`home-contact`: the number 04 and the arrows of the two profile links; `home-closing-band`: its contours follow scrolling and the page is longer; Styleguide `contact-list` and `icon`: the profile links and `arrow-left`; two of `mail-link-sentence` at 390, with no visible difference).
+  2. Rows 68 and 69 of the Claims list below are ticked in this pull request (AC-29).
 
 ## What changed
 
@@ -47,19 +47,27 @@ Base: `v2`. Production (`main`) is not touched.
 
 ## Test results
 
-**Local gate** (Windows, main checkout, 2026-10-08):
+**Local gate** (Windows, main checkout, 2026-10-08, run again on `f35fd41` before shipping):
 
 - Unit (Vitest): 960 passed in 51 files.
 - Lint (tokens check, contrast, contact, `astro check`, ESLint, Prettier, Stylelint): clean.
 - `npm run build`: passes with the empty `src/content/projects/` (the glob loader prints `No files found matching "*.md"`, a warning).
 - `npm run check:budgets`, `npm run check:placeholders`, `npm run check:contact:built`: pass.
-- Playwright e2e and axe, with one retry as in CI: 1074 passed, 1 flaky (passed on its retry; `SyntaxError: Unexpected end of JSON input`, backlog B-44), 21 skipped (the visual folder runs in CI only). Earlier full runs of the day had one-off failures of the same kind in other specs; they are in the backlog with their output (B-44, B-48).
-- `npm run lhci`: green. `/`: 99 / 100 / 100 / 100, LCP 1989, 1983 and 1979 ms, CLS 0, TBT 0 ms. `/404`: LCP 1670 to 1674 ms. The home page stays at the local LCP limit as before (backlog B-38).
+- Playwright e2e and axe, with one retry as in CI: 1074 passed, 1 flaky (`[desktop] menu.spec.ts:413`, passed on its retry; `SyntaxError: Unexpected end of JSON input`, backlog B-44), 129 skipped (the visual folder runs in CI only, and the parity items of later steps). Earlier full runs of the day had one-off failures of the same kind in other specs; they are in the backlog with their output (B-44, B-48).
+- `npm run lhci`: green. `/`: 99 / 100 / 100 / 100, LCP 1998, 1983 and 1994 ms, CLS 0, TBT 0 to 6 ms. `/404`: LCP 1684 to 1690 ms. The home page stays at the local LCP limit as before (backlog B-38).
 
 Two things about the local gate, both in the backlog:
 
 - In the main checkout `npm run test:unit` and `npm run lint` also read the leftover `.worktrees/` of phase 4a; the gate ran with `vitest run --exclude ".worktrees/**"` and `eslint . --ignore-pattern ".worktrees/**"` (B-47). CI is not affected.
 - A container unit suite timed out several times while a second Vite or Wrangler server of the checkout was running (a preview, later `astro dev`), and passed on rerun (B-46).
+
+**Ran the feature** (`wrangler dev` on `dist/` of `f35fd41`, Chromium, 2026-10-08):
+
+- AC-09 at 1440: the section is "03 / Recommendations" under "From people I’ve worked with" and Contact is 04; two cards of the same height (278 px) with five and six paragraphs in the page; "Show more" opened the first quote whole, became "Show less" with `aria-expanded="true"`, and the second card kept its height; both "On LinkedIn" links lead to the recommendations on the profile in a new tab; no arrows.
+- AC-42 at 375: the two arrows are shown, 44 by 44 px; "Next" moved to the second card and announced "Recommendation 2 of 2", "Next" again came round to the first and announced "Recommendation 1 of 2"; the card in view at rest was a real one each time and the copies were inert; the page did not scroll sideways.
+- AC-11: no "Selected projects" and no "All projects" on the home page.
+- AC-12 on `/styleguide`: three sample cards under "Sample data" inside a `data-sample` block, "Live" and "Code" in a new tab, the third card with "Code" only; the page is `noindex`. Their layout was not looked at here (the pane had no width); the committed baselines cover it.
+- Not run by hand: AC-10 and AC-43, which need a fixture build and the switched-on content; their browser tests passed in the gate above.
 
 **Visual baselines**: committed, see State.
 
@@ -74,7 +82,7 @@ Two things about the local gate, both in the backlog:
 - AC-11: holds (T28): no Selected projects section and no "All projects" link on the home page, with or without a Published project.
 - AC-12: built (T28, T29); baseline committed.
 - AC-28: the Styleguide's marked sample data is the only exemption (T29).
-- AC-29: the two rows below wait for the Owner's ticks.
+- AC-29: rows 68 and 69 are ticked by the Owner.
 
 ## Differences from the page design
 
@@ -90,16 +98,16 @@ Two things about the local gate, both in the backlog:
 ## Known open points
 
 - Leftover worktrees and scratch files of phase 4a in `.worktrees/` (B-47): remove them, or exclude the folder in the Vitest and ESLint configs.
-- The Owner's label and ticks (State).
+- None that only this pull request can close; the carried items are in the [changelog](docs/features/home/changelog.md).
 
 ## Claims list (AC-29)
 
-The rows phase 4b adds to the Claims list of [Ponomaleks/alpon.dev#3](https://github.com/Ponomaleks/alpon.dev/pull/3); the numbers continue from there. **Nothing here is ticked yet.** The Owner ticks a row after checking that the quote is the person's own words, that the name and the role are right, and that the person agreed to it being shown.
+The rows phase 4b adds to the Claims list of [Ponomaleks/alpon.dev#3](https://github.com/Ponomaleks/alpon.dev/pull/3); the numbers continue from there. Both rows are ticked. The Owner ticks a row after checking that the quote is the person's own words, that the name and the role are right, and that the person agreed to it being shown.
 
 ### Recommendations
 
-- [ ] **68.** Recommendation of Hennadii Shpak, "Senior Software Engineer at EPAM Systems": five paragraphs, from "I worked with Oleksandr for over two years…" to "…a valuable addition to any team." Where: Recommendations, first card. Source: `src/data/home.ts` `recommendations[0]`, from `docs/features/home/owner-inputs.md` Recommendation 1 (LinkedIn recommendation of April 26, 2026; "Hennadii managed Alexander directly"). Agreement: confirmed by the Owner in `owner-inputs.md` (`consent: true`).
-- [ ] **69.** Recommendation of Alina Shcherbak, "Frontend Developer at EPAM Systems": six paragraphs, from "I had the pleasure of working with Alexander for nearly two years as his Team Lead…" to "…both results and a positive team dynamic." Where: Recommendations, second card. Source: `src/data/home.ts` `recommendations[1]`, from `docs/features/home/owner-inputs.md` Recommendation 2 (LinkedIn recommendation of April 13, 2026; "Alina managed Alexander directly"). Agreement: confirmed by the Owner in `owner-inputs.md` (`consent: true`).
+- [x] **68.** Recommendation of Hennadii Shpak, "Senior Software Engineer at EPAM Systems": five paragraphs, from "I worked with Oleksandr for over two years…" to "…a valuable addition to any team." Where: Recommendations, first card. Source: `src/data/home.ts` `recommendations[0]`, from `docs/features/home/owner-inputs.md` Recommendation 1 (LinkedIn recommendation of April 26, 2026; "Hennadii managed Alexander directly"). Agreement: confirmed by the Owner in `owner-inputs.md` (`consent: true`).
+- [x] **69.** Recommendation of Alina Shcherbak, "Frontend Developer at EPAM Systems": six paragraphs, from "I had the pleasure of working with Alexander for nearly two years as his Team Lead…" to "…both results and a positive team dynamic." Where: Recommendations, second card. Source: `src/data/home.ts` `recommendations[1]`, from `docs/features/home/owner-inputs.md` Recommendation 2 (LinkedIn recommendation of April 13, 2026; "Alina managed Alexander directly"). Agreement: confirmed by the Owner in `owner-inputs.md` (`consent: true`).
 
 Not in this list: Selected projects (not rendered, AC-11) and the Styleguide's sample data (marked as sample, AC-12).
 

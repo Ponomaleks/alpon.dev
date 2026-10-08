@@ -7,7 +7,7 @@ acs: ["AC-29"]
 files_hint: ["CLAUDE.md", "docs/design-system.md", "docs/backlog.md", "docs/roadmap.md", "docs/features/base-components/spec.md", "docs/features/home/pr-body.md"]
 owner: "Alexander Ponomarenko"
 estimate: "M"
-status: "review"
+status: "done"
 ---
 
 # T26 — Close the document pointers, register the built components and draft the pull request with the Claims list
