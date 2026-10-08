@@ -23,7 +23,7 @@ Base: `v2`. Production (`main`) is not touched.
 
 - A quote longer than three lines is closed to three lines with a "Show more" text button; "Show less" closes it again. Closed cards have the same height, and a closed card keeps its height next to an open one. The whole quote stays in the page; with scripts off every quote is shown whole.
 - With more Recommendations than columns (one below 768, two from 768) the row is a carousel that goes round: previous and next arrows, swipe, keyboard scrolling, the position announced as "Recommendation N of M". With the two Recommendations of today that is the case below 768 only; from 768 both cards stand side by side as in the page design, with no arrows.
-- No library. The row scrolls with CSS scroll snap, so swipe works without a script; `src/scripts/home/carousel.ts` makes it go round (inert copies of the cards at both ends, and the cards themselves moved round when the row stops on a copy, so that a copy is never a card at rest) and adds the arrows. The page's own scripts grow from 1.9 to about 3.5 KB gzip (budget 10 KB).
+- No library. The row scrolls with CSS scroll snap, so swipe works without a script; `src/scripts/home/carousel.ts` makes it go round (inert copies of the cards at both ends, and the cards themselves moved round when the row stops on a copy, so that a copy is never a card at rest) and adds the arrows. The page's own scripts grow from 1.9 to 3.6 KB gzip (budget 10 KB).
 - Automatic turning exists and is off (`recommendationsAutoplay` in `src/data/home.ts`). When on, it stops on hover, on focus, while a quote is open and while the page is hidden, follows the hero's Motion control and never runs with reduced motion.
 - "On LinkedIn" leads to the recommendations on the profile (`contact.links.recommendations`) and is shown only on a Recommendation with `source: 'linkedin'`; one given directly (`source: 'direct'`) has no link.
 - `spec.md`: AC-09 and AC-12 amended, AC-42 and AC-43 added, differences D-19 to D-21, D-09 changed.
@@ -49,12 +49,12 @@ Base: `v2`. Production (`main`) is not touched.
 
 **Local gate** (Windows, main checkout, 2026-10-08):
 
-- Unit (Vitest): 951 passed in 51 files.
+- Unit (Vitest): 960 passed in 51 files.
 - Lint (tokens check, contrast, contact, `astro check`, ESLint, Prettier, Stylelint): clean.
 - `npm run build`: passes with the empty `src/content/projects/` (the glob loader prints `No files found matching "*.md"`, a warning).
 - `npm run check:budgets`, `npm run check:placeholders`, `npm run check:contact:built`: pass.
-- Playwright e2e and axe: 1017 passed, 21 skipped (the visual folder runs in CI only). Earlier full runs of the day had one-off failures that passed on rerun with no change; they are in the backlog with their output (B-44, B-48).
-- `npm run lhci`: green. `/`: 99 / 100 / 100 / 100, LCP 2131, 2135 and 1976 ms, CLS 0, TBT 0 ms. `/404`: LCP 1673 to 1685 ms. The home page stays at the local LCP limit as before (backlog B-38).
+- Playwright e2e and axe, with one retry as in CI: 1074 passed, 1 flaky (passed on its retry; `SyntaxError: Unexpected end of JSON input`, backlog B-44), 21 skipped (the visual folder runs in CI only). Earlier full runs of the day had one-off failures of the same kind in other specs; they are in the backlog with their output (B-44, B-48).
+- `npm run lhci`: green. `/`: 99 / 100 / 100 / 100, LCP 1989, 1983 and 1979 ms, CLS 0, TBT 0 ms. `/404`: LCP 1670 to 1674 ms. The home page stays at the local LCP limit as before (backlog B-38).
 
 Two things about the local gate, both in the backlog:
 
@@ -62,6 +62,8 @@ Two things about the local gate, both in the backlog:
 - A container unit suite timed out several times while a second Vite or Wrangler server of the checkout was running (a preview, later `astro dev`), and passed on rerun (B-46).
 
 **Visual baselines**: committed, see State.
+
+**Review**: three rounds, verdict PASS, in [review-2026-10-08.md](docs/features/home/_review/review-2026-10-08.md). Round 1 found that the carousel could rest on an inert copy from 768 with three or more cards and that automatic turning had no test of its outcome; both are fixed. Round 2 found two regressions of that fix (Tab never left the row; focus lost at the breakpoint), fixed before anything was pushed. Round 3's one finding does not happen in Chromium and was closed by the Owner as not an issue (B-57). The non-blocking findings are B-50 to B-56.
 
 ## Acceptance criteria
 
