@@ -186,7 +186,7 @@ test.describe('the carousel at 390, with two cards in one column (AC-42)', () =>
   test('the next arrow goes to the second card and then round to the first', async ({ page }) => {
     const section = page.locator(SECTION);
     const next = section.getByRole('button', { name: 'Next recommendation' });
-    const status = section.getByRole('status');
+    const status = section.locator('[data-carousel-status]');
     await next.click();
     await settled(page, 'recommendation-2');
     await expect(status).toHaveText('Recommendation 2 of 2');
@@ -201,7 +201,7 @@ test.describe('the carousel at 390, with two cards in one column (AC-42)', () =>
     const previous = section.getByRole('button', { name: 'Previous recommendation' });
     await previous.click();
     await settled(page, 'recommendation-2');
-    await expect(section.getByRole('status')).toHaveText('Recommendation 2 of 2');
+    await expect(section.locator('[data-carousel-status]')).toHaveText('Recommendation 2 of 2');
     await previous.click();
     await settled(page, 'recommendation-1');
   });

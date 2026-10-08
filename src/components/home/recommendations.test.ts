@@ -161,7 +161,7 @@ describe('Recommendations', () => {
     const labels = [...nav.matchAll(/<button\b[^>]*aria-label="([^"]+)"/g)].map((m) => m[1]);
     expect(labels).toEqual(['Previous recommendation', 'Next recommendation']);
     expect(nav.match(/<svg\b/g)).toHaveLength(2);
-    expect(html).toMatch(/<p\b[^>]*data-carousel-status[^>]*role="status"[^>]*>\s*<\/p>/);
+    expect(html).toMatch(/<p\b[^>]*data-carousel-status[^>]*aria-live="polite"[^>]*>\s*<\/p>/);
     expect(html).toMatch(/<div\b[^>]*\sdata-carousel[\s>=]/);
   });
 

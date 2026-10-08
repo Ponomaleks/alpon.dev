@@ -126,7 +126,7 @@ const scroll = [shown.length > 1 && 'sm', shown.length > 2 && 'md'].filter(Boole
           </figure>
         ))}
       </div>
-      <p class="recs__status" data-carousel-status role="status"></p>
+      <p class="recs__status" data-carousel-status aria-live="polite"></p>
     </div>
   </section>
 )}
@@ -156,7 +156,8 @@ const scroll = [shown.length > 1 && 'sm', shown.length > 2 && 'md'].filter(Boole
     flex: none;
     gap: var(--fjord-space-2);
   }
-  /* Read by assistive technology only: "Recommendation 2 of 4" after an arrow is used. */
+  /* Read by assistive technology only: "Recommendation 2 of 4" after an arrow is used. A polite
+     live region without the status role: the page has one status, the Toast. */
   .recs__status {
     position: absolute;
     width: var(--fjord-border-width);
