@@ -48,7 +48,7 @@ All values come from `src/styles/tokens.css` (`--fjord-*`, generated, do not edi
 
 `screens.md` may use only these names, or declare `NEW: <name>` with a why-no-primitive-fits line (`implement` then registers it here). **Repo** = the component is built in `src/`. **Handoff** = design-only so far, and the first feature that needs it builds it at the target path. States are given where the handoff signature defines them; otherwise see the component's `.d.ts`/`.prompt.md`. Handoff paths are relative to `design/handoff/design-system/project/`.
 
-**Built in the repo** (base-components registers the Shell and the base components here, home phase 4a the home components and the Shell changes; the handoff rows of built components are removed)
+**Built in the repo** (base-components registers the Shell and the base components here, home phase 4a the home components and the Shell changes, phase 4b Testimonial, ProjectCard and their sections; the handoff rows of built components are removed)
 
 | Component | Source (`file:line` / node / URL) | States it supports | Notes |
 |---|---|---|---|
@@ -84,7 +84,13 @@ All values come from `src/styles/tokens.css` (`--fjord-*`, generated, do not edi
 | About (NEW) | `src/components/home/About.astro` | — | home AC-07 |
 | QuickFacts (NEW) | `src/components/home/QuickFacts.astro` | one value / several values, one per line | description list (home AC-07, D-16) |
 | ContactBlock (NEW) | `src/components/home/ContactBlock.astro` | — | the list, "Save contact", QrTile and the mail-link sentence of home IS-03 |
-| home content data | `src/data/home.ts` | — | key facts, introduction, quick facts, experience, the Now line |
+| Testimonial | built inside `src/components/home/Recommendations.astro` | — | no file of its own; the quote word for word, name, role and "On LinkedIn"; real quotes only, with the person's agreement (home AC-09, AC-10) |
+| Recommendations (NEW) | `src/components/home/Recommendations.astro` | present / absent (no quote with consent); `sample` | the section is left out when no Recommendation remains (home AC-10) |
+| ProjectCard | `src/components/home/ProjectCard.astro` | compact / featured; media ground spruce / auto; with or without "Live" and "Code" | the media is a contour panel with the slug until step 7 adds screenshots and the link to the case study (home AC-12) |
+| SelectedProjects (NEW) | `src/components/home/SelectedProjects.astro` | one to three featured projects, the first large; heading level | Dormant section: on the Styleguide with marked sample data, on the home page only when `features.projects` is on and a Published project exists (home AC-11, AC-12) |
+| home content data | `src/data/home.ts` | — | key facts, introduction, quick facts, experience, Recommendations, the Now line |
+| project data | `src/data/projects.ts`, `src/content.config.ts` | — | the entry shape of the `projects` collection (`src/content/projects/*.md`, empty until step 7) and the choice of the projects a page shows |
+| sample data | `src/data/samples.ts` | — | Styleguide only: sample Recommendations and projects, shown inside a `data-sample` block under a "Sample data" label (home AC-12, AC-28) |
 | Shell action data | `src/data/shell-actions.ts` | — | the bar and band actions a page passes as options |
 
 **Design-only (handoff), by group**
@@ -99,8 +105,6 @@ All values come from `src/styles/tokens.css` (`--fjord-*`, generated, do not edi
 | MetaRow | `components/casestudy/MetaRow.jsx:3` | see `.d.ts` | |
 | NextProject | `components/casestudy/NextProject.jsx:5` | see `.d.ts` | |
 | Prose | `components/casestudy/Prose.jsx:3` | — | target `src/components/prose/`; step 7 |
-| ProjectCard | `components/content/ProjectCard.jsx:7` | see `.d.ts` | |
-| Testimonial | `components/content/Testimonial.jsx:4` | see `.d.ts` | real quotes only, with name and link; hidden if none |
 | ContactForm | `components/cv/ContactForm.jsx:10` | see `.d.ts` | needs a server endpoint (Worker); requires its own ADR before building (repo ADR-0001) |
 | LanguageList | `components/cv/LanguageList.jsx:4` | — | plain labels, no CEFR codes |
 | SkillGroup | `components/cv/SkillGroup.jsx:4` | — | no skill bars or percentages |

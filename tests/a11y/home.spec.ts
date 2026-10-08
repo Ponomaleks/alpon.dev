@@ -2,7 +2,8 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
 
 // Zero axe violations on / in Dag and Natt, with scripts on, with scripts off, and with a second
-// experience entry open (AC-32, spec §6 Accessibility).
+// experience entry open (AC-32, spec §6 Accessibility). The page is scanned as built, with the
+// Recommendations section rendered (AC-09, T30).
 
 const scan = (page: Page) =>
   new AxeBuilder({ page })
@@ -22,6 +23,7 @@ for (const theme of ['dag', 'natt'] as const) {
       test(`home has no axe violations in ${theme}`, async ({ page }) => {
         await page.goto('/');
         await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
+        await expect(page.locator('main .recs figure')).toHaveCount(2);
         expect((await scan(page)).violations).toEqual([]);
       });
 

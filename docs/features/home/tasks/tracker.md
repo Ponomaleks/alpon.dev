@@ -43,6 +43,6 @@ Estimates: S about a quarter of a day, M about half a day, L up to one day.
 | T27 | [Build the Recommendations section and show it only with agreed quotes](./t27-recommendations.md) | ui | Alexander Ponomarenko | M | T26 | done |
 | T28 | [Define the projects collection and build the Dormant Selected projects section with ProjectCard](./t28-selected-projects-dormant.md) | ui | Alexander Ponomarenko | M | T26 | done |
 | T29 | [Show Testimonial and the Dormant Selected projects on the Styleguide with marked sample data](./t29-styleguide-testimonial-projects.md) | ui | Alexander Ponomarenko | S | T27, T28 | done |
-| T30 | [Add the baselines and axe cases of phase 4b and complete the Claims list and the inventory](./t30-close-4b.md) | tests | Alexander Ponomarenko | S | T29 | todo |
+| T30 | [Add the baselines and axe cases of phase 4b and complete the Claims list and the inventory](./t30-close-4b.md) | tests | Alexander Ponomarenko | S | T29 | review |
 
 **Total:** 30 tasks, ~14.25 person-days (phase 4a: 26 tasks, ~12.75; phase 4b: 4 tasks, ~1.5).

@@ -13,6 +13,7 @@ const SECTIONS = [
   { name: 'key-facts', selector: 'main .key-facts' },
   { name: 'about', selector: 'main .about' },
   { name: 'experience', selector: 'main .experience' },
+  { name: 'recommendations', selector: 'main .recs' },
   { name: 'contact', selector: 'main #contact' },
   { name: 'closing-band', selector: '.fj-band' },
 ];
