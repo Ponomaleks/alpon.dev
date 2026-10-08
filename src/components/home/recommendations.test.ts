@@ -100,7 +100,7 @@ describe('Recommendations', () => {
     expect(text(found[1] ?? '')).toContain('Role of Bo, Company');
   });
 
-  it('links "On LinkedIn" to the recommendations address of contact.ts, in the same tab', async () => {
+  it('links "On LinkedIn" to the recommendations address of contact.ts, in a new tab', async () => {
     const found = cards(await render({ items: [rec('Ada'), rec('Bo')], index: '03' }));
     for (const card of found) {
       const links = [...card.matchAll(/<a\b[^>]*>[\s\S]*?<\/a>/g)].map((m) => m[0]);
@@ -109,8 +109,9 @@ describe('Recommendations', () => {
         'https://www.linkedin.com/in/ponomalex/details/recommendations/',
       );
       expect(links[0]).toContain(`href="${contact.links.recommendations}"`);
-      expect(text(links[0] ?? '')).toBe('On LinkedIn');
-      expect(links[0]).not.toMatch(/\starget=/);
+      expect(text(links[0] ?? '')).toBe('On LinkedIn (opens in a new tab)');
+      expect(links[0]).toMatch(/\starget="_blank"/);
+      expect(links[0]).toContain('rel="noopener noreferrer"');
     }
   });
 

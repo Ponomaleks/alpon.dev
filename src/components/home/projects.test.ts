@@ -157,17 +157,23 @@ describe('ProjectCard (AC-12)', () => {
     expect(text(await card(project('a', { status: 'archived' })))).toContain('Archived');
   });
 
-  it('links "Live" and "Code" to the addresses of the project, in the same tab', async () => {
+  it('links "Live" and "Code" to the addresses of the project', async () => {
     const found = links(await card(project('one')));
-    expect(found.map((l) => l.text)).toEqual(['Live', 'Code']);
+    expect(found.map((l) => l.text)).toEqual(['Live', 'Code (opens in a new tab)']);
     expect(found[0]?.href).toBe('https://one.example.com/');
     expect(found[1]?.href).toBe('https://example.com/code/one');
-    for (const l of found) expect(l.tag).not.toMatch(/\starget=/);
+  });
+
+  it('opens "Code" in a new tab and keeps "Live" in the tab (Owner decision 2026-10-08)', async () => {
+    const [live, code] = links(await card(project('one')));
+    expect(live?.tag).not.toMatch(/\starget=/);
+    expect(code?.tag).toMatch(/\starget="_blank"/);
+    expect(code?.tag).toContain('rel="noopener noreferrer"');
   });
 
   it('shows only the links that exist', async () => {
     const noLive = links(await card(project('one', { live: undefined })));
-    expect(noLive.map((l) => l.text)).toEqual(['Code']);
+    expect(noLive.map((l) => l.text)).toEqual(['Code (opens in a new tab)']);
     const noCode = links(await card(project('one', { code: undefined })));
     expect(noCode.map((l) => l.text)).toEqual(['Live']);
     // Archived, so that "Live" cannot come from the status label.

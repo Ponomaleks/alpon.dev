@@ -79,7 +79,7 @@ alpon.dev is the Owner's public professional home during a job search in Norway.
 | GitHub (repo + Actions CI) | System (external) | Runs lint, contact, placeholder, budget and contrast checks, Playwright e2e / axe / visual and Lighthouse CI on every PR |
 | Cloudflare Workers Builds | System (external) | Builds `dist/` per branch and deploys it |
 | Cloudflare Workers static assets (edge) | System (external) | Serves `dist/` with `_headers` and `_redirects`; `/cv` answers with the English PDF until step 5 (IS-01) |
-| LinkedIn, GitHub profile pages | System (external) | Link targets from the Contact block and the Recommendations, opened in the same tab; nothing is loaded from them |
+| LinkedIn, GitHub profile pages | System (external) | Link targets from the Contact block and the Recommendations; the Contact block opens them in the same tab, a Recommendation in a new tab (spec D-09); nothing is loaded from them |
 | Visitor's mail and phone apps, phone camera | System (external) | Opened by the email and phone links; the camera reads the QR tile and offers the contact |
 
 External: none new that the site loads from. No third-party script, style, font or image origin.
@@ -475,7 +475,7 @@ sequenceDiagram
     alt at least one Recommendation is in the page
         UI-->>U: the section From people I've worked with, each quote word for word with the name, the role and On LinkedIn, and Contact carries the next number
         opt On LinkedIn
-            U->>X: follows the link, the LinkedIn profile opens in the same tab
+            U->>X: follows the link, the recommendations on the LinkedIn profile open in a new tab
         end
     else no Recommendation is in the page
         UI-->>U: no such section, Contact is section 03 and the numbers have no gap

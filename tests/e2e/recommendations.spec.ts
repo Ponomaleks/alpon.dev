@@ -53,7 +53,7 @@ test.describe('recommendations (AC-09)', () => {
     }
   });
 
-  test('each card links "On LinkedIn" to the recommendations on Alexander’s profile, same tab', async ({
+  test('each card links "On LinkedIn" to the recommendations on Alexander’s profile, in a new tab', async ({
     page,
   }) => {
     const links = page
@@ -63,7 +63,9 @@ test.describe('recommendations (AC-09)', () => {
     await expect(links).toHaveCount(2);
     for (const link of await links.all()) {
       await expect(link).toHaveAttribute('href', contact.links.recommendations);
-      await expect(link).not.toHaveAttribute('target', /.*/);
+      await expect(link).toHaveAttribute('target', '_blank');
+      await expect(link).toHaveAttribute('rel', /noopener/);
+      await expect(link).toHaveAccessibleName('On LinkedIn (opens in a new tab)');
     }
   });
 

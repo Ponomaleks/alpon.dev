@@ -26,7 +26,7 @@ Base: `v2`. Production (`main`) is not touched.
 - No library. The row scrolls with CSS scroll snap, so swipe works without a script; `src/scripts/home/carousel.ts` makes it go round with inert copies of the cards at both ends and adds the arrows. The page's own scripts grow from 1.9 to 3.3 KB gzip (budget 10 KB).
 - Automatic turning exists and is off (`recommendationsAutoplay` in `src/data/home.ts`). When on, it stops on hover, on focus, while a quote is open and while the page is hidden, follows the hero's Motion control and never runs with reduced motion.
 - "On LinkedIn" leads to the recommendations on the profile (`contact.links.recommendations`) and is shown only on a Recommendation with `source: 'linkedin'`; one given directly (`source: 'direct'`) has no link.
-- `spec.md`: AC-09 amended, AC-42 and AC-43 added, differences D-19 to D-21.
+- `spec.md`: AC-09 and AC-12 amended, AC-42 and AC-43 added, differences D-19 to D-21, D-09 changed.
 
 **Selected projects, Dormant (T28, AC-11, AC-12)**
 
@@ -49,17 +49,17 @@ Base: `v2`. Production (`main`) is not touched.
 
 **Local gate** (Windows, main checkout, 2026-10-08):
 
-- Unit (Vitest): 909 passed in 48 files.
+- Unit (Vitest): 942 passed in 50 files.
 - Lint (tokens check, contrast, contact, `astro check`, ESLint, Prettier, Stylelint): clean.
 - `npm run build`: passes with the empty `src/content/projects/` (the glob loader prints `No files found matching "*.md"`, a warning).
 - `npm run check:budgets`, `npm run check:placeholders`, `npm run check:contact:built`: pass.
-- `npm run test` (Playwright e2e and axe): 972 passed, 129 skipped, 3 failed in `tests/e2e/shell.spec.ts` with `SyntaxError: Unexpected end of JSON input`; the spec passed on rerun (50 passed) with no change (backlog B-44). The run before it, without the visual folder, was 975 passed, 21 skipped.
-- `npm run lhci`: green. `/`: 99 / 100 / 100 / 100, LCP 2127, 1972 and 1977 ms, CLS 0, TBT 12 to 30 ms. `/404`: LCP 1674 to 1686 ms. The home page stays at the local LCP limit as before (backlog B-38).
+- Playwright e2e and axe: 1015 passed, 21 skipped (the visual folder runs in CI only). Earlier full runs of the day each had one-off failures that passed on rerun with no change; they are in the backlog with their output (B-44, B-48).
+- `npm run lhci`: green. `/`: 99 / 100 / 100 / 100, LCP 2131, 2135 and 1976 ms, CLS 0, TBT 0 ms. `/404`: LCP 1673 to 1685 ms. The home page stays at the local LCP limit as before (backlog B-38).
 
 Two things about the local gate, both in the backlog:
 
 - In the main checkout `npm run test:unit` and `npm run lint` also read the leftover `.worktrees/` of phase 4a; the gate ran with `vitest run --exclude ".worktrees/**"` and `eslint . --ignore-pattern ".worktrees/**"` (B-47). CI is not affected.
-- A unit suite timed out three times while a `wrangler dev` preview was running beside it, and passed once the preview was stopped (B-46).
+- A container unit suite timed out several times while a second Vite or Wrangler server of the checkout was running (a preview, later `astro dev`), and passed on rerun (B-46).
 
 **Visual baselines**: not written yet, see State.
 
@@ -79,6 +79,8 @@ Two things about the local gate, both in the backlog:
 - D-19: a long quote is closed to three lines with "Show more" / "Show less"; the design draws short quotes shown whole.
 - D-20: with more cards than columns the row is a carousel that goes round; the design draws a grid with every card visible. The arrows are the IconButton of the design system, in the head row.
 - D-21: "On LinkedIn" leads to the recommendations on the profile and is absent on a Recommendation given directly.
+- D-09 (changed): "On LinkedIn" on a Recommendation and "Code" on a project card open a new tab, as the design draws them, and say "(opens in a new tab)" to assistive technology. The profile links of the Contact block and the footer, and "Live" on a project card, stay in the same tab.
+- The quote is set in whole-pixel lines (28, 32 and 34 px, close to the design's 1.5): with fractional lines the "On LinkedIn" text and its arrow were drawn one sub-pixel apart between the closed and the open state.
 - "On LinkedIn", "Show more", "Live", "Code" and "All projects" have a 44 px target (Quality bar); the design draws the bare text link.
 - ProjectCard: the media is a contour panel on spruce or on the sunken ground with the project's slug. The design generates a terrain per project and fades to a screenshot on hover; screenshots and the link from the title to the case study come with the Projects pages in step 7.
 - On the Styleguide the Selected projects heading is an `h3` under the section's own `h2`, and "All projects" leads to `/projects`, which does not exist until step 7.

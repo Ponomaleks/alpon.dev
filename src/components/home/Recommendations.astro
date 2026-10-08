@@ -71,7 +71,7 @@ const scroll = [shown.length > 1 && 'sm', shown.length > 2 && 'md'].filter(Boole
             <span>{r.role}</span>
           </span>
           {r.source === 'linkedin' && (
-            <Link href={contact.links.recommendations} external>
+            <Link href={contact.links.recommendations} external newTab>
               On LinkedIn
             </Link>
           )}
@@ -118,7 +118,7 @@ const scroll = [shown.length > 1 && 'sm', shown.length > 2 && 'md'].filter(Boole
                 <span>{r.role}</span>
               </span>
               {r.source === 'linkedin' && (
-                <Link href={contact.links.recommendations} external>
+                <Link href={contact.links.recommendations} external newTab>
                   On LinkedIn
                 </Link>
               )}
@@ -193,7 +193,10 @@ const scroll = [shown.length > 1 && 'sm', shown.length > 2 && 'md'].filter(Boole
     gap: var(--fjord-space-4);
     margin: 0;
     font-size: var(--fjord-text-lead);
-    line-height: var(--fjord-leading-normal);
+    /* Whole pixels per line, close to the design's 1.5 at every width (28, 32 and 34px): the
+       height of a quote, closed or open, is then a whole number, so the name, the link and its
+       arrow under it are drawn at the same sub-pixel place in both states. */
+    line-height: var(--fjord-space-7);
     letter-spacing: var(--fjord-tracking-heading);
     text-wrap: pretty;
   }
@@ -208,7 +211,7 @@ const scroll = [shown.length > 1 && 'sm', shown.length > 2 && 'md'].filter(Boole
     -webkit-line-clamp: 3;
     line-clamp: 3;
     overflow: hidden;
-    max-block-size: calc(3em * var(--fjord-leading-normal));
+    max-block-size: calc(var(--fjord-space-7) * 3);
   }
   /* A text button in the style of a link; a 44px target. The name and the role stay at the foot
      of the card. */
@@ -277,6 +280,12 @@ const scroll = [shown.length > 1 && 'sm', shown.length > 2 && 'md'].filter(Boole
     scroll-snap-align: start;
   }
   @media (min-width: 768px) {
+    .quote blockquote {
+      line-height: var(--fjord-space-8);
+    }
+    .quote[data-collapsed] blockquote {
+      max-block-size: calc(var(--fjord-space-8) * 3);
+    }
     .recs__track {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
@@ -290,6 +299,14 @@ const scroll = [shown.length > 1 && 'sm', shown.length > 2 && 'md'].filter(Boole
     }
     .recs__track[data-scroll~='md'] > .quote {
       width: calc((100% - var(--fjord-grid-gutter)) / 2);
+    }
+  }
+  @media (min-width: 1024px) {
+    .quote blockquote {
+      line-height: calc(var(--fjord-space-8) + var(--fjord-space-0-5));
+    }
+    .quote[data-collapsed] blockquote {
+      max-block-size: calc((var(--fjord-space-8) + var(--fjord-space-0-5)) * 3);
     }
   }
   /* With the arrows in place the scrollbar is not needed. */

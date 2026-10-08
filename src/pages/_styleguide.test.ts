@@ -578,7 +578,8 @@ describe('Testimonial and Selected projects samples (T29, SCR-04)', () => {
     const linkTexts = articles().map((a) =>
       [...a.matchAll(/<a\b[^>]*>[\s\S]*?<\/a>/g)].map((m) => plain(m[0])),
     );
-    expect(linkTexts).toEqual([['Live', 'Code'], ['Live', 'Code'], ['Code']]);
+    const code = 'Code (opens in a new tab)';
+    expect(linkTexts).toEqual([['Live', code], ['Live', code], [code]]);
   });
 
   it('passes the placeholder check: every bracketed sample value is inside a marked block (AC-28)', () => {

@@ -96,7 +96,7 @@ Decided by the Owner; they go to the PR's design-difference list as they are.
 | D-05 | Hero has "See projects"; Selected projects is section 02; Contact is 05 | until step 7: no "See projects", no Selected projects; sections are numbered in the order shown: About 01, Experience 02, Recommendations 03, Contact 04 (Contact 03 without Recommendations) | no Published project and no Projects pages yet; the design itself renumbers Contact when a section is absent |
 | D-06 | Now line "[current project] · MSc Computer Science at Woolf University" | the project the Owner supplies; without one, only the MSc part | no bracketed placeholder on a page (AC-28) |
 | D-08 | The header over the hero is set by a script | reproduced exactly where scripts run (AC-33); with scripts off the header keeps its default look and a primary "Get in touch" | the state depends on scroll position; contrast holds in both |
-| D-09 | "On LinkedIn" and profile links open a new tab | the same tab | base-components D-16 |
+| D-09 | "On LinkedIn" and profile links open a new tab | the profile links of the Contact block and the footer open in the same tab; "On LinkedIn" on a Recommendation and "Code" on a project card open a new tab, as the design draws them, and say "(opens in a new tab)" to assistive technology | base-components D-16 for the profile links; Owner decision 2026-10-08 for the two others: they lead to material the Visitor looks at and comes back from |
 | D-10 | Sticky action bar: "View CV" and "Get in touch" on every page | the actions are set per page, all in the secondary style: home and Not-found "View CV" and "Save contact (.vcf)", also after step 7; CV (step 5) the language switch and "Download PDF"; project and case-study pages (step 7) "View CV" and "Next project" or "All projects" | Owner decision 2026-10-05: the header already carries "Get in touch" at 390 |
 | D-11 | The Sticky action bar cannot be put away | a small arrow tab collapses it and brings it back; it works with scripts off, and a collapsed bar stays collapsed for the page visit (AC-39). The look of the tab was decided by the Owner on 2026-10-07: the tab is part of the panel (one outline, the same surface, rounded top corners, at the end side); collapsed, about 12 px of the panel stays visible under it. Earlier wording: the look of the tab is decided at the design stage within Fjord | Owner decision 2026-10-05 |
 | D-12 | Closing band on the home page: "Get in touch" and "Download CV" | "Save contact (.vcf)" and "Download CV", both secondary; other pages keep the design's pair | the band sits right under the contact section, so it repeats no contact action (AC-34, AC-40) |
@@ -257,7 +257,7 @@ Not a difference: the hero coordinates stay 59.91° N, 10.75° E. They belong to
 
 **Given** at least one Recommendation is in the content
 **When** a Tech lead reaches the recommendations section
-**Then** each Recommendation holds the quote word for word, the person's name and role, and, when the Recommendation comes from LinkedIn, an "On LinkedIn" link to the recommendations on Alexander's profile (a Recommendation given to Alexander directly has no link); the section is headed "From people I've worked with" and the Contact section after it carries the next number. A quote longer than three lines shows its first three lines with a "Show more" text button, which opens the whole quote in place and becomes "Show less"; cards with a closed quote have the same height. With scripts off every quote is shown whole (D-19)
+**Then** each Recommendation holds the quote word for word, the person's name and role, and, when the Recommendation comes from LinkedIn, an "On LinkedIn" link to the recommendations on Alexander's profile, which opens in a new tab (a Recommendation given to Alexander directly has no link); the section is headed "From people I've worked with" and the Contact section after it carries the next number. A quote longer than three lines shows its first three lines with a "Show more" text button, which opens the whole quote in place and becomes "Show less"; cards with a closed quote have the same height. With scripts off every quote is shown whole (D-19)
 
 ### AC-10 (US-06) — domain invariant
 
@@ -275,7 +275,7 @@ Not a difference: the hero coordinates stay 59.91° N, 10.75° E. They belong to
 
 **Given** the Owner opens the Styleguide
 **When** they look at the Selected projects sample
-**Then** they see the section as the page design draws it, with up to three featured projects, the first one large: each card has a status, a year, a title, a summary, one result with its label, technology tags and links to the live project and its code where they exist. The sample data is marked as sample on the page
+**Then** they see the section as the page design draws it, with up to three featured projects, the first one large: each card has a status, a year, a title, a summary, one result with its label, technology tags and links to the live project and its code where they exist; the link to the code opens in a new tab (D-09). The sample data is marked as sample on the page
 
 ### AC-13 (US-02) — happy
 
