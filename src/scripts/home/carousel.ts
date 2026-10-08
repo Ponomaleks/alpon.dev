@@ -3,9 +3,11 @@
 // without this script. The script makes the row go round and adds the arrows:
 //   - copies of the last cards stand before the first card and copies of the first cards after the
 //     last (inert, hidden from assistive technology), so that the row can be scrolled past either
-//     end; when scrolling stops, the cards themselves are moved round in the page so that the card
-//     at the left edge is the first of the row again, and the copies are made anew around them.
-//     The cards in view at rest are therefore always the real ones, also from 768, where two show;
+//     end; when scrolling stops with a copy in view, the cards themselves are moved round in the
+//     page so that the card at the left edge is the first of the row again, and the copies are made
+//     anew around them. The cards in view at rest are therefore always the real ones, also from
+//     768, where two show. A stop on real cards moves nothing, so the order a Visitor tabs through
+//     stays as it is while they are in the row;
 //   - the arrows scroll by one card; the position is announced as "Recommendation N of M";
 //   - with data-autoplay the row turns by itself, unless something holds it (shouldTurn).
 // With no more cards than columns at the current width the script leaves the row as it is.
@@ -65,6 +67,10 @@ export const shouldTurn = (s: TurnState): boolean =>
   !s.quoteOpen &&
   !s.pageHidden;
 
+/** A copy is in view at this place: before the first card, or past the last place that shows only real cards. */
+export const restsOnCopy = (at: number, count: number, perView: number): boolean =>
+  at < 0 || at > count - perView;
+
 /** The row after it stopped `shift` cards on (or back): that card first, the round order kept. */
 export function rotate<T>(order: readonly T[], shift: number): T[] {
   const k = order.length ? wrap(shift, order.length) : 0;
@@ -106,6 +112,8 @@ export function initCarousel(root: HTMLElement): void {
   let order = [...cards];
   let hovered = false;
   let width = 0;
+  /** The place the row rests at, counted from its first card. */
+  let rest = 0;
   /** Where the row is scrolling to after an arrow or a turn; null once it has stopped. */
   let target: number | null = null;
   let targetSince = 0;
@@ -115,8 +123,9 @@ export function initCarousel(root: HTMLElement): void {
     const [first, second] = track.children as unknown as HTMLElement[];
     return first && second ? second.offsetLeft - first.offsetLeft : 0;
   };
-  /** Puts the first card of the row at the left edge, without animation. */
-  const place = () => track.scrollTo({ left: leftOf(0, step()), behavior: 'instant' });
+  const perView = () => (wide.matches ? 2 : 1);
+  /** Puts the row at its resting place, without animation. */
+  const place = () => track.scrollTo({ left: leftOf(rest, step()), behavior: 'instant' });
 
   const copy = (card: HTMLElement) => {
     const clone = card.cloneNode(true) as HTMLElement;
@@ -139,27 +148,33 @@ export function initCarousel(root: HTMLElement): void {
     track.append(...after.map((i) => copy(order[i] as HTMLElement)));
   };
 
+  /** Moves the cards round in the page (the copies are out) so that the card at `shift` stands first. */
+  const turnTo = (shift: number) => {
+    const k = wrap(shift, count);
+    if (k === 0) return;
+    const focused = order.findIndex((card) => card.contains(document.activeElement));
+    const plan = rotationPlan(count, k, focused);
+    if (plan.take === 'front') track.append(...order.slice(0, plan.cards));
+    else track.prepend(...order.slice(count - plan.cards));
+    order = rotate(order, k);
+  };
+
   /**
-   * The row stopped `shift` cards away from its first card. The cards themselves are moved round
-   * so that the card at the left edge is the first of the row again, and the copies are made anew
-   * around them: the cards in view at rest are then always the real ones, never a copy.
+   * The row stopped `shift` cards away from its first card, with a copy in view. The cards
+   * themselves are moved round so that the card at the left edge is the first of the row again,
+   * and the copies are made anew around them: the cards in view are then the real ones.
    */
   const comeRound = (shift: number) => {
-    const k = wrap(shift, count);
     removeCopies();
-    if (k > 0) {
-      const focused = order.findIndex((card) => card.contains(document.activeElement));
-      const plan = rotationPlan(count, k, focused);
-      if (plan.take === 'front') track.append(...order.slice(0, plan.cards));
-      else track.prepend(...order.slice(count - plan.cards));
-      order = rotate(order, k);
-    }
+    turnTo(shift);
     addCopies();
+    rest = 0;
     place();
   };
 
   const activate = () => {
     order = [...cards];
+    rest = 0;
     addCopies();
     root.setAttribute('data-carousel-active', '');
     root.setAttribute('role', 'group');
@@ -172,9 +187,9 @@ export function initCarousel(root: HTMLElement): void {
 
   const deactivate = () => {
     removeCopies();
-    // Back to the order of the content.
-    track.append(...cards);
-    order = [...cards];
+    // Back to the order of the content; a card that holds the focus is not moved.
+    turnTo(order.indexOf(cards[0] as HTMLElement));
+    rest = 0;
     for (const name of ['data-carousel-active', 'role', 'aria-roledescription', 'aria-label']) {
       root.removeAttribute(name);
     }
@@ -187,6 +202,8 @@ export function initCarousel(root: HTMLElement): void {
     const wanted = isActive(count, wide.matches);
     if (wanted && !active) activate();
     else if (!wanted && active) deactivate();
+    // Still on, at another width: two cards may now be in view where one was.
+    else if (active && restsOnCopy(rest, count, perView())) comeRound(rest);
     else if (active) place();
   };
 
@@ -195,7 +212,7 @@ export function initCarousel(root: HTMLElement): void {
     // A second press while the row is still moving counts from where it is going, not from the
     // place it happens to be at.
     const from = target ?? logicalIndex(track.scrollLeft, step());
-    const to = clampTarget(from + delta, count, wide.matches ? 2 : 1);
+    const to = clampTarget(from + delta, count, perView());
     target = to;
     targetSince = Date.now();
     track.scrollTo({
@@ -211,18 +228,17 @@ export function initCarousel(root: HTMLElement): void {
   const onSettle = () => {
     // A scroll started by an arrow may pause between two frames for longer than the settle
     // delay: the row has not stopped until it is where it was sent, or has had time enough.
-    if (
-      target !== null &&
-      Math.abs(track.scrollLeft - leftOf(target, step())) > 1 &&
-      Date.now() - targetSince < ARRIVE_MS
-    ) {
+    const at = logicalIndex(track.scrollLeft, step());
+    if (target !== null && at !== target && Date.now() - targetSince < ARRIVE_MS) {
       settle = setTimeout(onSettle, SETTLE_MS);
       return;
     }
     target = null;
     if (!active) return;
-    const at = logicalIndex(track.scrollLeft, step());
-    if (at !== 0) comeRound(at);
+    // Only a copy in view makes the cards move: a stop on real cards (an arrow inside the row, a
+    // swipe, a card that came into view because it took the focus) leaves the page as it is.
+    if (restsOnCopy(at, count, perView())) comeRound(at);
+    else rest = at;
   };
 
   track.addEventListener(
@@ -233,10 +249,14 @@ export function initCarousel(root: HTMLElement): void {
     },
     { passive: true },
   );
+  // The Visitor takes the row in hand: an arrow scroll still on its way is given up.
+  for (const type of ['pointerdown', 'touchstart', 'wheel'] as const) {
+    track.addEventListener(type, () => (target = null), { passive: true });
+  }
   previous?.addEventListener('click', () => go(-1, true));
   next?.addEventListener('click', () => go(1, true));
   wide.addEventListener('change', sync);
-  // The width of a card changes with the row: keep the first card at the left edge. A change of
+  // The width of a card changes with the row: keep the row at its resting place. A change of
   // height (a quote opened) moves nothing sideways.
   if ('ResizeObserver' in window) {
     new ResizeObserver(() => {

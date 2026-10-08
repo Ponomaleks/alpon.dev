@@ -6,6 +6,7 @@ import {
   isActive,
   leftOf,
   logicalIndex,
+  restsOnCopy,
   rotate,
   rotationPlan,
   shouldTurn,
@@ -109,6 +110,24 @@ describe('rotate', () => {
       expect(row).toContain(second);
       expect(second).toBe(row[wrap(row.indexOf(first as string) + 1, row.length)]);
     }
+  });
+});
+
+describe('restsOnCopy', () => {
+  it('is false wherever every card in view is a real one', () => {
+    // One card in view: every place from the first card to the last.
+    for (const at of [0, 1, 2, 3]) expect(restsOnCopy(at, 4, 1)).toBe(false);
+    // Two in view: the last place with two real cards has the last card at the right edge.
+    for (const at of [0, 1, 2]) expect(restsOnCopy(at, 4, 2)).toBe(false);
+  });
+
+  it('is true as soon as a copy is in view, at either end', () => {
+    expect(restsOnCopy(-1, 4, 1)).toBe(true);
+    expect(restsOnCopy(4, 4, 1)).toBe(true);
+    expect(restsOnCopy(-1, 4, 2)).toBe(true);
+    expect(restsOnCopy(3, 4, 2)).toBe(true);
+    expect(restsOnCopy(4, 4, 2)).toBe(true);
+    expect(restsOnCopy(2, 3, 2)).toBe(true);
   });
 });
 

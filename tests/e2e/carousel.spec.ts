@@ -18,6 +18,10 @@ async function open(page: Page, width: number, height = 900) {
   await page.locator(SECTION).scrollIntoViewIfNeeded();
 }
 
+/** The card of the nth Recommendation of the content, never one of its copies. */
+const realCard = (page: Page, n: number) =>
+  page.locator(`${SECTION} [data-quote="recommendation-${n}"]:not(${COPY})`);
+
 /** Lines of text the quote of a card takes on screen. */
 const lines = (card: Locator) =>
   card.locator('blockquote').evaluate((el) => {
@@ -69,7 +73,8 @@ for (const width of [390, 1440]) {
     });
 
     test('the whole quote stays in the page while it is closed', async ({ page }) => {
-      const first = page.locator(`${SECTION} ${CARD}`).first();
+      // By name, not by place: the cards may stand in another order once the row has gone round.
+      const first = realCard(page, 1);
       const text = await first.locator('blockquote').evaluate((el) => el.textContent ?? '');
       expect(text).toContain('I worked with Oleksandr for over two years');
       expect(text).toContain('would be a valuable addition to any team.');
@@ -78,7 +83,8 @@ for (const width of [390, 1440]) {
     test('"Show more" opens the whole quote in place and "Show less" closes it', async ({
       page,
     }) => {
-      const first = page.locator(`${SECTION} ${CARD}`).first();
+      // By name, not by place: the cards may stand in another order once the row has gone round.
+      const first = realCard(page, 1);
       const toggle = first.locator('[data-quote-toggle]');
       const quote = first.locator('blockquote');
       await expect(toggle).toHaveAttribute(
@@ -99,7 +105,7 @@ for (const width of [390, 1440]) {
     });
 
     test('the keyboard opens and closes a quote', async ({ page }) => {
-      const toggle = page.locator(`${SECTION} ${CARD} [data-quote-toggle]`).first();
+      const toggle = realCard(page, 1).locator('[data-quote-toggle]');
       await toggle.focus();
       await page.keyboard.press('Enter');
       await expect(toggle).toHaveAttribute('aria-expanded', 'true');
@@ -226,7 +232,7 @@ test.describe('the carousel at 390, with two cards in one column (AC-42)', () =>
 
   test('a card opened with "Show more" is open in its copies too', async ({ page }) => {
     const section = page.locator(SECTION);
-    await section.locator(`${CARD} [data-quote-toggle]`).first().click();
+    await realCard(page, 1).locator('[data-quote-toggle]').click();
     const same = section.locator('[data-quote="recommendation-1"]');
     await expect(same).toHaveCount(3);
     for (const card of await same.all()) await expect(card).toHaveAttribute('data-expanded', '');
@@ -369,7 +375,7 @@ for (const width of [834, 1440]) {
       await expect(first.getByRole('link', { name: /On LinkedIn/ })).toBeVisible();
     });
 
-    test('keeps focus on a control of a card while the row goes round under it', async ({
+    test('keeps focus on a control of a card that is tabbed into, and the card works', async ({
       page,
     }) => {
       const section = page.locator(SECTION);
@@ -381,7 +387,7 @@ for (const width of [834, 1440]) {
       await expect
         .poll(async () => (await inView(page)).filter((id) => !id.includes('copy')))
         .toContain('recommendation-3');
-      // Let the row settle and rebuild around the focused card.
+      // Let the row settle: it does not move its cards for a card that came into view by focus.
       await page.waitForTimeout(400);
       await expect(toggle).toBeFocused();
       await page.keyboard.press('Enter');
@@ -401,17 +407,24 @@ for (const width of [834, 1440]) {
       await expect(section.locator('[data-carousel-status]')).toHaveText('Recommendation 3 of 4');
     });
 
-    test('fast presses at the end of the row stay inside it and still land on real cards', async ({
+    test('many fast presses never leave the row on a copy, and the announcement names the card at rest', async ({
       page,
     }) => {
       const section = page.locator(SECTION);
       const next = section.getByRole('button', { name: 'Next recommendation' });
+      // How many cards the presses add up to depends on how fast they come (a press counts from
+      // where the row is going, and the row cannot go further than its copies), so the test holds
+      // what must be true wherever it stops.
       for (let press = 0; press < 6; press++) await next.click();
-      // Four cards on is the furthest the row can scroll with two in view: one whole lap.
-      await expect
-        .poll(() => inView(page), { timeout: 5000 })
-        .toEqual(['recommendation-1', 'recommendation-2']);
-      await expect(section.locator('[data-carousel-status]')).toHaveText('Recommendation 1 of 4');
+      await page.waitForTimeout(2500);
+      const shown = await inView(page);
+      expect(shown).toHaveLength(2);
+      expect(shown.some((id) => id.includes('copy'))).toBe(false);
+      const [first, second] = shown.map((id) => Number(id.split('-')[1]));
+      expect(second).toBe(((first ?? 0) % 4) + 1);
+      await expect(section.locator('[data-carousel-status]')).toHaveText(
+        `Recommendation ${first} of 4`,
+      );
     });
 
     test('scrolling the row past the last card, as a swipe does, comes round to real cards', async ({
@@ -448,6 +461,111 @@ for (const width of [834, 1440]) {
     });
   });
 }
+
+// Review round 2: the row must not move its cards round under a Visitor who is tabbing through it.
+// Tab is pressed slowly, so that the row has settled (and would have rebuilt itself) between two
+// presses.
+async function tabThrough(page: Page, presses: number) {
+  const visited: string[] = [];
+  for (let press = 0; press < presses; press++) {
+    await page.keyboard.press('Tab');
+    await page.waitForTimeout(350);
+    visited.push(
+      await page.evaluate((selector) => {
+        const el = document.activeElement;
+        if (!el || !el.closest(selector)) return 'outside';
+        return el.closest('[data-quote]')?.getAttribute('data-quote') ?? 'section';
+      }, SECTION),
+    );
+  }
+  return visited;
+}
+
+test.describe('Tab goes through the row once and leaves it (AC-42)', () => {
+  test('at 390 with two cards: each card in turn, then on to the rest of the page', async ({
+    page,
+  }) => {
+    await open(page, 390, 844);
+    await settled(page, 'recommendation-1');
+    await realCard(page, 1).locator('[data-quote-toggle]').focus();
+    // Card 1: "Show more", link. Card 2: "Show more", link. The fourth press leaves the row.
+    const visited = await tabThrough(page, 7);
+    expect(visited.slice(0, 3)).toEqual([
+      'recommendation-1',
+      'recommendation-2',
+      'recommendation-2',
+    ]);
+    expect(visited.slice(3)).toEqual(['outside', 'outside', 'outside', 'outside']);
+    // Shift+Tab comes back in from the end, to the last card.
+    for (let press = 0; press < 4; press++) await page.keyboard.press('Shift+Tab');
+    await expect(
+      page.locator(`${SECTION} [data-quote="recommendation-2"]:not(${COPY}) a`),
+    ).toBeFocused();
+  });
+
+  test('at 834 with four cards: every card is reached in order and Tab then leaves the row', async ({
+    page,
+  }) => {
+    await withCards(page, 4);
+    await open(page, 834);
+    await expect
+      .poll(() => inView(page), { timeout: 5000 })
+      .toEqual(['recommendation-1', 'recommendation-2']);
+    await realCard(page, 1).locator('[data-quote-toggle]').focus();
+    const visited = await tabThrough(page, 11);
+    expect(visited.slice(0, 7)).toEqual([
+      'recommendation-1',
+      'recommendation-2',
+      'recommendation-2',
+      'recommendation-3',
+      'recommendation-3',
+      'recommendation-4',
+      'recommendation-4',
+    ]);
+    expect(visited.slice(7)).toEqual(['outside', 'outside', 'outside', 'outside']);
+    // The focused card was always a real one, in view.
+    expect((await inView(page)).some((id) => id.includes('copy'))).toBe(false);
+  });
+
+  test('after the row has gone round by an arrow, Tab still leaves it after the last card', async ({
+    page,
+  }) => {
+    await withCards(page, 4);
+    await open(page, 834);
+    const section = page.locator(SECTION);
+    await section.getByRole('button', { name: 'Previous recommendation' }).click();
+    await expect
+      .poll(() => inView(page), { timeout: 5000 })
+      .toEqual(['recommendation-4', 'recommendation-1']);
+    await section.getByRole('button', { name: 'Next recommendation' }).focus();
+    // Eight controls in four cards, whatever card stands first; the ninth press is outside.
+    const visited = await tabThrough(page, 11);
+    expect(visited.slice(0, 8).every((id) => id.startsWith('recommendation-'))).toBe(true);
+    expect(new Set(visited.slice(0, 8)).size).toBe(4);
+    expect(visited.slice(8)).toEqual(['outside', 'outside', 'outside']);
+  });
+});
+
+test.describe('focus in a card when the carousel turns off at 768 (AC-42)', () => {
+  test('stays where it is, and the cards stand in the order of the content again', async ({
+    page,
+  }) => {
+    await open(page, 390, 844);
+    await settled(page, 'recommendation-1');
+    const section = page.locator(SECTION);
+    // Go round once backwards, so that the cards stand in another order than the content.
+    await section.getByRole('button', { name: 'Previous recommendation' }).click();
+    await settled(page, 'recommendation-2');
+    const toggle = section.locator(
+      `[data-quote="recommendation-2"]:not(${COPY}) [data-quote-toggle]`,
+    );
+    await toggle.focus();
+    await page.setViewportSize({ width: 1024, height: 900 });
+    await expect(section.locator(COPY)).toHaveCount(0);
+    await expect(toggle).toBeFocused();
+    expect(await inView(page)).toEqual(['recommendation-1', 'recommendation-2']);
+  });
+});
 
 test.describe('automatic turning, switched on for the test (AC-43)', () => {
   const INTERVAL = 7000;
@@ -490,8 +608,9 @@ test.describe('automatic turning, switched on for the test (AC-43)', () => {
   /** Opens the page with automatic turning on and lets time pass until the first turn. */
   async function start(page: Page) {
     await load(page, true);
-    for (let second = 0; second < 9; second++) {
-      await jump(page, 1000);
+    // Half-second steps: the first turn is then known to within 0.8 s (the step and the settle).
+    for (let step = 0; step < 18; step++) {
+      await jump(page, 500);
       if ((await resting(page)).join() === 'recommendation-2') return;
     }
     throw new Error('the row did not turn by itself within nine seconds');
@@ -499,10 +618,11 @@ test.describe('automatic turning, switched on for the test (AC-43)', () => {
 
   test('moves to the next card once per interval, not sooner, and goes round', async ({ page }) => {
     await start(page);
-    // The row has just turned: nothing happens for most of an interval.
-    await jump(page, INTERVAL - 3000);
+    // The row turned at most 0.8 s ago: 5.5 s and a settle later (5.8 to 6.6 s after the turn)
+    // it has not moved, and 1.5 s after that it has.
+    await jump(page, INTERVAL - 1500);
     expect(await resting(page)).toEqual(['recommendation-2']);
-    await jump(page, 3000);
+    await jump(page, 1500);
     expect(await resting(page)).toEqual(['recommendation-3']);
     await untilTurn(page, 'recommendation-4');
     await untilTurn(page, 'recommendation-1');
@@ -544,11 +664,16 @@ test.describe('automatic turning, switched on for the test (AC-43)', () => {
 
   test('follows the hero’s Motion control: paused there, it stands still', async ({ page }) => {
     await start(page);
-    const hero = page.locator('[data-hero]');
-    await hero.evaluate((el) => el.setAttribute('data-motion', 'paused'));
+    const control = page.locator('[data-motion-control]');
+    await control.click();
+    await expect(control).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('[data-hero]')).toHaveAttribute('data-motion', 'paused');
+    await away(page);
     await jump(page, INTERVAL * 2);
     expect(await resting(page)).toEqual(['recommendation-2']);
-    await hero.evaluate((el) => el.setAttribute('data-motion', 'running'));
+    await control.click();
+    await expect(page.locator('[data-hero]')).toHaveAttribute('data-motion', 'running');
+    await away(page);
     await untilTurn(page, 'recommendation-3');
   });
 

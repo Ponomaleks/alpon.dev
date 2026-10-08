@@ -20,7 +20,7 @@ AC-09 (amended), AC-42, AC-43 ([spec §5](../spec.md)); spec §1.3 D-19, D-20, D
 
 - Reuses: `ui/IconButton` (the two arrows), `ui/Link`, `ui/SectionHeader`; one new icon, `arrow-left`.
 - `quote-toggle.ts`: a quote longer than three lines is closed to three lines with "Show more" / "Show less"; closed cards have the same height; the whole quote stays in the page.
-- `carousel.ts`: no library. The row scrolls with CSS scroll snap wherever it holds more cards than columns (one below 768, two from 768), so swipe and the keyboard work without a script. The script makes the row go round: inert copies of the cards stand at both ends, and when the row stops the cards themselves are moved round in the page, so that the cards in view at rest are always real ones (review round 1). It adds the arrows and the "Recommendation N of M" announcement, and can turn the row by itself.
+- `carousel.ts`: no library. The row scrolls with CSS scroll snap wherever it holds more cards than columns (one below 768, two from 768), so swipe and the keyboard work without a script. The script makes the row go round: inert copies of the cards stand at both ends, and when the row stops with a copy in view the cards themselves are moved round in the page, so that the cards in view at rest are always real ones; a stop on real cards moves nothing, so the tab order is stable while a Visitor is in the row (review rounds 1 and 2). It adds the arrows and the "Recommendation N of M" announcement, and can turn the row by itself.
 - `src/data/home.ts`: `source` per Recommendation (`linkedin` or `direct`) and `recommendationsAutoplay` (off). `src/data/contact.ts`: the address of the recommendations on the LinkedIn profile.
 - Styleguide: a third Testimonial sample, shown closed.
 
@@ -29,7 +29,7 @@ AC-09 (amended), AC-42, AC-43 ([spec §5](../spec.md)); spec §1.3 D-19, D-20, D
 - [x] `src/scripts/home/quote-toggle.test.ts`: closes a long quote, leaves a short one, opens and closes, keeps the copies in step
 - [x] `src/scripts/home/carousel.test.ts`: going round, the copies, the position from the scroll offset, the rotation of the cards and which of them move, the furthest target, when automatic turning may move the row
 - [x] `src/components/home/recommendations.test.ts`: the link per source, the hidden button, where the row scrolls, the arrows, the autoplay flag
-- [x] `tests/e2e/carousel.spec.ts`: three lines and equal heights, "Show more" / "Show less" with pointer and keyboard, scripts off, the arrows going round both ways, a swipe past the end, copies inert, reduced motion, no carousel from 768 with two cards; with four cards at 834 and 1440: real cards at rest on every stop, the card beside the last one works, focus kept, fast presses, axe; automatic turning with a paused clock: the interval, the five holds, reduced motion
+- [x] `tests/e2e/carousel.spec.ts`: three lines and equal heights, "Show more" / "Show less" with pointer and keyboard, scripts off, the arrows going round both ways, a swipe past the end, copies inert, reduced motion, no carousel from 768 with two cards; with four cards at 834 and 1440: real cards at rest on every stop, the card beside the last one works, focus kept, fast presses, axe; Tab goes through the row once and leaves it (390 and 834); focus in a card stays when the carousel turns off at 768; automatic turning with a paused clock: the interval, the five holds, reduced motion
 - [x] Stylelint 0 findings; `npm run lint` and `npm run test:unit` green
 
 ## Notes
