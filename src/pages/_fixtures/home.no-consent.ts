@@ -10,6 +10,7 @@ export const recommendations: Recommendation[] = [
     role: 'Fixture role, Fixture company',
     quote: 'A fixture quote that nobody agreed to show.',
     consent: false,
+    source: 'linkedin',
     profile: 'https://example.com/in/fixture-person/',
     date: 'January 1, 2026',
     relationship: 'Fixture relationship',

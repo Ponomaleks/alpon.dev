@@ -13,6 +13,7 @@ export const sampleRecommendations: Recommendation[] = [
     quote:
       '[Recommendation from LinkedIn. Two or three sentences about working with Alexander, kept verbatim.]',
     consent: true,
+    source: 'linkedin',
     profile: '[profile address]',
     date: '[date]',
     relationship: '[relationship]',
@@ -22,11 +23,25 @@ export const sampleRecommendations: Recommendation[] = [
     role: '[Role, company]',
     quote: '[Second recommendation. What he built, how he worked with the team, what changed.]',
     consent: true,
+    source: 'linkedin',
     profile: '[profile address]',
     date: '[date]',
     relationship: '[relationship]',
   },
 ];
+
+/** A quote longer than three lines: the Styleguide shows it closed, with "Show more" (home D-19). */
+export const sampleLongRecommendation: Recommendation = {
+  name: '[Name]',
+  role: '[Role, company]',
+  quote:
+    '[A longer sample recommendation, long enough to run past three lines at every width of the page. It stands for a real quote of several paragraphs: what the person worked on with Alexander, how he worked with the team and what changed because of it. On the home page such a quote is closed to its first three lines and opened in place with the text button below it.]',
+  consent: true,
+  source: 'linkedin',
+  profile: '[profile address]',
+  date: '[date]',
+  relationship: '[relationship]',
+};
 
 export const sampleProjects: Project[] = [
   {

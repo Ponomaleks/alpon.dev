@@ -522,10 +522,10 @@ describe('Testimonial and Selected projects samples (T29, SCR-04)', () => {
     },
   );
 
-  it('shows two Testimonial cards with sample quotes that name no real person', () => {
+  it('shows three Testimonial cards with sample quotes that name no real person', () => {
     const body = section('Testimonial');
     const figures = [...body.matchAll(/<figure\b[^>]*>[\s\S]*?<\/figure>/g)].map((m) => m[0]);
-    expect(figures).toHaveLength(2);
+    expect(figures).toHaveLength(3);
     for (const figure of figures) {
       expect(figure).toMatch(/<blockquote\b/);
       expect(figure).toMatch(/<strong\b[^>]*>\s*\[Name\]\s*<\/strong>/);
@@ -538,6 +538,18 @@ describe('Testimonial and Selected projects samples (T29, SCR-04)', () => {
       expect(html()).not.toContain(real.quote.slice(0, 40));
     }
     expect(body).not.toMatch(/recommendations-title/);
+  });
+
+  it('shows the last Testimonial closed, with a static "Show more" (D-19)', () => {
+    const figures = [...section('Testimonial').matchAll(/<figure\b[^>]*>[\s\S]*?<\/figure>/g)].map(
+      (m) => m[0],
+    );
+    expect(figures.filter((f) => /^<figure\b[^>]*\sdata-collapsed[\s>=]/.test(f))).toHaveLength(1);
+    expect(figures[2]).toMatch(/^<figure\b[^>]*\sdata-collapsed[\s>=]/);
+    expect(figures[2]).toMatch(
+      /<button\b[^>]*aria-expanded="false"[^>]*>\s*Show more\s*<\/button>/,
+    );
+    expect(section('Testimonial')).not.toMatch(/data-carousel|data-quote-toggle/);
   });
 
   it('shows Selected projects as the page design draws it: heading, lead and "All projects"', () => {

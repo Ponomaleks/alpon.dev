@@ -20,6 +20,7 @@ const rec = (name: string, consent: boolean): Recommendation => ({
   role: 'Role, company',
   quote: `Quote of ${name}, kept word for word. Oleksandr \u2014 Alexander.`,
   consent,
+  source: 'linkedin',
   profile: 'https://example.com/in/someone/',
   date: 'January 1, 2026',
   relationship: 'Worked with Alexander',

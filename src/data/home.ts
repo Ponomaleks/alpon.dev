@@ -34,6 +34,8 @@ export interface Recommendation {
   /** Word for word, paragraphs separated by an empty line. Never edited, shortened or corrected. */
   quote: string;
   consent: boolean;
+  /** Where it was given: on LinkedIn (the card links to the recommendations there) or to Alexander directly (no link). */
+  source: 'linkedin' | 'direct';
   /** Source fields for the Claims list (AC-29). Never rendered. */
   profile: string;
   date: string;
@@ -151,6 +153,7 @@ export const recommendations: Recommendation[] = [
       'To sum up, Oleksandr is a dedicated and capable professional who would be a valuable addition to any team.',
     ].join('\n\n'),
     consent: true,
+    source: 'linkedin',
     profile: 'https://www.linkedin.com/in/hennadii-shpak-4435a81a5/',
     date: 'April 26, 2026',
     relationship: 'Hennadii managed Alexander directly',
@@ -167,11 +170,15 @@ export const recommendations: Recommendation[] = [
       'I highly recommend Alexander to any team looking for a dependable and motivated engineer who brings both results and a positive team dynamic.',
     ].join('\n\n'),
     consent: true,
+    source: 'linkedin',
     profile: 'https://www.linkedin.com/in/alinka-scherbak-289516124/en/',
     date: 'April 13, 2026',
     relationship: 'Alina managed Alexander directly',
   },
 ];
+
+/** The Recommendations carousel turns by itself (AC-43). Off: it moves only when the Visitor moves it. */
+export const recommendationsAutoplay: boolean = false;
 
 export const nowProject: string | undefined = 'alpon.dev';
 

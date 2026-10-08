@@ -1,9 +1,11 @@
 // The home page's one script entry (AC-32): wires every home module.
+import { initCarousel } from './carousel';
 import { initCopyEmail } from './copy-email';
 import { initCountUp } from './count-up';
 import { initHeroHeader } from './hero-header';
 import { initMotion } from './motion';
 import { initParallax } from './parallax';
+import { initQuoteToggle } from './quote-toggle';
 import { initReveal } from './reveal';
 
 const matches = (query: string) => matchMedia(query);
@@ -43,6 +45,11 @@ const copied = getComputedStyle(document.documentElement).getPropertyValue(
 );
 const copiedMs = parseFloat(copied) * (copied.trim().endsWith('ms') ? 1 : 1000);
 initCopyEmail({ document, navigator, duration: copiedMs });
+
+// Quotes first: the carousel copies the cards in the state the toggle leaves them in.
+initQuoteToggle(document);
+const carousel = document.querySelector<HTMLElement>('[data-carousel]');
+if (carousel) initCarousel(carousel);
 
 const fragment = decodeURIComponent(location.hash.slice(1));
 initReveal(document.querySelectorAll('[data-reveal-section]'), {

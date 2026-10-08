@@ -2,8 +2,9 @@ import { expect, test } from '@playwright/test';
 import { contact } from '../../src/data/contact';
 import { recommendations } from '../../src/data/home';
 
-// Recommendations on the home page (home T27): AC-09 each quote word for word with the person's
-// name and role and an "On LinkedIn" link to Alexander's profile, Contact carries the next number;
+// Recommendations on the home page (home T27, T31): AC-09 each quote word for word with the person's
+// name and role and an "On LinkedIn" link to the recommendations on Alexander's profile, Contact
+// carries the next number;
 // the source fields of a Recommendation are not on the page. Reduced motion: nothing moves.
 test.use({ reducedMotion: 'reduce' });
 
@@ -35,7 +36,10 @@ test.describe('recommendations (AC-09)', () => {
   test('both Recommendations show the quote word for word, the name and the role', async ({
     page,
   }) => {
-    const cards = page.getByRole('main').getByRole('region', { name: HEADING }).locator('figure');
+    const cards = page
+      .getByRole('main')
+      .getByRole('region', { name: HEADING })
+      .locator('figure:not([data-carousel-clone])');
     await expect(cards).toHaveCount(2);
     expect(recommendations).toHaveLength(2);
     for (const [i, r] of recommendations.entries()) {
@@ -49,14 +53,16 @@ test.describe('recommendations (AC-09)', () => {
     }
   });
 
-  test('each card links "On LinkedIn" to Alexander’s profile in the same tab', async ({ page }) => {
+  test('each card links "On LinkedIn" to the recommendations on Alexander’s profile, same tab', async ({
+    page,
+  }) => {
     const links = page
       .getByRole('main')
       .getByRole('region', { name: HEADING })
       .getByRole('link', { name: 'On LinkedIn' });
     await expect(links).toHaveCount(2);
     for (const link of await links.all()) {
-      await expect(link).toHaveAttribute('href', contact.linkedin);
+      await expect(link).toHaveAttribute('href', contact.links.recommendations);
       await expect(link).not.toHaveAttribute('target', /.*/);
     }
   });
@@ -74,21 +80,24 @@ test.describe('recommendations (AC-09)', () => {
   });
 
   for (const width of [390, 834, 1440]) {
-    test(`the cards stand in ${width < 768 ? 'one column' : 'two columns'} at ${width}`, async ({
+    test(`the row shows ${width < 768 ? 'one card' : 'two cards'} at a time at ${width}`, async ({
       page,
     }) => {
       await page.setViewportSize({ width, height: 900 });
-      const cards = page.getByRole('main').getByRole('region', { name: HEADING }).locator('figure');
+      const cards = page
+        .getByRole('main')
+        .getByRole('region', { name: HEADING })
+        .locator('figure:not([data-carousel-clone])');
       const first = await cards.nth(0).boundingBox();
       const second = await cards.nth(1).boundingBox();
       if (!first || !second) throw new Error('a card has no box');
-      if (width < 768) {
-        expect(second.y).toBeGreaterThanOrEqual(first.y + first.height);
-        expect(Math.abs(second.x - first.x)).toBeLessThan(1);
-      } else {
-        expect(Math.abs(second.y - first.y)).toBeLessThan(1);
-        expect(second.x).toBeGreaterThanOrEqual(first.x + first.width);
-      }
+      // One row in both layouts: below 768 the second card is the next one in the carousel.
+      expect(Math.abs(second.y - first.y)).toBeLessThan(1);
+      expect(second.x).toBeGreaterThanOrEqual(first.x + first.width);
+      const row = await cards.nth(0).locator('xpath=..').boundingBox();
+      if (!row) throw new Error('the row has no box');
+      if (width < 768) expect(Math.abs(first.width - row.width)).toBeLessThan(1);
+      else expect(first.width).toBeLessThan(row.width / 2);
       const overflow = await page.evaluate(
         () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
       );

@@ -3,11 +3,13 @@ import { experimental_AstroContainer as AstroContainer } from 'astro/container';
 import { createServer, type ViteDevServer } from 'vite';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { contact } from '../../data/contact';
-import { recommendations, type Recommendation } from '../../data/home';
+import { recommendations, recommendationsAutoplay, type Recommendation } from '../../data/home';
 
-// AC-09, AC-10 (T27; screens.md SCR-01 recommendations, present and absent). Each card shows the
-// quote word for word, the name and the role, and an "On LinkedIn" link to Alexander's profile.
-// The source fields of a Recommendation (profile address, date, relationship) are never rendered.
+// AC-09, AC-10, AC-42, AC-43 (T27, T31; screens.md SCR-01 recommendations, present and absent).
+// Each card holds the quote word for word, the name and the role and, for a Recommendation from
+// LinkedIn, an "On LinkedIn" link to the recommendations on Alexander's profile. The source fields
+// (profile address, date, relationship) are never rendered. The markup carries the hooks of
+// "Show more" and of the carousel; what the scripts do with them is in tests/e2e/carousel.spec.ts.
 
 let server: ViteDevServer;
 let container: AstroContainer;
@@ -36,11 +38,16 @@ const text = (s: string) =>
       .trim(),
   );
 
-const rec = (name: string, consent = true): Recommendation => ({
+const rec = (
+  name: string,
+  consent = true,
+  source: Recommendation['source'] = 'linkedin',
+): Recommendation => ({
   name,
   role: `Role of ${name}, Company`,
   quote: `First paragraph of ${name} — with a dash, "quotes" & an it's.\n\nSecond paragraph: Oleksandr and Alexander stay as written.`,
   consent,
+  source,
   profile: `https://example.com/in/${name.toLowerCase()}-source/`,
   date: 'January 31, 2026',
   relationship: `${name} worked next to Alexander`,
@@ -93,15 +100,79 @@ describe('Recommendations', () => {
     expect(text(found[1] ?? '')).toContain('Role of Bo, Company');
   });
 
-  it('links "On LinkedIn" to the profile of contact.ts, in the same tab', async () => {
+  it('links "On LinkedIn" to the recommendations address of contact.ts, in the same tab', async () => {
     const found = cards(await render({ items: [rec('Ada'), rec('Bo')], index: '03' }));
     for (const card of found) {
       const links = [...card.matchAll(/<a\b[^>]*>[\s\S]*?<\/a>/g)].map((m) => m[0]);
       expect(links).toHaveLength(1);
-      expect(links[0]).toContain(`href="${contact.linkedin}"`);
+      expect(contact.links.recommendations).toBe(
+        'https://www.linkedin.com/in/ponomalex/details/recommendations/',
+      );
+      expect(links[0]).toContain(`href="${contact.links.recommendations}"`);
       expect(text(links[0] ?? '')).toBe('On LinkedIn');
       expect(links[0]).not.toMatch(/\starget=/);
     }
+  });
+
+  it('shows no link on a Recommendation that was given directly', async () => {
+    const found = cards(
+      await render({ items: [rec('Ada'), rec('Bo', true, 'direct')], index: '03' }),
+    );
+    expect(found[0]).toMatch(/<a\b/);
+    expect(found[1]).not.toMatch(/<a\b/);
+    expect(text(found[1] ?? '')).not.toContain('LinkedIn');
+    expect(text(found[1] ?? '')).toContain('Role of Bo, Company');
+  });
+
+  it('gives each quote a hidden "Show more" button that controls it (AC-09)', async () => {
+    const found = cards(await render({ items: [rec('Ada'), rec('Bo')], index: '03' }));
+    const ids = found.map((card) => card.match(/<blockquote\b[^>]*\sid="([^"]+)"/)?.[1]);
+    expect(new Set(ids).size).toBe(2);
+    found.forEach((card, i) => {
+      const button = card.match(/<button\b[^>]*>[\s\S]*?<\/button>/)?.[0] ?? '';
+      expect(card.match(/<button\b/g)).toHaveLength(1);
+      expect(button).toMatch(/\stype="button"/);
+      expect(button).toMatch(/\sdata-quote-toggle[\s>=]/);
+      expect(button).toMatch(/\shidden[\s>=]/);
+      expect(button).toContain('aria-expanded="false"');
+      expect(button).toContain(`aria-controls="${ids[i]}"`);
+      expect(text(button)).toBe('Show more');
+      expect(card).toContain(`data-quote="${ids[i]}"`);
+      // Whole by default: closing a quote is the script's work.
+      expect(card).not.toMatch(/data-collapsed/);
+    });
+  });
+
+  it('lets the row scroll only where it holds more cards than columns (AC-42)', async () => {
+    const scrollOf = async (names: string[]) =>
+      (await render({ items: names.map((n) => rec(n)), index: '03' })).match(
+        /data-carousel-track[^>]*?\sdata-scroll="([^"]*)"/,
+      )?.[1];
+    expect(await scrollOf(['Ada'])).toBeUndefined();
+    expect(await scrollOf(['Ada', 'Bo'])).toBe('sm');
+    expect(await scrollOf(['Ada', 'Bo', 'Cy'])).toBe('sm md');
+    expect(await scrollOf(['Ada', 'Bo', 'Cy', 'Di'])).toBe('sm md');
+  });
+
+  it('holds the two arrows, named and hidden until the carousel is on, and a status line', async () => {
+    const html = await render({ items: [rec('Ada'), rec('Bo'), rec('Cy')], index: '03' });
+    const nav = html.match(/<div\b[^>]*data-carousel-nav[^>]*>[\s\S]*?<\/div>/)?.[0] ?? '';
+    expect(nav).toMatch(/^<div\b[^>]*\shidden[\s>=]/);
+    const labels = [...nav.matchAll(/<button\b[^>]*aria-label="([^"]+)"/g)].map((m) => m[1]);
+    expect(labels).toEqual(['Previous recommendation', 'Next recommendation']);
+    expect(nav.match(/<svg\b/g)).toHaveLength(2);
+    expect(html).toMatch(/<p\b[^>]*data-carousel-status[^>]*role="status"[^>]*>\s*<\/p>/);
+    expect(html).toMatch(/<div\b[^>]*\sdata-carousel[\s>=]/);
+  });
+
+  it('turns by itself only when asked to; the home data leaves it off (AC-43)', async () => {
+    const items = [rec('Ada'), rec('Bo')];
+    expect(recommendationsAutoplay).toBe(false);
+    expect(await render({ items, index: '03' })).not.toMatch(/data-autoplay/);
+    expect(await render({ items, index: '03', autoplay: false })).not.toMatch(/data-autoplay/);
+    expect(await render({ items, index: '03', autoplay: true })).toMatch(
+      /<div\b[^>]*data-carousel[^>]*\sdata-autoplay[\s>=]/,
+    );
   });
 
   it('never renders the profile address, the date or the relationship of a Recommendation', async () => {
@@ -128,6 +199,20 @@ describe('Recommendations', () => {
     const html = await render({ items: [rec('Ada'), rec('Bo')], sample: true });
     expect(cards(html)).toHaveLength(2);
     expect(html).not.toMatch(/<h2\b|<section\b/);
+    // Static: no carousel and no script hooks.
+    expect(html).not.toMatch(/data-carousel|data-scroll|data-quote|<button\b/);
+  });
+
+  it('shows a closed quote as a static Styleguide sample when asked to', async () => {
+    const html = await render({
+      items: [rec('Ada'), { ...rec('Bo'), demo: 'collapsed' }],
+      sample: true,
+    });
+    const found = cards(html);
+    expect(found[0]).not.toMatch(/data-collapsed|<button\b/);
+    expect(found[1]).toMatch(/<figure\b[^>]*\sdata-collapsed[\s>=]/);
+    expect(text(found[1]?.match(/<button\b[^>]*>[\s\S]*?<\/button>/)?.[0] ?? '')).toBe('Show more');
+    expect(quoteOf(found[1] ?? '')).toBe(`“${rec('Bo').quote}”`);
   });
 
   it('shows the repo data by default: both people, name and role only', async () => {

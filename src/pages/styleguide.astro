@@ -31,10 +31,11 @@ import ExperienceList from '../components/home/ExperienceList.astro';
 import Recommendations from '../components/home/Recommendations.astro';
 import SelectedProjects from '../components/home/SelectedProjects.astro';
 import type { ExperienceEntry } from '../data/home';
-import { sampleProjects, sampleRecommendations } from '../data/samples';
+import { sampleLongRecommendation, sampleProjects, sampleRecommendations } from '../data/samples';
 
 const iconNames: IconName[] = [
   'arrow-right',
+  'arrow-left',
   'arrow-up-right',
   'menu',
   'x',
@@ -478,7 +479,10 @@ const stateLabel = { hover: 'Hover', focus: 'Focus', active: 'Pressed' } as cons
       <h2>Testimonial</h2>
       <div data-sample>
         <p class="sg__sample-label">Sample data</p>
-        <Recommendations sample items={sampleRecommendations} />
+        <Recommendations
+          sample
+          items={[...sampleRecommendations, { ...sampleLongRecommendation, demo: 'collapsed' }]}
+        />
       </div>
     </section>
 

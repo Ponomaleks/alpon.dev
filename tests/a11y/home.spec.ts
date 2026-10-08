@@ -23,7 +23,7 @@ for (const theme of ['dag', 'natt'] as const) {
       test(`home has no axe violations in ${theme}`, async ({ page }) => {
         await page.goto('/');
         await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
-        await expect(page.locator('main .recs figure')).toHaveCount(2);
+        await expect(page.locator('main .recs figure:not([data-carousel-clone])')).toHaveCount(2);
         expect((await scan(page)).violations).toEqual([]);
       });
 

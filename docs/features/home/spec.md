@@ -106,6 +106,9 @@ Decided by the Owner; they go to the PR's design-difference list as they are.
 | D-16 | About quick fact "Languages" as one line | one language per line at every width | Owner decision 2026-10-07: one line reads badly |
 | D-17 | Experience entry: two columns whenever the list is at least 560 px wide (a container query) | two columns from 768 to 1023 only, one column below 768 and from 1024 | container queries are not allowed by the lint rules (base-components ADR-0004) and the repo breakpoints are 360 / 768 / 1024 / 1440; the design's two columns between 592 and 767 are not reproduced |
 | D-18 | "Copy" shows "Kopiert" with a check icon inside the button, also when the copy fails, and renames the button to "Kopiert"; the Toast says "Kopiert" | the button shows "Copied" (English, success colour, no check icon) for the copied duration after a copy that worked and then returns to "Copy"; a refused copy shows no such state; the accessible name stays "Copy" and the Toast is the one announcement: "Copied" with the address and its check icon, in English (AC-14, AC-15); the control keeps the design's width in both states | Owner decisions 2026-10-07: button labels are interface text, not a place for the Norwegian details, and the button and the Toast must not show two languages at once; without the icon the control does not grow; a failed copy must never read as done. "Kopiert" leaves the Norwegian list in `CLAUDE.md`; BRAND.md and the design still show it |
+| D-19 | A Testimonial shows the whole quote, drawn two or three sentences long | a quote longer than three lines is closed to three lines with "Show more" / "Show less"; closed cards have the same height; the whole quote stays in the page and is shown whole with scripts off (AC-09) | Owner decision 2026-10-08: the real quotes are five and six paragraphs long and are never shortened, so the cards were too tall |
+| D-20 | Testimonials in a two-column grid, every card visible | the same cards and columns; when there are more cards than columns the row becomes a carousel that goes round, with previous and next arrows and swipe; automatic turning exists and is off (AC-42, AC-43) | Owner decision 2026-10-08: more Recommendations may be added, and the section must not grow with each one |
+| D-21 | "On LinkedIn" on every Testimonial leads to the LinkedIn profile | it leads to the recommendations on the profile and is shown only on a Recommendation that comes from LinkedIn (AC-09) | Owner decision 2026-10-08: the link should land on the originals, and later Recommendations may be given directly, with nothing on LinkedIn to point at |
 
 Not a difference: the hero coordinates stay 59.91° N, 10.75° E. They belong to the Work region "Oslo, Norge" beside them; the footer keeps the Residence coordinates.
 
@@ -254,7 +257,7 @@ Not a difference: the hero coordinates stay 59.91° N, 10.75° E. They belong to
 
 **Given** at least one Recommendation is in the content
 **When** a Tech lead reaches the recommendations section
-**Then** each Recommendation shows the quote word for word, the person's name and role, and an "On LinkedIn" link to Alexander's profile; the section is headed "From people I've worked with" and the Contact section after it carries the next number
+**Then** each Recommendation holds the quote word for word, the person's name and role, and, when the Recommendation comes from LinkedIn, an "On LinkedIn" link to the recommendations on Alexander's profile (a Recommendation given to Alexander directly has no link); the section is headed "From people I've worked with" and the Contact section after it carries the next number. A quote longer than three lines shows its first three lines with a "Show more" text button, which opens the whole quote in place and becomes "Show less"; cards with a closed quote have the same height. With scripts off every quote is shown whole (D-19)
 
 ### AC-10 (US-06) — domain invariant
 
@@ -397,6 +400,18 @@ In every one of these states the header's text and actions are readable at the c
 **Given** a Recruiter at the end of the home page
 **When** they read the closing band, which sits right under the contact section
 **Then** it offers "Save contact (.vcf)" and "Download CV", both in the secondary style, and no "Get in touch", because the contact section is already above it; on other pages the band keeps "Get in touch" and "Download CV". Each page sets the band's actions through a page option
+
+### AC-42 (US-06) — happy
+
+**Given** more Recommendations in the content than the section shows side by side (one below 768, two from 768)
+**When** a Visitor uses the previous and next arrows, swipes on a touch screen, or scrolls the row with the keyboard
+**Then** the cards move one at a time in a row that goes round: after the last card comes the first, and before the first the last. The arrows are named buttons and the position is announced as "Recommendation N of M". With no more Recommendations than fit side by side there are no arrows and the cards stand as the page design draws them. With scripts off the row can still be scrolled and every card is reachable (D-20)
+
+### AC-43 (US-06, US-10) — happy
+
+**Given** automatic turning of the Recommendations is switched on in the content (it is off by default)
+**When** the row goes round and the Visitor does not ask for reduced motion
+**Then** the row moves to the next card at a steady interval; it stops while the pointer is over the row, while focus is inside it, while a quote is open and while the page is hidden, and it follows the hero's Motion control. With reduced motion, or with automatic turning off, the row moves only when the Visitor moves it
 
 ### AC-41 (US-09) — happy
 

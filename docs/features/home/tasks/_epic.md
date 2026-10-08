@@ -195,7 +195,7 @@ See [tracker.md](./tracker.md) for status. Machine contract: [tasks.json](../tas
 | AC-06 | T11, T24 |
 | AC-07 | T2, T12, T16, T20 |
 | AC-08 | T13, T16, T20 |
-| AC-09 | T27, T30 |
+| AC-09 | T27, T30, T31 |
 | AC-10 | T2, T27 |
 | AC-11 | T2, T15, T20, T28 |
 | AC-12 | T28, T29, T30 |
@@ -220,6 +220,8 @@ See [tracker.md](./tracker.md) for status. Machine contract: [tasks.json](../tas
 | AC-39 | T6, T17 |
 | AC-40 | T8, T15, T17, T22 |
 | AC-41 | T8, T24 |
+| AC-42 | T31 |
+| AC-43 | T31 |
 
 NFR rows of [spec §6](../spec.md) without an AC of their own: Lighthouse, LCP / CLS / TBT, initial JS, portrait weight and contrast are T19; first phone screen and touch targets T20; Ambient motion T24; primary buttons and header states T22; the collapsed bar T6; visual regression and axe T25 and T30; placeholders T18; token-only styles every `ui` task; Design match is the manual review in the PR, prepared by T25 and T26.
 

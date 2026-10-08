@@ -1,64 +1,132 @@
 ---
-// Recommendations (AC-09, AC-10): a Testimonial card per Recommendation that has its author's
-// consent. A card prints the quote word for word, paragraph by paragraph, then the name, the role
-// and a link to Alexander's LinkedIn profile, where the originals are. The source fields of a
-// Recommendation (profile address, date, relationship) are never rendered.
+// Recommendations (AC-09, AC-10, AC-42, AC-43): a Testimonial card per Recommendation that has
+// its author's consent. A card holds the quote word for word, paragraph by paragraph, then the
+// name, the role and, for a Recommendation from LinkedIn, a link to the recommendations on
+// Alexander's profile. The source fields (profile address, date, relationship) are never rendered.
 // Layout follows the design's .fj-quote in .x-grid2: one column, two from 768.
+//
+// Without a script every quote is whole and, with more cards than columns, the row scrolls
+// sideways with scroll snap. The home scripts add the rest: quote-toggle.ts closes a long quote to
+// three lines behind "Show more" (D-19), carousel.ts turns the scrolling row into a carousel that
+// goes round, with the two arrows and the optional automatic turning (D-20).
+import IconButton from '../ui/IconButton.astro';
 import Link from '../ui/Link.astro';
 import SectionHeader from '../ui/SectionHeader.astro';
 import { contact } from '../../data/contact';
-import { recommendations, visibleRecommendations, type Recommendation } from '../../data/home';
+import {
+  recommendations,
+  recommendationsAutoplay,
+  visibleRecommendations,
+  type Recommendation,
+} from '../../data/home';
+
+type Item = Recommendation & { demo?: 'collapsed' };
 
 interface Props {
   /** The Recommendations; the home data by default. One without consent is left out. */
-  items?: Recommendation[];
-  /** Styleguide: the cards alone, without the section and its heading. */
+  items?: Item[];
+  /** Styleguide: the cards alone in a static grid, without the section, its heading or the carousel. */
   sample?: boolean;
   /** Section number in the eyebrow, e.g. "03". */
   index?: string;
+  /** The carousel turns by itself (AC-43); the home data by default, which is off. */
+  autoplay?: boolean;
 }
 
-const { items = recommendations, sample = false, index = '03' } = Astro.props;
-const shown = visibleRecommendations(items).map((r) => ({
+const {
+  items = recommendations as Item[],
+  sample = false,
+  index = '03',
+  autoplay = recommendationsAutoplay,
+} = Astro.props;
+const shown = (visibleRecommendations(items) as Item[]).map((r, i) => ({
   ...r,
+  textId: `recommendation-${i + 1}`,
   // The quotation marks open the first paragraph and close the last one.
   paragraphs: r.quote
     .split('\n\n')
-    .map((p, i, all) => (i === 0 ? '“' : '') + p + (i === all.length - 1 ? '”' : '')),
+    .map((p, n, all) => (n === 0 ? '“' : '') + p + (n === all.length - 1 ? '”' : '')),
 }));
+// Where the row holds more cards than columns: below 768 (one column) and from 768 (two).
+const scroll = [shown.length > 1 && 'sm', shown.length > 2 && 'md'].filter(Boolean).join(' ');
 ---
 
 {sample ? (
-  <div class="recs__grid">
+  <div class="recs__track">
     {shown.map((r) => (
-      <figure class="quote">
+      <figure class="quote" data-collapsed={r.demo === 'collapsed' ? '' : undefined}>
         <blockquote>
           {r.paragraphs.map((p) => (
             <p>{p}</p>
           ))}
         </blockquote>
+        {r.demo === 'collapsed' && (
+          <button type="button" class="quote__toggle" aria-expanded="false">
+            Show more
+          </button>
+        )}
         <figcaption>
           <span class="quote__who">
             <strong>{r.name}</strong>
             <span>{r.role}</span>
           </span>
-          <Link href={contact.linkedin} external>
-            On LinkedIn
-          </Link>
+          {r.source === 'linkedin' && (
+            <Link href={contact.links.recommendations} external>
+              On LinkedIn
+            </Link>
+          )}
         </figcaption>
       </figure>
     ))}
   </div>
 ) : (
   <section class="recs" aria-labelledby="recommendations-title">
-    <div class="recs__wrap">
-      <SectionHeader
-        id="recommendations-title"
-        index={index}
-        eyebrow="Recommendations"
-        title="From people I’ve worked with"
-      />
-      <Astro.self items={items} sample />
+    <div class="recs__wrap" data-carousel data-autoplay={autoplay ? '' : undefined}>
+      <div class="recs__head">
+        <SectionHeader
+          id="recommendations-title"
+          index={index}
+          eyebrow="Recommendations"
+          title="From people I’ve worked with"
+        />
+        <div class="recs__nav" data-carousel-nav hidden>
+          <IconButton icon="arrow-left" label="Previous recommendation" />
+          <IconButton icon="arrow-right" label="Next recommendation" />
+        </div>
+      </div>
+      <div class="recs__track" data-carousel-track data-scroll={scroll || undefined}>
+        {shown.map((r) => (
+          <figure class="quote" data-quote={r.textId}>
+            <blockquote id={r.textId}>
+              {r.paragraphs.map((p) => (
+                <p>{p}</p>
+              ))}
+            </blockquote>
+            <button
+              type="button"
+              class="quote__toggle"
+              data-quote-toggle
+              aria-expanded="false"
+              aria-controls={r.textId}
+              hidden
+            >
+              Show more
+            </button>
+            <figcaption>
+              <span class="quote__who">
+                <strong>{r.name}</strong>
+                <span>{r.role}</span>
+              </span>
+              {r.source === 'linkedin' && (
+                <Link href={contact.links.recommendations} external>
+                  On LinkedIn
+                </Link>
+              )}
+            </figcaption>
+          </figure>
+        ))}
+      </div>
+      <p class="recs__status" data-carousel-status role="status"></p>
     </div>
   </section>
 )}
@@ -68,6 +136,7 @@ const shown = visibleRecommendations(items).map((r) => ({
     padding-top: var(--fjord-space-section);
   }
   .recs__wrap {
+    position: relative;
     display: flex;
     flex-direction: column;
     gap: var(--fjord-space-block);
@@ -76,15 +145,41 @@ const shown = visibleRecommendations(items).map((r) => ({
     margin-inline: auto;
     padding-inline: var(--fjord-grid-margin);
   }
-  .recs__grid {
+  .recs__head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--fjord-space-4) var(--fjord-space-6);
+  }
+  .recs__nav:not([hidden]) {
+    display: flex;
+    flex: none;
+    gap: var(--fjord-space-2);
+  }
+  /* Read by assistive technology only: "Recommendation 2 of 4" after an arrow is used. */
+  .recs__status {
+    position: absolute;
+    width: var(--fjord-border-width);
+    height: var(--fjord-border-width);
+    margin: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .recs__track {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     gap: var(--fjord-space-14) var(--fjord-grid-gutter);
+  }
+  /* With a quote open, a closed card keeps its height instead of stretching to the open one. */
+  .recs__track[data-has-open] {
+    align-items: start;
   }
   .quote {
     display: flex;
     flex-direction: column;
     gap: var(--fjord-space-5);
+    min-width: 0;
     margin: 0;
     padding: var(--fjord-space-7);
     border: var(--fjord-border-width) solid var(--fjord-color-border);
@@ -104,12 +199,47 @@ const shown = visibleRecommendations(items).map((r) => ({
   .quote blockquote p {
     margin: 0;
   }
+  /* A closed quote: exactly three lines, so closed cards have the same height (AC-09, D-19). The
+     height limit does the closing; the line clamp adds the ellipsis where a browser supports it. */
+  .quote[data-collapsed] blockquote {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    overflow: hidden;
+    max-block-size: calc(3em * var(--fjord-leading-normal));
+  }
+  /* A text button in the style of a link; a 44px target. The name and the role stay at the foot
+     of the card. */
+  .quote__toggle:not([hidden]) {
+    display: inline-flex;
+    align-items: center;
+    align-self: flex-start;
+    min-block-size: var(--fjord-tap-min);
+    margin-block: calc(var(--fjord-space-3) * -1);
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--fjord-color-link);
+    font-family: inherit;
+    font-size: var(--fjord-text-ui);
+    font-weight: var(--fjord-weight-medium);
+    text-decoration: underline;
+    text-decoration-thickness: var(--fjord-border-width);
+    text-underline-offset: 0.22em;
+    text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
+    cursor: pointer;
+  }
+  .quote__toggle:hover {
+    text-decoration-color: currentColor;
+  }
   .quote figcaption {
     display: flex;
     flex-wrap: wrap;
     align-items: baseline;
     justify-content: space-between;
     gap: var(--fjord-space-2) var(--fjord-space-4);
+    margin-top: auto;
     font-size: var(--fjord-text-ui-sm);
   }
   .quote__who {
@@ -131,9 +261,38 @@ const shown = visibleRecommendations(items).map((r) => ({
     line-height: var(--fjord-leading-body);
     background-position: 0 calc(50% + 0.5em * var(--fjord-leading-body) + var(--fjord-space-0-5));
   }
+  /* More cards than columns: the row scrolls sideways and snaps card by card (AC-42). One card
+     fills the row below 768, two from 768, as in the grid. data-scroll names the widths at which
+     the row is longer than its columns: "sm" below 768, "md" from 768. */
+  .recs__track[data-scroll] {
+    display: flex;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+  }
+  .recs__track[data-scroll] > .quote {
+    flex: none;
+    width: 100%;
+    scroll-snap-align: start;
+  }
   @media (min-width: 768px) {
-    .recs__grid {
+    .recs__track {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
+    .recs__track[data-scroll]:not([data-scroll~='md']) {
+      display: grid;
+      overflow-x: visible;
+      scroll-snap-type: none;
+    }
+    .recs__track[data-scroll]:not([data-scroll~='md']) > .quote {
+      width: auto;
+    }
+    .recs__track[data-scroll~='md'] > .quote {
+      width: calc((100% - var(--fjord-grid-gutter)) / 2);
+    }
+  }
+  /* With the arrows in place the scrollbar is not needed. */
+  [data-carousel-active] .recs__track {
+    scrollbar-width: none;
   }
 </style>
