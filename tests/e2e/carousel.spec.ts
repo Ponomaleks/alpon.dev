@@ -477,6 +477,9 @@ async function tabThrough(page: Page, presses: number) {
         return el.closest('[data-quote]')?.getAttribute('data-quote') ?? 'section';
       }, SECTION),
     );
+    // The card that holds the focus is a real one, in view.
+    const last = visited.at(-1) ?? '';
+    if (last.startsWith('recommendation-')) expect(await inView(page)).toContain(last);
   }
   return visited;
 }
@@ -523,8 +526,50 @@ test.describe('Tab goes through the row once and leaves it (AC-42)', () => {
       'recommendation-4',
     ]);
     expect(visited.slice(7)).toEqual(['outside', 'outside', 'outside', 'outside']);
-    // The focused card was always a real one, in view.
+    // With the focus gone on, the row still rests on real cards.
     expect((await inView(page)).some((id) => id.includes('copy'))).toBe(false);
+  });
+
+  test('at 834 with four cards: Shift+Tab comes back through every card, last to first', async ({
+    page,
+  }) => {
+    await withCards(page, 4);
+    await open(page, 834);
+    await expect
+      .poll(() => inView(page), { timeout: 5000 })
+      .toEqual(['recommendation-1', 'recommendation-2']);
+    // Start below the row: the last link of the last card is the first stop on the way back.
+    await page.locator('main #contact a').first().focus();
+    expect(
+      await page.evaluate((selector) => !!document.activeElement?.closest(selector), SECTION),
+    ).toBe(false);
+    const visited: string[] = [];
+    for (let press = 0; press < 10; press++) {
+      await page.keyboard.press('Shift+Tab');
+      await page.waitForTimeout(350);
+      visited.push(
+        await page.evaluate((selector) => {
+          const el = document.activeElement;
+          if (!el || !el.closest(selector)) return 'outside';
+          return el.closest('[data-quote]')?.getAttribute('data-quote') ?? 'arrows';
+        }, SECTION),
+      );
+      // The card that holds the focus is a real one, in view.
+      const last = visited.at(-1) ?? '';
+      if (last.startsWith('recommendation-')) expect(await inView(page)).toContain(last);
+    }
+    expect(visited).toEqual([
+      'recommendation-4',
+      'recommendation-4',
+      'recommendation-3',
+      'recommendation-3',
+      'recommendation-2',
+      'recommendation-2',
+      'recommendation-1',
+      'recommendation-1',
+      'arrows',
+      'arrows',
+    ]);
   });
 
   test('after the row has gone round by an arrow, Tab still leaves it after the last card', async ({
@@ -608,18 +653,20 @@ test.describe('automatic turning, switched on for the test (AC-43)', () => {
   /** Opens the page with automatic turning on and lets time pass until the first turn. */
   async function start(page: Page) {
     await load(page, true);
-    // Half-second steps: the first turn is then known to within 0.8 s (the step and the settle).
+    // Each pass moves the page's clock by 0.8 s (the step and the settle in `resting`), and a turn
+    // that fires during the settle is seen one pass later: on return the turn is 0.3 to 1.1 s old.
     for (let step = 0; step < 18; step++) {
       await jump(page, 500);
       if ((await resting(page)).join() === 'recommendation-2') return;
     }
-    throw new Error('the row did not turn by itself within nine seconds');
+    throw new Error('the row did not turn by itself within 14 seconds of page time');
   }
 
   test('moves to the next card once per interval, not sooner, and goes round', async ({ page }) => {
     await start(page);
-    // The row turned at most 0.8 s ago: 5.5 s and a settle later (5.8 to 6.6 s after the turn)
-    // it has not moved, and 1.5 s after that it has.
+    // The row turned 0.3 to 1.1 s ago: 5.5 s and a settle later (6.1 to 6.9 s after the turn, under
+    // the 7 s of the interval) it has not moved, and 1.5 s after that it has. An interval shorter
+    // than about 6 s would fail here.
     await jump(page, INTERVAL - 1500);
     expect(await resting(page)).toEqual(['recommendation-2']);
     await jump(page, 1500);
