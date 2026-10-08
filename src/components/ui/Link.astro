@@ -76,7 +76,11 @@ const blank = external && newTab;
     display: inline-flex;
   }
 
-  /* Read by assistive technology only; the arrow says it to the eye. */
+  /* Read by assistive technology only; the arrow says it to the eye. The link holds it: left to
+     the page, a hint inside a card scrolled out of a row would widen the page. */
+  .fj-link--external {
+    position: relative;
+  }
   .fj-link__hint {
     position: absolute;
     width: var(--fjord-border-width);

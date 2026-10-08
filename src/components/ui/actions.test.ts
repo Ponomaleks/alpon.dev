@@ -239,6 +239,11 @@ describe('Link (TextLink)', () => {
     const hint = rules().find(([sel]) => sel.split(',').includes('.fj-link__hint'));
     expect(hint?.[1]).toMatch(/position:\s*absolute/);
     expect(hint?.[1]).toMatch(/clip-path:\s*inset\(50%\)/);
+    // Held by its link, so that it cannot widen the page from inside a scrolling row.
+    const holder = rules().find(
+      ([sel, body]) => sel === '.fj-link--external' && /position/.test(body),
+    );
+    expect(holder?.[1]).toMatch(/position: ?relative/);
     expect(hint?.[1]).not.toMatch(/display:\s*none|visibility:\s*hidden/);
   });
 
