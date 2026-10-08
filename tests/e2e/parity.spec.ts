@@ -105,8 +105,11 @@ test.describe('home page', () => {
       ['github.com/ponomaleks', 'https://github.com/ponomaleks'],
     ] as const;
     for (const [text, href] of links) {
-      const link = block.getByRole('link', { name: text, exact: true });
+      // A link to another site ends its name with the new-tab hint (home D-09).
+      const name = href.startsWith('https://') ? text + ' (opens in a new tab)' : text;
+      const link = block.getByRole('link', { name, exact: true });
       await expect(link).toBeVisible();
+      await expect(link).toContainText(text);
       await expect(link).toHaveAttribute('href', href);
     }
     await expect(block.getByText('Oslo, Norge')).toBeVisible();

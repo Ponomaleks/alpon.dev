@@ -55,17 +55,21 @@ const tel = `tel:${contact.phone.replace(/[^\d+]/g, '')}`;
         <div class="contact__row">
           <dt>LinkedIn</dt>
           <dd>
-            <a class="contact__value" href={contact.linkedin}>
-              {short(contact.linkedin)}
-            </a>
+            <span class="contact__value">
+              <Link href={contact.linkedin} external quiet>
+                {short(contact.linkedin)}
+              </Link>
+            </span>
           </dd>
         </div>
         <div class="contact__row">
           <dt>GitHub</dt>
           <dd>
-            <a class="contact__value" href={contact.github}>
-              {short(contact.github)}
-            </a>
+            <span class="contact__value">
+              <Link href={contact.github} external quiet>
+                {short(contact.github)}
+              </Link>
+            </span>
           </dd>
         </div>
         <div class="contact__row">

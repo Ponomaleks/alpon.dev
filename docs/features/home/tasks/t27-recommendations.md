@@ -7,7 +7,7 @@ acs: ["AC-09", "AC-10"]
 files_hint: ["src/components/home/Recommendations.astro", "src/components/home/recommendations.test.ts", "src/data/home.ts", "src/data/home.test.ts", "src/pages/index.astro", "src/pages/_index.test.ts", "tests/e2e/recommendations.spec.ts"]
 owner: "Alexander Ponomarenko"
 estimate: "M"
-status: "todo"
+status: "done"
 ---
 
 # T27 — Build the Recommendations section and show it only with agreed quotes

@@ -42,21 +42,50 @@ test.describe('rows and links (AC-13)', () => {
     expect(labels).toEqual(['Email', 'Phone', 'LinkedIn', 'GitHub', 'Region']);
   });
 
-  test('every link opens in the same tab with the right target', async ({ page }) => {
+  test('mail and phone stay in the tab; LinkedIn and GitHub open a new tab and say so (D-09)', async ({
+    page,
+  }) => {
     await page.goto('/');
     const rows = page.locator(`${SECTION} .contact__row`);
     const links = [
-      [0, `mailto:${EMAIL}`, EMAIL],
-      [1, 'tel:+4740594584', '+47 405 94 584'],
-      [2, 'https://www.linkedin.com/in/ponomalex/', 'linkedin.com/in/ponomalex'],
-      [3, 'https://github.com/ponomaleks', 'github.com/ponomaleks'],
+      [0, `mailto:${EMAIL}`, EMAIL, false],
+      [1, 'tel:+4740594584', '+47 405 94 584', false],
+      [2, 'https://www.linkedin.com/in/ponomalex/', 'linkedin.com/in/ponomalex', true],
+      [3, 'https://github.com/ponomaleks', 'github.com/ponomaleks', true],
     ] as const;
-    for (const [index, href, text] of links) {
+    for (const [index, href, text, newTab] of links) {
       const link = rows.nth(index).getByRole('link');
       await expect(link).toHaveAttribute('href', href);
-      await expect(link).toHaveText(text);
-      expect(await link.getAttribute('target')).toBeNull();
+      await expect(link).toContainText(text);
+      if (newTab) {
+        await expect(link).toHaveAttribute('target', '_blank');
+        await expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+        await expect(link).toHaveAccessibleName(`${text} (opens in a new tab)`);
+        await expect(link.locator('svg')).toBeVisible();
+      } else {
+        expect(await link.getAttribute('target')).toBeNull();
+        await expect(link).toHaveAccessibleName(text);
+      }
     }
+  });
+
+  test('a profile link really opens a new tab and leaves the page where it is', async ({
+    page,
+    context,
+  }) => {
+    await page.goto('/');
+    // The profile itself is not loaded: any request to another site is answered with an empty page.
+    await context.route(/^https:\/\/(www\.)?(linkedin|github)\.com\//, (route) =>
+      route.fulfill({ status: 200, contentType: 'text/html', body: '<title>stub</title>' }),
+    );
+    const [popup] = await Promise.all([
+      context.waitForEvent('page'),
+      page.locator(`${SECTION} .contact__row`).nth(3).getByRole('link').click(),
+    ]);
+    expect(popup.url()).toBe('https://github.com/ponomaleks');
+    expect(await popup.evaluate(() => window.opener)).toBeNull();
+    expect(new URL(page.url()).pathname).toBe('/');
+    await popup.close();
   });
 
   test('"Region" shows Oslo, Norge marked as Norwegian', async ({ page }) => {

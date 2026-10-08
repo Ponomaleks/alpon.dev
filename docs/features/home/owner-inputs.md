@@ -33,7 +33,11 @@ Quote:
 
 Oleksandr has consistently demonstrated high motivation and a strong sense of ownership, always striving to deliver his work with the highest level of quality and responsibility. As his resource manager, I frequently came across positive feedback from project managers, which clearly reflects the reliability and quality of his contributions.
 
-I would also like to highlight his solid technical expertise. Oleksandr successfully passed two technical assessments in React and JavaScript at the intermediate level, confirming his strong knowledge in these areas."
+I would also like to highlight his solid technical expertise. Oleksandr successfully passed two technical assessments in React and JavaScript at the intermediate level, confirming his strong knowledge in these areas.
+
+In addition, Oleksandr stands out for his initiative and well-developed soft skills. He took on the role of a technical lead for a team of students during a special EPAM event focused on showcasing the key stages of IT product development. Leading the Angular team, he effectively managed all stages of frontend development, and as a result, the team successfully delivered their part on time.
+
+To sum up, Oleksandr is a dedicated and capable professional who would be a valuable addition to any team."
 
 ### Recommendation 2
 
@@ -56,8 +60,4 @@ From my perspective as a lead, Alexander was someone I could fully rely on. When
 
 On top of his technical skills, he is a great person to work with — easygoing, respectful, and collaborative.
 
-I highly recommend Alexander to any team looking for a dependable and motivated engineer who brings both results and a positive team dynamic.
-
-In addition, Oleksandr stands out for his initiative and well-developed soft skills. He took on the role of a technical lead for a team of students during a special EPAM event focused on showcasing the key stages of IT product development. Leading the Angular team, he effectively managed all stages of frontend development, and as a result, the team successfully delivered their part on time.
-
-To sum up, Oleksandr is a dedicated and capable professional who would be a valuable addition to any team."
+I highly recommend Alexander to any team looking for a dependable and motivated engineer who brings both results and a positive team dynamic."

@@ -211,6 +211,35 @@ describe('Link (TextLink)', () => {
     expect(el).toMatch(/<svg\b[^>]*aria-hidden="true"/);
   });
 
+  it('external opens a new tab and says so to assistive technology (home D-09)', () => {
+    const el = made('link-external');
+    expect(el).toMatch(/^\s*<a\b[^>]*\starget="_blank"/);
+    expect(el).toMatch(
+      /<span\b[^>]*class="fj-link__hint"[^>]*>\s*\(opens in a new tab\)\s*<\/span>/,
+    );
+    // The visible label stays first, the hint follows it.
+    expect(el.indexOf('GitHub')).toBeLessThan(el.indexOf('fj-link__hint'));
+  });
+
+  it('a link inside the site stays in the tab and has no hint', () => {
+    for (const name of ['link-default', 'link-standalone']) {
+      expect(made(name)).not.toMatch(/\starget=/);
+      expect(made(name)).not.toContain('fj-link__hint');
+    }
+  });
+
+  it('hides the new-tab hint from sight only', () => {
+    const hint = rules().find(([sel]) => sel.split(',').includes('.fj-link__hint'));
+    expect(hint?.[1]).toMatch(/position:\s*absolute/);
+    expect(hint?.[1]).toMatch(/clip-path:\s*inset\(50%\)/);
+    // Held by its link, so that it cannot widen the page from inside a scrolling row.
+    const holder = rules().find(
+      ([sel, body]) => sel === '.fj-link--external' && /position/.test(body),
+    );
+    expect(holder?.[1]).toMatch(/position: ?relative/);
+    expect(hint?.[1]).not.toMatch(/display:\s*none|visibility:\s*hidden/);
+  });
+
   it('standalone stays in the tab and carries the standalone class and a hidden arrow', () => {
     const el = made('link-standalone');
     expect(el).toMatch(/^\s*<a\b[^>]*href="\/cv"/);

@@ -168,7 +168,7 @@ test.describe('hero content (AC-03, AC-04, AC-11)', () => {
       .locator('main')
       .getByText(/^0\d\b/)
       .allTextContents();
-    expect(text.map((t) => t.slice(0, 2))).toEqual(['01', '02', '03']);
+    expect(text.map((t) => t.slice(0, 2))).toEqual(['01', '02', '03', '04']);
   });
 });
 
@@ -611,7 +611,12 @@ test.describe('numbered sections are named by their headings', () => {
   const sections = [
     { selector: '#about', number: '01', heading: 'Frontend-focused, full stack.' },
     { selector: 'section.experience', number: '02', heading: 'Where I’ve worked' },
-    { selector: '#contact', number: '03', heading: 'Get in touch' },
+    {
+      selector: 'section[aria-labelledby="recommendations-title"]',
+      number: '03',
+      heading: 'From people I’ve worked with',
+    },
+    { selector: '#contact', number: '04', heading: 'Get in touch' },
   ];
 
   for (const { selector, number, heading } of sections) {

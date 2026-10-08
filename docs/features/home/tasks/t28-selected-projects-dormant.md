@@ -7,7 +7,7 @@ acs: ["AC-11", "AC-12"]
 files_hint: ["src/content.config.ts", "src/content/projects/", "src/data/samples.ts", "src/components/home/SelectedProjects.astro", "src/components/home/ProjectCard.astro", "src/components/home/projects.test.ts", "src/pages/index.astro", "src/pages/_index.test.ts"]
 owner: "Alexander Ponomarenko"
 estimate: "M"
-status: "todo"
+status: "done"
 ---
 
 # T28 — Define the projects collection and build the Dormant Selected projects section with ProjectCard

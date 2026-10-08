@@ -73,10 +73,20 @@ describe('ContactBlock', () => {
     const rows = html.match(/<dl\b[\s\S]*?<\/dl>/)?.[0] ?? '';
     const links = [...rows.matchAll(/<a\b([^>]*)>/g)].map((m) => m[1] ?? '');
     expect(links).toHaveLength(4);
-    for (const attrs of links) {
+    // Mail and phone are plain contact values; the two profiles leave the site and are quiet
+    // external links inside a contact value (D-09).
+    const [mail = '', phone = '', ...profiles] = links;
+    for (const attrs of [mail, phone]) {
       expect(attrs).toMatch(/class="[^"]*\bcontact__value\b/);
       expect(attrs).not.toMatch(/\bfj-link\b/);
     }
+    expect(profiles).toHaveLength(2);
+    for (const attrs of profiles) {
+      expect(attrs).toMatch(/class="[^"]*\bfj-link--external\b[^"]*\bfj-link--quiet\b/);
+    }
+    expect(
+      rows.match(/<span\b[^>]*class="[^"]*\bcontact__value\b[^"]*"[^>]*>\s*<a\b/g),
+    ).toHaveLength(2);
     const copy = rows.match(/<button\b[^>]*data-copy-email[^>]*>/)?.[0] ?? '';
     expect(copy).toMatch(/class="[^"]*\bfj-copy\b/);
     expect(copy).not.toMatch(/\bfj-btn\b/);
@@ -103,17 +113,36 @@ describe('ContactBlock', () => {
     expect(telHref?.replace(/\D/g, '')).toBe(contact.phone.replace(/\D/g, ''));
   });
 
-  it('links LinkedIn and GitHub with their short addresses and without target (AC-13)', async () => {
-    const links = anchors(await renderBlock());
+  it('links LinkedIn and GitHub with their short addresses, in a new tab (AC-13, D-09)', async () => {
+    const html = await renderBlock();
     const profiles = [
       [contact.linkedin, 'linkedin.com/in/ponomalex'],
       [contact.github, 'github.com/ponomaleks'],
     ] as const;
     for (const [url, short] of profiles) {
-      const a = links.find((l) => l.label === short);
-      expect(a, short).toBeDefined();
-      expect(href(a?.attrs ?? '')).toBe(url);
-      expect(a?.attrs).not.toMatch(/\btarget=/);
+      const a =
+        [...html.matchAll(/<a\b([^>]*)>([\s\S]*?)<\/a>/g)].find((m) =>
+          (m[1] ?? '').includes(`href="${url}"`),
+        ) ?? [];
+      const [, attrs = '', inner = ''] = a;
+      expect(attrs, short).toMatch(/\starget="_blank"/);
+      expect(attrs).toContain('rel="noopener noreferrer"');
+      expect(attrs).toMatch(/class="[^"]*\bfj-link--external\b/);
+      expect(inner).toContain(short);
+      expect(inner).toMatch(/<svg\b[^>]*aria-hidden="true"/);
+      expect(inner).toMatch(/<span\b[^>]*class="fj-link__hint"[^>]*>\s*\(opens in a new tab\)/);
+    }
+  });
+
+  it('keeps the mail and the phone link in the tab, without icon or hint (D-09)', async () => {
+    const html = await renderBlock();
+    const inTab = [...html.matchAll(/<a\b([^>]*)>([\s\S]*?)<\/a>/g)].filter((m) =>
+      /href="(?:mailto:|tel:|\/)/.test(m[1] ?? ''),
+    );
+    expect(inTab.length).toBeGreaterThanOrEqual(3);
+    for (const [, attrs = '', inner = ''] of inTab) {
+      expect(attrs).not.toMatch(/\starget=/);
+      expect(inner).not.toContain('opens in a new tab');
     }
   });
 

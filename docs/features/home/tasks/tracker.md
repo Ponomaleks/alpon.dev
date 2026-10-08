@@ -34,15 +34,16 @@ Estimates: S about a quarter of a day, M about half a day, L up to one day.
 | T23 | [Verify the Shell contact links and focus at the contact place in three browsers and turn on P-50](./t23-contact-place-focus-p50.md) | tests | Alexander Ponomarenko | M | T21 | done |
 | T24 | [Verify Ambient motion, the Motion control, count-up, reveal, parallax and the band contours end to end](./t24-motion-e2e.md) | tests | Alexander Ponomarenko | M | T15 | done |
 | T25 | [Add the home axe checks and the visual baselines for the home page, the Styleguide and the Not-found page](./t25-axe-and-visual-baselines.md) | tests | Alexander Ponomarenko | M | T15, T17 | done |
-| T26 | [Close the document pointers, register the built components and draft the pull request with the Claims list](./t26-docs-and-claims-4a.md) | docs | Alexander Ponomarenko | M | T18, T19, T20, T21, T22, T23, T24, T25 | review |
+| T26 | [Close the document pointers, register the built components and draft the pull request with the Claims list](./t26-docs-and-claims-4a.md) | docs | Alexander Ponomarenko | M | T18, T19, T20, T21, T22, T23, T24, T25 | done |
 
 ## Phase 4b
 
 | # | Task | Layer | Owner | Estimate | Blocked by | Status |
 |---|---|---|---|---|---|---|
-| T27 | [Build the Recommendations section and show it only with agreed quotes](./t27-recommendations.md) | ui | Alexander Ponomarenko | M | T26 | todo |
-| T28 | [Define the projects collection and build the Dormant Selected projects section with ProjectCard](./t28-selected-projects-dormant.md) | ui | Alexander Ponomarenko | M | T26 | todo |
-| T29 | [Show Testimonial and the Dormant Selected projects on the Styleguide with marked sample data](./t29-styleguide-testimonial-projects.md) | ui | Alexander Ponomarenko | S | T27, T28 | todo |
-| T30 | [Add the baselines and axe cases of phase 4b and complete the Claims list and the inventory](./t30-close-4b.md) | tests | Alexander Ponomarenko | S | T29 | todo |
+| T27 | [Build the Recommendations section and show it only with agreed quotes](./t27-recommendations.md) | ui | Alexander Ponomarenko | M | T26 | done |
+| T28 | [Define the projects collection and build the Dormant Selected projects section with ProjectCard](./t28-selected-projects-dormant.md) | ui | Alexander Ponomarenko | M | T26 | done |
+| T29 | [Show Testimonial and the Dormant Selected projects on the Styleguide with marked sample data](./t29-styleguide-testimonial-projects.md) | ui | Alexander Ponomarenko | S | T27, T28 | done |
+| T30 | [Add the baselines and axe cases of phase 4b and complete the Claims list and the inventory](./t30-close-4b.md) | tests | Alexander Ponomarenko | S | T29 | done |
+| T31 | [Close long quotes behind Show more and turn the Recommendations row into a carousel](./t31-recommendations-toggle-carousel.md) | ui | Alexander Ponomarenko | M | T27, T29 | done |
 
-**Total:** 30 tasks, ~14.25 person-days (phase 4a: 26 tasks, ~12.75; phase 4b: 4 tasks, ~1.5).
+**Total:** 31 tasks, ~15.25 person-days (phase 4a: 26 tasks, ~12.75; phase 4b: 5 tasks, ~2.5).

@@ -4,7 +4,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { buildSite, repo, type SiteBuild } from '../../scripts/test-utils/build-site.ts';
 
 // SCR-01 home page composed on the built output (T15: AC-01, AC-04, AC-11, AC-18, AC-32, AC-36,
-// AC-40; sad §5, §8 Contact place).
+// AC-40; T27: AC-09, AC-10; sad §5, §8 Contact place, Home content).
 
 let site: SiteBuild;
 beforeAll(() => {
@@ -25,27 +25,48 @@ const textOf = (markup: string) =>
 const scriptSrcs = (source: string) =>
   [...source.matchAll(/<script\b[^>]*\ssrc="([^"]+)"/g)].map((m) => m[1] ?? '');
 
-describe('built index.html, section order (AC-01)', () => {
-  it('holds hero, key facts, About 01, Experience 02 and Contact 03 in this order', () => {
+const eyebrowsOf = (markup: string) =>
+  [
+    ...markup.matchAll(/<b\b[^>]*>(\d{2})<\/b>\s*<i[^>]*>\/<\/i>\s*<span\b[^>]*>([^<]+)<\/span>/g),
+  ].map((x) => `${x[1]} ${x[2]}`);
+
+describe('built index.html, section order (AC-01, AC-09)', () => {
+  it('holds hero, key facts, About 01, Experience 02, Recommendations 03 and Contact 04 in this order', () => {
     const m = main();
     const at = [
       m.search(/<section\b[^>]*\bdata-hero\b/),
       m.search(/<section\b[^>]*aria-label="Key facts"/),
       m.search(/<section\b[^>]*id="about"/),
       m.search(/<section\b[^>]*class="experience"/),
+      m.search(/<section\b[^>]*aria-labelledby="recommendations-title"/),
       m.search(/<section\b[^>]*id="contact"/),
     ];
     expect(at.every((i) => i >= 0)).toBe(true);
     expect([...at].sort((a, b) => a - b)).toEqual(at);
-    const eyebrows = [
-      ...m.matchAll(/<b\b[^>]*>(\d{2})<\/b>\s*<i[^>]*>\/<\/i>\s*<span\b[^>]*>([^<]+)<\/span>/g),
-    ].map((x) => `${x[1]} ${x[2]}`);
-    expect(eyebrows).toEqual(['01 About', '02 Experience', '03 Contact']);
+    expect(eyebrowsOf(m)).toEqual([
+      '01 About',
+      '02 Experience',
+      '03 Recommendations',
+      '04 Contact',
+    ]);
   });
 
-  it('renders no Recommendations, no Selected projects and no "All projects"', () => {
+  it('heads Recommendations "From people I\u2019ve worked with" and shows both people', () => {
+    const m = main();
+    expect(m).toMatch(
+      /<h2\b[^>]*id="recommendations-title"[^>]*>\s*From people I(?:\u2019|&#8217;|&#x2019;|&rsquo;)ve worked with\s*<\/h2>/,
+    );
+    expect(m.match(/<blockquote\b/g)).toHaveLength(2);
+  });
+
+  it('reveals the Recommendations section like the other sections', () => {
+    const m = main();
+    const wrapper = m.lastIndexOf('data-reveal-section', m.indexOf('recommendations-title'));
+    expect(wrapper).toBeGreaterThan(m.search(/<section\b[^>]*class="experience"/));
+  });
+
+  it('renders no Selected projects and no "All projects"', () => {
     const t = textOf(main());
-    expect(t).not.toMatch(/recommendations/i);
     expect(t).not.toMatch(/selected projects/i);
     expect(t).not.toMatch(/all projects/i);
     expect(main()).not.toMatch(/href="\/projects/);
@@ -160,5 +181,68 @@ describe('built index.html, scripts (AC-32, AC-36)', () => {
     ]) {
       expect(entry).toContain(fn);
     }
+  });
+});
+
+describe('built index.html without an agreed Recommendation (AC-10)', () => {
+  let fixture: SiteBuild;
+  beforeAll(() => {
+    fixture = buildSite(['--config', 'src/pages/_fixtures/astro.no-consent.config.mjs']);
+    if (fixture.status !== 0) throw new Error(fixture.log);
+  }, 180_000);
+  afterAll(() => fixture?.cleanup());
+
+  const page = () => readFileSync(join(fixture.out, 'index.html'), 'utf8');
+  const body = () => page().match(/<main\b[^>]*>([\s\S]*?)<\/main>/)?.[1] ?? '';
+
+  it('leaves the section out entirely and numbers Contact 03, without a gap', () => {
+    expect(eyebrowsOf(body())).toEqual(['01 About', '02 Experience', '03 Contact']);
+    expect(body()).not.toMatch(/recommendations-title|<blockquote\b/);
+    expect(textOf(body())).not.toMatch(/recommendations|worked with/i);
+  });
+
+  it('prints nothing of the quote that has no agreement', () => {
+    expect(page()).not.toMatch(/fixture/i);
+  });
+
+  it('still holds the rest of the page', () => {
+    expect(body()).toMatch(/<section\b[^>]*id="about"/);
+    expect(body()).toMatch(/<section\b[^>]*class="experience"/);
+    expect(body()).toMatch(/<section\b[^>]*id="contact"/);
+  });
+});
+
+describe('built index.html with a Published project while the switch is off (AC-11)', () => {
+  let fixture: SiteBuild;
+  beforeAll(() => {
+    fixture = buildSite(['--config', 'src/pages/_fixtures/astro.published-project.config.mjs']);
+    if (fixture.status !== 0) throw new Error(fixture.log);
+  }, 180_000);
+  afterAll(() => fixture?.cleanup());
+
+  const body = () =>
+    readFileSync(join(fixture.out, 'index.html'), 'utf8').match(
+      /<main\b[^>]*>([\s\S]*?)<\/main>/,
+    )?.[1] ?? '';
+
+  it('has read the Published fixture project into the collection', () => {
+    const store = readFileSync(join(repo, 'node_modules/.astro/data-store.json'), 'utf8');
+    expect(store).toContain('fixture-project');
+    expect(store).toContain('Fixture Project');
+  });
+
+  it('renders no Selected projects section and no "All projects" link', () => {
+    expect(body()).not.toMatch(/projects-title|<article\b/);
+    expect(textOf(body())).not.toMatch(/selected projects|all projects|fixture/i);
+    expect(body()).not.toMatch(/href="\/projects/);
+  });
+
+  it('numbers the sections without a gap', () => {
+    expect(eyebrowsOf(body())).toEqual([
+      '01 About',
+      '02 Experience',
+      '03 Recommendations',
+      '04 Contact',
+    ]);
   });
 });

@@ -3,6 +3,8 @@ import { join } from 'node:path';
 import stylelint from 'stylelint';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { buildSite, repo, type SiteBuild } from '../../scripts/test-utils/build-site.ts';
+import { checkPlaceholders } from '../../scripts/check-placeholders.ts';
+import { recommendations } from '../data/home';
 import { SECTIONS as VISUAL_SECTIONS } from '../../tests/visual/styleguide-sections.ts';
 
 // SCR-04 Styleguide on the built output (AC-21, AC-22; screens.md SCR-04).
@@ -370,7 +372,11 @@ describe('home component sections (T16, SCR-04)', () => {
       /<span\b[^>]*class="fj-copy__face fj-copy__face--done"[^>]*>\s*Copied\s*<\/span>/,
     );
     expect(s).not.toMatch(/\bfj-btn--sm\b/);
-    expect(s).not.toMatch(/\bfj-link\b/);
+    // The two profile rows are external links, with the icon, as on the home page (D-09).
+    expect(
+      s.match(/<a\b[^>]*class="[^"]*\bfj-link--external\b[^"]*"[^>]*\starget="_blank"/g),
+    ).toHaveLength(2);
+    expect(s.match(/\(opens in a new tab\)/g)).toHaveLength(2);
     const save = s.match(/<a\b[^>]*href="\/alexander-ponomarenko\.vcf"[\s\S]*?<\/a>/)?.[0] ?? '';
     const glyph = (name: string) =>
       section('Icon').match(
@@ -482,6 +488,108 @@ describe('changed base samples (T17, SCR-04)', () => {
     expect(refusal[0]?.split(/<\/span>/)[0]).not.toContain('data-icon');
     expect(toasts().filter((t) => /^<span\b[^>]*\sdata-icon=/.test(t))).toHaveLength(1);
     expect(toasts()).toHaveLength(2);
+  });
+});
+
+// T29: Testimonial and the Dormant Selected projects section, with marked sample data (AC-12,
+// AC-28; screens.md SCR-04 "sample data marked", "New sections").
+const SAMPLE_SECTIONS = ['Testimonial', 'Selected projects'];
+
+describe('Testimonial and Selected projects samples (T29, SCR-04)', () => {
+  const plain = (markup: string) =>
+    markup
+      .replace(/<svg[\s\S]*?<\/svg>/g, '')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  const articles = () =>
+    [...section('Selected projects').matchAll(/<article\b[^>]*>[\s\S]*?<\/article>/g)].map(
+      (m) => m[0],
+    );
+
+  it.each(SAMPLE_SECTIONS)('has one data-section block for %s', (name) => {
+    expect(html().match(new RegExp(`data-section="${name}"`, 'g'))).toHaveLength(1);
+    expect(section(name).length).toBeGreaterThan(0);
+  });
+
+  it.each(SAMPLE_SECTIONS)(
+    'labels %s "Sample data" and keeps its content in one marked block',
+    (name) => {
+      const body = section(name);
+      expect(
+        body.match(/<p\b[^>]*class="[^"]*sg__sample-label[^"]*"[^>]*>\s*Sample data\s*<\/p>/g),
+      ).toHaveLength(1);
+      expect(body.match(/<div\b[^>]*\sdata-sample[\s>]/g)).toHaveLength(1);
+      const marked = body.slice(body.search(/<div\b[^>]*\sdata-sample[\s>]/));
+      expect(marked).toMatch(/<(figure|article)\b/);
+      expect(body.slice(0, body.length - marked.length)).not.toMatch(/<(figure|article)\b|\[/);
+    },
+  );
+
+  it('shows three Testimonial cards with sample quotes that name no real person', () => {
+    const body = section('Testimonial');
+    const figures = [...body.matchAll(/<figure\b[^>]*>[\s\S]*?<\/figure>/g)].map((m) => m[0]);
+    expect(figures).toHaveLength(3);
+    for (const figure of figures) {
+      expect(figure).toMatch(/<blockquote\b/);
+      expect(figure).toMatch(/<strong\b[^>]*>\s*\[Name\]\s*<\/strong>/);
+      expect(plain(figure)).toContain('[Role, company]');
+      expect(plain(figure)).toMatch(/“\[[^\]]+\]”/);
+      expect(plain(figure)).toContain('On LinkedIn');
+    }
+    for (const real of recommendations) {
+      expect(html()).not.toContain(real.name);
+      expect(html()).not.toContain(real.quote.slice(0, 40));
+    }
+    expect(body).not.toMatch(/recommendations-title/);
+  });
+
+  it('shows the last Testimonial closed, with a static "Show more" (D-19)', () => {
+    const figures = [...section('Testimonial').matchAll(/<figure\b[^>]*>[\s\S]*?<\/figure>/g)].map(
+      (m) => m[0],
+    );
+    expect(figures.filter((f) => /^<figure\b[^>]*\sdata-collapsed[\s>=]/.test(f))).toHaveLength(1);
+    expect(figures[2]).toMatch(/^<figure\b[^>]*\sdata-collapsed[\s>=]/);
+    expect(figures[2]).toMatch(
+      /<button\b[^>]*aria-expanded="false"[^>]*>\s*Show more\s*<\/button>/,
+    );
+    expect(section('Testimonial')).not.toMatch(/data-carousel|data-quote-toggle/);
+  });
+
+  it('shows Selected projects as the page design draws it: heading, lead and "All projects"', () => {
+    const body = section('Selected projects');
+    expect(body).toMatch(/<h3\b[^>]*id="projects-title"[^>]*>\s*Selected projects\s*<\/h3>/);
+    expect(plain(body)).toContain('02 / Projects');
+    expect(plain(body)).toContain('Small products I built and run.');
+    expect(body).toMatch(/<a\b[^>]*href="\/projects"[^>]*>[\s\S]*?All projects/);
+  });
+
+  it('shows three project cards, the first one large', () => {
+    expect(articles().map((a) => a.match(/data-variant="([a-z]+)"/)?.[1])).toEqual([
+      'featured',
+      'compact',
+      'compact',
+    ]);
+    for (const a of articles()) {
+      expect(a).toMatch(/data-kind="status"/);
+      expect(plain(a)).toContain('2026');
+      expect(a).toMatch(/<strong\b[^>]*>\s*\[[^\]]+\]\s*<\/strong>/);
+      expect(a).toMatch(/<li\b/);
+    }
+  });
+
+  it('shows one card without a live link; every card links to its code', () => {
+    const linkTexts = articles().map((a) =>
+      [...a.matchAll(/<a\b[^>]*>[\s\S]*?<\/a>/g)].map((m) => plain(m[0])),
+    );
+    const live = 'Live (opens in a new tab)';
+    const code = 'Code (opens in a new tab)';
+    expect(linkTexts).toEqual([[live, code], [live, code], [code]]);
+  });
+
+  it('passes the placeholder check: every bracketed sample value is inside a marked block (AC-28)', () => {
+    expect(html()).toMatch(/\[1\.2 s\]/);
+    expect(checkPlaceholders(site.out)).toEqual([]);
   });
 });
 

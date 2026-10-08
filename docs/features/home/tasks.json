@@ -651,6 +651,33 @@
         "docs/design-system.md",
         "docs/features/home/pr-body.md"
       ]
+    },
+    {
+      "id": "T31",
+      "title": "Close long quotes behind Show more and turn the Recommendations row into a carousel",
+      "layer": "ui",
+      "deps": [
+        "T27",
+        "T29"
+      ],
+      "acs": [
+        "AC-09",
+        "AC-42",
+        "AC-43"
+      ],
+      "dod": "src/scripts/home/quote-toggle.test.ts proves a quote longer than three lines is closed with \"Show more\", opens and closes, and that a short quote keeps no button; src/scripts/home/carousel.test.ts proves the row goes round at both ends and that automatic turning moves it only when nothing holds it; tests/e2e/carousel.spec.ts proves three lines and equal card heights, the arrows going round both ways at 390, inert copies, the scripts-off state and no carousel from 768 with two cards.",
+      "files_hint": [
+        "src/components/home/Recommendations.astro",
+        "src/components/home/recommendations.test.ts",
+        "src/scripts/home/quote-toggle.ts",
+        "src/scripts/home/quote-toggle.test.ts",
+        "src/scripts/home/carousel.ts",
+        "src/scripts/home/carousel.test.ts",
+        "src/scripts/home/index.ts",
+        "src/data/home.ts",
+        "src/data/contact.ts",
+        "tests/e2e/carousel.spec.ts"
+      ]
     }
   ]
 }

@@ -78,6 +78,36 @@ describe('placeholders on pages for Visitors (AC-28)', () => {
     expect(msg).not.toContain('[inside]');
   });
 
+  // The Styleguide's Testimonial and Selected projects samples (home T29, screens.md SCR-04).
+  const sampleCard =
+    '<article><p><strong>[1.2 s]</strong> <span>median load on 4G</span></p></article>' +
+    '<figure><blockquote><p>“[Sample recommendation.]”</p></blockquote>' +
+    '<figcaption><strong>[Name]</strong> <span>[Role, company]</span></figcaption></figure>';
+
+  it('passes the bracketed sample values of the Styleguide inside its marked blocks', () => {
+    const root = dist({
+      'styleguide.html': page(
+        `<section data-section="Selected projects"><h2>Selected projects</h2><div ${SAMPLE_ATTRIBUTE}><p>Sample data</p>${sampleCard}</div></section>`,
+      ),
+    });
+    expect(checkPlaceholders(root)).toEqual([]);
+  });
+
+  it('fails for the same sample values outside a marked block, on the Styleguide too', () => {
+    const root = dist({
+      'styleguide.html': page(
+        `<section data-section="Selected projects"><h2>Selected projects</h2><div ${SAMPLE_ATTRIBUTE}><p>Sample data</p></div>${sampleCard}</section>`,
+      ),
+      'index.html': page(sampleCard),
+    });
+    const problems = checkPlaceholders(root);
+    for (const value of ['[1.2 s]', '[Sample recommendation.]', '[Name]', '[Role, company]']) {
+      expect(problems.filter((p) => p.includes(value))).toHaveLength(2);
+    }
+    expect(problems.filter((p) => p.startsWith('styleguide.html:'))).toHaveLength(4);
+    expect(problems.filter((p) => p.startsWith('index.html:'))).toHaveLength(4);
+  });
+
   it('ignores brackets in script, style and ld+json content', () => {
     const root = dist({
       'index.html': page(

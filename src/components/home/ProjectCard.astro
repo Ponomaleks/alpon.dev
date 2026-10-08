@@ -1,0 +1,167 @@
+---
+// Project card (AC-12), after the design's .fj-pcard: a media panel, then status and year, the
+// title, the summary, one result with its label, the tags and the links that exist. "compact" by
+// default; "featured" is the large card (media 7 parts, text 5 from 1024).
+// The media is a decorative contour panel with the project's slug; step 7 adds the screenshots
+// and the link to the case study together with the Projects pages.
+import Contours from '../brand/Contours.astro';
+import Badge from '../ui/Badge.astro';
+import Link from '../ui/Link.astro';
+import Tag from '../ui/Tag.astro';
+import { STATUS_LABELS, type Project } from '../../data/projects';
+
+interface Props {
+  project: Project;
+  variant?: 'compact' | 'featured';
+  /** Ground of the media panel: spruce, or the sunken ground of the theme. */
+  tone?: 'spruce' | 'auto';
+}
+
+const { project, variant = 'compact', tone = 'spruce' } = Astro.props;
+const { slug, title, summary, status, year, result, tags, live, code } = project;
+---
+
+<article class="pcard" data-variant={variant}>
+  <div class="pcard__media" data-tone={tone} aria-hidden="true">
+    <Contours variant="ridge" tone={tone} />
+    <span class="pcard__slug">{slug}</span>
+  </div>
+  <div class="pcard__body">
+    <div class="pcard__top">
+      <Badge kind="status" status={status} label={STATUS_LABELS[status]} />
+      <span>{year}</span>
+    </div>
+    <h3 class="pcard__title">{title}</h3>
+    <p class="pcard__summary">{summary}</p>
+    <p class="pcard__result">
+      <strong>{result.value}</strong>
+      <span>{result.label}</span>
+    </p>
+    <Tag items={tags} plain={variant === 'featured'} />
+    {(live || code) && (
+      <div class="pcard__links">
+        {live && (
+          <Link href={live} external>
+            Live
+          </Link>
+        )}
+        {code && (
+          <Link href={code} external>
+            Code
+          </Link>
+        )}
+      </div>
+    )}
+  </div>
+</article>
+
+<style>
+  .pcard {
+    display: grid;
+    gap: var(--fjord-space-5);
+    color: var(--fjord-color-text);
+  }
+  .pcard__media {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 16 / 10;
+    border: var(--fjord-border-width) solid var(--fjord-color-border);
+    border-radius: var(--fjord-radius-md);
+    background: var(--fjord-color-bg-sunken);
+  }
+  .pcard__media[data-tone='spruce'] {
+    background: var(--fjord-spruce);
+  }
+  .pcard__slug {
+    position: absolute;
+    left: var(--fjord-space-3);
+    bottom: var(--fjord-space-2);
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-mono-sm);
+    font-weight: var(--fjord-weight-medium);
+    line-height: var(--fjord-leading-ui);
+    color: var(--fjord-color-text-muted);
+  }
+  .pcard__media[data-tone='spruce'] .pcard__slug {
+    color: var(--fjord-lichen);
+  }
+  .pcard__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--fjord-space-3);
+    min-width: 0;
+  }
+  .pcard__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--fjord-space-3);
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-mono-sm);
+    line-height: var(--fjord-leading-none);
+    color: var(--fjord-color-text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .pcard__title {
+    margin: 0;
+    font-size: var(--fjord-text-h3);
+    font-weight: var(--fjord-weight-semibold);
+    letter-spacing: var(--fjord-tracking-heading);
+    line-height: var(--fjord-leading-tight);
+  }
+  .pcard__summary {
+    max-width: var(--fjord-measure-narrow);
+    margin: 0;
+    color: var(--fjord-color-text-muted);
+    font-size: var(--fjord-text-ui-lg);
+    line-height: var(--fjord-leading-body);
+  }
+  .pcard__result {
+    display: flex;
+    align-items: baseline;
+    gap: var(--fjord-space-3);
+    margin: 0;
+    padding: var(--fjord-space-3) 0;
+    border-block: var(--fjord-border-width) solid var(--fjord-color-border);
+  }
+  .pcard__result strong {
+    font-size: var(--fjord-text-h4);
+    font-weight: var(--fjord-weight-medium);
+    letter-spacing: var(--fjord-tracking-heading);
+    font-variant-numeric: tabular-nums;
+    line-height: var(--fjord-leading-none);
+  }
+  .pcard__result span {
+    font-size: var(--fjord-text-ui-sm);
+    color: var(--fjord-color-text-muted);
+    line-height: var(--fjord-leading-snug);
+  }
+  .pcard__links {
+    display: flex;
+    gap: var(--fjord-space-5);
+    font-size: var(--fjord-text-ui);
+  }
+  /* A 44px target around each link, as in ExperienceList. */
+  .pcard__links :global(.fj-link) {
+    min-block-size: var(--fjord-tap-min);
+    padding-bottom: 0;
+    line-height: var(--fjord-leading-body);
+    background-position: 0 calc(50% + 0.5em * var(--fjord-leading-body) + var(--fjord-space-0-5));
+  }
+  .pcard[data-variant='featured'] {
+    gap: var(--fjord-space-6);
+  }
+  .pcard[data-variant='featured'] .pcard__result strong {
+    font-size: var(--fjord-text-h3);
+  }
+  @media (min-width: 1024px) {
+    .pcard[data-variant='featured'] {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      gap: var(--fjord-space-12);
+      align-items: center;
+    }
+    .pcard[data-variant='featured'] .pcard__title {
+      font-size: var(--fjord-text-h2);
+    }
+  }
+</style>

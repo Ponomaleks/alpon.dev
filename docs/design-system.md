@@ -48,13 +48,13 @@ All values come from `src/styles/tokens.css` (`--fjord-*`, generated, do not edi
 
 `screens.md` may use only these names, or declare `NEW: <name>` with a why-no-primitive-fits line (`implement` then registers it here). **Repo** = the component is built in `src/`. **Handoff** = design-only so far, and the first feature that needs it builds it at the target path. States are given where the handoff signature defines them; otherwise see the component's `.d.ts`/`.prompt.md`. Handoff paths are relative to `design/handoff/design-system/project/`.
 
-**Built in the repo** (base-components registers the Shell and the base components here, home phase 4a the home components and the Shell changes; the handoff rows of built components are removed)
+**Built in the repo** (base-components registers the Shell and the base components here, home phase 4a the home components and the Shell changes, phase 4b Testimonial, ProjectCard and their sections; the handoff rows of built components are removed)
 
 | Component | Source (`file:line` / node / URL) | States it supports | Notes |
 |---|---|---|---|
 | BaseLayout | `src/layouts/BaseLayout.astro:1` | — (head contract: lang, title, description, noindex) | fjord-foundation extends it: theme bootstrap, font preloads, tokens → fonts → base |
 | Button | `src/components/ui/Button.astro` | primary / secondary; size; arrow; icon; `download`; disabled; hover / focus-visible | one primary CTA per screen; promoted from the Not-found `home-link` |
-| Link | `src/components/ui/Link.astro` | default / hover / focus-visible; external; `standalone` (a link on a line of its own, with its arrow) | `standalone` added by home for "Full CV" |
+| Link | `src/components/ui/Link.astro` | default / hover / focus-visible; external (leaves the site: new tab, `rel="noopener noreferrer"`, the arrow icon, hidden hint "(opens in a new tab)"); external `quiet` (the type and colour of the text around it, 44px target, for a value in a list); `standalone` (a link on a line of its own, with its arrow) | `standalone` added by home for "Full CV"; every link to another site uses `external` (home D-09); `quiet` added by home for the profile rows of the Contact block |
 | IconButton | `src/components/ui/IconButton.astro` | default / hover / focus-visible | 44px target |
 | Icon | `src/components/ui/Icon.astro` | — | 1.5px line icons; home added `play`, `pause`, `check`, `chevron-down`, `chevron-up`, `copy`, `download`, `user-plus`, `mail`, `phone`, `linkedin`, `github` |
 | Badge (availability, status) | `src/components/ui/Badge.astro` | status; `pulse` (the ring of the open dot, only under `data-motion="running"`) | `pulse` is used by the home hero only (home D-01) |
@@ -70,7 +70,7 @@ All values come from `src/styles/tokens.css` (`--fjord-*`, generated, do not edi
 | MobileMenu | `src/components/layout/MobileMenu.astro` | open / closed (script `src/scripts/shell/menu.ts`) | native modal dialog |
 | ThemeToggle | `src/components/layout/ThemeToggle.astro` | dag / natt (script `src/scripts/shell/theme.ts`) | View Transition is progressive and skipped under reduced motion |
 | CtaBand | `src/components/layout/CtaBand.astro` | actions from a page option (default pair, home pair) | action types in `src/data/shell-actions.ts` (home AC-40); contours follow scrolling (home AC-41) |
-| Footer | `src/components/layout/Footer.astro` | — | data from `src/data/contact.ts` |
+| Footer | `src/components/layout/Footer.astro` | — | data from `src/data/contact.ts`; the two profile links open a new tab with the hidden hint and no icon (home D-09) |
 | MobileBar (Sticky action bar) | `src/components/layout/MobileBar.astro` | shown / hidden (script `src/scripts/shell/action-bar.ts`); open / collapsed by its tab (native `<details>`); actions from a page option | all actions secondary (home AC-38); the tab is part of the panel (home AC-39, D-11) |
 | contact data | `src/data/contact.ts` | — | single source for contacts; Person data built from it in `src/data/person.ts` |
 | Portrait | `src/components/home/Portrait.astro` | still / floating under `data-motion="running"` | AVIF and WebP at 340 and 680 from `public/img/`; width and height reserved (home AC-02) |
@@ -84,7 +84,13 @@ All values come from `src/styles/tokens.css` (`--fjord-*`, generated, do not edi
 | About (NEW) | `src/components/home/About.astro` | — | home AC-07 |
 | QuickFacts (NEW) | `src/components/home/QuickFacts.astro` | one value / several values, one per line | description list (home AC-07, D-16) |
 | ContactBlock (NEW) | `src/components/home/ContactBlock.astro` | — | the list, "Save contact", QrTile and the mail-link sentence of home IS-03 |
-| home content data | `src/data/home.ts` | — | key facts, introduction, quick facts, experience, the Now line |
+| Testimonial | built inside `src/components/home/Recommendations.astro` | quote whole / closed to three lines with "Show more" / open with "Show less" (script `src/scripts/home/quote-toggle.ts`); with or without "On LinkedIn" | no file of its own; the quote word for word, name and role; the link only on a Recommendation from LinkedIn; real quotes only, with the person's agreement (home AC-09, AC-10, D-19, D-21) |
+| Recommendations (NEW) | `src/components/home/Recommendations.astro` | present / absent (no quote with consent); grid / carousel that goes round when there are more cards than columns, with two IconButton arrows; automatic turning on / off; `sample` | the section is left out when no Recommendation remains (home AC-10); the row scrolls with scroll snap without a script, `src/scripts/home/carousel.ts` adds the rest, no library (home AC-42, AC-43, D-20) |
+| ProjectCard | `src/components/home/ProjectCard.astro` | compact / featured; media ground spruce / auto; with or without "Live" and "Code" (both open a new tab) | the media is a contour panel with the slug until step 7 adds screenshots and the link to the case study (home AC-12) |
+| SelectedProjects (NEW) | `src/components/home/SelectedProjects.astro` | one to three featured projects, the first large; heading level | Dormant section: on the Styleguide with marked sample data, on the home page only when `features.projects` is on and a Published project exists (home AC-11, AC-12) |
+| home content data | `src/data/home.ts` | — | key facts, introduction, quick facts, experience, Recommendations, the Now line |
+| project data | `src/data/projects.ts`, `src/content.config.ts` | — | the entry shape of the `projects` collection (`src/content/projects/*.md`, empty until step 7) and the choice of the projects a page shows |
+| sample data | `src/data/samples.ts` | — | Styleguide only: sample Recommendations and projects, shown inside a `data-sample` block under a "Sample data" label (home AC-12, AC-28) |
 | Shell action data | `src/data/shell-actions.ts` | — | the bar and band actions a page passes as options |
 
 **Design-only (handoff), by group**
@@ -99,8 +105,6 @@ All values come from `src/styles/tokens.css` (`--fjord-*`, generated, do not edi
 | MetaRow | `components/casestudy/MetaRow.jsx:3` | see `.d.ts` | |
 | NextProject | `components/casestudy/NextProject.jsx:5` | see `.d.ts` | |
 | Prose | `components/casestudy/Prose.jsx:3` | — | target `src/components/prose/`; step 7 |
-| ProjectCard | `components/content/ProjectCard.jsx:7` | see `.d.ts` | |
-| Testimonial | `components/content/Testimonial.jsx:4` | see `.d.ts` | real quotes only, with name and link; hidden if none |
 | ContactForm | `components/cv/ContactForm.jsx:10` | see `.d.ts` | needs a server endpoint (Worker); requires its own ADR before building (repo ADR-0001) |
 | LanguageList | `components/cv/LanguageList.jsx:4` | — | plain labels, no CEFR codes |
 | SkillGroup | `components/cv/SkillGroup.jsx:4` | — | no skill bars or percentages |

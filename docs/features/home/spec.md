@@ -96,7 +96,7 @@ Decided by the Owner; they go to the PR's design-difference list as they are.
 | D-05 | Hero has "See projects"; Selected projects is section 02; Contact is 05 | until step 7: no "See projects", no Selected projects; sections are numbered in the order shown: About 01, Experience 02, Recommendations 03, Contact 04 (Contact 03 without Recommendations) | no Published project and no Projects pages yet; the design itself renumbers Contact when a section is absent |
 | D-06 | Now line "[current project] · MSc Computer Science at Woolf University" | the project the Owner supplies; without one, only the MSc part | no bracketed placeholder on a page (AC-28) |
 | D-08 | The header over the hero is set by a script | reproduced exactly where scripts run (AC-33); with scripts off the header keeps its default look and a primary "Get in touch" | the state depends on scroll position; contrast holds in both |
-| D-09 | "On LinkedIn" and profile links open a new tab | the same tab | base-components D-16 |
+| D-09 | "On LinkedIn" and profile links open a new tab | every link to another site opens a new tab, as the design draws them: LinkedIn and GitHub in the Contact block and the footer, "On LinkedIn" on a Recommendation, "Live" and "Code" on a project card, and any later link that leaves the site. Each has `rel="noopener noreferrer"` and ends its name with "(opens in a new tab)" for assistive technology, in text hidden from sight; each shows the external-link icon, except the footer links, which keep the tight text links of the page design. Mail links, call links, the contact card and every link inside the site stay in the same tab | Owner decision changed on 2026-10-08: the portfolio should keep the Visitor's tab, so links to other sites open new tabs, announced. It replaces the same-tab rule of base-components D-16 (2026-10-05) |
 | D-10 | Sticky action bar: "View CV" and "Get in touch" on every page | the actions are set per page, all in the secondary style: home and Not-found "View CV" and "Save contact (.vcf)", also after step 7; CV (step 5) the language switch and "Download PDF"; project and case-study pages (step 7) "View CV" and "Next project" or "All projects" | Owner decision 2026-10-05: the header already carries "Get in touch" at 390 |
 | D-11 | The Sticky action bar cannot be put away | a small arrow tab collapses it and brings it back; it works with scripts off, and a collapsed bar stays collapsed for the page visit (AC-39). The look of the tab was decided by the Owner on 2026-10-07: the tab is part of the panel (one outline, the same surface, rounded top corners, at the end side); collapsed, about 12 px of the panel stays visible under it. Earlier wording: the look of the tab is decided at the design stage within Fjord | Owner decision 2026-10-05 |
 | D-12 | Closing band on the home page: "Get in touch" and "Download CV" | "Save contact (.vcf)" and "Download CV", both secondary; other pages keep the design's pair | the band sits right under the contact section, so it repeats no contact action (AC-34, AC-40) |
@@ -106,6 +106,9 @@ Decided by the Owner; they go to the PR's design-difference list as they are.
 | D-16 | About quick fact "Languages" as one line | one language per line at every width | Owner decision 2026-10-07: one line reads badly |
 | D-17 | Experience entry: two columns whenever the list is at least 560 px wide (a container query) | two columns from 768 to 1023 only, one column below 768 and from 1024 | container queries are not allowed by the lint rules (base-components ADR-0004) and the repo breakpoints are 360 / 768 / 1024 / 1440; the design's two columns between 592 and 767 are not reproduced |
 | D-18 | "Copy" shows "Kopiert" with a check icon inside the button, also when the copy fails, and renames the button to "Kopiert"; the Toast says "Kopiert" | the button shows "Copied" (English, success colour, no check icon) for the copied duration after a copy that worked and then returns to "Copy"; a refused copy shows no such state; the accessible name stays "Copy" and the Toast is the one announcement: "Copied" with the address and its check icon, in English (AC-14, AC-15); the control keeps the design's width in both states | Owner decisions 2026-10-07: button labels are interface text, not a place for the Norwegian details, and the button and the Toast must not show two languages at once; without the icon the control does not grow; a failed copy must never read as done. "Kopiert" leaves the Norwegian list in `CLAUDE.md`; BRAND.md and the design still show it |
+| D-19 | A Testimonial shows the whole quote, drawn two or three sentences long | a quote longer than three lines is closed to three lines with "Show more" / "Show less"; closed cards have the same height; the whole quote stays in the page and is shown whole with scripts off (AC-09) | Owner decision 2026-10-08: the real quotes are five and six paragraphs long and are never shortened, so the cards were too tall |
+| D-20 | Testimonials in a two-column grid, every card visible | the same cards and columns; when there are more cards than columns the row becomes a carousel that goes round, with previous and next arrows and swipe; automatic turning exists and is off (AC-42, AC-43) | Owner decision 2026-10-08: more Recommendations may be added, and the section must not grow with each one |
+| D-21 | "On LinkedIn" on every Testimonial leads to the LinkedIn profile | it leads to the recommendations on the profile and is shown only on a Recommendation that comes from LinkedIn (AC-09) | Owner decision 2026-10-08: the link should land on the originals, and later Recommendations may be given directly, with nothing on LinkedIn to point at |
 
 Not a difference: the hero coordinates stay 59.91° N, 10.75° E. They belong to the Work region "Oslo, Norge" beside them; the footer keeps the Residence coordinates.
 
@@ -254,7 +257,7 @@ Not a difference: the hero coordinates stay 59.91° N, 10.75° E. They belong to
 
 **Given** at least one Recommendation is in the content
 **When** a Tech lead reaches the recommendations section
-**Then** each Recommendation shows the quote word for word, the person's name and role, and an "On LinkedIn" link to Alexander's profile; the section is headed "From people I've worked with" and the Contact section after it carries the next number
+**Then** each Recommendation holds the quote word for word, the person's name and role, and, when the Recommendation comes from LinkedIn, an "On LinkedIn" link to the recommendations on Alexander's profile, which opens in a new tab (a Recommendation given to Alexander directly has no link); the section is headed "From people I've worked with" and the Contact section after it carries the next number. A quote longer than three lines shows its first three lines with a "Show more" text button, which opens the whole quote in place and becomes "Show less"; cards with a closed quote have the same height. With scripts off every quote is shown whole (D-19)
 
 ### AC-10 (US-06) — domain invariant
 
@@ -272,13 +275,13 @@ Not a difference: the hero coordinates stay 59.91° N, 10.75° E. They belong to
 
 **Given** the Owner opens the Styleguide
 **When** they look at the Selected projects sample
-**Then** they see the section as the page design draws it, with up to three featured projects, the first one large: each card has a status, a year, a title, a summary, one result with its label, technology tags and links to the live project and its code where they exist. The sample data is marked as sample on the page
+**Then** they see the section as the page design draws it, with up to three featured projects, the first one large: each card has a status, a year, a title, a summary, one result with its label, technology tags and links to the live project and its code where they exist; both links open in a new tab (D-09). The sample data is marked as sample on the page
 
 ### AC-13 (US-02) — happy
 
 **Given** a Recruiter in the contact section
 **When** they read the Contact block
-**Then** they see the heading "Get in touch" with the lead "Email is fastest. Phone and LinkedIn work too.", and rows for the email address as a mail link, the phone number as a call link, the LinkedIn and GitHub profiles as links showing their short addresses, and "Region" with "Oslo, Norge" marked as Norwegian (D-15)
+**Then** they see the heading "Get in touch" with the lead "Email is fastest. Phone and LinkedIn work too.", and rows for the email address as a mail link, the phone number as a call link, the LinkedIn and GitHub profiles as links showing their short addresses, which open in a new tab and say so (D-09), and "Region" with "Oslo, Norge" marked as Norwegian (D-15)
 
 ### AC-14 (US-02) — happy
 
@@ -397,6 +400,18 @@ In every one of these states the header's text and actions are readable at the c
 **Given** a Recruiter at the end of the home page
 **When** they read the closing band, which sits right under the contact section
 **Then** it offers "Save contact (.vcf)" and "Download CV", both in the secondary style, and no "Get in touch", because the contact section is already above it; on other pages the band keeps "Get in touch" and "Download CV". Each page sets the band's actions through a page option
+
+### AC-42 (US-06) — happy
+
+**Given** more Recommendations in the content than the section shows side by side (one below 768, two from 768)
+**When** a Visitor uses the previous and next arrows, swipes on a touch screen, or scrolls the row with the keyboard
+**Then** the cards move one at a time in a row that goes round: after the last card comes the first, and before the first the last. The arrows are named buttons and the position is announced as "Recommendation N of M". With no more Recommendations than fit side by side there are no arrows and the cards stand as the page design draws them. With scripts off the row can still be scrolled and every card is reachable (D-20)
+
+### AC-43 (US-06, US-10) — happy
+
+**Given** automatic turning of the Recommendations is switched on in the content (it is off by default)
+**When** the row goes round and the Visitor does not ask for reduced motion
+**Then** the row moves to the next card at a steady interval; it stops while the pointer is over the row, while focus is inside it, while a quote is open and while the page is hidden, and it follows the hero's Motion control. With reduced motion, or with automatic turning off, the row moves only when the Visitor moves it
 
 ### AC-41 (US-09) — happy
 

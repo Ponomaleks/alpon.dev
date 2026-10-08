@@ -23,7 +23,8 @@ test('home renders its sections in order, numbered, with the contact place', asy
   expect(eyebrows.map((t) => t.replace(/\s+/g, ' ').trim())).toEqual([
     '01 / About',
     '02 / Experience',
-    '03 / Contact',
+    '03 / Recommendations',
+    '04 / Contact',
   ]);
   await expect(page.locator('header[data-over-hero]')).toHaveCount(1);
 });

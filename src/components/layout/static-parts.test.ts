@@ -300,12 +300,27 @@ describe('Footer (AC-14)', () => {
     expect(text(html())).toContain(contact.phone);
   });
 
-  it('links LinkedIn and GitHub with rel="noopener noreferrer"', () => {
+  it('links LinkedIn and GitHub in a new tab with rel="noopener noreferrer" and a hidden hint, without an icon (home D-09)', () => {
     for (const url of [contact.linkedin, contact.github]) {
-      const a = anchorTo(html(), url) ?? '';
-      expect(a, url).not.toBe('');
-      const rel = (a.match(/\brel="([^"]*)"/)?.[1] ?? '').split(/\s+/);
+      const open = anchorTo(html(), url) ?? '';
+      expect(open, url).not.toBe('');
+      const rest = html().slice(html().indexOf(open));
+      const full = rest.slice(0, rest.indexOf('</a>'));
+      const rel = (open.match(/\brel="([^"]*)"/)?.[1] ?? '').split(/\s+/);
       expect(rel).toEqual(expect.arrayContaining(['noopener', 'noreferrer']));
+      expect(open).toMatch(/\starget="_blank"/);
+      expect(full).toMatch(
+        /<span\b[^>]*class="fj-footer__hint"[^>]*>\s*\(opens in a new tab\)\s*<\/span>/,
+      );
+      expect(full).not.toMatch(/<svg\b/);
+    }
+  });
+
+  it('keeps the mail and the phone link of the footer in the tab (home D-09)', () => {
+    for (const href of [`mailto:${contact.email}`, `tel:${contact.phone.replace(/\s+/g, '')}`]) {
+      const a = anchorTo(html(), href) ?? '';
+      expect(a, href).not.toBe('');
+      expect(a).not.toMatch(/\starget=/);
     }
   });
 

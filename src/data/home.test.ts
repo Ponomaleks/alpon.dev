@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
   experience,
@@ -12,14 +13,40 @@ import {
 } from './home';
 import { features } from './site';
 
-// AC-03, AC-05, AC-07, AC-10, AC-11 (sad §8 Home content).
+// AC-03, AC-05, AC-07, AC-09, AC-10, AC-11 (sad §8 Home content).
 
 const rec = (name: string, consent: boolean): Recommendation => ({
   name,
   role: 'Role, company',
   quote: `Quote of ${name}, kept word for word. Oleksandr \u2014 Alexander.`,
   consent,
+  source: 'linkedin',
+  profile: 'https://example.com/in/someone/',
+  date: 'January 1, 2026',
+  relationship: 'Worked with Alexander',
 });
+
+/** The Recommendations of owner-inputs.md: the fields, and the quote between its quotation marks. */
+function ownerInputs() {
+  const file = new URL('../../docs/features/home/owner-inputs.md', import.meta.url);
+  const source = readFileSync(file, 'utf8').replace(/\r\n/g, '\n');
+  return source
+    .split(/^### Recommendation \d+$/m)
+    .slice(1)
+    .map((block) => {
+      const field = (name: string) =>
+        block.match(new RegExp(`^- \\*\\*${name}:\\*\\* (.+)$`, 'm'))?.[1] ?? '';
+      return {
+        name: field('Name'),
+        role: field('Role'),
+        profile: field('Profile'),
+        date: field('Date'),
+        relationship: field('Relationship'),
+        consent: field('Consent'),
+        quote: block.match(/^Quote:\n\n"([\s\S]*)"\s*$/m)?.[1] ?? '',
+      };
+    });
+}
 
 function strings(value: unknown): string[] {
   if (typeof value === 'string') return [value];
@@ -43,9 +70,31 @@ describe('visibleRecommendations', () => {
     expect(visibleRecommendations([])).toEqual([]);
   });
 
-  it('is empty for the repo data until T27', () => {
-    expect(recommendations).toEqual([]);
-    expect(visibleRecommendations()).toEqual([]);
+  it('holds the two Recommendations of owner-inputs.md, both with consent', () => {
+    const inputs = ownerInputs();
+    expect(inputs).toHaveLength(2);
+    expect(recommendations).toHaveLength(2);
+    expect(visibleRecommendations()).toEqual(recommendations);
+    recommendations.forEach((r, i) => {
+      const input = inputs[i];
+      expect(input?.consent).toBe('true');
+      expect(r.consent).toBe(true);
+      expect(r.name).toBe(input?.name);
+      expect(r.role).toBe(input?.role);
+      expect(r.profile).toBe(input?.profile);
+      expect(r.date).toBe(input?.date);
+      expect(r.relationship).toBe(input?.relationship);
+    });
+  });
+
+  it('keeps each quote character for character as owner-inputs.md has it', () => {
+    const inputs = ownerInputs();
+    recommendations.forEach((r, i) => {
+      const quote = inputs[i]?.quote ?? '';
+      expect(quote.length).toBeGreaterThan(200);
+      expect(quote).toContain('\n\n');
+      expect(r.quote).toBe(quote);
+    });
   });
 });
 

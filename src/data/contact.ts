@@ -15,7 +15,7 @@ export interface Contact {
   residence: { name: string; lat: number; lon: number };
   /** ISO date (YYYY-MM-DD), checked by scripts/check-contact.ts. */
   lastUpdated: string;
-  links: { cv: string; contact: string; cvEn: string; cvNo: string };
+  links: { cv: string; contact: string; cvEn: string; cvNo: string; recommendations: string };
 }
 
 export const contact: Contact = {
@@ -33,5 +33,7 @@ export const contact: Contact = {
     contact: '/#contact',
     cvEn: '/cv/alexander-ponomarenko-cv-en.pdf',
     cvNo: '/cv/alexander-ponomarenko-cv-no.pdf',
+    // The recommendations on the LinkedIn profile (home AC-09).
+    recommendations: 'https://www.linkedin.com/in/ponomalex/details/recommendations/',
   },
 };
