@@ -71,7 +71,7 @@ const scroll = [shown.length > 1 && 'sm', shown.length > 2 && 'md'].filter(Boole
             <span>{r.role}</span>
           </span>
           {r.source === 'linkedin' && (
-            <Link href={contact.links.recommendations} external newTab>
+            <Link href={contact.links.recommendations} external>
               On LinkedIn
             </Link>
           )}
@@ -118,7 +118,7 @@ const scroll = [shown.length > 1 && 'sm', shown.length > 2 && 'md'].filter(Boole
                 <span>{r.role}</span>
               </span>
               {r.source === 'linkedin' && (
-                <Link href={contact.links.recommendations} external newTab>
+                <Link href={contact.links.recommendations} external>
                   On LinkedIn
                 </Link>
               )}

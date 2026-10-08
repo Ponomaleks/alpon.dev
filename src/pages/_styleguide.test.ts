@@ -372,7 +372,11 @@ describe('home component sections (T16, SCR-04)', () => {
       /<span\b[^>]*class="fj-copy__face fj-copy__face--done"[^>]*>\s*Copied\s*<\/span>/,
     );
     expect(s).not.toMatch(/\bfj-btn--sm\b/);
-    expect(s).not.toMatch(/\bfj-link\b/);
+    // The two profile rows are external links, with the icon, as on the home page (D-09).
+    expect(
+      s.match(/<a\b[^>]*class="[^"]*\bfj-link--external\b[^"]*"[^>]*\starget="_blank"/g),
+    ).toHaveLength(2);
+    expect(s.match(/\(opens in a new tab\)/g)).toHaveLength(2);
     const save = s.match(/<a\b[^>]*href="\/alexander-ponomarenko\.vcf"[\s\S]*?<\/a>/)?.[0] ?? '';
     const glyph = (name: string) =>
       section('Icon').match(
@@ -578,8 +582,9 @@ describe('Testimonial and Selected projects samples (T29, SCR-04)', () => {
     const linkTexts = articles().map((a) =>
       [...a.matchAll(/<a\b[^>]*>[\s\S]*?<\/a>/g)].map((m) => plain(m[0])),
     );
+    const live = 'Live (opens in a new tab)';
     const code = 'Code (opens in a new tab)';
-    expect(linkTexts).toEqual([['Live', code], ['Live', code], [code]]);
+    expect(linkTexts).toEqual([[live, code], [live, code], [code]]);
   });
 
   it('passes the placeholder check: every bracketed sample value is inside a marked block (AC-28)', () => {

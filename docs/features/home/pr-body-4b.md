@@ -15,7 +15,7 @@ Base: `v2`. Production (`main`) is not touched.
 **Recommendations (T27, AC-09, AC-10)**
 
 - `src/data/home.ts`: the two Recommendations of [owner-inputs.md](docs/features/home/owner-inputs.md), word for word, each with `consent: true`. The profile address, the date and the relationship are kept as source fields for the Claims list and are never rendered. A unit test reads `owner-inputs.md` and compares each quote character for character.
-- `src/components/home/Recommendations.astro`: the section "From people I’ve worked with" with a Testimonial card per quote (the quote paragraph by paragraph, the name, the role, "On LinkedIn" to Alexander's profile from `contact.ts`, same tab). One column, two from 768.
+- `src/components/home/Recommendations.astro`: the section "From people I’ve worked with" with a Testimonial card per quote (the quote paragraph by paragraph, the name, the role, "On LinkedIn" to the recommendations on Alexander's profile, in a new tab). One column, two from 768.
 - `src/pages/index.astro`: the section is rendered between Experience and Contact only when a Recommendation with consent exists. It is section 03 and Contact is 04; without one the section is left out and Contact is 03.
 - `owner-inputs.md` was corrected by the Owner on 2026-10-08 before the quotes were entered: the last two paragraphs stood under Recommendation 2 and belong to Recommendation 1.
 
@@ -79,7 +79,7 @@ Two things about the local gate, both in the backlog:
 - D-19: a long quote is closed to three lines with "Show more" / "Show less"; the design draws short quotes shown whole.
 - D-20: with more cards than columns the row is a carousel that goes round; the design draws a grid with every card visible. The arrows are the IconButton of the design system, in the head row.
 - D-21: "On LinkedIn" leads to the recommendations on the profile and is absent on a Recommendation given directly.
-- D-09 (changed): "On LinkedIn" on a Recommendation and "Code" on a project card open a new tab, as the design draws them, and say "(opens in a new tab)" to assistive technology. The profile links of the Contact block and the footer, and "Live" on a project card, stay in the same tab.
+- D-09 (changed, Owner decision 2026-10-08): every link to another site opens a new tab and says "(opens in a new tab)" to assistive technology: LinkedIn and GitHub in the Contact block and the footer, "On LinkedIn" on a Recommendation, "Live" and "Code" on a project card. Each shows the external-link icon, except in the footer, which keeps its tight text links. Mail, phone, the contact card and links inside the site stay in the tab. This replaces the same-tab rule of base-components D-16. A test over every anchor of every built page holds the rule.
 - The quote is set in whole-pixel lines (28, 32 and 34 px, close to the design's 1.5): with fractional lines the "On LinkedIn" text and its arrow were drawn one sub-pixel apart between the closed and the open state.
 - "On LinkedIn", "Show more", "Live", "Code" and "All projects" have a 44 px target (Quality bar); the design draws the bare text link.
 - ProjectCard: the media is a contour panel on spruce or on the sunken ground with the project's slug. The design generates a terrain per project and fades to a screenshot on hover; screenshots and the link from the title to the case study come with the Projects pages in step 7.

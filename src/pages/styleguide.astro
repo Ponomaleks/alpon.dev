@@ -95,10 +95,11 @@ const experienceSamples: (ExperienceEntry & { demo?: 'hover' | 'focus' })[] = [
   { ...entrySample, role: 'Sample role, closed', demo: 'focus' },
   { ...entrySample, role: 'Sample role, no points and no tags', points: [], stack: [] },
 ];
+// The profile rows leave the site: external links, as in the Contact block (home D-09).
 const contactRows = [
-  ['Phone', 'sample phone'],
-  ['LinkedIn', 'linkedin.com/in/sample'],
-  ['GitHub', 'github.com/sample'],
+  ['Phone', 'sample phone', undefined],
+  ['LinkedIn', 'linkedin.com/in/sample', 'https://www.linkedin.com/'],
+  ['GitHub', 'github.com/sample', 'https://github.com/'],
 ] as const;
 const sentenceStates = [undefined, 'hover', 'focus'] as const;
 const stateLabel = { hover: 'Hover', focus: 'Focus', active: 'Pressed' } as const;
@@ -430,13 +431,21 @@ const stateLabel = { hover: 'Hover', focus: 'Focus', active: 'Pressed' } as cons
             </span>
           </dd>
         </div>
-        {contactRows.map(([k, v]) => (
+        {contactRows.map(([k, v, outside]) => (
           <div class="sg__contact-row">
             <dt>{k}</dt>
             <dd>
-              <a class="sg__contact-value" href="/">
-                {v}
-              </a>
+              {outside ? (
+                <span class="sg__contact-value">
+                  <Link href={outside} external quiet>
+                    {v}
+                  </Link>
+                </span>
+              ) : (
+                <a class="sg__contact-value" href="/">
+                  {v}
+                </a>
+              )}
             </dd>
           </div>
         ))}

@@ -117,6 +117,10 @@ for (const { name, path, band } of pages) {
         await expect(link).toHaveAttribute('href', href);
         await expect(link).toHaveAttribute('rel', /noopener/);
         await expect(link).toHaveAttribute('rel', /noreferrer/);
+        // Another site: a new tab, announced; no icon in the footer (home D-09).
+        await expect(link).toHaveAttribute('target', '_blank');
+        await expect(link).toHaveAccessibleName(`${text} (opens in a new tab)`);
+        await expect(link.locator('svg')).toHaveCount(0);
       }
       await expect(footer.getByText('Based in')).toBeVisible();
       await expect(footer.locator('[lang="no"]', { hasText: 'Nittedal, Norge' })).toBeVisible();

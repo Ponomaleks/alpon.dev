@@ -54,8 +54,6 @@ import IconButton from '${ui('IconButton.astro')}';
 <div data-case="btn-demo-hover"><Button href="/go" data-demo-state="hover">H</Button></div>
 <div data-case="link-default"><Link href="/about">About</Link></div>
 <div data-case="link-external"><Link href="https://github.com/x" external>GitHub</Link></div>
-<div data-case="link-new-tab"><Link href="https://github.com/x" external newTab>Code</Link></div>
-<div data-case="link-new-tab-inside"><Link href="/about" newTab>About</Link></div>
 <div data-case="link-standalone"><Link href="/cv" standalone>Full CV</Link></div>
 <div data-case="link-demo-focus"><Link href="/about" data-demo-state="focus">F</Link></div>
 <div data-case="iconbtn"><IconButton icon="menu" label="Open menu" /></div>
@@ -213,26 +211,21 @@ describe('Link (TextLink)', () => {
     expect(el).toMatch(/<svg\b[^>]*aria-hidden="true"/);
   });
 
-  it('external stays in the tab unless it is asked to open a new one', () => {
-    expect(made('link-external')).not.toMatch(/\starget=/);
-    expect(made('link-external')).not.toContain('new tab');
-  });
-
-  it('newTab opens an external link in a new tab and says so to assistive technology', () => {
-    const el = made('link-new-tab');
+  it('external opens a new tab and says so to assistive technology (home D-09)', () => {
+    const el = made('link-external');
     expect(el).toMatch(/^\s*<a\b[^>]*\starget="_blank"/);
-    expect(el).toContain('rel="noopener noreferrer"');
     expect(el).toMatch(
       /<span\b[^>]*class="fj-link__hint"[^>]*>\s*\(opens in a new tab\)\s*<\/span>/,
     );
     // The visible label stays first, the hint follows it.
-    expect(el.indexOf('Code')).toBeLessThan(el.indexOf('fj-link__hint'));
+    expect(el.indexOf('GitHub')).toBeLessThan(el.indexOf('fj-link__hint'));
   });
 
-  it('newTab does nothing on a link inside the site', () => {
-    const el = made('link-new-tab-inside');
-    expect(el).not.toMatch(/\starget=/);
-    expect(el).not.toContain('fj-link__hint');
+  it('a link inside the site stays in the tab and has no hint', () => {
+    for (const name of ['link-default', 'link-standalone']) {
+      expect(made(name)).not.toMatch(/\starget=/);
+      expect(made(name)).not.toContain('fj-link__hint');
+    }
   });
 
   it('hides the new-tab hint from sight only', () => {

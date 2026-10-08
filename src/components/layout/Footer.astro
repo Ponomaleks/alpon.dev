@@ -21,11 +21,13 @@ const year = new Date().getFullYear();
     </div>
     <div class="fj-footer__col">
       <span class="fj-footer__label">Elsewhere</span>
-      <a href={linkedin} rel="noopener noreferrer">
+      <a href={linkedin} target="_blank" rel="noopener noreferrer">
         {bare(linkedin)}
+        <span class="fj-footer__hint">(opens in a new tab)</span>
       </a>
-      <a href={github} rel="noopener noreferrer">
+      <a href={github} target="_blank" rel="noopener noreferrer">
         {bare(github)}
+        <span class="fj-footer__hint">(opens in a new tab)</span>
       </a>
     </div>
     <div class="fj-footer__col">
@@ -98,6 +100,21 @@ const year = new Date().getFullYear();
     max-width: 100%;
     color: var(--fjord-color-text);
     text-decoration: none;
+  }
+
+  /* Links to another site open a new tab (home D-09). The footer keeps the tight text links of
+     the page design, so there is no icon; the hint is read by assistive technology only and is
+     held by its link. */
+  .fj-footer__col a[target] {
+    position: relative;
+  }
+  .fj-footer__hint {
+    position: absolute;
+    width: var(--fjord-border-width);
+    height: var(--fjord-border-width);
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 
   .fj-footer__col a:hover {
