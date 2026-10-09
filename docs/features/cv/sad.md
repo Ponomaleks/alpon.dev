@@ -303,9 +303,9 @@ sequenceDiagram
     alt screen 1024 or wider
         UI-->>U: side column beside the content
     else screen below 1024
-        UI-->>U: the same column after the content
+        UI-->>U: no side column, as in the page design
     end
-    Note over U,UI: Side column with On this page, the contact list from the single contact source with the Residence, and Download PDF as a secondary button. No contact card is offered
+    Note over U,UI: From 1024, side column with On this page, the contact list from the single contact source with the Residence, and Download PDF as a secondary button. No contact card is offered
     opt a link of On this page
         U->>UI: activates the numbered link of a section
         UI-->>U: the page moves to that section with its heading clear of the header
@@ -320,7 +320,7 @@ sequenceDiagram
         else Copy beside the email address
             alt scripts enabled
                 U->>UI: activates Copy
-                UI-->>U: the address is copied and the Toast confirms with Copied
+                UI-->>U: the address is copied and the Toast confirms with Copied, on the Norwegian page Kopiert
             else scripts disabled
                 UI-->>U: Copy is not shown and the address stays a mail link
             end
@@ -697,7 +697,7 @@ Repo defaults apply (logging, auth, ids, events: none on a static site). The row
 |---|---|---|
 | Addresses | `/cv`, `/cv/en`, `/cv/no` are pages; `/cv` is canonical to `/cv/en`. Internal links use `contact.links.cv` (`/cv/en`) or `links.cvPages[cvLang]`; no component writes a CV address as a literal | here; `src/data/contact.ts` |
 | Response headers | `/cv/*` is removed, because matching rules add up and it would give the pages the one-hour rule. Explicit rules instead: `/cv`, `/cv/en`, `/cv/no` get the rule of `/`; each of the two CV PDFs and four page images gets the one-hour rule by its full path; the PDFs keep `Content-Disposition: inline` with their file names (AC-18) | `public/_headers`; `tests/e2e/headers.spec.ts` |
-| Internationalisation | The CV language is a page property: `<html lang>`, title, description, labels and content. The Shell stays English and is marked `lang="en"` on the Norwegian page; the two bar actions the Norwegian page sets carry `lang="no"` (AC-02, AC-19) | here; `BaseLayout` |
+| Internationalisation | The CV language is a page property: `<html lang>`, title, description, labels and content. The Shell stays English and is marked `lang="en"` on the Norwegian page; the two bar actions the Norwegian page sets carry `lang="no"`, and so does the message of a Toast that page sends, inside the English Toast region (AC-02, AC-19; screens C-4) | here; `BaseLayout` |
 | Current page | `aria-current="page"` on "CV" in the header and the mobile menu. Menu marker: an accent rule at the start of the row plus the semibold weight, so it differs by more than colour (AC-20). In the language switch the current language carries `aria-current="true"` | `Header`, `MobileMenu`, `LangSwitch` |
 | Language switch | Two links with scripts off. With scripts on, the link of the current language does not navigate (the script stops it, no reload and no jump); the other link carries the section fragment (ADR-0001). The bar's switch is the same markup and the same script hooks | `LangSwitch`, `src/scripts/cv/lang-switch.ts` |
 | Script-only controls | "Print" and "Copy" carry `data-needs-script`, the existing scripts-off gate in `base.css`; no new mechanism | base-components; `base.css` |

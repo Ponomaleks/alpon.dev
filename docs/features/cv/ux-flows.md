@@ -14,7 +14,7 @@ updated_at: "2026-10-09"
 
 ## Platform decisions
 
-- **Posture:** mobile-first, per `docs/design-system.md` (confirmed by the Owner, 2026-10-09). The phone path is drawn first; the flows branch at 768 (the Sticky action bar leaves, BackToTop arrives) and at 1024 (the side column moves beside the content).
+- **Posture:** mobile-first, per `docs/design-system.md` (confirmed by the Owner, 2026-10-09). The phone path is drawn first; the flows branch at 768 (the Sticky action bar leaves, BackToTop arrives) and at 1024 (the side column appears beside the content; below 1024 it is not shown, screens C-1).
 - **Two pages, three addresses:** the CV is one page per CV language. The short CV address shows the English CV page and is an entry of that screen, not a screen of its own (spec D-09).
 - **Page shape:** a CV page is one long page. Its head, its numbered sections, the side column and the Original PDF preview are places on one screen; a Visitor moves between them by scrolling or by a link of "On this page".
 - **Language switch:** navigation between the two CV pages, not a change in place (spec D-02). Where scripts run it keeps the section; with scripts off it opens the other page at its top.
@@ -22,7 +22,7 @@ updated_at: "2026-10-09"
 - **Download:** "Download PDF" and the closing band's "Download CV" save a file and open nothing.
 - **Print:** leaves the site for the browser's print dialog; the printed document is an exit, not a screen. The Visitor returns to the page as it was.
 - **Links that leave the site:** LinkedIn, GitHub and the code links of the personal projects open a new tab, announced (home D-09). Links inside the site stay in the same tab; the page images of the Original PDF preview are the one exception (spec §1).
-- **Copy confirmation:** the existing copy-email action and Toast of the home page; nothing new at flow level.
+- **Copy confirmation:** the existing copy-email action and Toast of the home page; nothing new at flow level. On the Norwegian CV page its wording is Norwegian, "Kopier" and "Kopiert" (screens C-4).
 - **Sticky action bar:** below 768 only; on a CV page its two actions are the language switch and "Download PDF". Collapsing works as on the home page and holds for the page the Visitor is on.
 - **"CV" on a CV page:** in the header and in the Mobile menu panel it is the link to the current page and keeps the CV language; from every other page the CV links lead to the English CV page (Owner, 2026-10-09; AC-16).
 - **BackToTop:** a Shell link at 768 and wider on every page for Visitors; it moves within the page and never navigates.
@@ -57,10 +57,9 @@ flowchart TD
     E --> I["On both pages (AC-03): language levels are plain words, skills are text, the client and its events are never named, no text in square brackets"]
     N --> I
     I --> W{"Screen 1024 or wider?"}
-    W -->|"no, the phone path"| W1["The side column follows the content"]
+    W -->|"no, the phone path"| W1["No side column. Contact goes through the contact button of the CV head, the closing band and the footer"]
     W -->|"yes (AC-04)"| W2["The side column sits beside the content"]
-    W1 --> C["Side column: 'On this page' with a numbered link to every section, a contact list with email, phone, LinkedIn, GitHub and the Residence 'Nittedal, Norge', and 'Download PDF'. No contact card is offered"]
-    W2 --> C
+    W2 --> C["Side column: 'On this page' with a numbered link to every section, a contact list with email, phone, LinkedIn, GitHub and the Residence 'Nittedal, Norge', and 'Download PDF'. No contact card is offered"]
     C -->|"a link of 'On this page'"| S["The page moves to that section, its heading clear of the header"]
     C -->|"email address"| M1["The Visitor's mail app opens a message to Alexander"]
     C -->|"phone number"| M2["The Visitor's phone app opens the number"]
@@ -73,7 +72,7 @@ flowchart TD
     N -->|"the code link of a personal project"| M4
 ```
 
-A Recruiter opens a CV page at any width from 360. The English CV page shows, top to bottom, breadcrumbs from the site name to "CV", the name as the main heading, the role line, "1482 Nittedal, Norway" with "Norwegian work permit", and the numbered sections from Profile to Community and volunteering, each with what the English CV PDF has. The Norwegian CV page shows the content and the page's own labels in Norwegian, is marked as Norwegian, and has the sections of the Norwegian CV PDF numbered in the order shown, while the Shell stays English. On both pages language levels are plain words, skills are text, the client is never named and no text in square brackets appears. Below 1024 the side column follows the content and from 1024 it sits beside it; it holds "On this page", the contact list and "Download PDF", and offers no contact card. A link of "On this page" moves the page to that section with its heading clear of the header. The email opens the mail app and the phone number the phone app; LinkedIn, GitHub and the code link of a personal project open the other site in a new tab, announced. "Copy" copies the address and a Toast confirms "Copied" where scripts run, and is not offered where they do not. "Download PDF" continues in Flow US-02.
+A Recruiter opens a CV page at any width from 360. The English CV page shows, top to bottom, breadcrumbs from the site name to "CV", the name as the main heading, the role line, "1482 Nittedal, Norway" with "Norwegian work permit", and the numbered sections from Profile to Community and volunteering, each with what the English CV PDF has. The Norwegian CV page shows the content and the page's own labels in Norwegian, is marked as Norwegian, and has the sections of the Norwegian CV PDF numbered in the order shown, while the Shell stays English. On both pages language levels are plain words, skills are text, the client is never named and no text in square brackets appears. From 1024 the side column sits beside the content; it holds "On this page", the contact list and "Download PDF", and offers no contact card. Below 1024 it is not shown, and contact goes through the contact button of the CV head, the closing band and the footer. A link of "On this page" moves the page to that section with its heading clear of the header. The email opens the mail app and the phone number the phone app; LinkedIn, GitHub and the code link of a personal project open the other site in a new tab, announced. "Copy" copies the address and a Toast confirms "Copied" ("Kopier" and "Kopiert" on the Norwegian page) where scripts run, and is not offered where they do not. "Download PDF" continues in Flow US-02.
 
 ### Flow: US-02 — Take the file
 

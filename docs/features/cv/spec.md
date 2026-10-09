@@ -215,7 +215,7 @@ Not a difference: the side column's contact list shows "Nittedal, Norge", the Re
 
 **Given** a Recruiter opens the Norwegian CV page
 **When** the page has loaded
-**Then** the CV content and the labels of the CV page are in Norwegian as the Norwegian CV PDF and the page design have them ("Last ned PDF", "Ta kontakt", "Skriv ut", "På denne siden", "Se original-PDF"), the page is marked as Norwegian for assistive technology and search engines, and the sections are the ones the Norwegian CV PDF has, numbered in the order shown; the Shell around it stays English and is marked as English, except the two actions this page sets in the Sticky action bar, which follow the CV language (AC-19). The contact button in the CV head is one of the CV page's own controls, so it follows the CV language: "Ta kontakt" on the Norwegian page, "Get in touch" on the English one; the header's "Get in touch" and the closing band's "Get in touch" are Shell and stay English on both pages
+**Then** the CV content and the labels of the CV page are in Norwegian as the Norwegian CV PDF and the page design have them ("Last ned PDF", "Ta kontakt", "Skriv ut", "På denne siden", "Se original-PDF"), the copy-email action of the side column says "Kopier" and confirms with "Kopiert", in the button and in the Toast, marked as Norwegian, the page is marked as Norwegian for assistive technology and search engines, and the sections are the ones the Norwegian CV PDF has, numbered in the order shown; the Shell around it stays English and is marked as English, except the two actions this page sets in the Sticky action bar, which follow the CV language (AC-19). The contact button in the CV head is one of the CV page's own controls, so it follows the CV language: "Ta kontakt" on the Norwegian page, "Get in touch" on the English one; the header's "Get in touch" and the closing band's "Get in touch" are Shell and stay English on both pages
 
 ### AC-03 (US-01) — domain invariant
 
@@ -227,7 +227,7 @@ Not a difference: the side column's contact list shows "Nittedal, Norge", the Re
 
 **Given** a Visitor reads a CV page
 **When** the width is 1024 or more
-**Then** a side column beside the content shows "On this page" with a numbered link to every section, which moves the page to that section with its heading clear of the header; a contact list with email, phone, LinkedIn, GitHub and the Residence "Nittedal, Norge", taken from the site's single contact source, with the copy-email action that confirms with "Copied"; and "Download PDF". Below 1024 the same column follows the content. The contact list offers no contact card
+**Then** a side column beside the content shows "On this page" with a numbered link to every section, which moves the page to that section with its heading clear of the header; a contact list with email, phone, LinkedIn, GitHub and the Residence "Nittedal, Norge", taken from the site's single contact source, with the copy-email action that confirms with "Copied" ("Kopiert" on the Norwegian page, AC-02); and "Download PDF". Below 1024 the side column is not shown, as in the page design (Owner, 2026-10-09; screens C-1): the contact routes of the page are then the contact button of the CV head, the closing band and the footer, and the downloads those of the CV head, the Sticky action bar and the closing band. The contact list offers no contact card
 
 ### AC-05 (US-02) — happy
 
@@ -341,7 +341,7 @@ Not a difference: the side column's contact list shows "Nittedal, Norge", the Re
 
 **Given** a Visitor, who never signs in, opens a CV page with scripts off, or with a browser that refuses anything the security policy does not name
 **When** the page has loaded
-**Then** every section, the language switch, both downloads, the Original PDF preview, the contact list with its links and the Shell are readable and usable; only "Print", the copy-email action and keeping the section across the language switch are absent; the security policy is the same as before this feature, with no new source and no inline script or style; the CV page's own scripts stay inside the page-script budget of the site
+**Then** every section, the language switch, both downloads, the Original PDF preview, the contact list with its links (at 1024 and wider, AC-04) and the Shell are readable and usable; only "Print", the copy-email action and keeping the section across the language switch are absent; the security policy is the same as before this feature, with no new source and no inline script or style; the CV page's own scripts stay inside the page-script budget of the site
 
 ### AC-24 (US-08) — happy
 
