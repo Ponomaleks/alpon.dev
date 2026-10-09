@@ -30,10 +30,10 @@ The two phases are a work order only: one branch, `feat/cv`, and one pull reques
 | T17 | [Compose CvPage, give the three pages their head and list them in the sitemap](./t17-cv-page-composition.md) | wiring | Alexander Ponomarenko | L | T2, T5, T6, T9, T10, T11, T12, T14, T15, T16 | done |
 | T18 | [Write the pure modules of the CV page script](./t18-cv-script-modules.md) | app | Alexander Ponomarenko | M | T4 | done |
 | T19 | [Teach the budget check that the three CV addresses are one page](./t19-budget-page-groups.md) | tests | Alexander Ponomarenko | S | — | done |
-| T20 | [Wire the CV page script and check the language switch and the copy action on the page](./t20-cv-script-entry.md) | app | Alexander Ponomarenko | M | T13, T17, T18, T19 | todo |
+| T20 | [Wire the CV page script and check the language switch and the copy action on the page](./t20-cv-script-entry.md) | app | Alexander Ponomarenko | M | T13, T17, T18, T19 | done |
 | T21 | [Hand the Legacy CV addresses over from the home page](./t21-legacy-cv-handoff.md) | app | Alexander Ponomarenko | M | T3 | done |
 | T22 | [Give the CV pages, the CV PDFs and the page images their response headers](./t22-cv-response-headers.md) | wiring | Alexander Ponomarenko | S | T2 | done |
-| T23 | [Extend the contact check and the placeholder check to the built CV pages](./t23-cv-built-checks.md) | tests | Alexander Ponomarenko | M | T17 | todo |
+| T23 | [Extend the contact check and the placeholder check to the built CV pages](./t23-cv-built-checks.md) | tests | Alexander Ponomarenko | M | T17 | done |
 | T24 | [Show the components of phase 5a on the Styleguide with marked sample data](./t24-styleguide-cv-components.md) | ui | Alexander Ponomarenko | M | T7, T8, T9, T10, T11, T12, T15 | done |
 | T25 | [Check the CV pages end to end: content, downloads, preview, primary count and targets](./t25-cv-e2e.md) | tests | Alexander Ponomarenko | L | T17, T20 | todo |
 | T26 | [Run axe and Lighthouse on both CV pages](./t26-cv-axe-and-lighthouse.md) | tests | Alexander Ponomarenko | S | T20, T24 | todo |
