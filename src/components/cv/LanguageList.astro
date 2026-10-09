@@ -1,0 +1,44 @@
+---
+// Spoken languages with a plain self-assessed level (never a CEFR code).
+interface Props {
+  languages: { language: string; level: string; lang?: string }[];
+}
+
+const { languages } = Astro.props;
+---
+
+<ul class="fj-langs">
+  {languages.map((l) => (
+    <li>
+      <strong lang={l.lang}>{l.language}</strong>
+      <span lang={l.lang}>{l.level}</span>
+    </li>
+  ))}
+</ul>
+
+<style>
+  .fj-langs {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .fj-langs li {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--fjord-space-1) var(--fjord-space-4);
+    padding: var(--fjord-space-3) 0;
+    border-top: var(--fjord-border-width) solid var(--fjord-color-border);
+  }
+  .fj-langs li:last-child {
+    border-bottom: var(--fjord-border-width) solid var(--fjord-color-border);
+  }
+  .fj-langs strong {
+    font-weight: var(--fjord-weight-semibold);
+  }
+  .fj-langs span {
+    color: var(--fjord-color-text-muted);
+    text-align: right;
+  }
+</style>

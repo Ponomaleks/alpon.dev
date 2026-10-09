@@ -1,0 +1,96 @@
+---
+// Rows with a period column, a title, an organisation and an optional note.
+// A period may have a second line after a newline (e.g. year and place).
+interface Row {
+  period: string;
+  title: string;
+  organisation?: string;
+  note?: string;
+  /** Language of the title and organisation when it differs from the page. */
+  lang?: string;
+}
+interface Props {
+  rows: Row[];
+}
+
+const { rows } = Astro.props;
+---
+
+<ul class="dated-rows">
+  {rows.map((row) => {
+    const [first, second] = row.period.split('\n');
+    return (
+      <li>
+        <p class="dated-rows__period">
+          <span>{first}</span>
+          {second && <span>{second}</span>}
+        </p>
+        <div class="dated-rows__main">
+          <p class="dated-rows__title" lang={row.lang}>
+            {row.title}
+          </p>
+          {row.organisation && (
+            <p class="dated-rows__org" lang={row.lang}>
+              {row.organisation}
+            </p>
+          )}
+          {row.note && <p class="dated-rows__note">{row.note}</p>}
+        </div>
+      </li>
+    );
+  })}
+</ul>
+
+<style>
+  .dated-rows {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .dated-rows li {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--fjord-space-2);
+    padding: var(--fjord-space-4) 0;
+    border-top: var(--fjord-border-width) solid var(--fjord-color-border);
+  }
+  .dated-rows li:last-child {
+    border-bottom: var(--fjord-border-width) solid var(--fjord-color-border);
+  }
+  .dated-rows__period {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 var(--fjord-space-2);
+    margin: 0;
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-mono-label);
+    line-height: var(--fjord-leading-ui);
+    color: var(--fjord-color-text-muted);
+  }
+  .dated-rows__main {
+    display: flex;
+    flex-direction: column;
+    gap: var(--fjord-space-1);
+  }
+  .dated-rows__main p {
+    margin: 0;
+  }
+  .dated-rows__title {
+    font-weight: var(--fjord-weight-semibold);
+  }
+  .dated-rows__org,
+  .dated-rows__note {
+    color: var(--fjord-color-text-muted);
+  }
+  @media (min-width: 768px) {
+    .dated-rows li {
+      grid-template-columns: calc(var(--fjord-space-32) * 1.5) minmax(0, 1fr);
+      gap: var(--fjord-space-6);
+    }
+    .dated-rows__period {
+      flex-direction: column;
+    }
+  }
+</style>
