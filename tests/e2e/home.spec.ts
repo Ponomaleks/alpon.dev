@@ -262,7 +262,7 @@ test.describe('experience (AC-08)', () => {
     }
     await expect(
       page.locator('main .experience').getByRole('link', { name: 'Full CV' }),
-    ).toHaveAttribute('href', '/cv');
+    ).toHaveAttribute('href', '/cv/en');
   });
 
   // Page design (.fj-xp-item): one column, the period above the heading, on a phone and at desktop,

@@ -4,6 +4,7 @@ import { getViteConfig } from 'astro/config';
 import { experimental_AstroContainer as AstroContainer } from 'astro/container';
 import { createServer, type ViteDevServer } from 'vite';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { contact } from '../../data/contact';
 import { experience } from '../../data/home';
 
 // AC-08 (T13; screens.md SCR-01 experience; sad §8 Experience entries). Four native <details>
@@ -95,16 +96,19 @@ describe('ExperienceList', () => {
     expect(experience.some((x) => x.stack.length === 0)).toBe(true);
   });
 
-  it('has a "Full CV" link to /cv', async () => {
+  it('has a "Full CV" link to contact.links.cv', async () => {
     const html = await render();
-    const link = html.match(/<a\b[^>]*href="\/cv"[^>]*>[\s\S]*?<\/a>/)?.[0] ?? '';
+    expect(contact.links.cv).toBe('/cv/en');
+    const link =
+      html.match(new RegExp(`<a\\b[^>]*href="${contact.links.cv}"[^>]*>[\\s\\S]*?</a>`))?.[0] ?? '';
     expect(text(link)).toContain('Full CV');
   });
 
   // Page design (Home.jsx): <TextLink variant="standalone">Full CV</TextLink>, a link with an arrow.
   it('draws "Full CV" as a standalone link with its arrow', async () => {
     const html = await render();
-    const link = html.match(/<a\b[^>]*href="\/cv"[^>]*>[\s\S]*?<\/a>/)?.[0] ?? '';
+    const link =
+      html.match(new RegExp(`<a\\b[^>]*href="${contact.links.cv}"[^>]*>[\\s\\S]*?</a>`))?.[0] ?? '';
     expect(link).toMatch(/class="[^"]*\bfj-link--standalone\b/);
     expect(link).toMatch(/<svg\b[^>]*aria-hidden="true"/);
     expect(link).not.toMatch(/\b(target|rel)=/);

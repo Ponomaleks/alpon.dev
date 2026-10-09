@@ -69,13 +69,15 @@ describe('Hero content (AC-01)', () => {
     expect(t).not.toContain('Nittedal');
   });
 
-  it('has exactly one primary button, "View CV", linking to /cv', async () => {
+  it('has exactly one primary button, "View CV", linking to contact.links.cv', async () => {
+    expect(contact.links.cv).toBe('/cv/en');
+    expect(contact.links.cvPages).toEqual({ en: '/cv/en', no: '/cv/no' });
     const html = await renderHero();
     const primaries = html.match(
       /<(?:a|button)\b[^>]*class="[^"]*\bfj-btn--primary\b[^"]*"[^>]*>/g,
     );
     expect(primaries).toHaveLength(1);
-    expect(primaries?.[0]).toContain('href="/cv"');
+    expect(primaries?.[0]).toContain(`href="${contact.links.cv}"`);
     const anchor = html.match(/<a\b[^>]*\bfj-btn--primary\b[^>]*>([\s\S]*?)<\/a>/);
     expect(text(anchor?.[1] ?? '')).toBe('View CV');
   });

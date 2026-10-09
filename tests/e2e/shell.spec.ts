@@ -258,7 +258,7 @@ test.describe('scripts off at 390 (AC-06)', () => {
       await page.goto(path);
       const bar = page.locator('[data-shell-bar]');
       await expect(bar).toBeInViewport();
-      await expect(bar.getByRole('link', { name: 'View CV' })).toHaveAttribute('href', '/cv');
+      await expect(bar.getByRole('link', { name: 'View CV' })).toHaveAttribute('href', '/cv/en');
       await expect(bar.getByRole('link', { name: 'Save contact (.vcf)' })).toHaveAttribute(
         'href',
         '/alexander-ponomarenko.vcf',

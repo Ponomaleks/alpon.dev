@@ -95,7 +95,7 @@ test.describe('the bar actions are secondary, with a contact card download (AC-3
       await expect(bar.getByRole('link')).toHaveCount(2);
       const cv = bar.getByRole('link', { name: 'View CV' });
       const save = bar.getByRole('link', { name: 'Save contact (.vcf)' });
-      await expect(cv).toHaveAttribute('href', '/cv');
+      await expect(cv).toHaveAttribute('href', '/cv/en');
       await expect(save).toHaveAttribute('href', '/alexander-ponomarenko.vcf');
       await expect(save).toHaveAttribute('download', /.*/);
       for (const action of [cv, save]) {

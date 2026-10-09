@@ -8,6 +8,7 @@ import Icon from '../ui/Icon.astro';
 import Link from '../ui/Link.astro';
 import SectionHeader from '../ui/SectionHeader.astro';
 import Tag from '../ui/Tag.astro';
+import { contact } from '../../data/contact';
 import { experience, type ExperienceEntry } from '../../data/home';
 
 type Entry = ExperienceEntry & { demo?: 'hover' | 'focus' };
@@ -38,7 +39,7 @@ const { items = experience as Entry[], sample = false, index = '03' } = Astro.pr
           eyebrow="Experience"
           title="Where I’ve worked"
         />
-        <Link href="/cv" standalone>
+        <Link href={contact.links.cv} standalone>
           Full CV
         </Link>
       </div>

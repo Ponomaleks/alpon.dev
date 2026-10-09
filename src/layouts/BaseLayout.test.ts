@@ -3,6 +3,7 @@ import { mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { contact } from '../data/contact';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 // BaseLayout head contract (sad §8, AC-13, AC-06): a real production build into a throwaway
@@ -231,8 +232,12 @@ describe('the Shell around a page (AC-06, AC-07, AC-24)', () => {
 });
 
 describe('page option current', () => {
+  it('the data points the CV link at the canonical English page', () => {
+    expect(contact.links.cv).toBe('/cv/en');
+  });
+
   it.each([
-    ['current-cv', '/cv'],
+    ['current-cv', contact.links.cv],
     ['current-contact', '/#contact'],
   ])('%s marks the %s link in the header and in the menu', (name, href) => {
     const source = opt(name);
@@ -306,7 +311,7 @@ describe('page option mobileBarActions (AC-38, ADR-0002)', () => {
   it('the default gives "View CV" and "Save contact (.vcf)", both secondary', () => {
     const [cv, save, ...rest] = barAnchors(html('fixture.html'));
     expect(rest).toEqual([]);
-    expect(cv).toContain('href="/cv"');
+    expect(cv).toContain(`href="${contact.links.cv}"`);
     expect(cv).toContain('View CV');
     expect(save).toContain('href="/alexander-ponomarenko.vcf"');
     expect(save).toContain('Save contact (.vcf)');

@@ -15,7 +15,14 @@ export interface Contact {
   residence: { name: string; lat: number; lon: number };
   /** ISO date (YYYY-MM-DD), checked by scripts/check-contact.ts. */
   lastUpdated: string;
-  links: { cv: string; contact: string; cvEn: string; cvNo: string; recommendations: string };
+  links: {
+    cv: string;
+    cvPages: { en: string; no: string };
+    contact: string;
+    cvEn: string;
+    cvNo: string;
+    recommendations: string;
+  };
 }
 
 export const contact: Contact = {
@@ -29,7 +36,8 @@ export const contact: Contact = {
   residence: { name: 'Nittedal, Norge', lat: 60.07, lon: 10.87 },
   lastUpdated: '2026-10-04',
   links: {
-    cv: '/cv',
+    cv: '/cv/en',
+    cvPages: { en: '/cv/en', no: '/cv/no' },
     contact: '/#contact',
     cvEn: '/cv/alexander-ponomarenko-cv-en.pdf',
     cvNo: '/cv/alexander-ponomarenko-cv-no.pdf',
