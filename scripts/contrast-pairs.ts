@@ -55,6 +55,9 @@ export const PAIRS: Pair[] = [
   pair('link', 'bg', 'text', ALL),
   pair('link', 'bg-raised', 'text', ALL),
   pair('link-hover', 'bg', 'text', ALL),
+  // Ghost Button: link text on the page ground, hover text on the soft fill.
+  pair('link-hover', 'accent-soft', 'text', ALL),
+  pair('link', 'accent-soft', 'text', ALL),
   // Inverse grounds, the primary CTA and floating UI.
   pair('text-inverse', 'bg-inverse', 'text', PAGE),
   // The on-spruce wordmark (footer, header, menu panel) takes the inverse colour on the spruce ground.
