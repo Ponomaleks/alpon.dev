@@ -7,7 +7,10 @@ export interface DatedRow {
   /** Date or date range as printed, e.g. "Nov 2022 – Jan 2026". */
   period: string;
   title: string;
-  detail?: string;
+  organisation?: string;
+  note?: string;
+  /** Language of the title and organisation when it differs from the page. */
+  lang?: string;
 }
 
 export interface SkillGroup {
@@ -22,13 +25,23 @@ export interface ClientProject {
   stack?: string[];
 }
 
+export interface PersonalProject {
+  title: string;
+  stack: string;
+  text: string;
+  href: string;
+}
+
 export interface CvJob {
   role: string;
   employer: string;
+  /** Note after the employer name, e.g. a company description or the country. */
+  employerNote?: string;
   period: string;
-  summary?: string;
-  bullets: string[];
-  stack?: string[];
+  /** Plain paragraphs, for a job without projects. */
+  paragraphs?: string[];
+  clientProjects?: ClientProject[];
+  internalProjects?: ClientProject[];
 }
 
 export interface CvLanguageLevel {
@@ -44,7 +57,9 @@ export interface CvSection {
   skillGroups?: SkillGroup[];
   languages?: CvLanguageLevel[];
   jobs?: CvJob[];
-  projects?: ClientProject[];
+  /** Muted note above the personal projects. */
+  note?: string;
+  projects?: PersonalProject[];
   rows?: DatedRow[];
 }
 
@@ -57,12 +72,24 @@ export interface CvLabels {
   viewOriginalPdf: string;
   hideOriginalPdf: string;
   lastUpdated: string;
+  /** Page meta line, e.g. "PDF · 2 pages · A4". */
+  meta: string;
+  /** Label of the side-column contact block. */
+  contact: string;
+  /** Label before each client project's technologies. */
+  appliedTechnologies: string;
+  /** Eyebrow above the internal projects of a job. */
+  internalProjects: string;
 }
 
 export interface Cv {
   lang: CvLang;
   title: string;
   description: string;
+  /** Town line under the name, e.g. "1482 Nittedal, Norway". */
+  location: string;
+  /** Work permit line. */
+  permit: string;
   labels: CvLabels;
   sections: CvSection[];
 }
