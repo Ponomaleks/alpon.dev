@@ -353,7 +353,4 @@ Canonical definitions are in [CONTEXT](../../../CONTEXT.md); this table lists th
 | Shell, Sticky action bar, Styleguide, Claims list | As in `CONTEXT.md` |
 | Residence, Work region | As in `CONTEXT.md` |
 | Dag, Natt, Fjord token, Theme bootstrap, No-JS Natt block | As in `CONTEXT.md` |
-| Short CV address | `/cv`: shows the English CV page and names `/cv/en` as canonical. Not in `CONTEXT.md` yet |
-| Section id | One of the eight shared, language-neutral ids of the CV sections; part of a public address (ADR-0001). Not in `CONTEXT.md` yet |
-| Page group | The addresses that one page answers at, counted as one page by the budget check. Not in `CONTEXT.md` yet |
-| Print block | The generated `@media print` part of `tokens.css`: colours only, the Dag set for any theme with the sheet background and text from the print primitives (ADR-0002). Not in `CONTEXT.md` yet |
+| Short CV address, Section id, Page group, Print block | As in `CONTEXT.md` (added with this design; ADR-0001 for Section id, ADR-0002 for Print block) |
