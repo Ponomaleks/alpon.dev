@@ -4,6 +4,7 @@
 // Copy from design/handoff/site/project/site/data.js.
 import type { Recommendation } from './home';
 import type { Project } from './projects';
+import type { CvJob, CvLanguageLevel, DatedRow, SkillGroup } from './cv/types';
 
 /** Two Testimonial cards for the Styleguide. Every value is bracketed: no real person, no real quote. */
 export const sampleRecommendations: Recommendation[] = [
@@ -82,4 +83,72 @@ export const sampleProjects: Project[] = [
     featured: true,
     published: false,
   },
+];
+
+// Sample CV data for the Styleguide (cv AC-29): shown there under the "Sample data" label, inside a
+// data-sample block. None of it is CV text: every value is invented and says so.
+export const sampleCvSkillGroups: SkillGroup[] = [
+  { label: 'Sample group', items: ['Sample skill', 'Another skill', 'A third skill'] },
+  { label: 'Another sample group', items: ['Sample tool', 'Another tool'] },
+];
+
+export const sampleCvLanguages: CvLanguageLevel[] = [
+  { language: 'Sample language', level: 'Sample level' },
+  { language: 'Another language', level: 'Another level' },
+  { language: 'A third language', level: 'A third level' },
+];
+
+/** A current job with two client projects and internal projects, then an earlier job with paragraphs only. */
+export const sampleCvJobs: CvJob[] = [
+  {
+    role: 'Sample role, current',
+    employer: 'Sample employer',
+    employerNote: 'sample note',
+    period: 'Jan 2022 – Present',
+    clientProjects: [
+      {
+        name: 'Sample client project',
+        description: 'A sample description of the project, two lines at most.',
+        stack: ['Sample', 'Tags'],
+      },
+      {
+        name: 'Another sample client project',
+        description: 'Another sample description.',
+        stack: ['More', 'Sample', 'Tags'],
+      },
+    ],
+    internalProjects: [
+      { name: 'Sample internal project', description: 'A sample description.' },
+      { name: 'Another sample internal project', description: 'Another sample description.' },
+    ],
+  },
+  {
+    role: 'Sample role, earlier',
+    employer: 'Another sample employer',
+    period: 'Jan 2019 – Dec 2021',
+    paragraphs: ['A sample paragraph about the job.', 'Another sample paragraph.'],
+  },
+];
+
+/** A row with a two-line period and a note, then a row with a Norwegian name. */
+export const sampleCvRows: DatedRow[] = [
+  {
+    period: '2020 – 2024\nSample place',
+    title: 'Sample title',
+    organisation: 'Sample organisation',
+    note: 'A sample note.',
+  },
+  { period: '2019', title: 'Eksempeltittel', organisation: 'Eksempelorganisasjon', lang: 'no' },
+];
+
+/** Eight headings for the Contents list. */
+export const sampleCvContents: string[] = [
+  'Sample section',
+  'Second section',
+  'Third section',
+  'Fourth section',
+  'Fifth section',
+  'Sixth section',
+  'Seventh section',
+  'Eighth section',
 ];

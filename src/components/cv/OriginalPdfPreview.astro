@@ -9,9 +9,11 @@ import CvMeta from './CvMeta.astro';
 
 interface Props {
   lang: CvLang;
+  /** Draws the preview open: the Styleguide's static sample. */
+  open?: boolean;
 }
 
-const { lang } = Astro.props;
+const { lang, open = false } = Astro.props;
 const pdf = cvPdf[lang];
 
 const copy = {
@@ -27,7 +29,7 @@ const copy = {
 const { summary, page } = copy[lang];
 ---
 
-<details class="cv-preview" lang={lang === 'no' ? 'no' : undefined}>
+<details class="cv-preview" lang={lang === 'no' ? 'no' : undefined} open={open}>
   <summary class="fj-btn fj-btn--ghost fj-btn--sm cv-preview__summary">
     <span class="cv-preview__icon cv-preview__icon--closed">
       <Icon name="eye" />
