@@ -122,9 +122,21 @@ describe.each(['en', 'no'] as const)('CvHead (%s)', (lang) => {
     expect(attr(secondary[0]?.attrs ?? '', 'href')).toBe(contact.links.contact);
   });
 
-  it('does not build "Print" (T30)', async () => {
+  it('has "Print" as a ghost button behind data-needs-script (AC-11, AC-23)', async () => {
     const html = await render(lang);
-    expect(text(html)).not.toMatch(/\bPrint\b/);
+    const label = { en: 'Print', no: 'Skriv ut' }[lang];
+    const ghost = [...html.matchAll(/<button\b([^>]*)>([\s\S]*?)<\/button>/g)].filter((m) =>
+      /fj-btn--ghost/.test(m[1] ?? ''),
+    );
+    expect(ghost).toHaveLength(1);
+    expect(text(ghost[0]?.[2] ?? '')).toBe(label);
+    expect(ghost[0]?.[1]).not.toMatch(/fj-btn--primary/);
+    expect(html).toMatch(/data-needs-script[^>]*>\s*<button\b[^>]*fj-btn--ghost/);
+  });
+
+  it('still has one primary button with Print added (AC-06)', async () => {
+    const html = await render(lang);
+    expect(html.match(/fj-btn--primary/g)).toHaveLength(1);
   });
 
   it('has the meta line with the CV date', async () => {

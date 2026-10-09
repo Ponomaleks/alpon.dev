@@ -218,12 +218,15 @@ const same: Facts = {
 const short = (url: string) => url.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '');
 
 /** A built CV page as the site renders it (head location line, side column), from the given facts. */
-function cvPage(f: Facts = same): string {
+function cvPage(f: Facts = same, line: Omit<Facts, 'residence' | 'location'> = same): string {
   const tel = `tel:${f.phone.replace(/[^\d+]/g, '')}`;
   return (
     '<!doctype html><html lang="en"><head><title>CV</title></head><body><main>' +
     '<header class="cv-head"><h1>Alexander Ponomarenko</h1>' +
-    `<p class="place astro-x">${f.location}</p></header></main>` +
+    `<p class="place astro-x">${f.location}</p></header>` +
+    '<p class="cv-print-line astro-x">' +
+    `<a href="mailto:${line.email}">${line.email}</a> · <a href="tel:${line.phone.replace(/[^\d+]/g, '')}">${line.phone}</a> · ` +
+    `<a href="${line.linkedin}">${short(line.linkedin)}</a> · <a href="${line.github}">${short(line.github)}</a></p></main>` +
     '<aside class="cv-aside astro-x"><nav aria-label="On this page"><ol><li><a href="#a">A</a></li></ol></nav>' +
     '<div role="group" aria-label="Contact"><dl class="cv-aside__list">' +
     `<div class="cv-aside__row"><dt>Email</dt><dd><a class="cv-aside__value" href="mailto:${f.email}">${f.email}</a></dd></div>` +
@@ -298,5 +301,37 @@ describe('built CV pages against contact.ts (cv AC-27)', () => {
     const msg = checkBuiltCvPages(contact, allPages({ 'cv.html': noAside })).join('\n');
     expect(msg).toContain('cv.html');
     expect(msg).toContain('email');
+  });
+});
+
+// T30, cv AC-27: the printed contact line of each CV page equals contact.ts; a failure names the page.
+describe('printed contact line of the built CV pages (cv AC-27)', () => {
+  it.each([
+    ['email', { ...same, email: 'other@example.com' }],
+    ['phone', { ...same, phone: '+47 000 00 000' }],
+    ['linkedin', { ...same, linkedin: 'https://www.linkedin.com/in/someone-else/' }],
+    ['github', { ...same, github: 'https://github.com/someone-else' }],
+  ])('fails naming the page, the printed line and %s when it differs', (fact, changed) => {
+    const problems = checkBuiltCvPages(contact, allPages({ 'cv/en.html': cvPage(same, changed) }));
+    const msg = problems.join('\n');
+    expect(msg).toContain('cv/en.html');
+    expect(msg).toMatch(/print/i);
+    expect(msg).toContain(fact);
+    expect(msg).not.toContain('cv/no.html');
+  });
+
+  it('fails naming the page when the printed line is missing', () => {
+    const none = cvPage().replace(/<p class="cv-print-line[\s\S]*?<\/p>/, '');
+    const msg = checkBuiltCvPages(contact, allPages({ 'cv/no.html': none })).join('\n');
+    expect(msg).toContain('cv/no.html');
+    expect(msg).toMatch(/print/i);
+  });
+
+  it('fails when the line appears twice', () => {
+    const line = /<p class="cv-print-line[\s\S]*?<\/p>/.exec(cvPage())?.[0] ?? '';
+    const twice = cvPage().replace(line, line + line);
+    const msg = checkBuiltCvPages(contact, allPages({ 'cv.html': twice })).join('\n');
+    expect(msg).toContain('cv.html');
+    expect(msg).toMatch(/print/i);
   });
 });

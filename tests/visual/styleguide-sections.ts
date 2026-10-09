@@ -39,4 +39,5 @@ export const SECTIONS = [
   'Contents list',
   'Original PDF preview',
   'BackToTop',
+  'Print contact line',
 ];

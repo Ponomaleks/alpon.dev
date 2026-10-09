@@ -766,3 +766,21 @@ describe('BackToTop on the Styleguide (AC-29, sad §5 backToTop)', () => {
     expect(s.match(/href="#top"/g)?.length).toBeGreaterThanOrEqual(3);
   });
 });
+
+describe('Print contact line on the Styleguide (cv T30, SCR-04)', () => {
+  it('has the section, shown as it prints, inside data-sample', () => {
+    const s = section('Print contact line');
+    expect(s.length).toBeGreaterThan(0);
+    expect(s).toContain('data-sample');
+    expect(s).toContain('cv-print-line');
+  });
+
+  it('shows the four facts of the contact source in the sample', async () => {
+    const { contact } = await import('../data/contact');
+    const s = section('Print contact line');
+    expect(s).toContain(contact.email);
+    expect(s).toContain(contact.phone);
+    expect(s).toContain(contact.linkedin);
+    expect(s).toContain(contact.github);
+  });
+});

@@ -1,8 +1,9 @@
 // The CV page's one script entry (AC-04, AC-08, AC-19, AC-23): arrive at a section or at the
-// carried scroll position, keep the language links in step, copy the email address.
+// carried scroll position, keep the language links in step, print, copy the email address.
 import { initCopyEmail } from '../shared/copy-email';
 import { arrive } from './arrive';
 import { initLangSwitch } from './lang-switch';
+import { initPrint } from './print';
 import { positionToRestore, savePosition, takePosition } from './position';
 import { sectionInView } from './section-in-view';
 
@@ -54,3 +55,5 @@ const copied = getComputedStyle(document.documentElement).getPropertyValue(
 );
 const copiedMs = parseFloat(copied) * (copied.trim().endsWith('ms') ? 1 : 1000);
 initCopyEmail({ document, navigator, duration: copiedMs });
+
+initPrint({ document, print: () => print() });

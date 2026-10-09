@@ -1,6 +1,6 @@
 ---
 // The CV head (screens SCR-05 / SCR-06 `head`): breadcrumbs, the name as the only h1, the role and
-// location lines, then the tools (language switch, buttons, meta line). "Print" is added in T30.
+// location lines, then the tools (language switch, buttons, meta line). "Print" is script-only.
 // The role and location lines are CV content; the page passes them in.
 import { contact } from '../../data/contact';
 import { cvPdf } from '../../data/cv/index';
@@ -8,6 +8,7 @@ import type { CvLang } from '../../data/cv/types';
 import Breadcrumbs from '../ui/Breadcrumbs.astro';
 import Button from '../ui/Button.astro';
 import LangSwitch from '../ui/LangSwitch.astro';
+import Icon from '../ui/Icon.astro';
 import CvMeta from './CvMeta.astro';
 
 interface Props {
@@ -24,8 +25,15 @@ const copy = {
     group: 'CV language',
     download: 'Download PDF',
     touch: 'Get in touch',
+    print: 'Print',
   },
-  no: { crumbs: 'Brødsmulesti', group: 'CV-språk', download: 'Last ned PDF', touch: 'Ta kontakt' },
+  no: {
+    crumbs: 'Brødsmulesti',
+    group: 'CV-språk',
+    download: 'Last ned PDF',
+    touch: 'Ta kontakt',
+    print: 'Skriv ut',
+  },
 } as const;
 const t = copy[lang];
 ---
@@ -53,6 +61,12 @@ const t = copy[lang];
         <Button variant="secondary" href={contact.links.contact}>
           {t.touch}
         </Button>
+        <span data-needs-script>
+          <button type="button" class="fj-btn fj-btn--ghost" data-print>
+            <Icon name="file-text" />
+            {t.print}
+          </button>
+        </span>
       </div>
       <CvMeta lang={lang} />
     </div>

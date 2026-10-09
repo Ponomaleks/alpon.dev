@@ -201,6 +201,42 @@ export function checkBuiltCvPages(c: Contact, distDir: string): string[] {
       if (!based.includes(c.residence.name)) miss('residence', c.residence.name, based);
     }
 
+    // The printed line: exactly one, and its four links equal contact.ts (AC-27, T30).
+    const lines = [
+      ...html.matchAll(/<p\b[^>]*class="[^"]*\bcv-print-line\b[^"]*"[^>]*>([\s\S]*?)<\/p>/gi),
+    ];
+    if (lines.length !== 1) {
+      problems.push(
+        `${name}: printed contact line: the page must have one, it has ${lines.length}`,
+      );
+    } else {
+      const links = [...(lines[0]?.[1] ?? '').matchAll(/<a\b[^>]*\bhref="([^"]*)"/gi)].map(
+        (m) => m[1] ?? '',
+      );
+      const printed: [string, string, string | undefined][] = [
+        [
+          'email',
+          c.email,
+          links
+            .find((h) => h.startsWith('mailto:'))
+            ?.slice(7)
+            .split('?')[0],
+        ],
+        [
+          'phone',
+          c.phone.replace(/[^\d+]/g, ''),
+          links.find((h) => h.startsWith('tel:'))?.slice(4),
+        ],
+        ['linkedin', c.linkedin, links.find((h) => h.includes('linkedin.com'))],
+        ['github', c.github, links.find((h) => h.includes('github.com'))],
+      ];
+      for (const [fact, expected, found] of printed)
+        if (found !== expected)
+          problems.push(
+            `${name}: printed contact line: ${fact}: contact.ts has "${expected}", the printed line has ${found ? `"${found}"` : 'nothing'}`,
+          );
+    }
+
     const town = c.residence.name.split(',', 1)[0]?.trim() ?? '';
     const place = /<p\b[^>]*class="[^"]*\bplace\b[^"]*"[^>]*>([\s\S]*?)<\/p>/i.exec(html)?.[1];
     const line = place === undefined ? undefined : decode(place);

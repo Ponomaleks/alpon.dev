@@ -19,6 +19,7 @@ import Header from '../components/layout/Header.astro';
 import MobileMenu from '../components/layout/MobileMenu.astro';
 import MobileBar from '../components/layout/MobileBar.astro';
 import BackToTop from '../components/layout/BackToTop.astro';
+import PrintContactLine from '../components/cv/PrintContactLine.astro';
 import CtaBand from '../components/layout/CtaBand.astro';
 import { defaultBarActions, homeBandActions, type BarSlot } from '../data/shell-actions';
 import Contours from '../components/brand/Contours.astro';
@@ -751,6 +752,16 @@ const stateLabel = { hover: 'Hover', focus: 'Focus', active: 'Pressed' } as cons
         <BackToTop sample data-demo-state="focus" />
       </div>
     </section>
+
+    <section data-section="Print contact line" class="sg__section">
+      <h2>Print contact line</h2>
+      <div data-sample>
+        <p class="sg__sample-label">Sample data</p>
+        <div class="sg__print-frame">
+          <PrintContactLine />
+        </div>
+      </div>
+    </section>
   </div>
 </BaseLayout>
 
@@ -765,6 +776,17 @@ const stateLabel = { hover: 'Hover', focus: 'Focus', active: 'Pressed' } as cons
 </script>
 
 <style>
+  /* The line is hidden on screen; the frame shows it as it prints, on the print colours. */
+  .sg__print-frame {
+    padding: var(--fjord-space-6);
+    background: var(--fjord-print-bg);
+    color: var(--fjord-print-text);
+    border: 1px solid var(--fjord-color-border);
+  }
+  .sg__print-frame :global(.cv-print-line) {
+    display: block;
+    color: var(--fjord-print-text);
+  }
   .sg {
     max-width: var(--fjord-content-max);
     padding: var(--fjord-space-section) var(--fjord-grid-margin);

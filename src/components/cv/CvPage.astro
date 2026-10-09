@@ -2,7 +2,7 @@
 // The CV page body (AC-01, AC-02, AC-04; screens SCR-05 / SCR-06; sad §4 item 2): the head, the
 // original-PDF preview control, the sections the CV data has in order and the side column. The
 // grid is 8 and 4 of 12 parts from 1024 (page design `.x-cvgrid`). The three page files wrap it in
-// BaseLayout and pass the CV language. The page script (T20) is loaded below; print styles (T30) are not.
+// BaseLayout and pass the CV language. The page script (T20) is loaded below; the print styles are in the style block.
 import { cvEn } from '../../data/cv/en';
 import { cvNo } from '../../data/cv/no';
 import type { CvLang } from '../../data/cv/types';
@@ -14,6 +14,7 @@ import CvSection from './CvSection.astro';
 import DatedRows from './DatedRows.astro';
 import LanguageList from './LanguageList.astro';
 import OriginalPdfPreview from './OriginalPdfPreview.astro';
+import PrintContactLine from './PrintContactLine.astro';
 import SkillGroup from './SkillGroup.astro';
 
 interface Props {
@@ -33,6 +34,7 @@ const number = (i: number) => String(i + 1).padStart(2, '0');
 
 <div class="cv-page wrap">
   <CvHead lang={lang} role={role} location={`${cv.location} · ${cv.permit}`} />
+  <PrintContactLine />
   <div class="cv-page__preview">
     <OriginalPdfPreview lang={lang} />
   </div>
@@ -132,6 +134,76 @@ const number = (i: number) => String(i + 1).padStart(2, '0');
     .cv-page__grid {
       grid-template-columns: minmax(0, 8fr) minmax(0, 4fr);
       gap: var(--fjord-space-18);
+    }
+  }
+
+  /* Print (AC-11, AC-12, sad �8 Print, ADR-0002): the document is the content alone. The Print block
+     of tokens.css already gives every theme the Dag colours; here the Shell and the controls go,
+     the contact line shows and entries keep together. No @page rule: the browser's margins apply. */
+  @media print {
+    :global(body > header),
+    :global(.menu),
+    :global(dialog),
+    :global(footer),
+    :global(.fj-band),
+    :global([data-shell-bar]),
+    :global(.back-to-top),
+    :global(.crumbs),
+    :global([data-lang-switch]),
+    .cv-page :global(.tools),
+    .cv-page__preview,
+    .cv-page :global(.cv-aside) {
+      /* Shell parts set their own display in their own sheets: print wins over all of them. */
+      display: none !important;
+    }
+    :global(html),
+    :global(body) {
+      background: var(--fjord-print-bg);
+    }
+    :global(body) {
+      font-size: var(--fjord-text-body-sm);
+    }
+    /* Black on white all through: muted greys do not survive a printer. */
+    .cv-page {
+      --fjord-color-text-muted: var(--fjord-color-text);
+      /* A sheet reads smaller than a screen: the size tokens step down for the document. */
+      --fjord-text-h1: var(--fjord-text-h3);
+      --fjord-text-h2: var(--fjord-text-h4);
+      --fjord-text-body: var(--fjord-text-body-sm);
+      --fjord-text-ui-lg: var(--fjord-text-ui-sm);
+      --fjord-text-ui: var(--fjord-text-ui-sm);
+      --fjord-leading-body: var(--fjord-leading-normal);
+    }
+    .cv-page :global(.cv-print-line) {
+      display: block;
+      margin-top: var(--fjord-space-3);
+    }
+    .cv-page__grid {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0;
+      padding: var(--fjord-space-6) 0 0;
+    }
+    .cv-page__main {
+      gap: var(--fjord-space-6);
+    }
+    .cv-page :global(.cv-head) {
+      padding-top: 0;
+      gap: var(--fjord-space-2);
+    }
+    .cv-page :global(.cv-section),
+    .cv-page :global(.cv-section__body) {
+      gap: var(--fjord-space-3);
+    }
+    .cv-page :global(a[href^='http']:not(.cv-print-line a, .cv-projects__item a))::after {
+      content: ' (' attr(href) ')';
+    }
+    .cv-page__main :global(section[id] > :first-child) {
+      break-after: avoid;
+    }
+    .cv-page :global(.cv-job),
+    .cv-page :global(.cv-projects__item),
+    .cv-page :global(.dated-rows > li) {
+      break-inside: avoid;
     }
   }
 </style>
