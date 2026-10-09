@@ -10,6 +10,7 @@ import Header from '../components/layout/Header.astro';
 import MobileMenu from '../components/layout/MobileMenu.astro';
 import CtaBand from '../components/layout/CtaBand.astro';
 import Footer from '../components/layout/Footer.astro';
+import BackToTop from '../components/layout/BackToTop.astro';
 import MobileBar from '../components/layout/MobileBar.astro';
 import { defaultBarActions, type BandAction, type BarSlot } from '../data/shell-actions';
 import Toast from '../components/ui/Toast.astro';
@@ -28,6 +29,8 @@ interface Props {
   mobileBar?: boolean;
   // The bar's pair, all secondary (AC-34).
   mobileBarActions?: readonly [BarSlot, BarSlot];
+  // The link to the top in the bottom end corner, from 768 (cv AC-21); the Styleguide leaves it out.
+  backToTop?: boolean;
   ctaBand?: boolean;
   ctaBandActions?: readonly [BandAction, BandAction];
   cvLang?: 'en' | 'no';
@@ -50,6 +53,7 @@ const {
   headerOverHero = false,
   mobileBar = true,
   mobileBarActions = defaultBarActions,
+  backToTop = true,
   ctaBand = true,
   ctaBandActions,
   cvLang = 'en',
@@ -137,6 +141,7 @@ const structuredDataJson = structuredData
     </main>
     {ctaBand && <CtaBand cvLang={cvLang} actions={ctaBandActions} lang={shellLang} />}
     <Footer lang={shellLang} />
+    {backToTop && <BackToTop lang={shellLang} />}
     {mobileBar && <MobileBar actions={mobileBarActions} lang={shellLang} />}
     <Toast lang={shellLang} />
   </body>

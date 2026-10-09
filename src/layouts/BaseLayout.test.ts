@@ -301,6 +301,46 @@ describe('page option mobileBar', () => {
   });
 });
 
+describe('page option backToTop (AC-21, AC-22, sad §5)', () => {
+  /** The BackToTop link: a link to #top. */
+  const backToTop = (source: string) => tag(source, /<a\b(?=[^>]*\bhref="#top")[^>]*>/);
+
+  it('is rendered by default, after the footer, as a link named "Back to top"', () => {
+    const source = html('fixture.html');
+    expect(backToTop(source)).not.toBe('');
+    expect(count(source, /\bhref="#top"/g)).toBe(1);
+    const link = source.match(/<a\b(?=[^>]*\bhref="#top")[^>]*>[\s\S]*?<\/a>/)?.[0] ?? '';
+    expect(link.replace(/<[^>]+>/g, ' ')).toMatch(/Back to top/);
+    expect(source.indexOf('href="#top"')).toBeGreaterThan(source.indexOf('</main>'));
+  });
+
+  it('true is the same as the default', () => {
+    expect(backToTop(opt('back-to-top-on'))).not.toBe('');
+    expect(backToTop(opt('back-to-top-on'))).toBe(backToTop(html('fixture.html')));
+  });
+
+  it('false leaves it out and keeps the rest of the Shell', () => {
+    const source = opt('back-to-top-off');
+    expect(source).not.toContain('href="#top"');
+    expect(source).toContain('class="fj-band');
+    expect(source).toContain('<footer');
+  });
+
+  it('is marked English on a Norwegian page and carries no lang on an English one', () => {
+    expect(backToTop(html('fixture-no.html'))).toMatch(/\slang="en"/);
+    expect(backToTop(html('fixture.html'))).not.toContain('lang=');
+  });
+
+  it('is on the home page and the Not-found page', () => {
+    for (const page of ['index.html', '404.html']) expect(html(page)).toContain('href="#top"');
+  });
+
+  it('no element has the id "top", so the browser scrolls to the top and resets the focus start', () => {
+    for (const page of ['fixture.html', 'index.html', '404.html'])
+      expect(html(page)).not.toMatch(/\sid="top"/);
+  });
+});
+
 describe('page option mobileBarActions (AC-38, ADR-0002)', () => {
   /** The anchors inside the bar's root element. */
   const barAnchors = (source: string) => {

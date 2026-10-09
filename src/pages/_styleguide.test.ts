@@ -43,6 +43,7 @@ const SECTIONS = [
   'Mobile menu panel',
   'Sticky action bar',
   'Closing band',
+  'BackToTop',
 ];
 
 describe('built styleguide.html (SCR-04)', () => {
@@ -745,5 +746,22 @@ describe('visual baselines cover every section (home T25)', () => {
   it('the list of the visual spec is the list of data-section blocks on the built page, in order', () => {
     const onPage = [...html().matchAll(/<section [^>]*data-section="([^"]+)"/g)].map((m) => m[1]);
     expect([...VISUAL_SECTIONS]).toEqual(onPage);
+  });
+});
+
+describe('BackToTop on the Styleguide (AC-29, sad §5 backToTop)', () => {
+  it('has no fixed BackToTop: every link to #top is inside the sample section', () => {
+    const all = html().match(/<a\b[^>]*\bhref="#top"[^>]*>/g) ?? [];
+    const sample = section('BackToTop').match(/<a\b[^>]*\bhref="#top"[^>]*>/g) ?? [];
+    expect(sample.length).toBeGreaterThan(0);
+    expect(all).toHaveLength(sample.length);
+    for (const a of sample) expect(a).toContain('data-sample');
+  });
+
+  it('shows the control in default, hover and focus', () => {
+    const s = section('BackToTop');
+    expect(s).toContain('Back to top');
+    for (const st of ['hover', 'focus']) expect(s).toContain(`data-demo-state="${st}"`);
+    expect(s.match(/href="#top"/g)?.length).toBeGreaterThanOrEqual(3);
   });
 });

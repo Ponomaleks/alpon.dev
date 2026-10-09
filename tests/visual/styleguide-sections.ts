@@ -38,4 +38,5 @@ export const SECTIONS = [
   'Dated rows',
   'Contents list',
   'Original PDF preview',
+  'BackToTop',
 ];

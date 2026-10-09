@@ -18,6 +18,7 @@ import ThemeToggle from '../components/layout/ThemeToggle.astro';
 import Header from '../components/layout/Header.astro';
 import MobileMenu from '../components/layout/MobileMenu.astro';
 import MobileBar from '../components/layout/MobileBar.astro';
+import BackToTop from '../components/layout/BackToTop.astro';
 import CtaBand from '../components/layout/CtaBand.astro';
 import { defaultBarActions, homeBandActions, type BarSlot } from '../data/shell-actions';
 import Contours from '../components/brand/Contours.astro';
@@ -176,6 +177,7 @@ const stateLabel = { hover: 'Hover', focus: 'Focus', active: 'Pressed' } as cons
   noindex
   mobileBar={false}
   ctaBand={false}
+  backToTop={false}
 >
   <div class="sg">
     <h1>Styleguide</h1>
@@ -738,6 +740,15 @@ const stateLabel = { hover: 'Hover', focus: 'Focus', active: 'Pressed' } as cons
           <OriginalPdfPreview lang="en" />
           <OriginalPdfPreview lang="en" open />
         </div>
+      </div>
+    </section>
+
+    <section data-section="BackToTop" class="sg__section">
+      <h2>BackToTop</h2>
+      <div class="sg__row">
+        <BackToTop sample />
+        <BackToTop sample data-demo-state="hover" />
+        <BackToTop sample data-demo-state="focus" />
       </div>
     </section>
   </div>
