@@ -25,7 +25,7 @@ The two phases are a work order only: one branch, `feat/cv`, and one pull reques
 | T12 | [Build the side column: contents list, contact list and the second download](./t12-cv-aside.md) | ui | Alexander Ponomarenko | M | T4, T7 | done |
 | T13 | [Move copy-email to scripts/shared and let it follow the language of the page](./t13-copy-email-shared.md) | app | Alexander Ponomarenko | M | — | done |
 | T14 | [Add canonical, alternates and cvLang to BaseLayout and mark the Shell English on a Norwegian page](./t14-layout-cv-options.md) | wiring | Alexander Ponomarenko | M | T3 | done |
-| T15 | [Let the Sticky action bar take a language switch and a link with a language](./t15-bar-language-switch.md) | ui | Alexander Ponomarenko | M | T8, T14 | todo |
+| T15 | [Let the Sticky action bar take a language switch and a link with a language](./t15-bar-language-switch.md) | ui | Alexander Ponomarenko | M | T8, T14 | done |
 | T16 | [Build the CV head](./t16-cv-head.md) | ui | Alexander Ponomarenko | M | T4, T7, T8, T11 | done |
 | T17 | [Compose CvPage, give the three pages their head and list them in the sitemap](./t17-cv-page-composition.md) | wiring | Alexander Ponomarenko | L | T2, T5, T6, T9, T10, T11, T12, T14, T15, T16 | todo |
 | T18 | [Write the pure modules of the CV page script](./t18-cv-script-modules.md) | app | Alexander Ponomarenko | M | T4 | done |
