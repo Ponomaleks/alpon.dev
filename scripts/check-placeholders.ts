@@ -45,6 +45,9 @@ const INLINE = new Set([
   'u',
 ]);
 
+/** The CV pages must exist in dist; the check fails closed without them (cv AC-03). */
+export const CV_PAGES = ['cv.html', 'cv/en.html', 'cv/no.html'] as const;
+
 function htmlFiles(dir: string): string[] {
   return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
     const path = join(dir, entry.name);
@@ -89,6 +92,11 @@ export function checkPlaceholders(distDir: string): string[] {
   const files = htmlFiles(distDir);
   if (files.length === 0) return [`no pages found in ${distDir}: nothing was checked`];
   const problems: string[] = [];
+  const built = new Set(files.map((file) => relative(distDir, file).replaceAll(sep, '/')));
+  for (const cv of CV_PAGES) {
+    if (!built.has(cv))
+      problems.push(`${cv}: CV page not found in ${distDir}, run the build first`);
+  }
   for (const file of files) {
     const page = relative(distDir, file).replaceAll(sep, '/');
     for (const found of visibleText(readFileSync(file, 'utf8')).match(/\[[^[\]]*\]/g) ?? []) {

@@ -43,7 +43,7 @@ jobs:
       - name: Budgets (bootstrap, initial JS, font preloads, font files)
         run: npm run check:budgets
 
-      - name: Built page checks (placeholder text, contact facts on the home page)
+      - name: Built page checks (placeholder text, contact facts on the home and CV pages)
         run: npm run check:placeholders && npm run check:contact:built
 
       # The browser download has taken from 1 to 16 minutes on the runners and ran the job into its
