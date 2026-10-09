@@ -213,3 +213,52 @@ test.describe('the closing band of the home page (AC-34, AC-40)', () => {
     }
   });
 });
+
+// The CV pages (cv spec AC-06, spec section 6 "Primary buttons"): at 390, 834 and 1440, at the
+// top, in the middle and at the end, the visible screen holds at most two primary buttons, the
+// page content at most one and the Sticky action bar none. "Download PDF" in the CV head is the
+// page content's only primary button; the header's "Get in touch" is the other.
+test.describe('the CV pages on the visible screen at each place (AC-06)', () => {
+  test.use({ reducedMotion: 'reduce' });
+  const places: Place[] = ['top', 'contact', 'end'];
+
+  for (const path of ['/cv/en', '/cv/no']) {
+    for (const width of [390, 834, 1440]) {
+      for (const place of places) {
+        test(`${path} at ${width}, ${place === 'contact' ? 'middle' : place}`, async ({ page }) => {
+          await open(page, path, width);
+          await page.evaluate((where) => {
+            if (where === 'top') window.scrollTo(0, 0);
+            else if (where === 'end') window.scrollTo(0, document.documentElement.scrollHeight);
+            else window.scrollTo(0, (document.documentElement.scrollHeight - innerHeight) / 2);
+          }, place);
+          const c = await onScreen(page);
+          expect(c.screen).toBeLessThanOrEqual(2);
+          expect(c.content).toBeLessThanOrEqual(1);
+          await expect(page.locator('[data-shell-bar] .fj-btn--primary')).toHaveCount(0);
+        });
+      }
+    }
+
+    test(`${path}: "Download PDF" in the CV head is the page content's only primary button`, async ({
+      page,
+    }) => {
+      await open(page, path, 1440);
+      const primaries = page.locator('main .fj-btn--primary');
+      await expect(primaries).toHaveCount(1);
+      await expect(page.locator('.cv-head .fj-btn--primary')).toHaveAttribute('download', /\.pdf$/);
+      await expect(page.locator('.cv-aside .fj-btn--primary')).toHaveCount(0);
+    });
+
+    // B-35: the test that the band keeps "Get in touch" runs against a CV page.
+    test(`${path}: the band keeps "Get in touch" as the Shell's primary action (B-35)`, async ({
+      page,
+    }) => {
+      await open(page, path, 1440);
+      const band = page.locator('.fj-band');
+      await expect(band.getByRole('link', { name: 'Get in touch', exact: true })).toHaveCount(1);
+      await expect(band.locator('.fj-btn--primary')).toHaveCount(1);
+      await expect(band.getByRole('link', { name: 'Download CV' })).toBeVisible();
+    });
+  }
+});

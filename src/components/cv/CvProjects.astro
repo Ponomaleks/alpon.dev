@@ -70,4 +70,13 @@ const { note, projects } = Astro.props;
     font-family: var(--fjord-font-mono);
     font-size: var(--fjord-text-mono-sm);
   }
+  /* A 44 px high target around the drawn link, which keeps its size (AC-24; screens C-7). */
+  .cv-projects__link :global(.fj-link) {
+    position: relative;
+  }
+  .cv-projects__link :global(.fj-link)::before {
+    content: '';
+    position: absolute;
+    inset: min(0px, calc((100% - var(--fjord-tap-min)) / 2)) 0;
+  }
 </style>
