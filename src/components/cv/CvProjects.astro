@@ -2,13 +2,17 @@
 // Personal projects of the CV (AC-01): an optional muted note, then each project between hairlines
 // with its stack, text and an external code link (home D-09).
 import Link from '../ui/Link.astro';
+import { cvNoLabels } from '../../data/cv/no';
 
 interface Props {
+  /** The CV language of the page: the hidden new-tab hint of the code links follows it. */
+  lang?: 'en' | 'no';
   note?: string;
   projects: { title: string; stack: string; text: string; href: string }[];
 }
 
-const { note, projects } = Astro.props;
+const { lang = 'en', note, projects } = Astro.props;
+const newTabHint = lang === 'no' ? cvNoLabels.newTabHint : undefined;
 ---
 
 <div class="cv-projects">
@@ -20,7 +24,7 @@ const { note, projects } = Astro.props;
       </h3>
       <p>{p.text}</p>
       <span class="cv-projects__link">
-        <Link href={p.href} external>
+        <Link href={p.href} external newTabHint={newTabHint}>
           {p.href.replace(/^https?:\/\//, '')}
         </Link>
       </span>

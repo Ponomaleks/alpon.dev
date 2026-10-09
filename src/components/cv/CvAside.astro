@@ -10,6 +10,7 @@ import Button from '../ui/Button.astro';
 import CopyButton from '../ui/CopyButton.astro';
 import { contact } from '../../data/contact';
 import { cvPdf } from '../../data/cv/index';
+import { cvNoLabels } from '../../data/cv/no';
 
 interface Props {
   lang: 'en' | 'no';
@@ -40,6 +41,8 @@ const ui = {
     done: 'Kopiert',
   },
 }[lang];
+
+const newTabHint = lang === 'no' ? cvNoLabels.newTabHint : undefined;
 
 const copyHooks =
   lang === 'no'
@@ -100,7 +103,7 @@ const pdf = cvPdf[lang];
         <dt>LinkedIn</dt>
         <dd>
           <span class="cv-aside__value">
-            <Link href={contact.linkedin} external quiet>
+            <Link href={contact.linkedin} external quiet newTabHint={newTabHint}>
               {short(contact.linkedin)}
             </Link>
           </span>
@@ -110,7 +113,7 @@ const pdf = cvPdf[lang];
         <dt>GitHub</dt>
         <dd>
           <span class="cv-aside__value">
-            <Link href={contact.github} external quiet>
+            <Link href={contact.github} external quiet newTabHint={newTabHint}>
               {short(contact.github)}
             </Link>
           </span>

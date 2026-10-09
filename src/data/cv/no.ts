@@ -19,6 +19,7 @@ export interface CvNoExtraLabels {
   copyRefused: string;
   pageImage1: string;
   pageImage2: string;
+  newTabHint: string;
 }
 
 export const cvNoLabels: CvLabels & CvNoExtraLabels = {
@@ -46,6 +47,7 @@ export const cvNoLabels: CvLabels & CvNoExtraLabels = {
   copyRefused: 'Kunne ikke kopiere. Marker adressen for å kopiere den.',
   pageImage1: 'CV, side 1 av 2, norsk, PDF, åpnes i ny fane',
   pageImage2: 'CV, side 2 av 2, norsk, PDF, åpnes i ny fane',
+  newTabHint: 'åpnes i ny fane',
 };
 
 export const cvNo: Cv = {

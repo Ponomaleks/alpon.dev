@@ -71,7 +71,7 @@ const number = (i: number) => String(i + 1).padStart(2, '0');
               ))}
             </div>
           )}
-          {s.projects && <CvProjects note={s.note} projects={s.projects} />}
+          {s.projects && <CvProjects lang={lang} note={s.note} projects={s.projects} />}
           {s.rows && <DatedRows rows={s.rows} />}
         </CvSection>
       ))}

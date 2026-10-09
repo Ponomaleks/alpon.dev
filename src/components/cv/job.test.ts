@@ -150,4 +150,14 @@ describe('CvProjects', () => {
       expect(a).toContain('(opens in a new tab)');
     }
   });
+
+  it('says the hint in Norwegian on the Norwegian CV page (owner-inputs C-39)', async () => {
+    const html = await render('CvProjects', { projects, lang: 'no' });
+    const links = [...html.matchAll(/<a\b[^>]*>[\s\S]*?<\/a>/g)].map((m) => m[0]);
+    expect(links).toHaveLength(2);
+    for (const a of links) {
+      expect(a).toMatch(/<span\b[^>]*class="fj-link__hint"[^>]*>\s*\(åpnes i ny fane\)/);
+      expect(a).not.toContain('opens in a new tab');
+    }
+  });
 });

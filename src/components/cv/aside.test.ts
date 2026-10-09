@@ -161,4 +161,13 @@ describe('CvAside download (AC-04, AC-05)', () => {
     expect(a?.attrs).toMatch(/\bdownload="Alexander_Ponomarenko_CV_NO\.pdf"/);
     expect(href(a?.attrs ?? '')).toBe(cvPdf.no.href);
   });
+
+  it('says the new-tab hint of LinkedIn and GitHub in the language of the page (owner-inputs C-39)', async () => {
+    const hints = (html: string) =>
+      [...html.matchAll(/<span\b[^>]*class="fj-link__hint"[^>]*>\s*([^<]*?)\s*<\/span>/g)].map(
+        (m) => m[1],
+      );
+    expect(hints(await render('no'))).toEqual(['(åpnes i ny fane)', '(åpnes i ny fane)']);
+    expect(hints(await render('en'))).toEqual(['(opens in a new tab)', '(opens in a new tab)']);
+  });
 });
