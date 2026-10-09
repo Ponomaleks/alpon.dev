@@ -1,6 +1,13 @@
 ---
 import { contact } from '../../data/contact';
 
+interface Props {
+  /** `en` on a Norwegian page: the Shell stays English (AC-02). */
+  lang?: 'en';
+}
+
+const { lang } = Astro.props;
+
 // Footer (AC-14): slogan, three columns and a base line, all values from contact.ts. Markup and
 // styles follow the design system Footer (navigation.css). The year is taken at build time (D-10).
 const { email, phone, linkedin, github, residence, lastUpdated } = contact;
@@ -9,7 +16,7 @@ const coords = `${residence.lat.toFixed(2)}° N, ${residence.lon.toFixed(2)}° E
 const year = new Date().getFullYear();
 ---
 
-<footer class="fj-footer">
+<footer class="fj-footer" lang={lang}>
   <div class="fj-footer__in">
     <p class="fj-footer__slogan">
       Good products <span>are built together.</span>

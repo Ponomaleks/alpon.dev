@@ -1,4 +1,5 @@
 import { contact } from './contact';
+import { cvPdf } from './cv/index';
 import type { IconName } from '../components/ui/Icon.astro';
 
 // The Sticky action bar's pair (AC-34, ADR-0002). A BarAction has no style field: every
@@ -7,7 +8,8 @@ export interface BarAction {
   label: string;
   href: string;
   icon?: IconName;
-  download?: boolean;
+  /** A string is the file name the browser saves the file under. */
+  download?: boolean | string;
 }
 
 export const defaultBarActions: readonly [BarAction, BarAction] = [
@@ -25,18 +27,16 @@ export interface BandAction extends BarAction {
   variant?: 'primary' | 'secondary';
 }
 
-const cvHref = (cvLang: 'en' | 'no') => (cvLang === 'no' ? contact.links.cvNo : contact.links.cvEn);
-
 /** Pages other than home: "Get in touch" stays the one primary action, "Download CV" follows the language. */
 export const defaultBandActions = (
   cvLang: 'en' | 'no' = 'en',
 ): readonly [BandAction, BandAction] => [
   { label: 'Get in touch', href: contact.links.contact, variant: 'primary' },
-  { label: 'Download CV', href: cvHref(cvLang), download: true },
+  { label: 'Download CV', href: cvPdf[cvLang].href, download: cvPdf[cvLang].downloadName },
 ];
 
 /** Home: the band repeats no contact action (AC-40), so both actions are secondary downloads. */
 export const homeBandActions = (cvLang: 'en' | 'no' = 'en'): readonly [BandAction, BandAction] => [
   { label: 'Save contact (.vcf)', href: '/alexander-ponomarenko.vcf', download: true },
-  { label: 'Download CV', href: cvHref(cvLang), download: true },
+  { label: 'Download CV', href: cvPdf[cvLang].href, download: true },
 ];

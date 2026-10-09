@@ -395,6 +395,79 @@ describe('page option cvLang', () => {
   });
 });
 
+describe('page option canonical (AC-16)', () => {
+  it('sets the canonical link and og:url to the given site path', () => {
+    const page = 'fixture-opt/canonical.html';
+    expect(canonicalTag(page)).toContain('href="https://alpon.dev/cv/en"');
+    expect(metaContent(page, 'og:url')).toBe('https://alpon.dev/cv/en');
+  });
+
+  it('the default is still the page own path', () => {
+    const page = 'fixture-opt/bar-on.html';
+    expect(canonicalTag(page)).toContain('href="https://alpon.dev/fixture-opt/bar-on"');
+    expect(metaContent(page, 'og:url')).toBe('https://alpon.dev/fixture-opt/bar-on');
+  });
+});
+
+describe('page option alternates (AC-17)', () => {
+  const alternates = (page: string) =>
+    [...head(page).matchAll(/<link\b[^>]*rel="alternate"[^>]*>/g)].map(([m]) => m);
+
+  it('renders one link per entry with its hreflang and absolute address', () => {
+    const links = alternates('fixture-opt/alternates.html');
+    expect(links).toHaveLength(3);
+    const pairs = links.map((l) => [
+      l.match(/hreflang="([^"]*)"/)?.[1],
+      l.match(/href="([^"]*)"/)?.[1],
+    ]);
+    expect(pairs).toEqual([
+      ['en', 'https://alpon.dev/cv/en'],
+      ['no', 'https://alpon.dev/cv/no'],
+      ['x-default', 'https://alpon.dev/cv/en'],
+    ]);
+  });
+
+  it('renders none by default', () => {
+    expect(alternates('fixture.html')).toEqual([]);
+    expect(alternates('fixture-opt/bar-on.html')).toEqual([]);
+  });
+});
+
+describe('a Norwegian page marks the Shell English (AC-02, AC-20)', () => {
+  const source = () => html('fixture-no.html');
+  const body = () => source().match(/<body[^>]*>([\s\S]*)<\/body>/)?.[1] ?? '';
+
+  it('has <html lang="no"> and a main without a lang of its own', () => {
+    expect(source()).toMatch(/<html lang="no"/);
+    expect(tag(body(), /<main\b[^>]*>/)).not.toContain('lang=');
+  });
+
+  it.each([
+    ['skip link', /<a\b[^>]*class="skip-link[^>]*>/],
+    ['header', /<header\b[^>]*>/],
+    ['menu panel', /<dialog\b[^>]*id="mobile-menu"[^>]*>/],
+    ['closing band', /<section\b[^>]*class="fj-band[^>]*>/],
+    ['footer', /<footer\b[^>]*>/],
+    ['bar frame', /<details\b[^>]*data-shell-bar[^>]*>/],
+    ['Toast region', /<[^>]*data-toast-region[^>]*>/],
+  ])('the %s carries lang="en"', (_name, pattern) => {
+    const found = tag(body(), pattern);
+    expect(found).not.toBe('');
+    expect(found).toMatch(/\slang="en"/);
+  });
+
+  it('the CV link of header and menu follows cvLang, and the band downloads the NO PDF', () => {
+    const marked = [...body().matchAll(/<a\b[^>]*aria-current="page"[^>]*>/g)].map(([a]) => a);
+    expect(marked).toHaveLength(2);
+    for (const anchor of marked) expect(anchor).toContain(`href="${contact.links.cvPages.no}"`);
+    expect(bandDownload(source())).toContain('href="/cv/alexander-ponomarenko-cv-no.pdf"');
+  });
+
+  it('an English page leaves the Shell without a lang of its own', () => {
+    expect(tag(html('fixture.html'), /<header\b[^>]*>/)).not.toContain('lang=');
+  });
+});
+
 describe('bar clearance (AC-07, hook H-2)', () => {
   it('base.css reserves space below 768 only when the page has the bar', () => {
     const dir = join(out, 'dist/_astro');

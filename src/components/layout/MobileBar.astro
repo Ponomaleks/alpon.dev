@@ -13,13 +13,16 @@ interface Props {
   sample?: boolean;
   /** Sample only: draws the bar collapsed, to its tab. */
   collapsed?: boolean;
+  /** `en` on a Norwegian page: the Shell stays English (AC-02). */
+  lang?: 'en';
 }
 
-const { actions, sample = false, collapsed = false } = Astro.props;
+const { actions, sample = false, collapsed = false, lang } = Astro.props;
 ---
 
 <details
   class="mobile-bar"
+  lang={lang}
   open={!(sample && collapsed)}
   data-shell-bar={sample ? undefined : ''}
   data-sample={sample ? '' : undefined}

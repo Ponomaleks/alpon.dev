@@ -14,11 +14,15 @@ import { contact } from '../../data/contact';
 interface Props {
   current?: 'cv' | 'contact';
   sample?: boolean;
+  /** The CV language of the page: the CV link leads to that CV page (AC-02). */
+  cvLang?: 'en' | 'no';
+  /** `en` on a Norwegian page: the Shell stays English. */
+  lang?: 'en';
 }
 
-const { current, sample = false } = Astro.props;
+const { current, sample = false, cvLang, lang } = Astro.props;
 const links = [
-  { key: 'cv', label: 'CV', href: contact.links.cv },
+  { key: 'cv', label: 'CV', href: cvLang ? contact.links.cvPages[cvLang] : contact.links.cv },
   { key: 'contact', label: 'Contact', href: contact.links.contact },
 ] as const;
 const Root = sample ? 'div' : 'dialog';
@@ -28,6 +32,7 @@ const Root = sample ? 'div' : 'dialog';
   class:list={['menu', 'fjord-on-spruce', { 'menu--sample': sample }]}
   id={sample ? undefined : 'mobile-menu'}
   aria-label={sample ? undefined : 'Menu'}
+  lang={lang}
   data-sample={sample ? '' : undefined}
 >
   <Contours variant="ridge" anchor="bottom-left" tone="spruce" />

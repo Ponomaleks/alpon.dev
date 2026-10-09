@@ -9,12 +9,14 @@ interface Props {
   cvLang?: 'en' | 'no';
   /** The band's pair; defaults to "Get in touch" + "Download CV" (AC-40). */
   actions?: readonly [BandAction, BandAction];
+  /** `en` on a Norwegian page: the Shell stays English (AC-02). */
+  lang?: 'en';
 }
 
-const { cvLang = 'en', actions = defaultBandActions(cvLang) } = Astro.props;
+const { cvLang = 'en', actions = defaultBandActions(cvLang), lang } = Astro.props;
 ---
 
-<section class="fj-band fjord-on-spruce">
+<section class="fj-band fjord-on-spruce" lang={lang}>
   <Contours variant="ridge" anchor="bottom-right" tone="spruce" />
   <div class="fj-band__in">
     <h2 class="fj-band__title">Let’s build something good together.</h2>
@@ -25,7 +27,7 @@ const { cvLang = 'en', actions = defaultBandActions(cvLang) } = Astro.props;
           size="lg"
           href={action.href}
           variant={action.variant ?? 'secondary'}
-          download={action.download !== undefined && action.download !== false}
+          download={action.download || false}
           arrow={action.variant === 'primary'}
         >
           {action.label}

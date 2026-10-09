@@ -31,6 +31,10 @@ interface Props {
   ctaBand?: boolean;
   ctaBandActions?: readonly [BandAction, BandAction];
   cvLang?: 'en' | 'no';
+  // Site path of the canonical address and og:url; the default is the page's own path (AC-16).
+  canonical?: string;
+  // Alternate-language pages, one <link rel="alternate" hreflang> each; none by default (AC-17).
+  alternates?: readonly { hreflang: string; href: string }[];
   // Schema.org data, rendered as one ld+json block (AC-26).
   structuredData?: Record<string, unknown>;
 }
@@ -49,6 +53,8 @@ const {
   ctaBand = true,
   ctaBandActions,
   cvLang = 'en',
+  canonical: canonicalOption,
+  alternates = [],
   structuredData,
 } = Astro.props;
 // The same LF text the CSP integration hashes (ADR-0002).
@@ -58,7 +64,13 @@ const themeBootstrap = normaliseNewlines(themeBootstrapSource);
 const canonicalPath = Astro.url.pathname
   .replace(/(?:^|\/)index\.html$/, '/')
   .replace(/\.html$/, '');
-const canonical = new URL(canonicalPath, Astro.site).href;
+const canonical = new URL(canonicalOption ?? canonicalPath, Astro.site).href;
+const alternateLinks = alternates.map(({ hreflang, href }) => ({
+  hreflang,
+  href: new URL(href, Astro.site).href,
+}));
+// A Norwegian page keeps the Shell English; the page's own content carries the Norwegian.
+const shellLang = lang === 'no' ? 'en' : undefined;
 const ogImage = new URL('/og.png', Astro.site).href;
 // "<" is escaped so a value with </script> cannot close the data block.
 const structuredDataJson = structuredData
@@ -93,6 +105,9 @@ const structuredDataJson = structuredData
     {!noindex && (
       <>
         <link rel="canonical" href={canonical} />
+        {alternateLinks.map((a) => (
+          <link rel="alternate" hreflang={a.hreflang} href={a.href} />
+        ))}
         <meta property="og:title" content={title} />
         <meta property="og:description" content={description} />
         <meta property="og:url" content={canonical} />
@@ -107,20 +122,22 @@ const structuredDataJson = structuredData
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   </head>
   <body>
-    <SkipLink />
+    <SkipLink lang={shellLang} />
     <Header
       current={current}
       variant={headerVariant === 'on-spruce' ? 'on-spruce' : undefined}
       cta={headerCta}
       overHero={headerOverHero}
+      cvLang={cvLang}
+      lang={shellLang}
     />
-    <MobileMenu current={current} />
+    <MobileMenu current={current} cvLang={cvLang} lang={shellLang} />
     <main id="main" tabindex="-1">
       <slot />
     </main>
-    {ctaBand && <CtaBand cvLang={cvLang} actions={ctaBandActions} />}
-    <Footer />
-    {mobileBar && <MobileBar actions={mobileBarActions} />}
-    <Toast />
+    {ctaBand && <CtaBand cvLang={cvLang} actions={ctaBandActions} lang={shellLang} />}
+    <Footer lang={shellLang} />
+    {mobileBar && <MobileBar actions={mobileBarActions} lang={shellLang} />}
+    <Toast lang={shellLang} />
   </body>
 </html>

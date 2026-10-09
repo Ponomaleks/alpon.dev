@@ -31,6 +31,14 @@ export function getStaticPaths() {
     },
     'cvlang-en': { cvLang: 'en' },
     'cvlang-no': { cvLang: 'no' },
+    canonical: { canonical: '/cv/en' },
+    alternates: {
+      alternates: [
+        { hreflang: 'en', href: '/cv/en' },
+        { hreflang: 'no', href: '/cv/no' },
+        { hreflang: 'x-default', href: '/cv/en' },
+      ],
+    },
   } as const;
   return Object.entries(cases).map(([name, options]) => ({ params: { name }, props: { options } }));
 }

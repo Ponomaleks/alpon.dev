@@ -13,6 +13,7 @@ import { join, relative } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { contact } from '../../data/contact';
+import { cvPdf } from '../../data/cv/index';
 
 // AC-13, AC-14, AC-20 (T9): SkipLink, CtaBand and Footer. A real production build of a
 // throwaway fixture page (outside the repo); the test reads the built HTML. Focus and
@@ -152,6 +153,16 @@ describe('CtaBand (AC-20)', () => {
     expect(classesOf(cv)).toContain('fj-btn--secondary');
     expect(text(cv)).toContain('Download CV');
     expect(made('band-en')).not.toContain(contact.links.cvNo);
+  });
+
+  it('"Download CV" saves the PDF of cvLang under its download name (AC-20)', () => {
+    for (const [name, lang] of [
+      ['band-en', 'en'],
+      ['band-no', 'no'],
+    ] as const) {
+      const cv = anchorTo(made(name), cvPdf[lang].href) ?? '';
+      expect(cv).toContain(`download="${cvPdf[lang].downloadName}"`);
+    }
   });
 
   it('with cvLang="no" "Download CV" downloads the Norwegian PDF', () => {

@@ -22,6 +22,10 @@ interface Props {
   overHero?: boolean;
   /** Sample only: the theme the sample is drawn in, whatever the page theme is. */
   sampleTheme?: 'dag' | 'natt';
+  /** The CV language of the page: the CV link leads to that CV page (AC-02). */
+  cvLang?: 'en' | 'no';
+  /** `en` on a Norwegian page: the Shell stays English. */
+  lang?: 'en';
 }
 
 const {
@@ -33,9 +37,11 @@ const {
   linkState,
   overHero = false,
   sampleTheme,
+  cvLang,
+  lang,
 } = Astro.props;
 const links = [
-  { key: 'cv', label: 'CV', href: contact.links.cv },
+  { key: 'cv', label: 'CV', href: cvLang ? contact.links.cvPages[cvLang] : contact.links.cv },
   { key: 'contact', label: 'Contact', href: contact.links.contact },
 ] as const;
 ---
@@ -43,6 +49,7 @@ const links = [
 {!sample && <div class="header-sentinel" data-header-sentinel aria-hidden="true"></div>}
 <header
   class:list={['header', { 'fjord-on-spruce': variant === 'on-spruce' }]}
+  lang={lang}
   data-header={sample ? undefined : ''}
   data-variant={variant}
   data-cta={cta === 'secondary' ? 'secondary' : undefined}
