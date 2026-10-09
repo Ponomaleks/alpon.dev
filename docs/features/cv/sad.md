@@ -160,7 +160,7 @@ src/
 ├── components/
 │   ├── cv/                  new: CvPage, CvHead, OriginalPdfPreview, CvSection, SkillGroup, LanguageList,
 │   │                        CvJob, DatedRows, CvProjects, CvAside (contents list, contact list, download),
-│   │                        PrintContactLine
+│   │                        CvMeta (the meta line, in CvHead and OriginalPdfPreview), PrintContactLine
 │   ├── ui/                  + Breadcrumbs, LangSwitch (two links, segmented)
 │   └── layout/              + BackToTop; Header and MobileMenu (CV link by page option, menu marker);
 │                            MobileBar (language-switch action, `lang` on a link)
