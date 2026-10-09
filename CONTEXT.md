@@ -1,6 +1,6 @@
 ---
 status: Living
-updated_at: "2026-10-08"
+updated_at: "2026-10-09"
 ---
 
 # Domain Context — alpon.dev
@@ -29,10 +29,14 @@ updated_at: "2026-10-08"
 - Now line — the hero line that starts with "Nå:" and says what Alexander is working on at present. NOT the availability badge, which says he is open to work.
 - Original PDF preview — the collapsed part of a CV page ("View original PDF") with an image of each page of the CV PDF, each opening the file in a new tab. NOT an embedded PDF viewer.
 - Owner — Alexander, who builds, maintains and publishes the site from its repository. NOT a Visitor; the site has no admin interface or sign-in.
+- Page group — the addresses that one page answers at (`/cv`, `/cv/en` and `/cv/no` for the CV), counted as one page by the budget check. NOT the Shell, whose scripts every page loads.
+- Print block — the generated `@media print` part of `tokens.css`: colours only, the Dag set for any theme with the sheet background and text from the print primitives. NOT a page's own print styles, which decide what is printed and where sheets break.
 - Published project — a portfolio project that is ready to be presented on the site with its case study. NOT a project that exists only in another repository and is not yet presented.
 - Recommendation — a quote from a person who worked with Alexander, taken word for word from his LinkedIn profile and shown with that person's name and role and with their agreement. NOT sample or paraphrased text.
 - Recruiter — a Norwegian recruiter who scans the site, often on a phone, to learn within a minute who Alexander is, his role and location, and how to get the CV or contact him. NOT a Tech lead, who reads deeper.
 - Residence — the place where Alexander lives, "Nittedal, Norge", shown in the footer "Based in" column, the CV and the home quick facts. NOT the Work region.
+- Section id — one of the eight shared, language-neutral ids of the CV sections, the same on both CV pages and part of a public address. NOT a translated name: the Norwegian CV page uses the same ids.
+- Short CV address — `/cv`: shows the English CV page and names `/cv/en` as canonical. NOT a redirect, and NOT a Legacy CV address.
 - Shell — the parts every page shares around its own content: skip link, header, mobile menu, closing call-to-action band, footer, sticky action bar and BackToTop (the link back to the top of the page, on wider screens). NOT page content; a page can leave a Shell part out only where its page design does.
 - Sticky action bar — the two-action bar fixed to the bottom of the screen on phones, whose actions each page sets (home: "View CV" and "Save contact") and which the Visitor can collapse to a small tab. NOT the header call to action, never a place for a primary button, and never shown on wider screens.
 - Styleguide — the page that shows every Fjord component built so far in every state, in Dag and Natt, as the surface for visual and accessibility checks. NOT a page for Visitors: it is not linked from navigation and search engines are asked not to index it.
