@@ -178,6 +178,64 @@ describe('checkBudgets', () => {
     );
   });
 
+  // CV AC-23: /cv, /cv/en and /cv/no are one page group; a file only pages of one group load is
+  // that page's own (10 KB gzip), a file pages of two groups load is Shell (5 KB gzip together).
+  const CV_PAGES = ['dist/cv/index.html', 'dist/cv/en/index.html', 'dist/cv/no/index.html'];
+  const cvSite = (
+    shell: Record<string, number>,
+    own: Record<string, number>,
+    homeOwn: Record<string, number> = {},
+  ) => {
+    const tags = (scripts: Record<string, number>) => Object.keys(scripts).map(script).join('');
+    return fixture({
+      ...healthy(),
+      'dist/index.html': page(PRELOADS + tags(shell) + tags(homeOwn)),
+      ...Object.fromEntries(
+        CV_PAGES.map((path) => [path, page(PRELOADS + tags(shell) + tags(own))]),
+      ),
+      ...Object.fromEntries(
+        Object.entries({ ...shell, ...own, ...homeOwn }).map(([name, size]) => [
+          `dist/_astro/${name}.js`,
+          bytes(size * KB),
+        ]),
+      ),
+    });
+  };
+
+  it('counts a file loaded by the three CV files as the CV page’s own, not Shell', () => {
+    const { failures, report } = checkBudgets(cvSite({ menu: 2 }, { cv: 9 }));
+    expect(failures).toEqual([]);
+    for (const path of ['cv/index.html', 'cv/en/index.html', 'cv/no/index.html'])
+      expect(report.join('\n')).toMatch(
+        new RegExp(
+          String.raw`${path.replace(/[./]/g, String.raw`\$&`)}.*Shell scripts 2\.\d KB gzip.*page scripts 9\.\d KB gzip`,
+        ),
+      );
+  });
+
+  it('fails a CV page whose own scripts exceed 10 KB gzip, as the page and not as Shell', () => {
+    const { failures } = checkBudgets(cvSite({ menu: 2 }, { cv: 11 }));
+    expect(failures).toContainEqual(
+      expect.stringMatching(/cv\/en\/index\.html.*page scripts.*11\.\d KB gzip.*10 KB/),
+    );
+    expect(failures.some((f) => /Shell scripts/.test(f))).toBe(false);
+  });
+
+  it('counts a file loaded by home and a CV page as Shell, against the 5 KB limit', () => {
+    const { failures } = checkBudgets(cvSite({ menu: 3, toggle: 3 }, { cv: 1 }));
+    expect(failures).toContainEqual(
+      expect.stringMatching(/cv\/index\.html.*Shell scripts.*6\.\d KB gzip.*5 KB/),
+    );
+  });
+
+  it('keeps the home limits: its own scripts 10 KB, a home-only file is not Shell', () => {
+    expect(checkBudgets(cvSite({ menu: 2 }, { cv: 1 }, { home: 9 })).failures).toEqual([]);
+    const { failures } = checkBudgets(cvSite({ menu: 2 }, { cv: 1 }, { home: 11 }));
+    expect(failures).toContainEqual(
+      expect.stringMatching(/index\.html.*page scripts.*11\.\d KB gzip.*10 KB/),
+    );
+  });
+
   it.each(PORTRAITS)('fails a missing portrait file, naming it: %s', (file) => {
     const files = Object.entries(healthy()).filter(([path]) => path !== `dist/${file}`);
     const { failures } = checkBudgets(fixture(Object.fromEntries(files)));

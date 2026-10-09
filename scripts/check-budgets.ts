@@ -2,7 +2,7 @@
 //   - the render-blocking theme bootstrap ≤ 1 KB unminified;
 //   - initial JS per page ≤ 50 KB gzip (inline scripts + same-origin <script src> + modulepreload);
 //   - the Shell's scripts (files two or more pages load) ≤ 5 KB gzip together per page (spec §6);
-//   - a page's own scripts (files only that page loads) ≤ 10 KB gzip together (home AC-02);
+//   - a page's own scripts (files only that page, or the three CV addresses, load) ≤ 10 KB gzip together (home AC-02);
 //   - the four portrait files present and ≤ 40 KB each (home AC-02);
 //   - 404.html ≤ 20 KB gzip;
 //   - exactly 2 font preloads per page, ≤ 80 KB combined;
@@ -95,9 +95,17 @@ export function checkBudgets({ bootstrap, dist }: BudgetInput): {
     }
     loaded.set(page, scripts);
   }
-  const users = new Map<string, number>();
-  for (const scripts of loaded.values())
-    for (const key of scripts.keys()) users.set(key, (users.get(key) ?? 0) + 1);
+  // /cv, /cv/en and /cv/no are one page (cv AC-23): a file only they load is the CV page's own.
+  const group = (page: string) => {
+    const route = name(page)
+      .replace(/(^|\/)index\.html$/, '')
+      .replace(/\.html$/, '');
+    return /^cv(\/(en|no))?$/.test(route) ? 'cv' : route;
+  };
+  const userGroups = new Map<string, Set<string>>();
+  for (const [page, scripts] of loaded)
+    for (const key of scripts.keys())
+      userGroups.set(key, (userGroups.get(key) ?? new Set()).add(group(page)));
 
   for (const page of pages) {
     const html = readFileSync(page, 'utf8');
@@ -105,7 +113,7 @@ export function checkBudgets({ bootstrap, dist }: BudgetInput): {
     let shell = 0;
     let own = 0;
     for (const [key, size] of loaded.get(page) ?? [])
-      if ((users.get(key) ?? 0) > 1) shell += size;
+      if ((userGroups.get(key)?.size ?? 0) > 1) shell += size;
       else own += size;
     const js = shell + own;
 
