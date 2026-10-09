@@ -177,7 +177,7 @@ PDF files are cached for an hour, so a new version reaches everyone within the h
 On `v2` the CV exists twice: as a CV PDF (`public/cv/alexander-ponomarenko-cv-en.pdf` / `-no.pdf`, the source of truth for the CV content) and as a CV page (`/cv/en`, `/cv/no`). A CV update changes both. When a CV PDF is replaced (same file name), the same pull request does this, in this order:
 
 1. Update the CV page in that CV language from the new file: `src/data/cv/en.ts` or `src/data/cv/no.ts`.
-2. Make the page images of that file again: `public/cv/cv-{en,no}-{1,2}.webp`, with `python tools/cv-previews.py` (first time: `pip install pymupdf pillow`). On `v2` the tool stops at the missing `public/app.js` until backlog item B-63 is done.
+2. Make the page images of that file again: `public/cv/cv-{en,no}-{1,2}.webp`, with `python tools/cv-previews.py` (first time: `pip install pymupdf pillow`). `--out <directory>` writes them somewhere else, to compare with the committed ones first.
 3. Set the CV date: `cvDate` in `src/data/cv/index.ts`, one value for both CV languages.
 4. Only after that, update the `sha256` of that file in `src/data/cv/index.ts`.
 5. The Owner confirms the CV rows of the Claims list again ([owner-inputs.md](docs/features/cv/owner-inputs.md), table 3).
