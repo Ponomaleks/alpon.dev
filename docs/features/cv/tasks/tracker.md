@@ -15,8 +15,8 @@ The two phases are a work order only: one branch, `feat/cv`, and one pull reques
 | T2 | [Serve the three CV addresses as pages and rewrite P-01 to P-03](./t02-cv-addresses-as-pages.md) | wiring | Alexander Ponomarenko | M | — | done |
 | T3 | [Point every internal CV link at the canonical CV address through the contact data](./t03-internal-cv-links.md) | domain | Alexander Ponomarenko | S | T2 | done |
 | T4 | [Add the CV data skeleton and the CV PDF checksum check to the lint gate](./t04-cv-data-and-checksum.md) | domain | Alexander Ponomarenko | M | — | done |
-| T5 | [Write the English CV data from the text the Owner confirmed](./t05-cv-data-en.md) | domain | Alexander Ponomarenko | M | T1, T4 | todo |
-| T6 | [Write the Norwegian CV data from the current Norwegian CV PDF](./t06-cv-data-no.md) | domain | Alexander Ponomarenko | M | T1, T4 | todo |
+| T5 | [Write the English CV data from the text the Owner confirmed](./t05-cv-data-en.md) | domain | Alexander Ponomarenko | M | T1, T4 | done |
+| T6 | [Write the Norwegian CV data from the current Norwegian CV PDF](./t06-cv-data-no.md) | domain | Alexander Ponomarenko | M | T1, T4 | done |
 | T7 | [Add the ghost Button variant and the icons the CV page needs](./t07-button-ghost-and-icons.md) | ui | Alexander Ponomarenko | S | — | done |
 | T8 | [Build Breadcrumbs and the LangSwitch as two links](./t08-breadcrumbs-and-lang-switch.md) | ui | Alexander Ponomarenko | M | — | done |
 | T9 | [Build CvSection, SkillGroup, LanguageList and DatedRows](./t09-cv-section-parts.md) | ui | Alexander Ponomarenko | M | T4 | done |
@@ -24,14 +24,14 @@ The two phases are a work order only: one branch, `feat/cv`, and one pull reques
 | T11 | [Build the Original PDF preview and the meta line](./t11-original-pdf-preview.md) | ui | Alexander Ponomarenko | M | T4, T7 | done |
 | T12 | [Build the side column: contents list, contact list and the second download](./t12-cv-aside.md) | ui | Alexander Ponomarenko | M | T4, T7 | done |
 | T13 | [Move copy-email to scripts/shared and let it follow the language of the page](./t13-copy-email-shared.md) | app | Alexander Ponomarenko | M | — | done |
-| T14 | [Add canonical, alternates and cvLang to BaseLayout and mark the Shell English on a Norwegian page](./t14-layout-cv-options.md) | wiring | Alexander Ponomarenko | M | T3 | todo |
+| T14 | [Add canonical, alternates and cvLang to BaseLayout and mark the Shell English on a Norwegian page](./t14-layout-cv-options.md) | wiring | Alexander Ponomarenko | M | T3 | done |
 | T15 | [Let the Sticky action bar take a language switch and a link with a language](./t15-bar-language-switch.md) | ui | Alexander Ponomarenko | M | T8, T14 | todo |
-| T16 | [Build the CV head](./t16-cv-head.md) | ui | Alexander Ponomarenko | M | T4, T7, T8, T11 | todo |
+| T16 | [Build the CV head](./t16-cv-head.md) | ui | Alexander Ponomarenko | M | T4, T7, T8, T11 | done |
 | T17 | [Compose CvPage, give the three pages their head and list them in the sitemap](./t17-cv-page-composition.md) | wiring | Alexander Ponomarenko | L | T2, T5, T6, T9, T10, T11, T12, T14, T15, T16 | todo |
 | T18 | [Write the pure modules of the CV page script](./t18-cv-script-modules.md) | app | Alexander Ponomarenko | M | T4 | done |
 | T19 | [Teach the budget check that the three CV addresses are one page](./t19-budget-page-groups.md) | tests | Alexander Ponomarenko | S | — | done |
 | T20 | [Wire the CV page script and check the language switch and the copy action on the page](./t20-cv-script-entry.md) | app | Alexander Ponomarenko | M | T13, T17, T18, T19 | todo |
-| T21 | [Hand the Legacy CV addresses over from the home page](./t21-legacy-cv-handoff.md) | app | Alexander Ponomarenko | M | T3 | todo |
+| T21 | [Hand the Legacy CV addresses over from the home page](./t21-legacy-cv-handoff.md) | app | Alexander Ponomarenko | M | T3 | done |
 | T22 | [Give the CV pages, the CV PDFs and the page images their response headers](./t22-cv-response-headers.md) | wiring | Alexander Ponomarenko | S | T2 | done |
 | T23 | [Extend the contact check and the placeholder check to the built CV pages](./t23-cv-built-checks.md) | tests | Alexander Ponomarenko | M | T17 | todo |
 | T24 | [Show the components of phase 5a on the Styleguide with marked sample data](./t24-styleguide-cv-components.md) | ui | Alexander Ponomarenko | M | T7, T8, T9, T10, T11, T12, T15 | todo |
