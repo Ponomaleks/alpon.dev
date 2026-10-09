@@ -335,9 +335,19 @@ describe('page option backToTop (AC-21, AC-22, sad §5)', () => {
     for (const page of ['index.html', '404.html']) expect(html(page)).toContain('href="#top"');
   });
 
-  it('no element has the id "top", so the browser scrolls to the top and resets the focus start', () => {
-    for (const page of ['fixture.html', 'index.html', '404.html'])
-      expect(html(page)).not.toMatch(/\sid="top"/);
+  // The link hides at the top while it still has focus, and where "#top" named no element the
+  // next Tab did not reach the skip link in about one run of fifteen. An explicit target before the
+  // skip link is where the browser starts the next Tab from.
+  it('targets one empty element with the id "top", the first in the body, before the skip link', () => {
+    for (const page of ['fixture.html', 'index.html', '404.html']) {
+      const source = html(page);
+      expect(count(source, /\sid="top"/g)).toBe(1);
+      expect(source).toMatch(/<body[^>]*>\s*<span id="top"><\/span>\s*<a\b[^>]*class="skip-link"/);
+    }
+  });
+
+  it('leaves the target out with the link', () => {
+    expect(html('fixture-opt/back-to-top-off.html')).not.toMatch(/\sid="top"/);
   });
 });
 

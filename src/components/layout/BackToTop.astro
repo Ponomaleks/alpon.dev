@@ -3,8 +3,8 @@ import Icon from '../ui/Icon.astro';
 
 // BackToTop (AC-21, AC-22): a link to the top of the page, fixed in the bottom end corner from 768.
 // Below 768 that corner belongs to the Sticky action bar, so the link is not displayed. No script:
-// "#top" names no element, so the browser scrolls to the start of the document and the next Tab
-// starts again at the skip link. Where the browser ties animation to scrolling the link appears
+// "#top" names the empty element BaseLayout puts first in the body, so the browser scrolls to the
+// start of the document and the next Tab starts again at the skip link. Where the browser ties animation to scrolling the link appears
 // after about one and a half screens; elsewhere it is shown all the time. Its space at the end of
 // the page is reserved in base.css (hook H-5: data-back-to-top).
 // `sample` leaves the hook off and draws the link in the flow for the Styleguide.

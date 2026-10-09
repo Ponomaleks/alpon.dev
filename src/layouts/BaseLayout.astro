@@ -126,6 +126,8 @@ const structuredDataJson = structuredData
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   </head>
   <body>
+    {/* The target of BackToTop: the next Tab starts here, at the skip link (AC-21). */}
+    {backToTop && <span id="top" />}
     <SkipLink lang={shellLang} />
     <Header
       current={current}
