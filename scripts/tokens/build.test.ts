@@ -174,6 +174,93 @@ describe('generateTokens', () => {
   });
 });
 
+describe('print block (cv ADR-0002, AC-12)', () => {
+  const PRINT = '@media print';
+
+  /** [selector list, body] of every rule directly inside the print media block, in order. */
+  function printRules(css: string): [selectors: string[], body: string][] {
+    const body = block(css, PRINT);
+    const rules: [string[], string][] = [];
+    let from = 0;
+    for (let open = body.indexOf('{', from); open >= 0; open = body.indexOf('{', from)) {
+      const close = body.indexOf('}', open);
+      const prelude = body.slice(from, open).replace(/\/\*[\s\S]*?\*\//g, '');
+      rules.push([
+        prelude
+          .split(',')
+          .map((s) => s.trim())
+          .filter(Boolean),
+        body.slice(open + 1, close),
+      ]);
+      from = close + 1;
+    }
+    return rules;
+  }
+  /** What the block sets, later declarations replacing earlier ones. */
+  const printed = (css: string) =>
+    new Map(printRules(css).flatMap(([, body]) => declarations(body)));
+  const selectors = (css: string) => printRules(css).flatMap(([s]) => s);
+
+  it('exists once, as a print media block', () => {
+    const css = generateTokens(real());
+    expect(css.match(/@media print\b/g)).toHaveLength(1);
+    expect(printRules(css).length).toBeGreaterThan(0);
+  });
+
+  it('is written after the Dag, Natt and no-JS Natt blocks, so it wins on order', () => {
+    const css = generateTokens(real());
+    const at = css.indexOf(PRINT);
+    expect(at).toBeGreaterThan(css.indexOf('@media (prefers-color-scheme: dark) {'));
+    expect(at).toBeGreaterThan(css.indexOf('[data-theme="natt"] {'));
+    expect(at).toBeGreaterThan(css.indexOf('[data-theme="dag"] {'));
+  });
+
+  it('reaches every theme state: Dag, Natt, the no-JS root and a hero in Natt', () => {
+    const list = selectors(generateTokens(real()));
+    expect(list).toEqual(
+      expect.arrayContaining([
+        ':root',
+        '[data-theme="dag"]',
+        '[data-theme="natt"]',
+        ':root:not([data-theme])',
+        ':root[data-theme="natt"] [data-hero]',
+        ':root:not([data-theme]) [data-hero]',
+      ]),
+    );
+  });
+
+  it('is not weaker than the Natt rules: no selector is less specific than its Natt twin', () => {
+    // A print selector that is `:root` alone (0,1,0) is beaten by `[data-theme="natt"]` (0,1,0)
+    // only by order, which the order test above pins; the compound ones must carry :root.
+    const list = selectors(generateTokens(real()));
+    expect(list).toContain(':root[data-theme="natt"]');
+    expect(list).toContain(':root:not([data-theme])');
+  });
+
+  it('sets back to its Dag value every token the Natt set overrides', () => {
+    const css = generateTokens(real());
+    const dag = new Map(declarations(block(css, '[data-theme="dag"]')));
+    const out = printed(css);
+    const sheet = new Set(['--fjord-color-bg', '--fjord-color-text']);
+    for (const [property] of declarations(nattBlock(css))) {
+      if (sheet.has(property)) continue;
+      expect(out.get(property), property).toBe(dag.get(property));
+    }
+  });
+
+  it('takes the sheet background and text from the print primitives', () => {
+    const out = printed(generateTokens(real()));
+    expect(out.get('--fjord-color-bg')).toBe('var(--fjord-print-bg)');
+    expect(out.get('--fjord-color-text')).toBe('var(--fjord-print-text)');
+  });
+
+  it('is colours only: nothing in the block sets a non-colour token', () => {
+    const css = generateTokens(real());
+    const natt = new Set(declarations(nattBlock(css)).map(([p]) => p));
+    for (const [property] of printed(css)) expect(natt.has(property), property).toBe(true);
+  });
+});
+
 describe('reduced motion (sad §8 Motion, AC-14)', () => {
   const REDUCE = '@media (prefers-reduced-motion: reduce)';
   const reduceBlock = (css: string) => block(block(css, REDUCE), ':root');

@@ -30,6 +30,26 @@ const NO_JS_NATT_SELECTORS = [`${NO_JS_ROOT} ${HERO}`, NO_JS_ROOT].join(',\n  ')
 /** Contour and terrain line colours are named tokens in the handoff and inlined where used. */
 const LINE_TOKEN_REF = /var\((--fjord-(?:contour|terrain)-line-[a-z-]+)\)/g;
 const NO_JS_NATT = '@media (prefers-color-scheme: dark)';
+/**
+ * Print block (cv ADR-0002): every page prints in the Dag colours whatever the theme on screen.
+ * The selectors are the ones of the Natt rules, each with `:root` so none is less specific than
+ * its Natt twin; the block is written after them, so it also wins on order.
+ */
+const PRINT = '@media print';
+const PRINT_SELECTORS = [
+  ':root',
+  DAG,
+  NATT,
+  ':root[data-theme="natt"]',
+  NO_JS_ROOT,
+  `:root[data-theme="natt"] ${HERO}`,
+  `${NO_JS_ROOT} ${HERO}`,
+];
+/** The sheet is white with dark text: these two come from the print primitives, not from Dag. */
+const PRINT_SHEET: Declaration[] = [
+  ['--fjord-color-bg', 'var(--fjord-print-bg)'],
+  ['--fjord-color-text', 'var(--fjord-print-text)'],
+];
 const REDUCED_MOTION = 'prefers-reduced-motion';
 const REDUCE = '@media (prefers-reduced-motion: reduce)';
 
@@ -249,6 +269,10 @@ export function generateTokens(sources: Sources): string {
   for (const [property] of natt)
     if (!dag.has(property)) dag.set(property, root.get(property) ?? 'initial');
 
+  const print = new DeclarationList();
+  for (const [property] of natt) print.set(property, dag.get(property) ?? 'initial');
+  print.addAll(PRINT_SHEET);
+
   const responsive = sheets
     .flatMap((sheet) => sheet.media)
     .filter((media) => !media.query.includes(REDUCED_MOTION));
@@ -259,6 +283,7 @@ export function generateTokens(sources: Sources): string {
     rule(DAG, dag.entries()),
     rule(NATT_SELECTORS, natt),
     `${NO_JS_NATT} {\n${rule(NO_JS_NATT_SELECTORS, natt, '  ')}\n}`,
+    `${PRINT} {\n${rule(PRINT_SELECTORS.join(',\n  '), print.entries(), '  ')}\n}`,
     rule(ON_SPRUCE_SELECTORS, inlineLineTokens(collect(sheets, ON_SPRUCE).entries(), root)),
     rule(NATT_ON_SPRUCE, collect(sheets, NATT_ON_SPRUCE).entries()),
     ...responsive.map(
