@@ -23,13 +23,13 @@ Source of truth for the stub: commit `89d375b` (`git show 89d375b:public/index.h
 
 | Id | Behaviour | Test |
 |---|---|---|
-| P-01 | `/cv` → 302 → `/cv/alexander-ponomarenko-cv-en.pdf` | active |
-| P-02 | `/cv/en` → 302 → `/cv/alexander-ponomarenko-cv-en.pdf` | active |
-| P-03 | `/cv/no` → 302 → `/cv/alexander-ponomarenko-cv-no.pdf` | active |
+| P-01 | `/cv` answers 200 with the CV page itself, no redirect | active |
+| P-02 | `/cv/en` answers 200 with the English CV page itself, no redirect | active |
+| P-03 | `/cv/no` answers 200 with the Norwegian CV page itself, no redirect | active |
 | P-04 | `/linkedin` → 302 → `https://www.linkedin.com/in/ponomalex/` | active |
 | P-05 | `/github` → 302 → `https://github.com/ponomaleks` | active |
 
-Note: CLAUDE.md plans `/cv`, `/cv/en`, `/cv/no` as CV pages later. The spec that builds them decides whether the short links keep pointing at the PDF or at the page. Either way, the URLs must keep resolving. Update P-01..P-03 in that spec.
+Note: the cv feature serves `/cv`, `/cv/en` and `/cv/no` as pages (P-01..P-03); the PDFs stay at their own addresses.
 
 ## Static files and headers (`public/_headers`)
 

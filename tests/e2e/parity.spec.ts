@@ -7,10 +7,23 @@ import { expect, test } from '@playwright/test';
 const noRedirect = { maxRedirects: 0 };
 
 test.describe('routes and short links', () => {
+  const cvPages = [
+    ['P-01', '/cv'],
+    ['P-02', '/cv/en'],
+    ['P-03', '/cv/no'],
+  ] as const;
+
+  for (const [id, path] of cvPages) {
+    test(`${id} ${path} answers 200 with the page itself, no redirect`, async ({ request }) => {
+      const response = await request.get(path, noRedirect);
+      expect(response.status()).toBe(200);
+      expect(response.headers()['content-type']).toContain('text/html');
+      expect(response.headers()['location']).toBeUndefined();
+      expect(new URL(response.url()).pathname).toBe(path);
+    });
+  }
+
   const shortLinks = [
-    ['P-01', '/cv', '/cv/alexander-ponomarenko-cv-en.pdf'],
-    ['P-02', '/cv/en', '/cv/alexander-ponomarenko-cv-en.pdf'],
-    ['P-03', '/cv/no', '/cv/alexander-ponomarenko-cv-no.pdf'],
     ['P-04', '/linkedin', 'https://www.linkedin.com/in/ponomalex/'],
     ['P-05', '/github', 'https://github.com/ponomaleks'],
   ] as const;
