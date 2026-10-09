@@ -11,7 +11,7 @@ import MobileMenu from '../components/layout/MobileMenu.astro';
 import CtaBand from '../components/layout/CtaBand.astro';
 import Footer from '../components/layout/Footer.astro';
 import MobileBar from '../components/layout/MobileBar.astro';
-import { defaultBarActions, type BandAction, type BarAction } from '../data/shell-actions';
+import { defaultBarActions, type BandAction, type BarSlot } from '../data/shell-actions';
 import Toast from '../components/ui/Toast.astro';
 
 interface Props {
@@ -27,7 +27,7 @@ interface Props {
   headerOverHero?: boolean;
   mobileBar?: boolean;
   // The bar's pair, all secondary (AC-34).
-  mobileBarActions?: readonly [BarAction, BarAction];
+  mobileBarActions?: readonly [BarSlot, BarSlot];
   ctaBand?: boolean;
   ctaBandActions?: readonly [BandAction, BandAction];
   cvLang?: 'en' | 'no';

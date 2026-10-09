@@ -10,7 +10,22 @@ export interface BarAction {
   icon?: IconName;
   /** A string is the file name the browser saves the file under. */
   download?: boolean | string;
+  /** Marks a label in another language than the page's (the Norwegian CV's own download). */
+  lang?: 'no';
 }
+
+// The CV page's language switch in the bar (AC-19): the same two links as ui/LangSwitch.
+export interface BarLangSwitch {
+  kind: 'lang-switch';
+  current: 'en' | 'no';
+  /** Accessible name of the group, in the page language. */
+  group: string;
+  enHref: string;
+  noHref: string;
+}
+
+/** One slot of the bar: a link or a language switch. Neither has a style field. */
+export type BarSlot = BarAction | BarLangSwitch;
 
 export const defaultBarActions: readonly [BarAction, BarAction] = [
   { label: 'View CV', href: contact.links.cv, icon: 'file-text' },

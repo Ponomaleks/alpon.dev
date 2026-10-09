@@ -13,6 +13,8 @@ interface Props {
   disabled?: boolean;
   /** Marks a link as a file download; a string is the file name the browser saves it under. */
   download?: boolean | string;
+  /** Language of the label when it differs from the page's. */
+  lang?: string;
   /** Forces a state for the Styleguide (hook H-4). */
   'data-demo-state'?: 'hover' | 'focus' | 'active';
 }
@@ -26,6 +28,7 @@ const {
   icon,
   disabled = false,
   download = false,
+  lang,
   'data-demo-state': demoState,
 } = Astro.props;
 
@@ -54,6 +57,7 @@ const classes = [
     href={disabled ? undefined : href}
     aria-disabled={disabled ? 'true' : undefined}
     download={download || undefined}
+    lang={lang}
     data-demo-state={demoState}
   >
     {icon && <Icon name={icon} />}

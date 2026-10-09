@@ -5,7 +5,7 @@ import { join, relative } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { contact } from '../../data/contact';
-import { defaultBarActions, type BarAction } from '../../data/shell-actions';
+import { defaultBarActions, type BarAction, type BarLangSwitch } from '../../data/shell-actions';
 
 // AC-34, AC-38 (home T5, ADR-0002): the Sticky action bar renders the pair it is given, always
 // secondary. Markup of AC-07, D-11 (T12): the Sticky action bar. A real production build of a throwaway
@@ -23,14 +23,40 @@ const custom: BarAction[] = [
   { label: 'Get the brief', href: '/brief.pdf', icon: 'download', download: true },
 ];
 
+// AC-19: the CV page's pair: a language switch at the start and a link marked Norwegian.
+const switchEn: [BarLangSwitch, BarAction] = [
+  {
+    kind: 'lang-switch',
+    current: 'en',
+    group: 'CV language',
+    enHref: '/cv/en',
+    noHref: '/cv/no',
+  },
+  { label: 'Download PDF', href: '/cv/en.pdf', icon: 'file-down', download: true },
+];
+const switchNo: [BarLangSwitch, BarAction] = [
+  {
+    kind: 'lang-switch',
+    current: 'no',
+    group: 'CV-språk',
+    enHref: '/cv/en',
+    noHref: '/cv/no',
+  },
+  { label: 'Last ned PDF', href: '/cv/no.pdf', icon: 'file-down', download: true, lang: 'no' },
+];
+
 const fixture = `---
 import MobileBar from '${layout('MobileBar.astro')}';
 import { defaultBarActions } from '${actionsModule}';
 const custom = ${JSON.stringify(custom)};
+const switchEn = ${JSON.stringify(switchEn)};
+const switchNo = ${JSON.stringify(switchNo)};
 ---
 <html lang="en"><head><title>bar</title></head><body>
 <div data-case="live"><MobileBar actions={defaultBarActions} /></div>
 <div data-case="custom"><MobileBar actions={custom} /></div>
+<div data-case="switch-en"><MobileBar actions={switchEn} /></div>
+<div data-case="switch-no"><MobileBar actions={switchNo} lang="en" /></div>
 <div data-case="sample"><MobileBar actions={defaultBarActions} sample /></div>
 </body></html>
 `;
@@ -251,6 +277,77 @@ describe('MobileBar: layout (design .fj-actionbar)', () => {
     );
     expect(unguarded).not.toMatch(/\btransition\s*:|\banimation\s*:/);
     expect(source()).not.toMatch(/(?<![-\w])translate\s*:/);
+  });
+});
+
+describe('MobileBar: language switch slot (AC-19)', () => {
+  const group = (name: string) =>
+    made(name).match(/<div\b[^>]*data-lang-switch[^>]*>[\s\S]*?<\/div>/)?.[0] ?? '';
+  const switchLinks = (name: string) => anchors(group(name));
+  const buttons = (name: string) => anchors(made(name)).filter((a) => /\bfj-btn\b/.test(a));
+
+  it('renders the LangSwitch in its default size, before the download, with EN current', () => {
+    const html = made('switch-en');
+    expect(group('switch-en')).toMatch(/data-size="default"/);
+    expect(group('switch-en')).toContain('aria-label="CV language"');
+    expect(html.indexOf('data-lang-switch')).toBeLessThan(html.indexOf('Download PDF'));
+    const [en, no, ...rest] = switchLinks('switch-en');
+    expect(rest).toEqual([]);
+    expect(en).toMatch(/href="\/cv\/en"/);
+    expect(en).toMatch(/aria-current="true"/);
+    expect(no).toMatch(/href="\/cv\/no"/);
+    expect(no).not.toMatch(/aria-current/);
+  });
+
+  it('marks NO current when the Norwegian page gives the switch', () => {
+    const [en, no] = switchLinks('switch-no');
+    expect(no).toMatch(/aria-current="true"/);
+    expect(en).not.toMatch(/aria-current/);
+  });
+
+  it('the download is the one Button of the pair, secondary, with the file-down icon', () => {
+    const [only, ...rest] = buttons('switch-en');
+    expect(rest).toEqual([]);
+    expect(only).toMatch(/Download PDF/);
+    expect(only).toContain('href="/cv/en.pdf"');
+    expect(only).toMatch(/\sdownload(?:=""|\s|>)/);
+    expect(classesOf(only ?? '')).toContain('fj-btn--secondary');
+    expect(classesOf(only ?? '')).not.toContain('fj-btn--primary');
+    expect(made('switch-en')).not.toMatch(/fj-btn--primary/);
+  });
+
+  it('a link with lang carries the attribute; the frame and the tab stay English', () => {
+    const [only] = buttons('switch-no');
+    expect(only).toMatch(/Last ned PDF/);
+    expect(only).toMatch(/\slang="no"/);
+    expect(classesOf(only ?? '')).toContain('fj-btn--secondary');
+    expect(made('switch-no')).toMatch(/<details\b[^>]*\slang="en"/);
+    expect(made('switch-en')).not.toMatch(/Download PDF[^<]*<\/a>[\s\S]*\slang="no"/);
+  });
+
+  it('a link without lang carries none', () => {
+    expect(buttons('switch-en')[0]).not.toMatch(/\slang=/);
+  });
+
+  it('the type has no style field on a link or on a switch', () => {
+    const link: BarAction = {
+      label: 'x',
+      href: '/',
+      lang: 'no',
+      // @ts-expect-error a link has no style field
+      variant: 'primary',
+    };
+    const sw: BarLangSwitch = {
+      kind: 'lang-switch',
+      current: 'en',
+      group: 'g',
+      enHref: '/',
+      noHref: '/',
+      // @ts-expect-error a switch has no style field
+      variant: 'primary',
+    };
+    expect(link.lang).toBe('no');
+    expect(sw.kind).toBe('lang-switch');
   });
 });
 

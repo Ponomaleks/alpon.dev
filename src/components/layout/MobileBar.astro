@@ -1,7 +1,8 @@
 ---
 import Button from '../ui/Button.astro';
 import Icon from '../ui/Icon.astro';
-import type { BarAction } from '../../data/shell-actions';
+import LangSwitch from '../ui/LangSwitch.astro';
+import type { BarSlot } from '../../data/shell-actions';
 
 // Sticky action bar below 768 (AC-07, AC-08, AC-09). The live bar carries the hook H-2; `sample`
 // leaves the hook off and positions the bar inside its frame for the Styleguide.
@@ -9,7 +10,7 @@ import type { BarAction } from '../../data/shell-actions';
 // keeps its height in every state and only its transform changes: none when open, down to a strip
 // under the tab when collapsed, off the screen when the scroll script sets `inert`.
 interface Props {
-  actions: readonly [BarAction, BarAction];
+  actions: readonly [BarSlot, BarSlot];
   sample?: boolean;
   /** Sample only: draws the bar collapsed, to its tab. */
   collapsed?: boolean;
@@ -36,17 +37,30 @@ const { actions, sample = false, collapsed = false, lang } = Astro.props;
       <Icon name="chevron-up" />
     </span>
   </summary>
-  {actions.map((action) => (
-    <Button
-      href={action.href}
-      variant="secondary"
-      icon={action.icon}
-      download={action.download}
-      block
-    >
-      {action.label}
-    </Button>
-  ))}
+  {actions.map((action) =>
+    'kind' in action ? (
+      <div class="mobile-bar__switch">
+        <LangSwitch
+          current={action.current}
+          group={action.group}
+          size="default"
+          enHref={action.enHref}
+          noHref={action.noHref}
+        />
+      </div>
+    ) : (
+      <Button
+        href={action.href}
+        variant="secondary"
+        icon={action.icon}
+        download={action.download}
+        lang={action.lang}
+        block
+      >
+        {action.label}
+      </Button>
+    ),
+  )}
 </details>
 
 <script>
@@ -114,6 +128,18 @@ const { actions, sample = false, collapsed = false, lang } = Astro.props;
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: var(--fjord-space-2);
+  }
+
+  /* The switch keeps its own width at the start side; the neighbour button takes the rest. */
+  .mobile-bar__switch {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+  .mobile-bar:has(.mobile-bar__switch),
+  .mobile-bar:has(.mobile-bar__switch)::details-content {
+    grid-template-columns: auto 1fr;
   }
 
   .mobile-bar__tab {

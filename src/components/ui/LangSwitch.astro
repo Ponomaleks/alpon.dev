@@ -62,11 +62,7 @@ const { current, group, size = 'default', enHref, noHref } = Astro.props;
   a::before {
     content: '';
     position: absolute;
-    left: 50%;
-    top: 50%;
-    width: max(100%, var(--fjord-tap-min));
-    height: max(100%, var(--fjord-tap-min));
-    transform: translate(-50%, -50%);
+    inset: min(0px, calc((100% - var(--fjord-tap-min)) / 2));
   }
   a:hover {
     color: var(--fjord-color-text);
