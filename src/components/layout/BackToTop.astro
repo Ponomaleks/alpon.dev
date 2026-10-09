@@ -5,7 +5,7 @@ import Icon from '../ui/Icon.astro';
 // Below 768 that corner belongs to the Sticky action bar, so the link is not displayed. No script:
 // "#top" names the empty element BaseLayout puts first in the body, so the browser scrolls to the
 // start of the document and the next Tab starts again at the skip link. Where the browser ties animation to scrolling the link appears
-// after about one and a half screens; elsewhere it is shown all the time. Its space at the end of
+// after about one and a half screens, also under reduced motion; elsewhere it is shown all the time. Its space at the end of
 // the page is reserved in base.css (hook H-5: data-back-to-top).
 // `sample` leaves the hook off and draws the link in the flow for the Styleguide.
 interface Props {
@@ -91,11 +91,16 @@ const { sample = false, lang, 'data-demo-state': demoState } = Astro.props;
   }
 
   /* Scroll-tied appearance: hidden (and so not focusable) at the top, shown from about one and a
-     half screens with a fade and a short rise, as in the page design. Without support the link is
-     shown all the time. Under reduced motion no animation runs at all (not-found.spec.ts allows
-     none), so the link is shown all the time and nothing moves. Scroll-tied, never time-based:
-     no duration. */
+     half screens, as in the page design. Without support the link is shown all the time. With
+     motion allowed it fades in with a short rise; under reduced motion it only fades, nothing
+     moves (AC-21). Scroll-tied, never time-based: no duration. */
   @supports (animation-timeline: scroll()) {
+    .back-to-top[data-back-to-top] {
+      animation: back-to-top-show var(--fjord-ease-linear) both;
+      animation-timeline: scroll(root);
+      animation-range: 100vh 150vh;
+    }
+
     @media (prefers-reduced-motion: no-preference) {
       .back-to-top[data-back-to-top] {
         animation:

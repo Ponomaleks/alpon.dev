@@ -255,7 +255,7 @@ Not a difference: the side column's contact list shows "Nittedal, Norge", the Re
 - in the Sticky action bar, which is on screen while a section is in view, the other CV page opens at the section in view at the moment of the activation, with its heading clear of the header and keyboard focus at that section; if the Visitor is above the first section at that moment, even after reading further down, or the other CV page has no such section, it opens at the top;
 - in the CV head, which is on screen only above the first section, the other CV page opens at the scroll position the Visitor had, so only the text changes; it never opens at a section from the head. The position is restored only if it is above the first section of the new page; otherwise the page opens at the top
 
-Decided by the Owner on 2026-10-09, after implement measured that the switch of the CV head is never on screen while a section is in view (at 1440 it leaves the screen 211 px of scrolling before the first section counts as in view). How the position crosses is ADR-0001.
+Decided by the Owner on 2026-10-09, after implement measured that the switch of the CV head is never on screen while a section is in view (at 1440 it leaves the screen 211 px of scrolling before the first section counts as in view). How the position crosses is ADR-0001. Accepted (Owner, 2026-10-09): the position is restored by the page script, which usually runs before the first paint; in about one arrival of ten under load the new page shows one frame at its top before the position is restored. This happens only from the switch of the CV head, and the page always settles at the carried position.
 
 ### AC-09 (US-04) — happy
 
@@ -394,7 +394,7 @@ Decided by the Owner on 2026-10-09, after implement measured that the switch of 
 | Accessibility | 0 axe violations on both CV pages in Dag and Natt, with scripts on and off, with the Original PDF preview closed and open | axe in Playwright |
 | Touch targets | every interactive element of the CV page content and BackToTop ≥ 44 × 44 px, counting its overlay | e2e box measurement |
 | Primary buttons | CV pages at 390 / 834 / 1440, counted at the top, in the middle and at the end: visible screen ≤ 2, page content ≤ 1, Sticky action bar 0 | e2e count (AC-06) |
-| Language switch | with scripts on: from the Sticky action bar the other CV page opens at the section in view for each of the sections both pages have, the heading 0 px under the header; from the CV head it opens at the same scroll position, already there at the first paint | e2e per section and per width (AC-08) |
+| Language switch | with scripts on: from the Sticky action bar the other CV page opens at the section in view for each of the sections both pages have, the heading 0 px under the header; from the CV head it settles at the same scroll position, at no section | e2e per section and per width (AC-08) |
 | BackToTop | 0 px overlap with the last line and with the focused element at 768, 834, 1024 and 1440 on every page for Visitors; absent below 768 | e2e box measurement (AC-22) |
 | Print | in print media, started from Dag and from Natt: 0 Shell parts and controls rendered; the contact line rendered once; background of the sheet white; 0 entries split across sheets on A4 | e2e in print media and a printed-PDF check; manual print in two browsers recorded in the PR |
 | Contrast | every text and background pair the new components render, in Dag, Natt and on spruce: body ≥ 4.5:1; large text, control boundaries and the focus ring ≥ 3:1 | contrast check script in CI |

@@ -205,7 +205,13 @@ test.describe('reduced motion', () => {
       }
       expect(
         await page.evaluate(
-          () => document.getAnimations().filter((a) => a.playState !== 'paused').length,
+          () =>
+            document
+              .getAnimations()
+              // BackToTop's appearance follows the scroll position (cv AC-21): it has no duration
+              // and moves nothing, so it is not a running animation in the sense of AC-14.
+              .filter((a) => a.timeline?.constructor.name !== 'ScrollTimeline')
+              .filter((a) => a.playState !== 'paused').length,
         ),
       ).toBe(0);
       expect(await movingTransitions(page)).toEqual([]);

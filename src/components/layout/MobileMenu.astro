@@ -155,7 +155,7 @@ const Root = sample ? 'div' : 'dialog';
     padding: var(--fjord-space-4) 0;
     color: var(--fjord-color-text);
     font-size: var(--fjord-text-h1);
-    font-weight: var(--fjord-weight-medium);
+    font-weight: var(--fjord-weight-semibold);
     letter-spacing: var(--fjord-tracking-heading);
     line-height: var(--fjord-leading-heading);
     text-decoration: none;
@@ -172,11 +172,11 @@ const Root = sample ? 'div' : 'dialog';
     line-height: var(--fjord-leading-none);
   }
 
-  /* AC-20: more than colour (on spruce the link and text colours are both snow): the semibold
-     weight and a rule at the start of the row. An inset shadow keeps the row from shifting. */
+  /* AC-20: more than colour (on spruce the link and text colours are both snow): a rule at the
+     start of the row. An inset shadow keeps the row from shifting. Every link keeps the weight of
+     the page design. */
   .menu__nav a[aria-current='page'] {
     color: var(--fjord-color-link);
-    font-weight: var(--fjord-weight-semibold);
     box-shadow: inset var(--fjord-space-1) 0 0 var(--fjord-color-link);
     padding-inline-start: var(--fjord-space-4);
   }

@@ -42,7 +42,7 @@ How it is built:
 
 Amended on 2026-10-09 (Owner, during implement): the fragment is carried by the switch in the Sticky action bar only. `implement` measured that the switch of the CV head is never on screen while a section is in view, so from there a section could only be a remembered one, and the page would jump. The switch of the CV head carries the scroll position instead:
 - `lang-switch.ts` gives the head's link to the other language no fragment and, on activation, calls `position.ts`, which writes `scrollY` as one whole number to `sessionStorage` under one key.
-- On arrival the CV page script takes the number and removes it, on every CV page load, with or without a fragment. Without a fragment it scrolls there at once, before the first paint, only if the position is above the first section of the new page; otherwise the page opens at its top. A value that is not a whole number of pixels is dropped.
+- On arrival the CV page script takes the number and removes it, on every CV page load, with or without a fragment. Without a fragment it scrolls there at once, only if the position is above the first section of the new page; otherwise the page opens at its top. A value that is not a whole number of pixels is dropped.
 - A fragment was not used for the position because it would put a second address shape next to the canonical one and would be shared with the link; the position belongs to one navigation of one tab, which is what session storage holds.
 
 ## Consequences
@@ -57,6 +57,7 @@ Amended on 2026-10-09 (Owner, during implement): the fragment is carried by the 
 - The ids are public: renaming one later breaks shared links.
 
 **Neutral**
+- The page script does not block rendering, so in about one arrival of ten under load (5 of 50 measured) the new page shows one frame at its top before the position is restored. Accepted by the Owner on 2026-10-09; a render-blocking script in the head with `pagereveal` was the alternative and was not taken, because it adds a script to the head and to the security contract and still leaves Firefox as it is.
 - With storage blocked, or in a new tab opened from the head's switch, the other page opens at its top.
 - A section only one language has gets its own id from the same list; the other page opens at its top for it.
 - "On this page" uses the same ids, so the contents list and the switch cannot disagree.

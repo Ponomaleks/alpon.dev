@@ -216,20 +216,13 @@ test.describe('CV head: the other page opens at the same scroll position (AC-08)
     }
   }
 
-  test('the position is in place from the first paint of the new page: no visible jump', async ({
+  // The script restores the position when it runs, which is usually before the first paint. A
+  // single first frame at the top is accepted (spec AC-08, Owner, 2026-10-09), so this asserts where
+  // the page ends up, not its first frame.
+  test('the page settles at the carried position, at no section, and stays there', async ({
     page,
   }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
-    // On every document: where the page is at each early frame.
-    await page.addInitScript(() => {
-      const log: { t: number; y: number }[] = [];
-      (window as unknown as { __frames: typeof log }).__frames = log;
-      const tick = () => {
-        log.push({ t: performance.now(), y: scrollY });
-        if (log.length < 120) requestAnimationFrame(tick);
-      };
-      requestAnimationFrame(tick);
-    });
     await page.goto('/cv/en');
     await page.evaluate(() => document.fonts.ready);
     const { headLink } = await lines(page, 'no');
@@ -238,18 +231,16 @@ test.describe('CV head: the other page opens at the same scroll position (AC-08)
     await link(page, '.cv-head', 'no').click();
     await page.waitForURL('**/cv/no');
     await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(y);
-    await page.waitForFunction(
-      () => performance.getEntriesByName('first-contentful-paint').length > 0,
-    );
+    await page.evaluate(() => document.fonts.ready);
     await settle(page);
-    const seen = await page.evaluate(() => {
-      const fcp = performance.getEntriesByName('first-contentful-paint')[0]?.startTime ?? NaN;
-      const frames = (window as unknown as { __frames: { t: number; y: number }[] }).__frames;
-      return { fcp, painted: frames.filter((f) => f.t >= fcp).map((f) => f.y) };
-    });
-    // Every frame from the first paint on is already at the carried position.
-    expect(seen.painted.length).toBeGreaterThan(0);
-    expect([...new Set(seen.painted)]).toEqual([y]);
+    const after = await page.evaluate(() => ({
+      y: window.scrollY,
+      hash: location.hash,
+      focusedSection: document.activeElement?.closest('main section[id]')?.id ?? null,
+    }));
+    expect(after).toEqual({ y, hash: '', focusedSection: null });
+    // Above the first section: the position did not land inside one.
+    expect(y).toBeLessThan((await lines(page, 'en')).firstSection);
   });
 
   test('a stale or crafted stored value does no harm and is removed (spec §6.1)', async ({

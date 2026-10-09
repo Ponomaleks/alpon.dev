@@ -200,6 +200,19 @@ for (const { name, path } of pages) {
   test.describe(`${name}: reduced motion`, () => {
     test.use({ reducedMotion: 'reduce' });
 
+    test('is not shown at the top and appears after scrolling (AC-21)', async ({ page }) => {
+      await open(page, path, 1024);
+      const link = page.getByRole('link', { name: 'Back to top' });
+      const tied = await page.evaluate(() => CSS.supports('animation-timeline: scroll()'));
+      test.skip(!tied, 'this browser cannot tie the appearance to scrolling: always shown');
+      await expect(link).toBeHidden();
+      await scrollTo(page, 1500);
+      await expect(link).toBeVisible();
+      await expect(link).toHaveCSS('opacity', '1');
+      await scrollTo(page, 0);
+      await expect(link).toBeHidden();
+    });
+
     test('appears without movement: no transform is animated (AC-21)', async ({ page }) => {
       await open(page, path, 1024);
       await scrollTo(page, 1500);

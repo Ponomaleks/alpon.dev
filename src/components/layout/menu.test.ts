@@ -263,11 +263,12 @@ describe('MobileMenu: the current-link marker (AC-20, B-05)', () => {
     expect(cssOnly).not.toMatch(/\.menu__nav\s+a\.is-/);
   });
 
-  it('differs from the other links by more than colour: the semibold weight and an accent rule', () => {
+  it('differs from the other links by more than colour: an accent rule, and no weight of its own', () => {
     const body = rules()
       .map((m) => m[2])
       .join(';');
-    expect(body).toMatch(/font-weight:\s*var\(--fjord-weight-semibold\)/);
+    // Every link keeps the weight of the page design (Owner, 2026-10-09).
+    expect(body).not.toMatch(/font-weight/);
     expect(body).toMatch(/(border-inline-start|box-shadow|background)[^;]*var\(--fjord-/);
     expect(body).not.toMatch(/#[0-9a-f]{3,8}\b/i);
   });

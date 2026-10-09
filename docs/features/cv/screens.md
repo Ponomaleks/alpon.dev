@@ -85,7 +85,7 @@ The whole page design, content first. Addresses: the short CV address and the En
 | language switch, other language, scripts off | "NO" is activated | SCR-06 opens at its top | NEW: LangSwitch | AC-07; sad.md §6 Critical flow 1 `scripts are off` |
 | language switch, other language, section in view | Scripts on, the switch of the bar (below 768), a section both pages have is in view at the activation | SCR-06 opens at the same section: heading clear of the header, keyboard focus at the section. One press of Back returns here | NEW: LangSwitch | AC-08; ADR-0001; Critical flow 1 `the Norwegian page has that section` |
 | language switch, other language, no section | Scripts on, the switch of the bar, the Visitor is above the first section at the activation, or SCR-06 has no such section | SCR-06 opens at its top | NEW: LangSwitch | AC-08; Critical flow 1 `no such section`; Sticky action bar flow `above the first section` |
-| language switch, other language, from the CV head | Scripts on, the switch of the CV head, which is on screen only above the first section | SCR-06 opens at the scroll position the Visitor had, already there at its first paint, with no fragment and no move of focus; at the top if that position is not above its first section. One press of Back returns here | NEW: LangSwitch | AC-08; ADR-0001 (amended) |
+| language switch, other language, from the CV head | Scripts on, the switch of the CV head, which is on screen only above the first section | SCR-06 opens at the scroll position the Visitor had, with no fragment and no move of focus (a single first frame at the top is accepted, spec AC-08); at the top if that position is not above its first section. One press of Back returns here | NEW: LangSwitch | AC-08; ADR-0001 (amended) |
 | language switch, current language | "EN" is activated | Scripts on: nothing changes, no reload and no jump. Scripts off: the same page opens at its top | NEW: LangSwitch | sad.md §1 overrides; Sticky action bar flow `the language already shown` |
 | arrived at a section | The address carries the id of a CV section this page has (from the switch, a link of "On this page", or a typed address) | That section's heading is in view below the header. With scripts on keyboard focus is at the section; the section is shown at once | NEW: ContentsList | AC-04, AC-08; `src/scripts/cv/arrive.ts` |
 | arrived with an unknown fragment | The address carries anything else | The page opens at its top; nothing is focused, nothing is reported | — | AC-08; spec §6.1 |
@@ -312,7 +312,7 @@ Delta only. Everything not listed here is as in the base manifest with the home 
 
 | State | Trigger / condition | Components (from the inventory) | Source-ref |
 |---|---|---|---|
-| open, current link (replaces the base row) | Opened on SCR-05 or SCR-06 | "CV" has `aria-current="page"`, an accent rule at the start of its row and the semibold weight, so it differs from "Contact" by more than colour. It leads to the CV page it was opened on | MobileMenu | AC-16, AC-20; sad.md §8 Current page; wireframe below |
+| open, current link (replaces the base row) | Opened on SCR-05 or SCR-06 | "CV" has `aria-current="page"`, and an accent rule at the start of its row, so it differs from "Contact" by more than colour; every link keeps the weight of the page design (Owner, 2026-10-09). It leads to the CV page it was opened on | MobileMenu | AC-16, AC-20; sad.md §8 Current page; wireframe below |
 | open, no current link | Opened on SCR-01 or SCR-02 | No link is marked; "CV" leads to the English CV page | MobileMenu | AC-16, AC-20 |
 | open on SCR-06 | Opened on the Norwegian CV page | The panel is English and marked English | MobileMenu | AC-02 |
 | loading / empty / error | N/A: as base manifest SCR-03 | — | — |
@@ -321,7 +321,7 @@ Delta only. Everything not listed here is as in the base manifest with the home 
 SCR-03 open on a CV page — 390
 | alpon.dev                        [✕] |
 |                                      |
-| ▌01  CV                              |  accent rule at the start, semibold,
+| ▌01  CV                              |  accent rule at the start,
 |  ------------------------------------|  aria-current="page"
 |  02  Contact                         |
 |  ------------------------------------|

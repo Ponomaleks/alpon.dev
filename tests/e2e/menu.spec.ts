@@ -468,7 +468,7 @@ test.describe('the panel top bar lines up with the header', () => {
 });
 
 // AC-20, B-05: the current link of the spruce panel differs from the other links by more than
-// colour: the semibold weight and an accent rule at the start of its row.
+// colour: an accent rule at the start of its row. Every link keeps the weight of the page design.
 test.describe('current link in the mobile menu (AC-20)', () => {
   const link = (page: Page, name: string) =>
     panel(page).locator('[data-menu-nav] a', { hasText: name });
@@ -499,7 +499,7 @@ test.describe('current link in the mobile menu (AC-20)', () => {
       l.pseudo.bg !== 'rgba(0, 0, 0, 0)');
 
   for (const path of ['/cv/en', '/cv/no']) {
-    test(`on ${path} the current link is heavier than "Contact" and has the rule`, async ({
+    test(`on ${path} the current link has the rule and the weight of the other links`, async ({
       page,
     }) => {
       await open(page, path);
@@ -509,19 +509,21 @@ test.describe('current link in the mobile menu (AC-20)', () => {
       expect(cv.current).toBe('page');
       expect(contactLink.current).toBeNull();
       expect(cv.weight).toBe(600);
-      expect(contactLink.weight).toBeLessThan(cv.weight);
+      expect(contactLink.weight).toBe(600);
       expect(hasRule(cv)).toBe(true);
       expect(hasRule(contactLink)).toBe(false);
     });
   }
 
-  test('on the home page no link has the rule or the weight', async ({ page }) => {
+  test('on the home page no link has the rule, and every link has the weight of the design', async ({
+    page,
+  }) => {
     await open(page, '/');
     await openMenu(page);
     for (const name of ['CV', 'Contact']) {
       const l = await look(page, name);
       expect(l.current).toBeNull();
-      expect(l.weight).toBeLessThan(600);
+      expect(l.weight).toBe(600);
       expect(hasRule(l)).toBe(false);
     }
   });
