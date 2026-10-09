@@ -22,11 +22,12 @@ This is the preview of the `v2` branch, the new site. [alpon.dev](https://alpon.
 | `/` | Home: hero with portrait and the "Nå" line, key facts, About with quick facts, experience list, recommendations carousel, contact block (copy email, vCard, QR tile) |
 | `/styleguide` | Every Fjord component and Shell state in one place; the visual tests screenshot it |
 | 404 | The "Ikke funnet" page |
-| `/cv`, `/cv/en`, `/cv/no`, `/linkedin`, `/github` | Short links kept from the stub (`public/_redirects`) |
+| `/cv`, `/cv/en`, `/cv/no` | CV pages in English and Norwegian, built from the CV PDFs: language switch, "Download PDF", "View original PDF" with the page images, contents list and contact list. `/cv` shows the English page and names `/cv/en` as canonical. The old `#cv` and `#cv-no` addresses of the home page hand over to them |
+| `/linkedin`, `/github` | Short links kept from the stub (`public/_redirects`) |
 
 Both themes, `Dag` (light) and `Natt` (dark), work with no flash of the wrong theme. Pages ship no client JavaScript by default; interactive parts are small vanilla TypeScript scripts.
 
-Next on the [roadmap](docs/roadmap.md): the CV pages (EN / NO) as HTML, then Release 1 (v2 → `main`), then the project case studies.
+Next on the [roadmap](docs/roadmap.md): the rest of the CV step (the printed CV with its Print button, the BackToTop link, the current-page marker in the mobile menu, the visual baselines of the CV pages), then Release 1 (v2 → `main`), then the project case studies.
 
 ## Stack
 
@@ -52,7 +53,7 @@ npx playwright install chromium   # once, for the tests and Lighthouse CI
 | `npm run preview` | `wrangler dev` on `dist/`: `_headers`, `_redirects` and the 404 page as in production (http://localhost:8787). Run `npm run build` first |
 | `npm run test` | Playwright (e2e + axe) against `wrangler dev`; builds `dist/` and starts the server itself. The visual tests are skipped outside the Linux Playwright image |
 | `npm run test:unit` | Vitest: the `*.test.ts` files next to the code in `scripts/`, `src/` and `tools/` |
-| `npm run lint` | Token, contrast and contact checks, `astro check`, ESLint, Prettier `--check`, Stylelint |
+| `npm run lint` | Token, contrast, contact and CV PDF checks, `astro check`, ESLint, Prettier `--check`, Stylelint |
 | `npm run format` | Prettier `--write` |
 | `npm run tokens:build` | Regenerates `src/styles/tokens.css` from the design sources |
 | `npm run check:budgets` | Script and asset budgets on `dist/` (after a build) |
@@ -101,16 +102,16 @@ alpon.dev/
 ├─ astro.config.mjs        Astro: static, build.format 'file', trailingSlash 'never'
 ├─ wrangler.jsonc          Worker: assets.directory ./dist, 404-page, auto-trailing-slash
 ├─ src/
-│  ├─ pages/               index, 404, styleguide
+│  ├─ pages/               index, 404, cv, cv/en, cv/no, styleguide
 │  ├─ layouts/             BaseLayout
-│  ├─ components/          ui/, layout/ (the Shell), brand/, home/
+│  ├─ components/          ui/, layout/ (the Shell), brand/, home/, cv/
 │  ├─ scripts/             page and Shell scripts (vanilla TypeScript)
 │  ├─ styles/              tokens.css, fonts.css, base.css, global.css
-│  ├─ data/                contact.ts, home.ts and other typed data
+│  ├─ data/                contact.ts, home.ts, cv/ and other typed data
 │  ├─ content/             content collections (projects)
 │  └─ integrations/        build integrations: CSP hash, one stylesheet per page
 ├─ public/                 fonts, cv/, qr/, img/, vCard, og.png, _headers, _redirects
-├─ scripts/                build-time checks: tokens, contrast, contact, placeholders, budgets
+├─ scripts/                build-time checks: tokens, contrast, contact, CV PDF, placeholders, budgets
 ├─ tests/                  Playwright: e2e/, a11y/ (axe), visual/
 ├─ docs/                   idea brief, roadmap, architecture map, ADRs, feature specs, backlog
 ├─ design/                 design handoff and brand pack (read-only)
@@ -123,7 +124,7 @@ The site is built spec first. Each feature has its own folder in `docs/features/
 
 ### Parity with the stub
 
-`docs/stub-parity.md` lists everything the stub does. `tests/e2e/parity.spec.ts` has one test per item: the built ones run now, the rest are `test.fixme` until a feature spec builds them. The items still open belong to the CV pages. **v2 goes to `main` only when no `test.fixme` is left in `parity.spec.ts`.**
+`docs/stub-parity.md` lists everything the stub does. `tests/e2e/parity.spec.ts` has one test per item: the built ones run now, the rest are `test.fixme` until a feature spec builds them. The last open items, those of the CV pages, run since the CV pages were built, so no `test.fixme` is left; the release itself (roadmap step 6) is still ahead. **v2 goes to `main` only when no `test.fixme` is left in `parity.spec.ts`.**
 
 ## Deployment
 
@@ -151,7 +152,7 @@ Kept for reference, in case the Worker has to be created again.
 Checks after a production deploy:
 
 - `https://alpon.dev`: the page, the CV and the buttons.
-- `https://alpon.dev/cv`: the English PDF opens.
+- `https://alpon.dev/cv`: the English CV page (while `main` serves the stub: the English PDF opens).
 - `https://alpon.dev/nope`: the branded 404 page.
 - A phone: scan the QR code from the business card and try "Save contact".
 - Link preview: https://www.linkedin.com/post-inspector/ shows `og.png`.
@@ -163,12 +164,25 @@ To publish by hand, without Workers Builds: `npx wrangler login`, then `npx wran
 
 | What | Where | Then |
 |---|---|---|
-| CV | Replace `public/cv/alexander-ponomarenko-cv-en.pdf` / `-no.pdf` (same file names) | `python tools/cv-previews.py` (first time: `pip install pymupdf pillow`) |
+| CV (`v2`) | The CV PDF in `public/cv/` and the CV page in `src/data/cv/` | Follow [Replacing a CV PDF](#replacing-a-cv-pdf) |
+| CV (`main`) | Replace `public/cv/alexander-ponomarenko-cv-en.pdf` / `-no.pdf` (same file names) | `python tools/cv-previews.py` (first time: `pip install pymupdf pillow`) |
 | Contacts (`v2`) | `src/data/contact.ts` and `public/alexander-ponomarenko.vcf` | `npm run check:contact` confirms the two match |
 | Contacts (`main`) | `public/index.html` (the Contact block and the JSON-LD in `<head>`) and `public/alexander-ponomarenko.vcf` | |
 | Home page copy (`v2`) | `src/data/home.ts` | |
 
 PDF files are cached for an hour, so a new version reaches everyone within the hour (or at once: **Caching → Configuration → Purge Everything**).
+
+### Replacing a CV PDF
+
+On `v2` the CV exists twice: as a CV PDF (`public/cv/alexander-ponomarenko-cv-en.pdf` / `-no.pdf`, the source of truth for the CV content) and as a CV page (`/cv/en`, `/cv/no`). A CV update changes both. When a CV PDF is replaced (same file name), the same pull request does this, in this order:
+
+1. Update the CV page in that CV language from the new file: `src/data/cv/en.ts` or `src/data/cv/no.ts`.
+2. Make the page images of that file again: `public/cv/cv-{en,no}-{1,2}.webp`, with `python tools/cv-previews.py` (first time: `pip install pymupdf pillow`). On `v2` the tool stops at the missing `public/app.js` until backlog item B-63 is done.
+3. Set the CV date: `cvDate` in `src/data/cv/index.ts`, one value for both CV languages.
+4. Only after that, update the `sha256` of that file in `src/data/cv/index.ts`.
+5. The Owner confirms the CV rows of the Claims list again ([owner-inputs.md](docs/features/cv/owner-inputs.md), table 3).
+
+`npm run check:cv`, part of `npm run lint`, fails while a CV PDF differs from its recorded checksum (or is missing) and names the file and the CV page to check; the failure message prints the new checksum. The check compares checksums only and reads no text, so comparing the text of the page with the file stays the Owner's check.
 
 ## The stub (`main`)
 

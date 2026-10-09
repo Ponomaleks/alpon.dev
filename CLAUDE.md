@@ -47,6 +47,7 @@ The site itself is a portfolio piece: code quality, accessibility and performanc
 - Location has two meanings, keep them apart: "Oslo, Norge" / Oslo area is the region of work (hero, contacts, vCard `ADR: Oslo, Norway`); "Nittedal" is the place of residence and appears in the CV (`1482 Nittedal, Norway`) in the home quick facts ("Based in: Nittedal, Oslo area") and in the footer "Based in" column ("Nittedal, Norge", with the municipality coordinates 60.07° N, 10.87° E). `src/data/contact.ts` keeps the two as separate fields.
 - Contact title: vCard `TITLE` is the broad role "Software Engineer"; the specialisation goes to `NOTE` (Full Stack Developer, agentic engineering).
 - Downloads are real files, never placeholders: "Download CV" links to `public/cv/alexander-ponomarenko-cv-en.pdf` or `public/cv/alexander-ponomarenko-cv-no.pdf` by the current CV language (EN on pages without a language), and "Save contact" links to `public/alexander-ponomarenko.vcf`; both use the `download` attribute. The CV "View original PDF" preview uses the page images `public/cv/cv-{en,no}-{1,2}.webp`.
+- The CV exists twice: as a CV PDF (`public/cv/alexander-ponomarenko-cv-{en,no}.pdf`, the source of truth for the CV content) and as a CV page (`/cv/en`, `/cv/no`, text in `src/data/cv/{en,no}.ts`). A CV update changes both. When a CV PDF is replaced, the same pull request does this, in this order (cv spec AC-25): (1) update the CV page in that CV language from the new file; (2) make the page images of that file again (`tools/cv-previews.py`; see backlog B-63 before running it on `v2`); (3) set the CV date (`cvDate` in `src/data/cv/index.ts`, one value for both CV languages); (4) only after that, update the `sha256` of that file in `src/data/cv/index.ts`; (5) have the Owner confirm the CV rows of the Claims list again (`docs/features/cv/owner-inputs.md`, table 3). `npm run check:cv`, part of `npm run lint`, fails while a CV PDF differs from its recorded checksum (or is missing) and names the file and the CV page to check. It compares checksums only and reads no text, so comparing the text of the page with the file stays the Owner's check.
 
 ## Quality bar
 
@@ -91,19 +92,23 @@ public/            fonts, cv/, qr/, vCard, _headers, _redirects, static files (c
 scripts/           build-time Node/TS checks (e.g. contrast check)
 src/
   data/            contact.ts and other typed data
+    cv/            CV data per CV language, the CV date, the checksum of each CV PDF
   styles/          tokens.css, base.css, prose.css
   components/
     ui/            Button, Link, Badge, Tag, Stat, SectionHeader, Callout, CodeBlock, ...
     layout/        Header, Footer, ThemeToggle, SkipLink, MobileBar
     brand/         Contours, QrTile
     home/          Hero, KeyFacts, About, QuickFacts, ExperienceList, ContactBlock, Portrait, MotionControl
+    cv/            CvPage, CvHead, CvMeta, CvSection, CvJob, CvProjects, CvAside, DatedRows, SkillGroup, LanguageList, OriginalPdfPreview
     prose/         Prose and its element mappings
   scripts/
     home/          page scripts of the home page
+    cv/            page script of the CV pages (arrival at a section, language switch, copy email)
+    shared/        modules that more than one page uses (copy-email)
     shell/         Shell scripts (header, menu, theme, action bar, toast)
   integrations/    build integrations (CSP hash, one stylesheet per page)
   layouts/         BaseLayout.astro
-  pages/           index.astro, 404.astro, later cv/, projects/[slug], thoughts/
+  pages/           index.astro, 404.astro, cv.astro, cv/ (en, no), styleguide.astro, later projects/[slug], thoughts/
   content/         content collections (projects, later thoughts)
 tests/
   e2e/             smoke.spec.ts, parity.spec.ts (one test per docs/stub-parity.md id)

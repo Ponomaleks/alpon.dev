@@ -3,7 +3,7 @@ status: Living
 tool: code               # figma | pencil | code — the single committed source of the design-tool choice (never sdd.local.md: that file is per-developer + gitignored)
 figma_file: ""           # tool: figma → the Figma file URL/key the canon lives in; else ""
 pen_file: ""             # tool: pencil → the .pen library path (e.g. docs/design/library.pen); else ""
-updated_at: "2026-10-07"
+updated_at: "2026-10-09"
 ---
 
 # Design system — alpon.dev (Fjord)
@@ -33,7 +33,7 @@ The inventory below lists building blocks. A row never defines a page: the "Sour
 ## Design tool
 
 - **Tool:** code. The design comes as a Claude Design handoff (JSX + CSS), not a Figma or Pencil file. `screens.md` carries inline markdown wireframes, and it needs no MCP.
-- **Library location:** pages follow `design/handoff/site/` (`project/site/*.jsx` and `alpon.dev standalone.html`, whole site, including Natt); building blocks come from `design/handoff/design-system/project/` (components, tokens, guidelines). The site bundles a newer copy of the design system in `design/handoff/site/project/_ds/`; where the two copies of a component differ, the site copy is the one the page designs use. All are read-only. The in-repo library is `src/components/{ui,layout,brand,home,prose}/`. Handoff JSX is a reference only; it is never copied into the Astro site.
+- **Library location:** pages follow `design/handoff/site/` (`project/site/*.jsx` and `alpon.dev standalone.html`, whole site, including Natt); building blocks come from `design/handoff/design-system/project/` (components, tokens, guidelines). The site bundles a newer copy of the design system in `design/handoff/site/project/_ds/`; where the two copies of a component differ, the site copy is the one the page designs use. All are read-only. The in-repo library is `src/components/{ui,layout,brand,home,cv,prose}/`. Handoff JSX is a reference only; it is never copied into the Astro site.
 
 ## Token source
 
@@ -48,15 +48,15 @@ All values come from `src/styles/tokens.css` (`--fjord-*`, generated, do not edi
 
 `screens.md` may use only these names, or declare `NEW: <name>` with a why-no-primitive-fits line (`implement` then registers it here). **Repo** = the component is built in `src/`. **Handoff** = design-only so far, and the first feature that needs it builds it at the target path. States are given where the handoff signature defines them; otherwise see the component's `.d.ts`/`.prompt.md`. Handoff paths are relative to `design/handoff/design-system/project/`.
 
-**Built in the repo** (base-components registers the Shell and the base components here, home phase 4a the home components and the Shell changes, phase 4b Testimonial, ProjectCard and their sections; the handoff rows of built components are removed)
+**Built in the repo** (base-components registers the Shell and the base components here, home phase 4a the home components and the Shell changes, phase 4b Testimonial, ProjectCard and their sections, cv phase 5a the CV components; the handoff rows of built components are removed)
 
 | Component | Source (`file:line` / node / URL) | States it supports | Notes |
 |---|---|---|---|
 | BaseLayout | `src/layouts/BaseLayout.astro:1` | — (head contract: lang, title, description, noindex) | fjord-foundation extends it: theme bootstrap, font preloads, tokens → fonts → base |
-| Button | `src/components/ui/Button.astro` | primary / secondary; size; arrow; icon; `download`; disabled; hover / focus-visible | one primary CTA per screen; promoted from the Not-found `home-link` |
+| Button | `src/components/ui/Button.astro` | primary / secondary / ghost; size; arrow; icon; `download`; disabled; hover / focus-visible | one primary CTA per screen; promoted from the Not-found `home-link`; `ghost` added by cv for the control of the Original PDF preview |
 | Link | `src/components/ui/Link.astro` | default / hover / focus-visible; external (leaves the site: new tab, `rel="noopener noreferrer"`, the arrow icon, hidden hint "(opens in a new tab)"); external `quiet` (the type and colour of the text around it, 44px target, for a value in a list); `standalone` (a link on a line of its own, with its arrow) | `standalone` added by home for "Full CV"; every link to another site uses `external` (home D-09); `quiet` added by home for the profile rows of the Contact block |
 | IconButton | `src/components/ui/IconButton.astro` | default / hover / focus-visible | 44px target |
-| Icon | `src/components/ui/Icon.astro` | — | 1.5px line icons; home added `play`, `pause`, `check`, `chevron-down`, `chevron-up`, `copy`, `download`, `user-plus`, `mail`, `phone`, `linkedin`, `github` |
+| Icon | `src/components/ui/Icon.astro` | — | 1.5px line icons; home added `play`, `pause`, `check`, `chevron-down`, `chevron-up`, `copy`, `download`, `user-plus`, `mail`, `phone`, `linkedin`, `github`; cv added `file-down`, `eye`, `arrow-up` |
 | Badge (availability, status) | `src/components/ui/Badge.astro` | status; `pulse` (the ring of the open dot, only under `data-motion="running"`) | `pulse` is used by the home hero only (home D-01) |
 | Tag | `src/components/ui/Tag.astro` | — |  |
 | Stat | `src/components/ui/Stat.astro` | single / row; compact; `countUp` | the final number is in the HTML; with `countUp` the page script `src/scripts/home/count-up.ts` counts a hidden copy once (home AC-06) |
@@ -71,11 +71,11 @@ All values come from `src/styles/tokens.css` (`--fjord-*`, generated, do not edi
 | ThemeToggle | `src/components/layout/ThemeToggle.astro` | dag / natt (script `src/scripts/shell/theme.ts`) | View Transition is progressive and skipped under reduced motion |
 | CtaBand | `src/components/layout/CtaBand.astro` | actions from a page option (default pair, home pair) | action types in `src/data/shell-actions.ts` (home AC-40); contours follow scrolling (home AC-41) |
 | Footer | `src/components/layout/Footer.astro` | — | data from `src/data/contact.ts`; the two profile links open a new tab with the hidden hint and no icon (home D-09) |
-| MobileBar (Sticky action bar) | `src/components/layout/MobileBar.astro` | shown / hidden (script `src/scripts/shell/action-bar.ts`); open / collapsed by its tab (native `<details>`); actions from a page option | all actions secondary (home AC-38); the tab is part of the panel (home AC-39, D-11) |
+| MobileBar (Sticky action bar) | `src/components/layout/MobileBar.astro` | shown / hidden (script `src/scripts/shell/action-bar.ts`); open / collapsed by its tab (native `<details>`); actions from a page option; a slot is a link or the LangSwitch | all actions secondary (home AC-38); the tab is part of the panel (home AC-39, D-11); the CV pages pass the LangSwitch and "Download PDF" (cv AC-19) |
 | contact data | `src/data/contact.ts` | — | single source for contacts; Person data built from it in `src/data/person.ts` |
 | Portrait | `src/components/home/Portrait.astro` | still / floating under `data-motion="running"` | AVIF and WebP at 340 and 680 from `public/img/`; width and height reserved (home AC-02) |
 | QrTile | `src/components/brand/QrTile.astro` | Dag / Natt asset; `sample` | static `public/qr/qr-vcard-{dag,natt}.svg`, no QR library; shown from 1024 (home AC-17) |
-| ContactList | built inside `src/components/home/ContactBlock.astro` | — | no file of its own; data from `src/data/contact.ts` (home AC-13) |
+| ContactList | built inside `src/components/home/ContactBlock.astro` | — | no file of its own; data from `src/data/contact.ts` (home AC-13); the CV side column has its own list, built inside `src/components/cv/CvAside.astro` (cv AC-02) |
 | CopyButton | `src/components/ui/CopyButton.astro` | default / hover / focus-visible | the confirmation is the Toast, not a state of the button (home D-18); the copying is done by `src/scripts/home/copy-email.ts` |
 | ExperienceItem / ExperienceList | `src/components/home/ExperienceList.astro` | entry open / closed (native `<details>`); current; `sample` | one file for the list and its entries (home AC-08) |
 | Hero (NEW) | `src/components/home/Hero.astro` | motion running / paused / none | home AC-01; scripts `src/scripts/home/motion.ts`, `parallax.ts` |
@@ -90,8 +90,17 @@ All values come from `src/styles/tokens.css` (`--fjord-*`, generated, do not edi
 | SelectedProjects (NEW) | `src/components/home/SelectedProjects.astro` | one to three featured projects, the first large; heading level | Dormant section: on the Styleguide with marked sample data, on the home page only when `features.projects` is on and a Published project exists (home AC-11, AC-12) |
 | home content data | `src/data/home.ts` | — | key facts, introduction, quick facts, experience, Recommendations, the Now line |
 | project data | `src/data/projects.ts`, `src/content.config.ts` | — | the entry shape of the `projects` collection (`src/content/projects/*.md`, empty until step 7) and the choice of the projects a page shows |
-| sample data | `src/data/samples.ts` | — | Styleguide only: sample Recommendations and projects, shown inside a `data-sample` block under a "Sample data" label (home AC-12, AC-28) |
+| sample data | `src/data/samples.ts` | — | Styleguide only: sample Recommendations, projects and CV data, shown inside a `data-sample` block under a "Sample data" label (home AC-12, AC-28; cv AC-29) |
 | Shell action data | `src/data/shell-actions.ts` | — | the bar and band actions a page passes as options |
+| Breadcrumbs | `src/components/ui/Breadcrumbs.astro` | — | links, then the current page as plain text with `aria-current="page"`; the page gives the name of the navigation in its own language (cv AC-01) |
+| LangSwitch (NEW) | `src/components/ui/LangSwitch.astro` | current `en` / `no`; size default / large | two links in one pill, so it works with scripts off (cv AC-07); `src/scripts/cv/lang-switch.ts` keeps the section across the switch (cv AC-08); also a slot of MobileBar |
+| SkillGroup | `src/components/cv/SkillGroup.astro` | — | a label and its skills as one line of text; no skill bars or percentages |
+| LanguageList | `src/components/cv/LanguageList.astro` | — | plain labels, no CEFR codes |
+| CvJob (NEW) | `src/components/cv/CvJob.astro` | first (filled marker) / later; with client projects, internal projects or paragraphs | always open, unlike ExperienceList; the technologies are Tags (cv AC-01, AC-03) |
+| DatedRows (NEW) | `src/components/cv/DatedRows.astro` | with or without organisation and note; period on one or two lines | Education and Courses of the CV page (cv AC-01) |
+| ContentsList (NEW) | built inside `src/components/cv/CvAside.astro` | — | no file of its own; a plain numbered list of links to the sections of the page (cv AC-04) |
+| OriginalPdfPreview (NEW) | `src/components/cv/OriginalPdfPreview.astro` | closed / open (native `<details>`, no script); `open` for the Styleguide sample | two page images, each a link that opens the CV PDF in a new tab, with reserved boxes; the meta line is `src/components/cv/CvMeta.astro` (cv AC-09, AC-10) |
+| CV data | `src/data/cv/` | — | the text of each CV page (`en.ts`, `no.ts`), the Section ids (`sections.ts`), the CV date and the two CV PDFs with their checksums (`index.ts`) |
 
 **Design-only (handoff), by group**
 
@@ -106,14 +115,11 @@ All values come from `src/styles/tokens.css` (`--fjord-*`, generated, do not edi
 | NextProject | `components/casestudy/NextProject.jsx:5` | see `.d.ts` | |
 | Prose | `components/casestudy/Prose.jsx:3` | — | target `src/components/prose/`; step 7 |
 | ContactForm | `components/cv/ContactForm.jsx:10` | see `.d.ts` | needs a server endpoint (Worker); requires its own ADR before building (repo ADR-0001) |
-| LanguageList | `components/cv/LanguageList.jsx:4` | — | plain labels, no CEFR codes |
-| SkillGroup | `components/cv/SkillGroup.jsx:4` | — | no skill bars or percentages |
 | TextField | `components/cv/TextField.jsx:4` | default / hint / error / optional; multiline | |
 | EmptyState | `components/feedback/EmptyState.jsx:4` | eyebrow / title / body / action | |
 | NotFound | `components/feedback/NotFound.jsx:4`; newer site copy `design/handoff/site/project/_ds/…/components/feedback/feedback.css:40` (terrain map, "You are here" pin) | title / body / code line / actions; map panel in the site copy | A building block, not the page spec. The 404 page follows the site design (`design/handoff/site/project/site/Misc.jsx`, `design/screenshots/{dag,natt}_not_found_*.png`). `src/pages/404.astro` is rebuilt to the page design by base-components (AC-17) |
 | Skeleton | `components/feedback/Skeleton.jsx:3` | — | islands only; static pages have no loading state |
 | Tooltip | `components/feedback/Tooltip.jsx:3` | — | never the only carrier of information |
-| Breadcrumbs | `components/navigation/Breadcrumbs.jsx:3` | — | |
 | CommandPalette | `components/navigation/CommandPalette.jsx:5` | see `.d.ts` | after Release 1, loaded lazily on first Ctrl/Cmd+K (roadmap step 8) |
 | FilterChips | `components/navigation/FilterChips.jsx:3` | see `.d.ts` | |
 | Pagination | `components/navigation/Pagination.jsx:4` | prev / next optional | |

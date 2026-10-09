@@ -72,7 +72,7 @@ The periods (Nov 2022 – Jan 2026, 2023 – 2025, Dec 2010 – Nov 2021), "3+",
 
 ## 3. Claims list, first rows
 
-Every number and date the CV pages show, with the CV PDF page as its source. "Both" means the English and the Norwegian file state it on the same page. The Owner ticks each row before merge (AC-26); T28 and T34 complete the list.
+Every number and date the CV pages show, with the CV PDF page as its source. "Both" means the English and the Norwegian file state it on the same page. The Owner ticks each row before merge (AC-26); T28 and T34 complete the list. Rows C-34 to C-40 were added by T28 on 2026-10-09 from the built pages (`dist/cv/en.html`, `dist/cv/no.html`), each read against the two files; page 1 of both files ends after the "Data-Intensive Defense Analytics" / "Dataintensiv forsvarsanalyse" entry.
 
 | Id   | Claim on the CV pages                                                                                          | Source                                           | Owner |
 | ---- | -------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ | ----- |
@@ -109,3 +109,10 @@ Every number and date the CV pages show, with the CV PDF page as its source. "Bo
 | C-31 | Name of the breadcrumb navigation: "Brødsmulesti" (English page: "Breadcrumb")                                 | screens C-3                                      | [ ]   |
 | C-32 | Norwegian controls: "Ta kontakt", "Kopier", "Kopiert", group name "CV-språk"                                   | spec D-10, screens C-4, tasks T6                 | [ ]   |
 | C-33 | Norwegian section note: "Backend-praksis ved siden av frontendarbeid" (NO-03)                                  | Norwegian file, p. 2                             | [ ]   |
+| C-34 | Norwegian role line: "Frontend-utvikler · backend-erfaring" (English page: "Frontend Developer · Backend Experience") | Norwegian file, p. 1 (English file, p. 1) | [ ]   |
+| C-35 | Section numbers "01" to "08": before the eight section headings and in "On this page" / "På denne siden" | numbers of the page, not in the files; the order is the order of the sections in both files (01 to 04 start on p. 1, 05 to 08 are on p. 2) | [ ]   |
+| C-36 | English page image names: "CV page 1 of 2, English, PDF, opens in a new tab", "CV page 2 of 2, English, PDF, opens in a new tab" | screens SCR-05; "of 2" is the page count of C-22 | [ ]   |
+| C-37 | Contact list of the side column: "ponomaleks@gmail.com", "+47 405 94 584", "linkedin.com/in/ponomalex", "github.com/ponomaleks", and "Nittedal, Norge" under "Based in" / "Bosted" | `src/data/contact.ts`, checked on the built CV pages by `npm run check:contact` (AC-27). Both files, p. 1, have the same email and the two profile addresses, print the phone as "+47 40594584", and give the place as in C-01 | [ ]   |
+| C-38 | Labels that are in the CV data but that no page shows today: "Hide original PDF" / "Skjul original-PDF". The control keeps its name "View original PDF" / "Se original-PDF" when the preview is open | written by implement (`hideOriginalPdf` in `src/data/cv/en.ts` and `no.ts`); not in the design, not in the files | [ ]   |
+| C-39 | Hidden hint "(opens in a new tab)" on the three links of the page content that leave the site (the project address, LinkedIn, GitHub): English on both pages, also on the Norwegian page, where it is not marked as English | the Link component (home D-09); no Norwegian wording is given by the spec or by screens C-3 | [ ]   |
+| C-40 | Shell around both CV pages, not CV content: footer "Sist oppdatert 2026-10-04" (the date of the contact facts, not the CV date of C-23), "60.07° N, 10.87° E", "© 2026" (the year of the build), the phone number in the menu and the footer, and the menu numbers "01", "02" | `src/data/contact.ts` and the Shell, the same on every page; not in the files | [ ]   |
