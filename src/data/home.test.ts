@@ -130,12 +130,12 @@ describe('home content', () => {
     }
   });
 
-  it('has four experience entries, the first open and the most recent current', () => {
+  it('has four experience entries, the first open and none marked current', () => {
     expect(experience).toHaveLength(4);
     expect(experience[0]?.open).toBe(true);
     expect(experience.slice(1).some((e) => e.open)).toBe(false);
-    expect(experience.filter((e) => e.current)).toHaveLength(1);
-    expect(experience[0]?.current).toBe(true);
+    // Every period has an end (the most recent job ended in January 2026), so no entry is current.
+    expect(experience.filter((e) => e.current)).toHaveLength(0);
   });
 
   it('holds no square bracket in any value', () => {
