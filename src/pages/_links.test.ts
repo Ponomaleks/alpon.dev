@@ -83,6 +83,8 @@ describe('every other link (D-09)', () => {
     expect(inside.some((a) => a.href.startsWith('tel:'))).toBe(true);
     expect(inside.some((a) => a.href.endsWith('.vcf'))).toBe(true);
     for (const a of inside) {
+      // The page images of the CV's Original PDF preview open the PDF in a new tab (P-34, AC-09).
+      if (/\sclass="cv-preview__page"/.test(a.tag)) continue;
       expect(a.tag, where(a)).not.toMatch(/\starget=/);
       expect(a.inner, where(a)).not.toContain('opens in a new tab');
     }

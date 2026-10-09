@@ -1,0 +1,133 @@
+---
+// The CV page body (AC-01, AC-02, AC-04; screens SCR-05 / SCR-06; sad §4 item 2): the head, the
+// original-PDF preview control, the sections the CV data has in order and the side column. The
+// grid is 8 and 4 of 12 parts from 1024 (page design `.x-cvgrid`). The three page files wrap it in
+// BaseLayout and pass the CV language. Scripts (T20) and print styles (T30) are not loaded here.
+import { cvEn } from '../../data/cv/en';
+import { cvNo } from '../../data/cv/no';
+import type { CvLang } from '../../data/cv/types';
+import CvAside from './CvAside.astro';
+import CvHead from './CvHead.astro';
+import CvJob from './CvJob.astro';
+import CvProjects from './CvProjects.astro';
+import CvSection from './CvSection.astro';
+import DatedRows from './DatedRows.astro';
+import LanguageList from './LanguageList.astro';
+import OriginalPdfPreview from './OriginalPdfPreview.astro';
+import SkillGroup from './SkillGroup.astro';
+
+interface Props {
+  lang: CvLang;
+}
+
+const { lang } = Astro.props;
+const cv = lang === 'no' ? cvNo : cvEn;
+// The role line is the design's `title`; the Norwegian wording follows the Norwegian CV's terms.
+const role =
+  lang === 'no'
+    ? 'Frontend-utvikler · Backend-erfaring'
+    : 'Frontend Developer · Backend Experience';
+const sections = cv.sections.map((s) => ({ id: s.id, heading: s.heading }));
+const number = (i: number) => String(i + 1).padStart(2, '0');
+---
+
+<div class="cv-page wrap">
+  <CvHead lang={lang} role={role} location={`${cv.location} · ${cv.permit}`} />
+  <div class="cv-page__preview">
+    <OriginalPdfPreview lang={lang} />
+  </div>
+  <div class="cv-page__grid">
+    <article class="cv-page__main">
+      {cv.sections.map((s, i) => (
+        <CvSection id={s.id} index={number(i)} heading={s.heading}>
+          {s.id === 'community' && s.paragraphs ? (
+            <ul class="cv-page__list">
+              {s.paragraphs.map((p) => (
+                <li>{p}</li>
+              ))}
+            </ul>
+          ) : (
+            s.paragraphs?.map((p) => <p>{p}</p>)
+          )}
+          {s.skillGroups && (
+            <div class="cv-page__skills">
+              {s.skillGroups.map((group) => (
+                <SkillGroup group={group} />
+              ))}
+            </div>
+          )}
+          {s.languages && <LanguageList languages={s.languages} />}
+          {s.jobs && (
+            <div class="cv-page__jobs">
+              {s.jobs.map((job, j) => (
+                <CvJob
+                  job={{
+                    ...job,
+                    appliedLabel: cv.labels.appliedTechnologies,
+                    internalLabel: cv.labels.internalProjects,
+                  }}
+                  first={j === 0}
+                />
+              ))}
+            </div>
+          )}
+          {s.projects && <CvProjects note={s.note} projects={s.projects} />}
+          {s.rows && <DatedRows rows={s.rows} />}
+        </CvSection>
+      ))}
+    </article>
+    <CvAside lang={lang} sections={sections} />
+  </div>
+</div>
+
+<style>
+  .wrap {
+    width: 100%;
+    max-width: calc(var(--fjord-content-max) + 2 * var(--fjord-grid-margin));
+    margin: 0 auto;
+    padding: 0 var(--fjord-grid-margin);
+  }
+  .cv-page__preview {
+    margin-top: var(--fjord-space-6);
+  }
+  .cv-page__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--fjord-space-12);
+    padding: var(--fjord-space-12) 0 var(--fjord-space-section);
+  }
+  .cv-page__main {
+    display: flex;
+    flex-direction: column;
+    gap: var(--fjord-space-14);
+    min-width: 0;
+  }
+  .cv-page__skills {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--fjord-space-6);
+  }
+  .cv-page__jobs {
+    display: flex;
+    flex-direction: column;
+  }
+  .cv-page__list {
+    margin: 0;
+    padding-left: var(--fjord-space-5);
+    display: flex;
+    flex-direction: column;
+    gap: var(--fjord-space-2);
+    line-height: var(--fjord-leading-body);
+  }
+  @media (min-width: 768px) {
+    .cv-page__skills {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1024px) {
+    .cv-page__grid {
+      grid-template-columns: minmax(0, 8fr) minmax(0, 4fr);
+      gap: var(--fjord-space-18);
+    }
+  }
+</style>
