@@ -7,10 +7,15 @@ import { initMotion } from './motion';
 import { initParallax } from './parallax';
 import { initQuoteToggle } from './quote-toggle';
 import { initReveal } from './reveal';
+import { legacyCvTarget } from './legacy-cv';
 
 const matches = (query: string) => matchMedia(query);
 const ObserverCtor = 'IntersectionObserver' in window ? IntersectionObserver : null;
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// Legacy CV addresses hand over to the CV pages; replace keeps one Back on the page before.
+const legacyTarget = legacyCvTarget(location.hash);
+if (legacyTarget) location.replace(legacyTarget);
 
 initHeroHeader();
 // Reading sessionStorage can throw when the browser blocks it: keep the choice in memory then.
