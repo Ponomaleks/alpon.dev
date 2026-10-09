@@ -1,0 +1,82 @@
+---
+// The CV language switch: two plain links in one pill (AC-07). State lives in attributes; the CV
+// page script reads data-lang-switch and data-switch-to and sets the fragment (ADR-0001).
+interface Props {
+  current: 'en' | 'no';
+  /** Accessible name of the group, in the page language. */
+  group: string;
+  size?: 'default' | 'large';
+  enHref: string;
+  noHref: string;
+}
+
+const { current, group, size = 'default', enHref, noHref } = Astro.props;
+---
+
+<div class="lang-switch" role="group" aria-label={group} data-lang-switch data-size={size}>
+  <a href={enHref} data-switch-to="en" aria-current={current === 'en' ? 'true' : undefined}>
+    EN
+  </a>
+  <a
+    href={noHref}
+    data-switch-to="no"
+    lang="no"
+    aria-current={current === 'no' ? 'true' : undefined}
+  >
+    NO
+  </a>
+</div>
+
+<style>
+  .lang-switch {
+    display: inline-flex;
+    padding: var(--fjord-space-1);
+    gap: var(--fjord-space-0-5);
+    border: 1px solid var(--fjord-color-border);
+    border-radius: var(--fjord-radius-pill);
+    background: var(--fjord-color-bg-raised);
+  }
+  a {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: calc(var(--fjord-space-1) * 7);
+    min-width: var(--fjord-tap-min);
+    padding: 0 var(--fjord-space-3);
+    border-radius: var(--fjord-radius-pill);
+    color: var(--fjord-color-text-muted);
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-mono-sm);
+    font-weight: var(--fjord-weight-medium);
+    line-height: var(--fjord-leading-none);
+    text-decoration: none;
+    transition:
+      background-color var(--fjord-duration-200) var(--fjord-ease-out),
+      color var(--fjord-duration-200);
+  }
+  [data-size='large'] a {
+    height: calc(var(--fjord-space-1) * 9);
+  }
+  /* A 44 x 44 target around each drawn segment (C-7). */
+  a::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: max(100%, var(--fjord-tap-min));
+    height: max(100%, var(--fjord-tap-min));
+    transform: translate(-50%, -50%);
+  }
+  a:hover {
+    color: var(--fjord-color-text);
+  }
+  a[aria-current='true'] {
+    background: var(--fjord-color-text);
+    color: var(--fjord-color-bg);
+  }
+  a:focus-visible {
+    outline: var(--fjord-focus-width) solid var(--fjord-color-focus-ring);
+    outline-offset: 1px;
+  }
+</style>

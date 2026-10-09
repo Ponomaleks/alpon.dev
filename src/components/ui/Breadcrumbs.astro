@@ -1,0 +1,75 @@
+---
+// Breadcrumb trail (AC-01): links, then the current page as plain text with aria-current="page".
+interface Item {
+  label: string;
+  href?: string;
+}
+interface Props {
+  items: Item[];
+  /** Accessible name of the nav, in the page language. */
+  label: string;
+}
+
+const { items, label } = Astro.props;
+const last = items.length - 1;
+---
+
+<nav aria-label={label} class="crumbs">
+  <ol>
+    {items.map((item, i) => (
+      <li>
+        {i < last && item.href ? (
+          <a href={item.href}>{item.label}</a>
+        ) : (
+          <span aria-current={i === last ? 'page' : undefined}>{item.label}</span>
+        )}
+      </li>
+    ))}
+  </ol>
+</nav>
+
+<style>
+  ol {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--fjord-space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-mono-sm);
+    line-height: var(--fjord-leading-none);
+    color: var(--fjord-color-text-muted);
+  }
+  li:not(:last-child)::after {
+    content: '/';
+    margin-inline-start: var(--fjord-space-2);
+    color: var(--fjord-color-text-muted);
+  }
+  a {
+    position: relative;
+    color: var(--fjord-color-link);
+    text-decoration: none;
+  }
+  /* A 44 x 44 target on the link. */
+  a::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: max(100%, var(--fjord-tap-min));
+    height: max(100%, var(--fjord-tap-min));
+    transform: translate(-50%, -50%);
+  }
+  a:hover {
+    color: var(--fjord-color-link-hover);
+  }
+  a:focus-visible {
+    outline: var(--fjord-focus-width) solid var(--fjord-color-focus-ring);
+    outline-offset: 2px;
+  }
+  [aria-current='page'] {
+    color: var(--fjord-color-text);
+  }
+</style>
