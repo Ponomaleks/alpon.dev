@@ -2,7 +2,7 @@
 // The CV page body (AC-01, AC-02, AC-04; screens SCR-05 / SCR-06; sad §4 item 2): the head, the
 // original-PDF preview control, the sections the CV data has in order and the side column. The
 // grid is 8 and 4 of 12 parts from 1024 (page design `.x-cvgrid`). The three page files wrap it in
-// BaseLayout and pass the CV language. Scripts (T20) and print styles (T30) are not loaded here.
+// BaseLayout and pass the CV language. The page script (T20) is loaded below; print styles (T30) are not.
 import { cvEn } from '../../data/cv/en';
 import { cvNo } from '../../data/cv/no';
 import type { CvLang } from '../../data/cv/types';
@@ -79,6 +79,10 @@ const number = (i: number) => String(i + 1).padStart(2, '0');
     <CvAside lang={lang} sections={sections} />
   </div>
 </div>
+
+<script>
+  import '../../scripts/cv/index';
+</script>
 
 <style>
   .wrap {

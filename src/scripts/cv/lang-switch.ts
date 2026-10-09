@@ -21,7 +21,7 @@ export interface LangSwitchOptions {
 }
 
 export function initLangSwitch({ document, sectionInView }: LangSwitchOptions): void {
-  const links = [...document.querySelectorAll('a[data-cv-lang]')];
+  const links = [...document.querySelectorAll('[data-lang-switch] a[data-switch-to]')];
   const others = links.filter((link) => link.getAttribute('aria-current') !== 'true');
 
   const sync = () => {
