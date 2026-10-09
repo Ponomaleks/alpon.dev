@@ -35,9 +35,9 @@ The two phases are a work order only: one branch, `feat/cv`, and one pull reques
 | T22 | [Give the CV pages, the CV PDFs and the page images their response headers](./t22-cv-response-headers.md) | wiring | Alexander Ponomarenko | S | T2 | done |
 | T23 | [Extend the contact check and the placeholder check to the built CV pages](./t23-cv-built-checks.md) | tests | Alexander Ponomarenko | M | T17 | done |
 | T24 | [Show the components of phase 5a on the Styleguide with marked sample data](./t24-styleguide-cv-components.md) | ui | Alexander Ponomarenko | M | T7, T8, T9, T10, T11, T12, T15 | done |
-| T25 | [Check the CV pages end to end: content, downloads, preview, primary count and targets](./t25-cv-e2e.md) | tests | Alexander Ponomarenko | L | T17, T20 | todo |
-| T26 | [Run axe and Lighthouse on both CV pages](./t26-cv-axe-and-lighthouse.md) | tests | Alexander Ponomarenko | S | T20, T24 | todo |
-| T27 | [Switch on the CV parity items with their reworded behaviour](./t27-cv-parity.md) | tests | Alexander Ponomarenko | M | T20, T21, T22 | todo |
+| T25 | [Check the CV pages end to end: content, downloads, preview, primary count and targets](./t25-cv-e2e.md) | tests | Alexander Ponomarenko | L | T17, T20 | done |
+| T26 | [Run axe and Lighthouse on both CV pages](./t26-cv-axe-and-lighthouse.md) | tests | Alexander Ponomarenko | S | T20, T24 | done |
+| T27 | [Switch on the CV parity items with their reworded behaviour](./t27-cv-parity.md) | tests | Alexander Ponomarenko | M | T20, T21, T22 | done |
 | T28 | [Record the CV update rule and bring the documents in step with phase 5a](./t28-cv-docs.md) | docs | Alexander Ponomarenko | M | T23, T25, T26, T27 | todo |
 
 ## Phase 5b
