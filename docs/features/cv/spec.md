@@ -33,7 +33,7 @@ Traceability:
 - The inline PDF viewer of the stub is not rebuilt (roadmap "Decisions so far"), so the risk recorded in fjord-foundation ADR-0002 and sad §11 (the viewer under the security policy) closes without a check.
 - Backlog items that close here: B-05 (AC-20) and B-35 (AC-16).
 - Notes for the design stage, from the Owner and from the two analysis passes:
-  - Language switch: two links; a small script reads the section in view and opens the other language at the same section id; focus and the header offset as for the contact place (home AC-18).
+  - Language switch: two links; a small script reads the section in view and opens the other language at the same section id; focus and the header offset as for the contact place (home AC-18). AC-08 was reworded on 2026-10-09 and now governs: this note holds for the switch of the Sticky action bar only.
   - Original PDF preview: native disclosure, so it opens with scripts off; the page images are not requested while it is closed.
   - BackToTop: a link to the top of the page with no script; its appearance after scroll comes from a scroll-driven animation under a support check, and without support it is always visible (base-components §3).
   - Legacy hand-off: an external script, so the security policy keeps exactly one hash (P-16); it replaces the history entry.

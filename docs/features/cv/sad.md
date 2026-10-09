@@ -112,7 +112,7 @@ C4Context
 1. **One web surface, rendered at build time.** `target_surfaces: [web-frontend]`. ux-flows.md lists six screens (SCR-01 to SCR-06) and no other surface; there is no backend, worker or API. The UI architecture is inherited: static HTML from Astro (repo ADR-0001), zero client JS by default with vanilla TS scripts (repo ADR-0002), built from the existing Fjord tokens and base components. *(Single surface, inherited UI architecture: below the ADR gate, inline.)*
 2. **Three addresses, one page component.** `src/pages/cv.astro`, `src/pages/cv/en.astro` and `src/pages/cv/no.astro` each render `CvPage.astro` with a CV language. The short CV address renders the English page and names `/cv/en` as canonical (spec D-09). The three CV rules leave `public/_redirects`, because a redirect is followed even when the page exists (§2). Internal CV links, in the Shell and on the home page, point at `/cv/en`, the canonical address; `/cv` stays for people who type or share it. Serves quality goal 2. *(Addresses are fixed by the roadmap and the spec: inline.)*
 3. **The page is typed data, tied to its file by a checksum.** CV content sits in typed modules per CV language next to `contact.ts`; the same module holds the CV date and the sha256 of each CV PDF. A check in `npm run lint` hashes the two files with `node:crypto` and fails naming the file and the CV page (AC-25). Contact facts are not copied into the CV data: the page reads `contact.ts`, and the built contact check covers the CV pages (AC-27). Serves quality goal 1. *(Fixed by the spec: inline.)*
-4. **The language switch is navigation, and the section travels as a shared fragment id.** Both CV pages use the same language-neutral section ids. The CV page script keeps the fragment of the other language's link in step with the section in view; the browser does the arrival, so a deep link works with scripts off, Back returns in one press and an unknown id opens the page at its top. Serves quality goal 2. → [ADR-0001](./adr/0001-carry-the-section-across-the-language-switch-as-a-shared-fragment-id.md)
+4. **The language switch is navigation, and the place travels with it: the section as a shared fragment id from the Sticky action bar, the scroll position as one stored number from the CV head.** Both CV pages use the same language-neutral section ids. The CV page script keeps the fragment of the bar's link to the other language in step with the section in view; the browser does the arrival, so a deep link works with scripts off, Back returns in one press and an unknown id opens the page at its top. The link in the CV head carries no fragment: the script stores the scroll position on activation and restores it on arrival (AC-08; ADR-0001, amended). Serves quality goal 2. → [ADR-0001](./adr/0001-carry-the-section-across-the-language-switch-as-a-shared-fragment-id.md)
 5. **Print is styles only, and the light colours come from the token layer.** The token generator emits a print block that re-applies the Dag set for any theme, so a print from Natt equals a print from Dag by construction. The CV page's print styles then only remove the Shell and the controls, show the contact line and control sheet breaks. Serves quality goal 3. → [ADR-0002](./adr/0002-generate-a-print-block-that-reapplies-the-dag-tokens.md)
 6. **Content first, scripts add.** The Original PDF preview is a native `<details>`; BackToTop is a link; the language switch is two links; the downloads are links. Controls that need a script ("Print", "Copy") carry the existing `data-needs-script` gate and are absent when scripts are off. The one thing a script takes away is the reload when the current language is activated (§8 Language switch). The Legacy hand-off is the first statement of the home page's own script entry. Serves quality goal 2. *(Extends the home strategy and the `CONTEXT.md` invariant: inline.)*
 
@@ -150,7 +150,8 @@ src/
 │   ├── cv/                  new, pure modules, one entry
 │   │   ├── index.ts         entry imported by CvPage.astro
 │   │   ├── section-in-view.ts   which section id is in view, or none above the first
-│   │   ├── lang-switch.ts   sets the fragment of the other language's links; stops the current one   ADR-0001
+│   │   ├── lang-switch.ts   sets the fragment of the bar's link to the other language; saves the position from the head's; stops the current one   ADR-0001
+│   │   ├── position.ts      the scroll position the head's switch carries: saved, taken on arrival, checked   ADR-0001
 │   │   ├── arrive.ts        focus on the section the fragment names, if it is a CV section
 │   │   └── print.ts         "Print" calls the browser's print
 │   ├── shared/copy-email.ts moved from home/: second consumer (CV side column)
@@ -236,7 +237,7 @@ C4Container
 
 Seeded here: the one flow with a moving part. The `sequences` stage covers the remaining ACs.
 
-**Critical flow 1: switch the CV language and keep the section (AC-07, AC-08)**
+**Critical flow 1: switch the CV language and keep the place (AC-07, AC-08)**
 
 ```mermaid
 sequenceDiagram
@@ -249,16 +250,29 @@ sequenceDiagram
     Edge-->>Visitor: the page, with the switch as two links
     alt scripts run
         Page->>Script: loads the one external module
-        Visitor->>Page: scrolls until a section is in view
-        Script->>Page: sets that section id as the fragment of the other language's links
-        Visitor->>Page: activates NO in the CV head or in the Sticky action bar
-        Page->>Edge: requests the Norwegian CV page with the fragment
-        Edge-->>Visitor: the Norwegian CV page
-        alt the Norwegian page has that section
-            Page-->>Visitor: the browser shows the section clear of the header
-            Script->>Page: moves keyboard focus to that section
-        else no such section
-            Page-->>Visitor: the page opens at its top
+        alt the switch in the Sticky action bar
+            Visitor->>Page: scrolls until a section is in view
+            Script->>Page: sets that section id as the fragment of the bar's link to the other language
+            Visitor->>Page: activates NO in the Sticky action bar
+            Page->>Edge: requests the Norwegian CV page with the fragment
+            Edge-->>Visitor: the Norwegian CV page
+            alt the Norwegian page has that section
+                Page-->>Visitor: the browser shows the section clear of the header
+                Script->>Page: moves keyboard focus to that section
+            else no such section
+                Page-->>Visitor: the page opens at its top
+            end
+        else the switch in the CV head
+            Visitor->>Page: activates NO in the CV head, which is on screen only above the first section
+            Script->>Page: stores the scroll position as one number for this navigation
+            Page->>Edge: requests the Norwegian CV page with no fragment
+            Edge-->>Visitor: the Norwegian CV page
+            Script->>Page: takes the stored number and removes it
+            alt the position is above the first section of the Norwegian page
+                Page-->>Visitor: the page settles at that scroll position, at no section and with no move of focus
+            else the position is not above the first section, or none could be stored
+                Page-->>Visitor: the page opens at its top
+            end
         end
     else scripts are off
         Visitor->>Page: activates NO
@@ -579,7 +593,7 @@ sequenceDiagram
 
 ### Sticky action bar on a CV page
 
-US-11, US-03 · AC-19, AC-07, AC-08. On SCR-05 and SCR-06, below 768. The switch in the CV head behaves the same at every width. The branch where the other CV page has no such section is in critical flow 1.
+US-11, US-03 · AC-19, AC-07, AC-08. On SCR-05 and SCR-06, below 768. The switch in the CV head keeps the scroll position instead of the section and is drawn in critical flow 1, as is the branch where the other CV page has no such section.
 
 ```mermaid
 sequenceDiagram
@@ -594,6 +608,7 @@ sequenceDiagram
     alt the other language
         U->>UI: activates the other language
         alt scripts enabled and a section is in view
+            Note over U,UI: The section is the one in view at the moment of the activation
             UI->>S: requests the other CV page with the id of that section as the fragment
             S-->>UI: the other CV page
             UI-->>U: the page opens at that section with its heading clear of the header and keyboard focus there, as in critical flow 1
@@ -623,7 +638,7 @@ sequenceDiagram
         U->>UI: activates the tab
         UI-->>U: the bar collapses to its tab and returns, as in the home flow Sticky action bar
     end
-    Note over U,UI: Postcondition: the bar held no primary button, and its switch and download did what the ones in the CV head do
+    Note over U,UI: Postcondition: the bar held no primary button, its download did what the one in the CV head does, and its switch kept the section where the one in the CV head keeps the scroll position
 ```
 
 **Scope of this stage.** By the Owner's decision (2026-10-09), `sequences` adds the eight flows above to critical flow 1, which was left as drawn; critical flow 2 keeps its paragraph and is drawn as "Legacy CV hand-off". The gate and its checks are not drawn, as in the home SAD: §8 describes each one (Checksum gate, Script budgets, Response headers).
@@ -656,7 +671,7 @@ sequenceDiagram
 | AC-05 | Take the file, the meta line step and both file-name branches |
 | AC-06 | Take the file, the first step and the postcondition. The secondary actions are in their flows. The count itself is not runtime: an e2e check |
 | AC-07 | Critical flow 1, branch `scripts are off`; Sticky action bar on a CV page, branches `scripts disabled`. The short CV address with EN marked is in Open and read a CV page |
-| AC-08 | Critical flow 1, branch `scripts run` with both inner branches and the Back step; Sticky action bar on a CV page, branch `scripts enabled and the Visitor is above the first section` |
+| AC-08 | Critical flow 1, branch `scripts run` with both switch branches, their inner branches and the Back step; Sticky action bar on a CV page, branches `scripts enabled and a section is in view` and `scripts enabled and the Visitor is above the first section` |
 | AC-09 | Original PDF preview, the whole flow |
 | AC-10 | Original PDF preview, branch `the image cannot be loaded` |
 | AC-11 | Print the CV page, both branches of the first `alt`, the document step and its note |
@@ -680,10 +695,10 @@ sequenceDiagram
 **Flagged by the flows.** Observations only; none needs a decision.
 
 1. Critical flow 1 uses the `design` container names as participants, while the eight flows added here use the generic vocabulary; it was left as drawn.
-2. Critical flow 1 does not draw two edges of the language switch: the Visitor above the first section (AC-08) and the language already shown (§8 Language switch). Both are drawn in "Sticky action bar on a CV page" and hold for the switch in the CV head as well.
+2. Critical flow 1 was redrawn on 2026-10-09, when AC-08 was reworded: it now draws the switch in the Sticky action bar and the switch in the CV head as two branches. It does not draw two edges of the language switch: the Visitor above the first section at the activation in the bar (AC-08) and the language already shown (§8 Language switch). Both are drawn in "Sticky action bar on a CV page"; the second holds for the switch in the CV head as well.
 3. Reach the CV from the Shell and the home page, branch `on a CV page`: "CV" in the header and in the menu panel is a plain link to the current page, so activating it loads the same page again at its top. The link of the current language in the switch is stopped by the script; this one is not. Accepted as drawn (Owner, 2026-10-09).
 4. Print the CV page and BackToTop make no request, and Print the CV page has no `<service>`: both happen between the page and the browser.
-5. No new participant and no persist step in any flow: the feature stores nothing, so there is nothing for `data-model` and no contract for `api`.
+5. No new participant and no persist step on a server in any flow: the feature stores nothing but the one number of AC-08, kept in the Visitor's browser for one navigation (ADR-0001, amended), so there is nothing for `data-model` and no contract for `api`.
 
 ## 7. Deployment view
 

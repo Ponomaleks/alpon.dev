@@ -17,7 +17,7 @@ updated_at: "2026-10-09"
 - **Posture:** mobile-first, per `docs/design-system.md` (confirmed by the Owner, 2026-10-09). The phone path is drawn first; the flows branch at 768 (the Sticky action bar leaves, BackToTop arrives) and at 1024 (the side column appears beside the content; below 1024 it is not shown, screens C-1).
 - **Two pages, three addresses:** the CV is one page per CV language. The short CV address shows the English CV page and is an entry of that screen, not a screen of its own (spec D-09).
 - **Page shape:** a CV page is one long page. Its head, its numbered sections, the side column and the Original PDF preview are places on one screen; a Visitor moves between them by scrolling or by a link of "On this page".
-- **Language switch:** navigation between the two CV pages, not a change in place (spec D-02). Where scripts run it keeps the section; with scripts off it opens the other page at its top.
+- **Language switch:** navigation between the two CV pages, not a change in place (spec D-02). Where scripts run it does not move the page: the switch in the CV head keeps the scroll position and the switch in the Sticky action bar keeps the section in view (AC-08); with scripts off it opens the other page at its top.
 - **Original PDF preview:** opens and closes in place on the CV page, with scripts on or off. The CV PDF itself opens in a new tab and is an exit of these flows, not a screen.
 - **Download:** "Download PDF" and the closing band's "Download CV" save a file and open nothing.
 - **Print:** leaves the site for the browser's print dialog; the printed document is an exit, not a screen. The Visitor returns to the page as it was.
@@ -26,9 +26,9 @@ updated_at: "2026-10-09"
 - **Sticky action bar:** below 768 only; on a CV page its two actions are the language switch and "Download PDF". Collapsing works as on the home page and holds for the page the Visitor is on.
 - **"CV" on a CV page:** in the header and in the Mobile menu panel it is the link to the current page and keeps the CV language; from every other page the CV links lead to the English CV page (Owner, 2026-10-09; AC-16).
 - **BackToTop:** a Shell link at 768 and wider on every page for Visitors; it moves within the page and never navigates.
-- **Scripts off:** every section, both downloads, the language switch, the Original PDF preview and the contact links work. "Print", the copy-email action and keeping the section across the language switch are not offered.
+- **Scripts off:** every section, both downloads, the language switch, the Original PDF preview and the contact links work. "Print", the copy-email action and keeping the place across the language switch (AC-08) are not offered.
 - **Design input (not decided here):**
-  - How the section in view is carried from one CV page to the other, and how the Legacy hand-off replaces the history entry (spec §1, notes for the design stage).
+  - How the place is carried from one CV page to the other, the section in view from the Sticky action bar and the scroll position from the CV head (decided in ADR-0001), and how the Legacy hand-off replaces the history entry (spec §1, notes for the design stage).
   - What activating the language that is already current does. The flows draw only the other language.
   - The form of the current-page marker in the Mobile menu panel (AC-20).
 
@@ -99,19 +99,24 @@ A Recruiter on either CV page finds the download in four places: "Download PDF" 
 flowchart TD
     Z["Visitor opens the short CV address"] --> A5["SCR-05 English CV page, 'EN' marked as current (AC-07)"]
     A5 --> A["Visitor is on a CV page, SCR-05 or SCR-06. The language switch in the CV head is two links, 'EN' and 'NO': the CV language of the page is marked as current and 'NO' is marked as Norwegian"]
-    A -->|"activates the other language, in the CV head or below 768 in the Sticky action bar"| S{"Do scripts run?"}
+    A -->|"activates the other language"| S{"Do scripts run?"}
     S -->|"no (AC-07)"| T["The other CV page opens at its top"]
-    S -->|"yes"| P{"Where was the Visitor reading?"}
+    S -->|"yes (AC-08)"| W{"Which switch?"}
+    W -->|"in the CV head, which is on screen only above the first section"| H{"Is that scroll position above the first section of the other CV page?"}
+    H -->|"yes"| V["The other CV page opens at the scroll position the Visitor had, so only the text changes: it opens at no section and keyboard focus does not move. A single first frame at its top is accepted"]
+    H -->|"no"| T
+    W -->|"below 768 in the Sticky action bar, at the moment of the activation"| P{"Where was the Visitor reading?"}
     P -->|"above the first section"| T
     P -->|"a section is in view"| Q{"Does the other CV page have that section?"}
     Q -->|"no"| T
-    Q -->|"yes (AC-08)"| R["The other CV page opens at the same section: its heading is clear of the header and keyboard focus is at that section"]
+    Q -->|"yes"| R["The other CV page opens at the same section: its heading is clear of the header and keyboard focus is at that section"]
+    V -->|"one press of Back"| A
     R -->|"one press of Back"| A
     T -->|"one press of Back"| A
     X["An address that carries a section name the CV page does not have"] --> T
 ```
 
-A Visitor who opens the short CV address gets the English CV page with "EN" marked as current. On either CV page the language switch in the CV head is two links, "EN" and "NO"; the CV language of the page is marked as current and "NO" is marked as Norwegian. The Visitor activates the other language there, or below 768 in the Sticky action bar. With scripts off the other CV page opens at its top. With scripts on it depends on where the Visitor was reading: above the first section, or in a section the other page does not have, the other page opens at its top; with a section in view that both pages have, the other page opens at that section, its heading clear of the header and keyboard focus there. In every case one press of Back returns to the page the Visitor left. An address that carries a section name the CV page does not have opens the page at its top.
+A Visitor who opens the short CV address gets the English CV page with "EN" marked as current. On either CV page the language switch in the CV head is two links, "EN" and "NO"; the CV language of the page is marked as current and "NO" is marked as Norwegian. The Visitor activates the other language there, or below 768 in the Sticky action bar. With scripts off the other CV page opens at its top. With scripts on, switching does not move the page, and what is kept depends on the switch (AC-08). The switch in the CV head is on screen only above the first section: the other page opens at the scroll position the Visitor had, so only the text changes; it opens at no section and keyboard focus does not move, and a single first frame at its top is accepted. If that position is not above the first section of the other page, the other page opens at its top. The switch in the Sticky action bar goes by where the Visitor was reading at the moment of the activation: above the first section, or in a section the other page does not have, the other page opens at its top; with a section in view that both pages have, the other page opens at that section, its heading clear of the header and keyboard focus there. In every case one press of Back returns to the page the Visitor left. An address that carries a section name the CV page does not have opens the page at its top.
 
 ### Flow: US-04 — See the original file
 
@@ -193,15 +198,15 @@ Every route to the CV ends on the right page. The short CV address and the Engli
 ```mermaid
 flowchart TD
     A["Tech lead opens SCR-05 English CV page or SCR-06 Norwegian CV page, without signing in"] --> S{"Do scripts run?"}
-    S -->|"no, or the browser refuses everything the security policy does not name (AC-23)"| N["Every section, the language switch, both downloads, the Original PDF preview, the contact list with its links and the Shell are readable and usable. Absent: 'Print', the copy-email action, keeping the section across the language switch"]
-    S -->|"yes"| Y["The same page, plus 'Print' (Flow US-05), the copy-email action (Flow US-01) and the section kept across the language switch (Flow US-03)"]
+    S -->|"no, or the browser refuses everything the security policy does not name (AC-23)"| N["Every section, the language switch, both downloads, the Original PDF preview, the contact list with its links and the Shell are readable and usable. Absent: 'Print', the copy-email action, keeping the place across the language switch"]
+    S -->|"yes"| Y["The same page, plus 'Print' (Flow US-05), the copy-email action (Flow US-01) and the place kept across the language switch (Flow US-03)"]
     X["An inline script, an inline style or a source the security policy does not name appears in the page (AC-23)"] --> X1["The browser refuses it. The page stays readable, with no visible step for the Visitor"]
     A --> Q["In Dag and Natt at 390, 834 and 1440 (AC-24): one main heading, section headings in order, every interactive element of the page content reachable with a visible focus ring and a target of at least 44 by 44, with the Original PDF preview closed and open"]
     A --> P["One primary action from the page content at every scroll position (AC-06, Flow US-02)"]
     O["Owner types the address of SCR-04 Styleguide"] --> O1["Every component this feature adds is shown in its states, in Dag and Natt, with sample data marked as such (AC-29)"]
 ```
 
-A Tech lead opens a CV page without signing in. With scripts off, or in a browser that refuses everything the security policy does not name, every section, the language switch, both downloads, the Original PDF preview, the contact list with its links and the Shell are readable and usable; only "Print", the copy-email action and keeping the section across the language switch are absent. With scripts on the same page gains those three. If an inline script, an inline style or an unnamed source appears in the page, the browser refuses it and the page stays readable, with no visible step. In Dag and Natt at 390, 834 and 1440 the page has one main heading and section headings in order, every interactive element of the page content has a visible focus ring and a target of at least 44 by 44, with the preview closed and open, and the page content holds one primary action at every scroll position. The Owner sees every component this feature adds on the Styleguide, in its states, in Dag and Natt, with marked sample data.
+A Tech lead opens a CV page without signing in. With scripts off, or in a browser that refuses everything the security policy does not name, every section, the language switch, both downloads, the Original PDF preview, the contact list with its links and the Shell are readable and usable; only "Print", the copy-email action and keeping the place across the language switch are absent. With scripts on the same page gains those three. If an inline script, an inline style or an unnamed source appears in the page, the browser refuses it and the page stays readable, with no visible step. In Dag and Natt at 390, 834 and 1440 the page has one main heading and section headings in order, every interactive element of the page content has a visible focus ring and a target of at least 44 by 44, with the preview closed and open, and the page content holds one primary action at every scroll position. The Owner sees every component this feature adds on the Styleguide, in its states, in Dag and Natt, with marked sample data.
 
 ### Flow: US-10 — Get back to the top
 
@@ -227,14 +232,14 @@ flowchart TD
     A["Recruiter is on SCR-05 English CV page or SCR-06 Norwegian CV page"] --> B{"Screen below 768?"}
     B -->|"no"| X["No Sticky action bar. The same actions are in the CV head"]
     B -->|"yes (AC-19)"| C["Sticky action bar with the language switch and 'Download PDF', on SCR-06 'Last ned PDF'. Both are secondary"]
-    C -->|"the other language"| L["The other CV page, as in Flow US-03"]
+    C -->|"the other language"| L["The other CV page, as Flow US-03 draws it for the switch of the Sticky action bar"]
     C -->|"'Download PDF'"| D["The CV PDF in the CV language of the page is saved, as in Flow US-02"]
     C -->|"activates the arrow tab"| T["The bar collapses to its tab, as on the home page"]
     T -->|"activates the tab again"| C
     L --> C2["The other CV page shows its own bar again, with its labels in its CV language"]
 ```
 
-A Recruiter is on a CV page. At 768 and wider there is no Sticky action bar and the same actions are in the CV head. Below 768 the bar offers the language switch and "Download PDF" ("Last ned PDF" on the Norwegian page), both in the secondary style. The other language opens the other CV page exactly as the switch in the CV head does, and that page shows its own bar with its labels in its CV language. "Download PDF" saves the CV PDF in the CV language of the page. The arrow tab collapses the bar to its tab and brings it back, as on the home page.
+A Recruiter is on a CV page. At 768 and wider there is no Sticky action bar and the same actions are in the CV head. Below 768 the bar offers the language switch and "Download PDF" ("Last ned PDF" on the Norwegian page), both in the secondary style. The other language opens the other CV page as Flow US-03 draws it for the switch of the bar, at the section in view at the moment of the activation or at its top (AC-08), and that page shows its own bar with its labels in its CV language. "Download PDF" saves the CV PDF in the CV language of the page. The arrow tab collapses the bar to its tab and brings it back, as on the home page.
 
 ### Flow: US-12 — Know where I am
 
@@ -263,7 +268,7 @@ A Visitor on a CV page sees "CV" marked as the current page in the header, annou
 | AC-05 | Flow US-02, node "CV head" and both branches of "CV language of the page?" | |
 | AC-06 | Flow US-02, node "At 390, 834 and 1440"; Flow US-08, node "One primary action" | The count itself is an e2e check |
 | AC-07 | Flow US-03, node "SCR-05 English CV page, 'EN' marked as current" and branch `no (AC-07)` | |
-| AC-08 | Flow US-03, branches of "Where was the Visitor reading?" and "Does the other CV page have that section?", and both `one press of Back` | Also reached from Flow US-11 |
+| AC-08 | Flow US-03, branches of "Which switch?", "Is that scroll position above the first section of the other CV page?", "Where was the Visitor reading?" and "Does the other CV page have that section?", and every `one press of Back` | Also reached from Flow US-11 |
 | AC-09 | Flow US-04, whole flow | The request log is an e2e check |
 | AC-10 | Flow US-04, branch `no (AC-10)` | |
 | AC-11 | Flow US-05, both branches of "Do scripts run?" and node "Printed document (AC-11)" | |
