@@ -1,7 +1,9 @@
 // Copy the email address (AC-14, AC-15; sad §8 Copy email). Activating the Copy button writes the
 // address with the Clipboard API, then asks the Toast to confirm and marks the button done for a
 // short time, as the design's CopyButton does (`data-done="true"`; the styles show "Copied").
-// A refusal or a missing API gets the English hand-copy message and never "Copied". The script
+// A refusal or a missing API gets the hand-copy message and never "Copied". The language and the
+// texts come from the button's attributes (data-copy-lang, data-copy-done-label,
+// data-copy-refusal; English by default), so this module holds no other language. The script
 // only sets and removes the attribute. The document, navigator and duration are injected.
 
 interface CopyButton {
@@ -21,15 +23,21 @@ export interface CopyEmailEnv {
   duration: number;
 }
 
-const REFUSAL = "Couldn't copy. Select the address to copy it.";
+const REFUSAL_EN = "Couldn't copy. Select the address to copy it.";
 
 export function initCopyEmail({ document: doc, navigator: nav, duration }: CopyEmailEnv): void {
   const button = doc.querySelector('[data-copy-email]');
   const address = button?.getAttribute('data-copy-email');
   if (!button || !address) return;
 
+  const lang = button.getAttribute('data-copy-lang') || undefined;
+  const doneLabel = button.getAttribute('data-copy-done-label') || 'Copied';
+  const refusal = button.getAttribute('data-copy-refusal') || REFUSAL_EN;
+
   const toast = (detail: Record<string, string>) =>
-    doc.dispatchEvent(new CustomEvent('fjord:toast', { detail }));
+    doc.dispatchEvent(
+      new CustomEvent('fjord:toast', { detail: lang ? { ...detail, lang } : detail }),
+    );
 
   let timer: ReturnType<typeof setTimeout> | undefined;
   const reset = () => {
@@ -49,11 +57,11 @@ export function initCopyEmail({ document: doc, navigator: nav, duration }: CopyE
         clearTimeout(timer);
         button.setAttribute('data-done', 'true');
         timer = setTimeout(reset, duration);
-        toast({ message: 'Copied', meta: address, icon: 'check' });
+        toast({ message: doneLabel, meta: address, icon: 'check' });
       },
       () => {
         reset();
-        toast({ message: REFUSAL });
+        toast({ message: refusal });
       },
     );
   });

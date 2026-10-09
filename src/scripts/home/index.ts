@@ -1,6 +1,6 @@
 // The home page's one script entry (AC-32): wires every home module.
 import { initCarousel } from './carousel';
-import { initCopyEmail } from './copy-email';
+import { initCopyEmail } from '../shared/copy-email';
 import { initCountUp } from './count-up';
 import { initHeroHeader } from './hero-header';
 import { initMotion } from './motion';

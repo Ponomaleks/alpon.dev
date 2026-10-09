@@ -81,6 +81,28 @@ describe('fjord:toast (AC-30)', () => {
     expect(langs.some((n) => n.text().includes('Kopiert'))).toBe(true);
   });
 
+  it('without lang no node carries a lang attribute', () => {
+    const { region, fire } = setup();
+    fire({ message: 'Copied', meta: 'a@b.no' });
+    expect(region.all().some((n) => 'lang' in n.attrs)).toBe(false);
+  });
+
+  it('marks only the message, not the meta, and leaves the live region unchanged', () => {
+    const { region, fire } = setup();
+    fire({ message: 'Kopiert', meta: 'a@b.no', lang: 'no' });
+    const marked = region.all().filter((n) => n.attrs.lang === 'no');
+    expect(marked.map((n) => n.textContent)).toEqual(['Kopiert']);
+    expect(region.attrs).toEqual({ role: 'status' });
+  });
+
+  it('a replacing Toast without lang clears the lang', () => {
+    const { region, fire } = setup();
+    fire({ message: 'Kopiert', lang: 'no' });
+    fire({ message: 'Copied' });
+    expect(region.text()).toEqual(['Copied']);
+    expect(region.all().some((n) => 'lang' in n.attrs)).toBe(false);
+  });
+
   it('does not move focus', () => {
     const { doc, focused, fire } = setup();
     fire({ message: 'Kopiert', meta: 'x' });
