@@ -1,5 +1,9 @@
-// Keeps the fragment of every link to the other CV language in step with the section in view
-// (AC-08, ADR-0001, sad §8) and stops navigation on the link of the current language.
+// The language switch of a CV page (AC-08, ADR-0001, sad §8). Switching must not move the page:
+// - in the Sticky action bar, on screen mid-page, the link to the other language carries the
+//   section in view at the moment of the click;
+// - in the CV head, on screen only above the first section, it carries no section and the scroll
+//   position is saved on activation, so the other page opens where the Visitor was;
+// - the link of the current language does not navigate.
 
 const CV_PAGE = /^(\/cv\/(?:en|no))(?:#.*)?$/;
 
@@ -18,26 +22,29 @@ interface LangLink {
 export interface LangSwitchOptions {
   document: { querySelectorAll(selector: string): Iterable<LangLink> };
   sectionInView: () => string | null;
+  savePosition: () => void;
 }
 
-export function initLangSwitch({ document, sectionInView }: LangSwitchOptions): void {
-  const links = [...document.querySelectorAll('[data-lang-switch] a[data-switch-to]')];
-  const others = links.filter((link) => link.getAttribute('aria-current') !== 'true');
+const LINKS = '[data-lang-switch] a[data-switch-to]';
 
-  const sync = () => {
-    const id = sectionInView();
-    for (const link of others) {
-      const href = link.getAttribute('href');
-      if (href !== null) link.setAttribute('href', langHref(href, id));
-    }
+export function initLangSwitch({ document, sectionInView, savePosition }: LangSwitchOptions): void {
+  const inBar = new Set(document.querySelectorAll(`[data-shell-bar] ${LINKS}`));
+
+  const setFragment = (link: LangLink, id: string | null) => {
+    const href = link.getAttribute('href');
+    if (href !== null) link.setAttribute('href', langHref(href, id));
   };
 
-  sync();
-  for (const link of links) {
+  for (const link of document.querySelectorAll(LINKS)) {
     if (link.getAttribute('aria-current') === 'true') {
       link.addEventListener('click', (e) => e.preventDefault());
-    } else {
+    } else if (inBar.has(link)) {
+      const sync = () => setFragment(link, sectionInView());
+      sync();
       link.addEventListener('click', sync);
+    } else {
+      setFragment(link, null);
+      link.addEventListener('click', savePosition);
     }
   }
 }

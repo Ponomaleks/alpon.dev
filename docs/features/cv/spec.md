@@ -78,7 +78,7 @@ Decided by the Owner; they go to the PR's design-difference list as they are.
 | Id | Page design | This feature | Reason |
 |---|---|---|---|
 | D-01 | "Download PDF" is a primary button in the CV head and in the side column | primary in the CV head; secondary in the side column | brand rule: at most one primary button from page content per visible screen; both are in view on wide screens (Owner, 2026-10-08) |
-| D-02 | Switching the language re-renders the page in place and keeps the scroll position | two real pages: the switch opens the other CV page; where scripts run it opens at the section that was in view, with focus there; with scripts off it opens at the top | same section, not same pixel: the two languages differ in length, so the same pixel would land on other content (Owner, 2026-10-08) |
+| D-02 | Switching the language re-renders the page in place and keeps the scroll position | two real pages: the switch opens the other CV page. Where scripts run, the switch of the CV head opens it at the scroll position the Visitor had, and the switch of the Sticky action bar opens it at the section that was in view, with focus there; with scripts off it opens at the top (AC-08) | switching must not move the page. Near the top, where the CV head is, both pages have the same layout, so the same position shows the same place; further down the two languages differ in length and the same pixel would land on other content, so the bar keeps the section instead (Owner, 2026-10-08 and 2026-10-09) |
 | D-03 | "View original PDF" is opened by a script; a missing page image is replaced by an embedded PDF | it opens with scripts off; no embedded PDF is built; each page image is a link with its own name | content never depends on a script; roadmap decision not to rebuild the viewer; Owner, 2026-10-08 |
 | D-04 | "Print" is always shown; the print styles hide the whole side column, so the printed CV has no contact details | "Print" is shown only where scripts run; printing gives a compact page in the light colours, without the Shell and the controls, in either theme; a line with email, phone, LinkedIn and GitHub is printed under the location line and is not shown on screen | a button that does nothing with scripts off must not be shown; a CV printed from Natt must stay readable; a printed CV must say how to reach him, as the CV PDF does (Owner, 2026-10-08) |
 | D-05 | The sticky bar's "Download PDF" is primary | secondary | home D-10: the bar holds no primary button |
@@ -249,9 +249,13 @@ Not a difference: the side column's contact list shows "Nittedal, Norge", the Re
 
 ### AC-08 (US-03) — happy
 
-**Given** a Visitor has scrolled a CV page so that a section is in view, with scripts on
-**When** they activate the other language in the CV head or in the Sticky action bar
-**Then** the other CV page opens at the same section, with its heading clear of the header and keyboard focus at that section; one press of Back returns to the page they left. If the other CV page has no such section, or the Visitor was above the first section, it opens at the top
+**Given** a Visitor is on a CV page, with scripts on
+**When** they activate the other language
+**Then** switching does not move the page, and one press of Back returns to the page they left:
+- in the Sticky action bar, which is on screen while a section is in view, the other CV page opens at the section in view at the moment of the activation, with its heading clear of the header and keyboard focus at that section; if the Visitor is above the first section at that moment, even after reading further down, or the other CV page has no such section, it opens at the top;
+- in the CV head, which is on screen only above the first section, the other CV page opens at the scroll position the Visitor had, so only the text changes; it never opens at a section from the head. The position is restored only if it is above the first section of the new page; otherwise the page opens at the top
+
+Decided by the Owner on 2026-10-09, after implement measured that the switch of the CV head is never on screen while a section is in view (at 1440 it leaves the screen 211 px of scrolling before the first section counts as in view). How the position crosses is ADR-0001.
 
 ### AC-09 (US-04) — happy
 
@@ -390,7 +394,7 @@ Not a difference: the side column's contact list shows "Nittedal, Norge", the Re
 | Accessibility | 0 axe violations on both CV pages in Dag and Natt, with scripts on and off, with the Original PDF preview closed and open | axe in Playwright |
 | Touch targets | every interactive element of the CV page content and BackToTop ≥ 44 × 44 px, counting its overlay | e2e box measurement |
 | Primary buttons | CV pages at 390 / 834 / 1440, counted at the top, in the middle and at the end: visible screen ≤ 2, page content ≤ 1, Sticky action bar 0 | e2e count (AC-06) |
-| Language switch | with scripts on, the other CV page opens at the section in view for each of the sections both pages have; the heading is 0 px under the header | e2e per section (AC-08) |
+| Language switch | with scripts on: from the Sticky action bar the other CV page opens at the section in view for each of the sections both pages have, the heading 0 px under the header; from the CV head it opens at the same scroll position, already there at the first paint | e2e per section and per width (AC-08) |
 | BackToTop | 0 px overlap with the last line and with the focused element at 768, 834, 1024 and 1440 on every page for Visitors; absent below 768 | e2e box measurement (AC-22) |
 | Print | in print media, started from Dag and from Natt: 0 Shell parts and controls rendered; the contact line rendered once; background of the sheet white; 0 entries split across sheets on A4 | e2e in print media and a printed-PDF check; manual print in two browsers recorded in the PR |
 | Contrast | every text and background pair the new components render, in Dag, Natt and on spruce: body ≥ 4.5:1; large text, control boundaries and the focus ring ≥ 3:1 | contrast check script in CI |
@@ -403,15 +407,16 @@ Not a difference: the side column's contact list shows "Nittedal, Norge", the Re
 ## 6.1 Security / privacy
 
 - **Data classification:** public. The CV pages show what the CV PDFs, already public at their addresses, show. The pages take no input from Visitors.
-- **Personal data touched:** the Owner's own: the postal code and town of the Residence ("1482 Nittedal"), now on an indexable page as well as in the file (Owner decision, 2026-10-08); phone and email as on the home page. No street address. No third party's personal data. Nothing is stored in the Visitor's browser by this feature, and no cookie is set.
+- **Personal data touched:** the Owner's own: the postal code and town of the Residence ("1482 Nittedal"), now on an indexable page as well as in the file (Owner decision, 2026-10-08); phone and email as on the home page. No street address. No third party's personal data. No cookie is set. One thing is stored in the Visitor's browser, for one navigation: when the other language is activated in the CV head, the scroll position is written to the tab's session storage as one whole number and removed when the next CV page opens (AC-08, ADR-0001). It says nothing about the Visitor, never leaves the browser, and nothing else is stored.
 - **AuthZ/AuthN impact:** none. No accounts or sign-in; the site still receives no data from a Visitor. The security policy is unchanged (AC-23, AC-13).
 - **Abuse cases:**
   - A script or style the security policy does not name appearing in a CV page: refused by the browser (AC-23).
   - A crafted fragment on the home page used to send a Visitor elsewhere: the hand-off knows exactly the two Legacy CV addresses and two fixed targets on the site; anything else is ignored (AC-14).
   - A section name carried across the language switch from a crafted address: only the section ids of the CV page are honoured; anything else opens the page at the top (AC-08).
+  - A crafted or stale value in the stored scroll position: only a whole number of pixels above the first section of the page is honoured; anything else is removed and the page opens at the top (AC-08).
   - A link to another site opening a tab that can reach back: every such link, the code links of the personal projects included, follows the site rule for links to other sites (home D-09).
   - A CV PDF replaced with a file that does not match the page: stopped by the gate (AC-25).
-- **Security review:** N/A: the policy contract is unchanged, the pages take no input, and the two new scripts read only the address and the scroll position.
+- **Security review:** N/A: the policy contract is unchanged, the pages take no input, and the two new scripts read only the address and the scroll position, and the CV page script writes only the one number of AC-08.
 
 ## 7. Metrics / KPIs
 

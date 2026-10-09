@@ -1,13 +1,16 @@
 import { describe, expect, it, vi } from 'vitest';
 import { initLangSwitch, langHref } from './lang-switch';
 
-// AC-08 (T18; ADR-0001; sad §8 Language switch). Links to the CV pages carry `data-cv-lang="en|no"`;
-// the link of the page's own language carries aria-current="true" (CV head and Sticky action bar
-// share the markup). Contract:
+// AC-08 (ADR-0001; sad §8 Language switch). The CV head and the Sticky action bar hold the same
+// pair of links (`[data-lang-switch] a[data-switch-to]`); the link of the page's own language
+// carries aria-current="true". Contract:
 //   langHref(href, id): the address of a CV page with the fragment set, replaced or cleared.
-//   initLangSwitch({ document, sectionInView }): `document.querySelectorAll('a[data-cv-lang]')`;
-//   `sectionInView()` returns the shared id in view or null. It keeps every link to the other
-//   language in step with that id (on init and on click), and stops navigation on the current one.
+//   initLangSwitch({ document, sectionInView, savePosition }):
+//     - in the bar (`[data-shell-bar]`) the link to the other language carries the section in view
+//       at the moment of the click, or no fragment above the first section;
+//     - in the CV head the link to the other language never carries a fragment and calls
+//       `savePosition()` on activation, so the other page can open at the same scroll position;
+//     - the link of the current language does not navigate, in both places.
 
 describe('langHref', () => {
   it('sets the fragment on an address without one', () => {
@@ -41,7 +44,7 @@ interface FakeLink {
 
 function link(lang: string, href: string, current = false): FakeLink {
   const attrs = new Map<string, string>([
-    ['data-cv-lang', lang],
+    ['data-switch-to', lang],
     ['href', href],
   ]);
   if (current) attrs.set('aria-current', 'true');
@@ -67,54 +70,95 @@ function setup(lang: 'en' | 'no', ids: { value: string | null }, extra: FakeLink
   const head = make();
   const bar = make();
   const all = [...head, ...bar, ...extra];
+  const savePosition = vi.fn();
   initLangSwitch({
-    document: { querySelectorAll: () => all },
+    document: {
+      querySelectorAll: (selector) => (selector.includes('[data-shell-bar]') ? bar : all),
+    },
     sectionInView: () => ids.value,
+    savePosition,
   });
   const other = (pair: FakeLink[]) => pair[lang === 'en' ? 1 : 0];
   const current = (pair: FakeLink[]) => pair[lang === 'en' ? 0 : 1];
-  return { head, bar, other, current };
+  return { head, bar, other, current, savePosition };
 }
 
-describe('initLangSwitch', () => {
-  it('sets the fragment of every link to the other language, head and bar, on the English page', () => {
-    const { head, bar, other } = setup('en', { value: 'skills' });
-    expect(other(head).attrs.get('href')).toBe('/cv/no#skills');
+describe('initLangSwitch: the Sticky action bar carries the section', () => {
+  it('sets the fragment of the bar link to the other language on the English page', () => {
+    const { bar, other } = setup('en', { value: 'skills' });
     expect(other(bar).attrs.get('href')).toBe('/cv/no#skills');
   });
 
   it('does the same on the Norwegian page', () => {
-    const { head, bar, other } = setup('no', { value: 'experience' });
-    expect(other(head).attrs.get('href')).toBe('/cv/en#experience');
+    const { bar, other } = setup('no', { value: 'experience' });
     expect(other(bar).attrs.get('href')).toBe('/cv/en#experience');
   });
 
-  it('replaces the fragment when the section in view changes, at activation', () => {
+  it('takes the section in view at the moment of the click', () => {
     const ids = { value: 'skills' as string | null };
-    const { head, other } = setup('en', ids);
+    const { bar, other } = setup('en', ids);
     ids.value = 'experience';
-    click(other(head));
-    expect(other(head).attrs.get('href')).toBe('/cv/no#experience');
+    click(other(bar));
+    expect(other(bar).attrs.get('href')).toBe('/cv/no#experience');
   });
 
-  it('clears the fragment when the Visitor is above the first section', () => {
-    const ids = { value: 'skills' as string | null };
-    const { head, bar, other } = setup('en', ids);
+  it('clears the fragment above the first section at the click, even after reading further down', () => {
+    const ids = { value: 'education' as string | null };
+    const { bar, other } = setup('en', ids);
     ids.value = null;
     click(other(bar));
-    expect(other(head).attrs.get('href')).toBe('/cv/no');
     expect(other(bar).attrs.get('href')).toBe('/cv/no');
   });
 
-  it('does not stop the link to the other language', () => {
+  it('saves no position from the bar', () => {
+    const { bar, other, savePosition } = setup('en', { value: 'skills' });
+    click(other(bar));
+    expect(savePosition).not.toHaveBeenCalled();
+  });
+});
+
+describe('initLangSwitch: the CV head keeps the position, never a section', () => {
+  it('gives the head link no fragment, whatever section is in view', () => {
     const { head, other } = setup('en', { value: 'skills' });
-    expect(click(other(head))).not.toHaveBeenCalled();
+    expect(other(head).attrs.get('href')).toBe('/cv/no');
   });
 
-  it('stops navigation on the link of the current language, in the head and in the bar', () => {
-    const { head, bar, current } = setup('en', { value: 'skills' });
+  it('keeps it without a fragment at activation and saves the position once', () => {
+    const ids = { value: null as string | null };
+    const { head, other, savePosition } = setup('no', ids);
+    ids.value = 'experience';
+    click(other(head));
+    expect(other(head).attrs.get('href')).toBe('/cv/en');
+    expect(savePosition).toHaveBeenCalledTimes(1);
+  });
+
+  it('removes a fragment the markup carried', () => {
+    const stale = link('no', '/cv/no#skills');
+    const current = link('en', '/cv/en', true);
+    initLangSwitch({
+      document: {
+        querySelectorAll: (selector) =>
+          selector.includes('[data-shell-bar]') ? [] : [current, stale],
+      },
+      sectionInView: () => 'skills',
+      savePosition: () => {},
+    });
+    expect(stale.attrs.get('href')).toBe('/cv/no');
+  });
+});
+
+describe('initLangSwitch: both places', () => {
+  it('does not stop the link to the other language', () => {
+    const { head, bar, other } = setup('en', { value: 'skills' });
+    expect(click(other(head))).not.toHaveBeenCalled();
+    expect(click(other(bar))).not.toHaveBeenCalled();
+  });
+
+  it('stops navigation on the link of the current language and saves nothing', () => {
+    const { head, bar, current, savePosition } = setup('en', { value: 'skills' });
     expect(click(current(head))).toHaveBeenCalledTimes(1);
     expect(click(current(bar))).toHaveBeenCalledTimes(1);
+    expect(savePosition).not.toHaveBeenCalled();
   });
 
   it('keeps the address of the current-language link', () => {

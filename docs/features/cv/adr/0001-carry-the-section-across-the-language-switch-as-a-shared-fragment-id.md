@@ -15,13 +15,13 @@ ticket: "roadmap step 5"
 
 ## Context
 
-The CV is two real pages, one per CV language, and the language switch is navigation between them (spec D-02). Where scripts run, the other CV page must open at the section the Visitor was reading, with its heading clear of the header and keyboard focus there; one press of Back must return (AC-08). With scripts off the switch still works and opens the other page at its top (AC-07). The mechanism decides what the section ids are, and those ids become part of addresses people share.
+The CV is two real pages, one per CV language, and the language switch is navigation between them (spec D-02). Switching must not move the page (AC-08). Where scripts run, the switch in the Sticky action bar must open the other CV page at the section the Visitor was reading, with its heading clear of the header and keyboard focus there, and the switch in the CV head must open it at the scroll position the Visitor had; one press of Back must return. With scripts off the switch still works and opens the other page at its top (AC-07). The mechanism decides what the section ids are, and those ids become part of addresses people share.
 
 ## Decision drivers
 
 - Quality goal 2: content and navigation work without scripts; a script only adds.
-- Spec §6.1: nothing is stored in the Visitor's browser; a crafted section name must do no harm.
-- Spec §6 "Language switch": the other page opens at the section in view, heading 0 px under the header.
+- Spec §6.1: as little as possible is stored in the Visitor's browser; a crafted section name or stored value must do no harm.
+- Spec §6 "Language switch": from the bar the other page opens at the section in view, heading 0 px under the header; from the CV head it opens at the same scroll position.
 - AC-17: each CV page has one canonical address and the two name each other as language versions.
 
 ## Considered options
@@ -40,18 +40,24 @@ How it is built:
 - `arrive.ts` moves focus to the element the fragment names only if it is one of the page's CV sections.
 - The link of the current language keeps its own address with scripts off; with scripts on its navigation is stopped.
 
+Amended on 2026-10-09 (Owner, during implement): the fragment is carried by the switch in the Sticky action bar only. `implement` measured that the switch of the CV head is never on screen while a section is in view, so from there a section could only be a remembered one, and the page would jump. The switch of the CV head carries the scroll position instead:
+- `lang-switch.ts` gives the head's link to the other language no fragment and, on activation, calls `position.ts`, which writes `scrollY` as one whole number to `sessionStorage` under one key.
+- On arrival the CV page script takes the number and removes it, on every CV page load, with or without a fragment. Without a fragment it scrolls there at once, before the first paint, only if the position is above the first section of the new page; otherwise the page opens at its top. A value that is not a whole number of pixels is dropped.
+- A fragment was not used for the position because it would put a second address shape next to the canonical one and would be shared with the link; the position belongs to one navigation of one tab, which is what session storage holds.
+
 ## Consequences
 
 **Positive**
 - Deep links to a section work with scripts off and in any browser.
-- No state leaves the page; no storage is used.
-- The same links serve the CV head and the Sticky action bar.
+- No state leaves the browser. The one stored value is one number for one navigation (spec §6.1).
+- The same links serve the CV head and the Sticky action bar; only what the script does with them differs.
 
 **Negative**
 - The Norwegian page has English section ids in its address (`/cv/no#experience`).
 - The ids are public: renaming one later breaks shared links.
 
 **Neutral**
+- With storage blocked, or in a new tab opened from the head's switch, the other page opens at its top.
 - A section only one language has gets its own id from the same list; the other page opens at its top for it.
 - "On this page" uses the same ids, so the contents list and the switch cannot disagree.
 
