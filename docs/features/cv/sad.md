@@ -271,6 +271,420 @@ sequenceDiagram
 
 **Critical flow 2: Legacy CV hand-off (AC-13, AC-14)** — the home page's script entry reads the fragment first; for exactly `#cv` or `#cv-no` it replaces the location with the CV page, so Back skips the home page; for anything else it continues as before. Drawn in full by `sequences`.
 
+### Open and read a CV page
+
+US-01, US-07, US-12 · AC-01, AC-02, AC-04, AC-15, AC-18, AC-20, AC-23. On SCR-05 and SCR-06, with SCR-03 below 768. Every step is the same with scripts on or off, except "Copy".
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as <user>
+    participant UI as <ui>
+    participant S as <service>
+    participant X as <external-system>
+
+    Note over U,S: Precondition: any width from 360, scripts on or off. The site has a page at each of the three CV addresses
+    alt the short CV address or the English CV address
+        U->>S: opens the address
+        S-->>UI: the English CV page itself, at the address that was asked for
+    else the Norwegian CV address
+        U->>S: opens the address
+        S-->>UI: the Norwegian CV page itself
+    end
+    Note over UI,S: No other address is involved. The answer carries the freshness rule of the home page and the site's security headers
+    UI-->>U: header with CV marked and announced as the current page
+    UI-->>U: CV head with breadcrumbs from the site name to CV, the name as the main heading, the role line, the location line, the language switch with the CV language of the page marked, the actions and the meta line
+    alt English CV page
+        UI-->>U: the numbered sections from Profile to Community and volunteering, each with the content of the English CV PDF
+    else Norwegian CV page
+        UI-->>U: content and the page's own labels in Norwegian, the sections of the Norwegian CV PDF numbered in the order shown
+        Note over U,UI: The page is marked as Norwegian and the Shell around it as English
+    end
+    alt screen 1024 or wider
+        UI-->>U: side column beside the content
+    else screen below 1024
+        UI-->>U: the same column after the content
+    end
+    Note over U,UI: Side column with On this page, the contact list from the single contact source with the Residence, and Download PDF as a secondary button. No contact card is offered
+    opt a link of On this page
+        U->>UI: activates the numbered link of a section
+        UI-->>U: the page moves to that section with its heading clear of the header
+    end
+    opt a contact route or a code link
+        alt email address
+            U->>X: follows the mail link, the mail app opens a message to Alexander
+        else phone number
+            U->>X: follows the call link, the phone app opens the number
+        else LinkedIn, GitHub or the code link of a personal project
+            U->>X: follows the link, the other site opens in a new tab, announced
+        else Copy beside the email address
+            alt scripts enabled
+                U->>UI: activates Copy
+                UI-->>U: the address is copied and the Toast confirms with Copied
+            else scripts disabled
+                UI-->>U: Copy is not shown and the address stays a mail link
+            end
+        end
+    end
+    opt screen below 768, opens the menu
+        U->>UI: activates the menu button
+        UI-->>U: menu panel with CV marked by an accent rule and the semibold weight and announced as current
+    end
+    Note over U,UI: Postcondition: the whole CV was read as a page in its CV language, and every route out of it except Copy worked without a script
+```
+
+The refusal branches of "Copy" (no clipboard access) are the ones of the home flow "Copy the email address"; the module is the same (§5, `scripts/shared/copy-email.ts`).
+
+### Take the file
+
+US-02 · AC-05, AC-16, AC-19. On SCR-05 and SCR-06. Every step is the same with scripts on or off.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as <user>
+    participant UI as <ui>
+    participant S as <service>
+
+    Note over U,S: Precondition: a CV page is open, scripts on or off. Every download is a link with a download name
+    UI-->>U: CV head with Download PDF as the one primary button of the page content
+    UI-->>U: beside the actions, the meta line with the CV date and the format, page count and paper size of the file
+    Note over U,UI: On the Norwegian page the labels are Last ned PDF and Sist oppdatert. The CV date is the same on both pages and is not the footer date
+    alt Download PDF in the CV head
+        U->>UI: activates the primary button
+    else Download PDF in the side column
+        U->>UI: activates the secondary button
+    else Download CV in the closing band
+        U->>UI: activates the action at the end of the page
+    else Download PDF in the Sticky action bar, below 768
+        U->>UI: activates the secondary action of the bar
+    end
+    UI->>S: requests the CV PDF in the CV language of the page
+    S-->>UI: the file
+    alt English CV page
+        UI-->>U: the browser saves Alexander_Ponomarenko_CV_EN.pdf
+    else Norwegian CV page
+        UI-->>U: the browser saves Alexander_Ponomarenko_CV_NO.pdf
+    end
+    Note over U,UI: Nothing opens and the Visitor stays on the page where they were
+    Note over U,UI: Postcondition: the file in the language being read is saved. At every scroll position the page content showed at most one primary button, the Download PDF of the CV head
+```
+
+### Original PDF preview
+
+US-04 · AC-09, AC-10, AC-18. On SCR-05 and SCR-06. Every step is the same with scripts on or off.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as <user>
+    participant UI as <ui>
+    participant S as <service>
+    participant X as <external-system>
+
+    Note over U,S: Precondition: a CV page has loaded, scripts on or off. The preview is closed and no page image has been requested
+    U->>UI: activates View original PDF, on the Norwegian page Se original-PDF
+    UI-->>U: the preview opens in place and its state is announced
+    UI->>S: requests the two page images of the CV PDF in the CV language of the page
+    Note over UI,S: Page images and CV PDFs are answered with the one-hour rule and the site's security headers
+    loop each of the two page images
+        alt the image loads
+            S-->>UI: page image
+            UI-->>U: the image beside the other one at every width, as a link with its own name in the CV language of the page
+        else the image cannot be loaded
+            S-->>UI: no image
+            UI-->>U: the link with its name in a box of the reserved size, so nothing shifts and no embedded PDF takes its place
+        end
+    end
+    UI-->>U: the meta line in the CV language of the page
+    opt activates a page image or its link
+        U->>UI: activates the link, named with the page, the language, PDF and opens in a new tab
+        UI->>X: opens a new browser tab
+        X->>S: requests the CV PDF in the CV language of the page
+        S-->>X: the CV PDF, marked for viewing in the browser under its file name
+        X-->>U: the file is shown in the new tab and the CV page stays open in its own tab
+    end
+    opt activates the control again
+        U->>UI: activates View original PDF
+        UI-->>U: the preview closes and its state is announced
+    end
+    Note over U,UI: Postcondition: the Visitor saw the file as it is, or still had a named link to it, and no script was needed
+```
+
+### Print the CV page
+
+US-05 · AC-11, AC-12. On SCR-05 and SCR-06. The external system is the browser's print dialog.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as <user>
+    participant UI as <ui>
+    participant X as <external-system>
+
+    Note over U,X: Precondition: a CV page is open in Dag or Natt. The print styles and the Print block are in the page's one stylesheet
+    alt scripts enabled
+        UI-->>U: Print in the CV head, not primary, Skriv ut on the Norwegian page
+        alt activates Print
+            U->>UI: activates Print
+            UI->>X: asks the browser to print
+        else prints from the browser's own menu
+            U->>X: starts printing
+        end
+    else scripts disabled
+        UI-->>U: no Print button
+        U->>X: starts printing from the browser's own menu
+    end
+    X->>UI: lays the page out for print
+    UI-->>X: the name, the role line, the location line, one contact line with email, phone, LinkedIn and GitHub, and every section
+    Note over UI,X: No Shell part and no control is in the document. Entries stay whole, a section heading stays with its content, links to other sites show their address as text
+    alt theme on screen is Dag
+        UI-->>X: dark text on a white sheet
+    else theme on screen is Natt
+        UI-->>X: the same light colours with no dark fills, because the Print block re-applies the Dag set
+    end
+    X-->>U: the print dialog with the document
+    U->>X: prints or cancels
+    X-->>UI: hands the page back
+    UI-->>U: the CV page as it was, in the same theme, with the contact line not shown on screen
+    Note over U,UI: Postcondition: a print from Natt equals a print from Dag, and the theme on screen never changed
+```
+
+### Legacy CV hand-off
+
+US-06 · AC-13, AC-14. From SCR-01 to SCR-05 or SCR-06. This is critical flow 2, drawn in full.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as <user>
+    participant UI as <ui>
+    participant S as <service>
+
+    Note over U,S: Precondition: an old link to the home page with a fragment in the address. The hand-off is the first statement of the home page's own script, which is loaded from the site
+    U->>S: follows the link
+    S-->>UI: home page
+    alt scripts enabled
+        UI->>UI: reads the fragment before anything else
+        alt the English Legacy CV address
+            UI->>UI: replaces the current history entry with the English CV address
+            UI->>S: requests the English CV page
+            S-->>UI: English CV page
+            UI-->>U: the English CV page at its top
+        else the Norwegian Legacy CV address
+            UI->>UI: replaces the current history entry with the Norwegian CV address
+            UI->>S: requests the Norwegian CV page
+            S-->>UI: Norwegian CV page
+            UI-->>U: the Norwegian CV page at its top
+        else the contact place
+            UI-->>U: the home page at the contact section, as before
+        else any other fragment, or none
+            UI-->>U: the home page as before
+        end
+        Note over U,UI: The home script is deferred, so the home page may be seen for a moment before a hand-off (§11)
+        opt presses Back once after a hand-off
+            U->>UI: presses Back
+            UI-->>U: the place the Visitor came from, not the home page
+        end
+    else scripts disabled
+        UI-->>U: the home page as before, with View CV on the first screen
+        opt activates View CV
+            U->>UI: activates the link
+            UI->>S: requests the English CV address
+            S-->>UI: English CV page
+            UI-->>U: the English CV page
+        end
+    end
+    Note over U,UI: Postcondition: only the two exact Legacy CV addresses lead away from the home page, each to one fixed address of the site
+```
+
+### Reach the CV from the Shell and the home page
+
+US-07 · AC-15, AC-16. From SCR-01, SCR-02 and SCR-03 to SCR-05, and within SCR-05 and SCR-06. Every step is the same with scripts on or off.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as <user>
+    participant UI as <ui>
+    participant S as <service>
+
+    Note over U,S: Precondition: any page for Visitors. Every CV link takes its address from the contact data, none is written as a literal
+    alt on the home page or the Not-found page
+        U->>UI: activates CV in the header or in the menu panel, View CV in the hero or in the Sticky action bar, or Full CV in the experience section
+        UI->>S: requests the English CV address
+        S-->>UI: English CV page
+        UI-->>U: the English CV page at its top, in the same tab
+    else on a CV page
+        U->>UI: activates CV in the header or in the menu panel
+        UI->>S: requests the CV page in the CV language being read
+        S-->>UI: the same CV page
+        UI-->>U: the same CV page at its top, still in its CV language, with CV still marked as current
+    end
+    opt reaches the end of a CV page
+        UI-->>U: closing band with Get in touch and Download CV
+        alt Get in touch in the band or in the header, or the contact button of the CV head
+            U->>UI: activates the link
+            UI->>S: requests the home page at the contact section
+            S-->>UI: home page
+            UI-->>U: the home page at the contact section, as in the home flow Reach the contact place
+        else Download CV
+            U->>UI: activates the link
+            UI-->>U: the CV PDF in the CV language of the page is saved, as in Take the file
+        end
+    end
+    opt opens the address of a CV PDF
+        U->>S: opens the address
+        S-->>UI: the file at its unchanged address, shown by the browser
+    end
+    Note over U,UI: Postcondition: every CV link led to a CV page, the English one from outside the CV and the one being read from inside it
+```
+
+### BackToTop
+
+US-10 · AC-21, AC-22. On SCR-01, SCR-02, SCR-05 and SCR-06. No script and no request is involved.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as <user>
+    participant UI as <ui>
+
+    Note over U,UI: Precondition: a page for Visitors, scripts on or off. BackToTop is a link of the Shell to the top of the page
+    alt screen below 768
+        UI-->>U: no BackToTop, because that corner belongs to the Sticky action bar
+    else screen 768 or wider
+        alt the browser can tie its appearance to scrolling
+            UI-->>U: no BackToTop at the top of the page
+            U->>UI: scrolls down
+            alt motion allowed
+                UI-->>U: BackToTop appears with its movement
+            else reduced motion
+                UI-->>U: BackToTop appears without movement
+            end
+        else the browser cannot
+            UI-->>U: BackToTop is visible all the time
+        end
+        opt activates BackToTop
+            U->>UI: activates the link, which is at least 44 by 44 and has a name that says what it does and a visible focus ring
+            UI-->>U: the page is at its top and keyboard focus starts again from the start of the page
+        end
+        opt reaches the end of the page with focus on the last link of the footer
+            U->>UI: moves focus to the last link
+            UI-->>U: BackToTop covers no part of the last line and no part of the focused element, because its space is reserved at the end of the page
+        end
+    end
+    Note over U,UI: Postcondition: the Visitor got back to the top without a script, and BackToTop never covered content
+```
+
+### Sticky action bar on a CV page
+
+US-11, US-03 · AC-19, AC-07, AC-08. On SCR-05 and SCR-06, below 768. The switch in the CV head behaves the same at every width. The branch where the other CV page has no such section is in critical flow 1.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as <user>
+    participant UI as <ui>
+    participant S as <service>
+
+    Note over U,S: Precondition: a CV page below 768. The page gave the bar a language switch and a download through a page option. At 768 and wider there is no bar and the same actions are in the CV head
+    UI-->>U: Sticky action bar with the language switch, the CV language of the page marked, and Download PDF, both secondary
+    Note over U,UI: On the Norwegian page the download is Last ned PDF and the two actions are marked as Norwegian
+    alt the other language
+        U->>UI: activates the other language
+        alt scripts enabled and a section is in view
+            UI->>S: requests the other CV page with the id of that section as the fragment
+            S-->>UI: the other CV page
+            UI-->>U: the page opens at that section with its heading clear of the header and keyboard focus there, as in critical flow 1
+        else scripts enabled and the Visitor is above the first section
+            UI->>S: requests the other CV page with no fragment
+            S-->>UI: the other CV page
+            UI-->>U: the page opens at its top
+        else scripts disabled
+            UI->>S: requests the other CV page with no fragment
+            S-->>UI: the other CV page
+            UI-->>U: the page opens at its top
+        end
+        UI-->>U: the other CV page shows its own bar, open, with its labels in its CV language
+    else the language already shown
+        U->>UI: activates the current language
+        alt scripts enabled
+            UI-->>U: nothing changes, with no reload and no jump
+        else scripts disabled
+            UI->>S: requests the same CV page
+            S-->>UI: the same CV page
+            UI-->>U: the same page at its top
+        end
+    else Download PDF
+        U->>UI: activates the download
+        UI-->>U: the CV PDF in the CV language of the page is saved, as in Take the file
+    else the arrow tab
+        U->>UI: activates the tab
+        UI-->>U: the bar collapses to its tab and returns, as in the home flow Sticky action bar
+    end
+    Note over U,UI: Postcondition: the bar held no primary button, and its switch and download did what the ones in the CV head do
+```
+
+**Scope of this stage.** By the Owner's decision (2026-10-09), `sequences` adds the eight flows above to critical flow 1, which was left as drawn; critical flow 2 keeps its paragraph and is drawn as "Legacy CV hand-off". The gate and its checks are not drawn, as in the home SAD: §8 describes each one (Checksum gate, Script budgets, Response headers).
+
+**Coverage (spec §4 → flows).**
+
+| User story | Flow(s) |
+|---|---|
+| US-01 Read the CV as a page | Open and read a CV page |
+| US-02 Take the file | Take the file |
+| US-03 Switch the language and keep my place | Critical flow 1; Sticky action bar on a CV page, branches `the other language` and `the language already shown` |
+| US-04 See the original file | Original PDF preview |
+| US-05 Print the page | Print the CV page |
+| US-06 Arrive from an old link | Legacy CV hand-off |
+| US-07 Find the CV from anywhere | Reach the CV from the Shell and the home page; Open and read a CV page, the first `alt` |
+| US-08 A page that holds up | The scripts-off branches of every flow. The rest is not runtime: inspection and build checks (AC-06, AC-24, AC-29) |
+| US-09 A CV that stays true | Not runtime: the gate and the pull request, see §8 (Checksum gate) and §10 QG-1 |
+| US-10 Get back to the top | BackToTop |
+| US-11 Actions at my thumb | Sticky action bar on a CV page; Take the file, branch `Download PDF in the Sticky action bar, below 768` |
+| US-12 Know where I am | Open and read a CV page, the header step and the last `opt` |
+
+**Coverage (spec §5 → flows).**
+
+| AC | Shown in |
+|---|---|
+| AC-01 | Open and read a CV page, the CV head step and branch `English CV page` |
+| AC-02 | Open and read a CV page, branch `Norwegian CV page` and its note. The Norwegian labels of the controls are in Take the file, Original PDF preview, Print the CV page and the Sticky action bar flow |
+| AC-03 | Not runtime: the content is typed data read at build time, and the placeholder check runs on the built pages (§10 QG-1) |
+| AC-04 | Open and read a CV page, both width branches, the side column note, the `On this page` step and the contact branches |
+| AC-05 | Take the file, the meta line step and both file-name branches |
+| AC-06 | Take the file, the first step and the postcondition. The secondary actions are in their flows. The count itself is not runtime: an e2e check |
+| AC-07 | Critical flow 1, branch `scripts are off`; Sticky action bar on a CV page, branches `scripts disabled`. The short CV address with EN marked is in Open and read a CV page |
+| AC-08 | Critical flow 1, branch `scripts run` with both inner branches and the Back step; Sticky action bar on a CV page, branch `scripts enabled and the Visitor is above the first section` |
+| AC-09 | Original PDF preview, the whole flow |
+| AC-10 | Original PDF preview, branch `the image cannot be loaded` |
+| AC-11 | Print the CV page, both branches of the first `alt`, the document step and its note |
+| AC-12 | Print the CV page, branch `theme on screen is Natt` and the last step |
+| AC-13 | Legacy CV hand-off, both Legacy CV address branches and the Back step. The script's origin, its size and the unchanged policy are not runtime: build checks |
+| AC-14 | Legacy CV hand-off, branches `the contact place`, `any other fragment, or none` and `scripts disabled` |
+| AC-15 | Open and read a CV page, the first `alt` and its note; Reach the CV from the Shell and the home page, the last `opt`. The rewritten parity tests run in CI |
+| AC-16 | Reach the CV from the Shell and the home page, the whole flow |
+| AC-17 | Not runtime: the head of each page and the sitemap are build output with no step for a Visitor (§5 Page options) |
+| AC-18 | Open and read a CV page, note after the first `alt`; Original PDF preview, note on the answers and the step `the CV PDF, marked for viewing in the browser` |
+| AC-19 | Sticky action bar on a CV page, the whole flow; Take the file, the bar branch |
+| AC-20 | Open and read a CV page, the header step and the last `opt`. That no link is marked on the home page and the Not-found page is not runtime: an e2e check of the rendered style (B-05) |
+| AC-21 | BackToTop, branch `screen 768 or wider` with its inner branches and the first `opt` |
+| AC-22 | BackToTop, branch `screen below 768` and the last `opt` |
+| AC-23 | The scripts-off branches of every flow: Copy in Open and read a CV page, Print in Print the CV page, the kept section in critical flow 1. The refusal half is not runtime in this feature's code: browser enforcement of the unchanged policy, drawn in the fjord-foundation SAD §6 |
+| AC-24 | Not runtime: inspection by axe, the visual tests and the design-match review (§10 QG-2) |
+| AC-25, AC-27, AC-28 | Not runtime: gate checks and the parity suite in CI, see §8 (Checksum gate) and §10 QG-1. The visible result of AC-27 is the contact list in Open and read a CV page and the contact line in Print the CV page |
+| AC-26 | Not runtime: the Claims list and the two difference lists are steps of the pull request, not of the system |
+| AC-29 | Not runtime: the Styleguide is a static sample page with no flow of its own |
+
+**Flagged by the flows.** Observations only; none needs a decision.
+
+1. Critical flow 1 uses the `design` container names as participants, while the eight flows added here use the generic vocabulary; it was left as drawn.
+2. Critical flow 1 does not draw two edges of the language switch: the Visitor above the first section (AC-08) and the language already shown (§8 Language switch). Both are drawn in "Sticky action bar on a CV page" and hold for the switch in the CV head as well.
+3. Reach the CV from the Shell and the home page, branch `on a CV page`: "CV" in the header and in the menu panel is a plain link to the current page, so activating it loads the same page again at its top. The link of the current language in the switch is stopped by the script; this one is not. Accepted as drawn (Owner, 2026-10-09).
+4. Print the CV page and BackToTop make no request, and Print the CV page has no `<service>`: both happen between the page and the browser.
+5. No new participant and no persist step in any flow: the feature stores nothing, so there is nothing for `data-model` and no contract for `api`.
+
 ## 7. Deployment view
 
 <!-- N/A: reuses the existing deployment unit (Workers static assets from dist/), no infra change. The feature changes two files the edge reads, public/_headers and public/_redirects; their rules are in §8. -->
