@@ -35,7 +35,7 @@ const lines = {
     location: '1482 Nittedal, Norway · Norwegian work permit',
   },
   no: {
-    role: 'Frontend-utvikler · Backend-erfaring',
+    role: 'Frontend-utvikler · backend-erfaring',
     location: '1482 Nittedal, Norge · Arbeidstillatelse i Norge',
   },
 } as const;

@@ -25,7 +25,7 @@ const cv = lang === 'no' ? cvNo : cvEn;
 // The role line is the design's `title`; the Norwegian wording follows the Norwegian CV's terms.
 const role =
   lang === 'no'
-    ? 'Frontend-utvikler · Backend-erfaring'
+    ? 'Frontend-utvikler · backend-erfaring'
     : 'Frontend Developer · Backend Experience';
 const sections = cv.sections.map((s) => ({ id: s.id, heading: s.heading }));
 const number = (i: number) => String(i + 1).padStart(2, '0');

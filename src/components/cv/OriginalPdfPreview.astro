@@ -74,6 +74,7 @@ const { summary, page } = copy[lang];
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--fjord-space-4);
+    /* The width of the page design (.x-pdf in site.css); no layout token holds it. */
     max-width: 720px;
     margin-top: var(--fjord-space-4);
     animation: cv-preview-rise var(--fjord-duration-320) var(--fjord-ease-out);
