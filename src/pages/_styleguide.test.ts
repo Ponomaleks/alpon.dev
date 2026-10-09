@@ -165,7 +165,8 @@ describe('Shell samples (AC-21, SCR-04)', () => {
     const s = section('Mobile menu panel');
     expect(s).toMatch(/class="[^"]*menu--sample/);
     expect(s).toContain('data-sample');
-    expect(s).toContain('aria-current="page"');
+    expect(s.match(/aria-current="page"/g)).toHaveLength(1);
+    expect(s).toMatch(/<a\b[^>]*aria-current="page"[^>]*>[\s\S]*?CV[\s\S]*?<\/a>/);
     expect(s).not.toMatch(/<dialog\b/);
     expect(html().match(/<dialog\b/g) ?? []).toHaveLength(1);
   });

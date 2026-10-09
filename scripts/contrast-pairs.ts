@@ -94,6 +94,8 @@ export const PAIRS: Pair[] = [
   // CV navigation: Breadcrumbs (muted trail, link, current text on the page ground) and LangSwitch
   // (muted label on the raised pill, selected label as bg on the text fill) use pairs listed above;
   // the pill border is decorative next to the text labels.
+  // MobileMenu current link: the rule at the start of the row is --fjord-color-link on the panel ground.
+  pair('link', 'bg', 'ui', ['on-spruce']),
 ];
 
 export interface HomePair {

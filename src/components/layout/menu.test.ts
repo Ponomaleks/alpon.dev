@@ -250,3 +250,25 @@ describe('MobileMenu: built CSS (G-3, AC-28)', () => {
     expect(css).toMatch(/prefers-reduced-motion/);
   });
 });
+
+describe('MobileMenu: the current-link marker (AC-20, B-05)', () => {
+  const rules = () =>
+    [...cssOnly.matchAll(/([^{}]*aria-current[^{}]*)\{([^}]*)\}/g)].filter((m) =>
+      /\.menu__nav/.test(m[1] ?? ''),
+    );
+
+  it('follows aria-current="page", not a class a script adds', () => {
+    expect(rules().length).toBeGreaterThan(0);
+    expect(cssOnly).not.toMatch(/\.menu__nav\s+a\.[\w-]*current/);
+    expect(cssOnly).not.toMatch(/\.menu__nav\s+a\.is-/);
+  });
+
+  it('differs from the other links by more than colour: the semibold weight and an accent rule', () => {
+    const body = rules()
+      .map((m) => m[2])
+      .join(';');
+    expect(body).toMatch(/font-weight:\s*var\(--fjord-weight-semibold\)/);
+    expect(body).toMatch(/(border-inline-start|box-shadow|background)[^;]*var\(--fjord-/);
+    expect(body).not.toMatch(/#[0-9a-f]{3,8}\b/i);
+  });
+});
