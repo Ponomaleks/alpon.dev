@@ -11,8 +11,8 @@ interface Props {
   /** Leading icon. */
   icon?: IconName;
   disabled?: boolean;
-  /** Marks a link as a file download. */
-  download?: boolean;
+  /** Marks a link as a file download; a string is the file name the browser saves it under. */
+  download?: boolean | string;
   /** Forces a state for the Styleguide (hook H-4). */
   'data-demo-state'?: 'hover' | 'focus' | 'active';
 }
