@@ -15,7 +15,7 @@ only when every item below is met by v2** (idea brief §6).
 Each item has an id. `tests/e2e/parity.spec.ts` carries one test per id:
 - **active**: the behaviour is served by assets that survive on v2 (redirects, headers, static files). It must pass from scaffold on.
 - **fixme**: the behaviour needs a v2 page that doesn't exist yet. It is a `test.fixme` until the feature spec that builds it flips it to a normal test.
-  The release gate is "no `fixme` left in `parity.spec.ts`".
+  The release gate is "no `fixme` left in `parity.spec.ts`". None is left.
 
 Source of truth for the stub: commit `89d375b` (`git show 89d375b:public/index.html`, `…:public/app.js`).
 
@@ -40,7 +40,7 @@ Note: the cv feature serves `/cv`, `/cv/en` and `/cv/no` as pages (P-01..P-03); 
 | P-12 | `/og.png` is served (1200×630, referenced by `og:image`) | active |
 | P-13 | `/favicon.svg`, `/apple-touch-icon.png`, `/robots.txt`, `/sitemap.xml` are served | active |
 | P-14 | Every response carries `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, `Strict-Transport-Security` | active |
-| P-15 | `/fonts/*` cached `immutable`; `/cv/*` cached 1 h `must-revalidate` | active |
+| P-15 | `/fonts/*` cached `immutable`; `/cv/*` cached 1 h `must-revalidate`; the three CV page addresses and the four page images are served | active |
 | P-16 | Home has a CSP with `script-src 'self'` and no `'unsafe-inline'`. On v2, the inline theme script is allowed through a **hash**, never `'unsafe-inline'` (review `_headers` when the Astro pages land) | active |
 
 ## Home page (`/`)
@@ -59,11 +59,11 @@ Note: the cv feature serves `/cv`, `/cv/en` and `/cv/no` as pages (P-01..P-03); 
 
 | Id | Behaviour | Test |
 |---|---|---|
-| P-30 | EN / NO switch (stub: ARIA tabs with arrow / Home / End keys). EN is the default | fixme |
-| P-31 | Deep link `/#cv-no` opens the Norwegian CV and scrolls to it. Switching languages updates the hash (`#cv` / `#cv-no`) with `replaceState` (no extra history entries) | fixme |
-| P-32 | Desktop with a built-in PDF viewer: the PDF is shown inline (`iframe`, `#view=FitH&pagemode=none`) | fixme |
-| P-33 | Narrow screens (`max-width: 719px`) or `navigator.pdfViewerEnabled === false`: page images `/cv/cv-{lang}-{1,2}.webp` instead of the iframe, each linking to the PDF. Page 1 eager, page 2 lazy | fixme |
-| P-34 | "Open PDF" (new tab) and "Download" (`download="Alexander_Ponomarenko_CV_{EN,NO}.pdf"`) follow the selected language. Meta line "PDF · 2 pages · A4" | fixme |
+| P-30 | EN / NO switch is two links, `/cv/en` and `/cv/no` (stub: ARIA tabs with arrow / Home / End keys). EN is the default | active |
+| P-31 | The legacy addresses `/#cv` and `/#cv-no` hand over to the CV pages `/cv/en` and `/cv/no` | active |
+| P-32 | The CV page replaces the inline PDF viewer (stub: `iframe`, `#view=FitH&pagemode=none`) | active |
+| P-33 | "View original PDF" shows the page images `/cv/cv-{lang}-{1,2}.webp` at every width, no `iframe`. Page 1 eager, page 2 lazy | active |
+| P-34 | "Download PDF" follows the selected CV language (`download="Alexander_Ponomarenko_CV_{EN,NO}.pdf"`); the page images open that PDF in a new tab. Meta line "PDF · 2 pages · A4" | active |
 
 ## 404
 
@@ -80,4 +80,4 @@ Note: the cv feature serves `/cv`, `/cv/en` and `/cv/no` as pages (P-01..P-03); 
 | Id | Behaviour | Test |
 |---|---|---|
 | P-50 | The Shell's contact links (header, menu, bar, band) reach the contact place. Owner: step 4 | active (header and menu in parity.spec.ts; all four in contact-place.spec.ts) |
-| P-51 | The Shell's CV links (header, menu, bar) reach the CV page. Owner: step 5 | fixme |
+| P-51 | The Shell's CV links (header, menu, bar) reach the CV page | active |
