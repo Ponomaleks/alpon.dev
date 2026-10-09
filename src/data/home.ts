@@ -103,7 +103,6 @@ export const experience: ExperienceEntry[] = [
     ],
     stack: ['React', 'TypeScript', 'Angular', 'Redux', 'Storybook', 'LESS', 'AEM'],
     open: true,
-    current: true,
   },
   {
     role: 'Angular Team Lead and Technical Expert',
