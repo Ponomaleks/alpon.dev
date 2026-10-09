@@ -66,12 +66,33 @@ describe('links to other sites (D-09)', () => {
     }
   });
 
+  // The hint follows the language of the page content: Norwegian in the content of the Norwegian
+  // CV page (cv owner-inputs C-39), English everywhere else, the English Shell of that page included.
+  const HINT =
+    /<span\b[^>]*class="[^"]*\b(fj-link__hint|fj-footer__hint)\b[^"]*"[^>]*>\s*\((opens in a new tab|åpnes i ny fane)\)\s*<\/span>/;
+
   it('say "(opens in a new tab)" in their name, in an element hidden from sight only', () => {
     for (const a of anchors().filter((x) => isExternal(x.href))) {
-      expect(a.inner, where(a)).toMatch(
-        /<span\b[^>]*class="[^"]*\b(?:fj-link__hint|fj-footer__hint)\b[^"]*"[^>]*>\s*\(opens in a new tab\)\s*<\/span>/,
+      expect(a.inner, where(a)).toMatch(HINT);
+      expect(a.inner, where(a)).not.toMatch(
+        /<span\b[^>]*(?:aria-hidden|hidden)[^>]*>\s*\((?:opens|åpnes)/,
       );
-      expect(a.inner, where(a)).not.toMatch(/<span\b[^>]*(?:aria-hidden|hidden)[^>]*>\s*\(opens/);
+    }
+  });
+
+  it('say it in Norwegian only in the content of the Norwegian CV page', () => {
+    const norwegian = anchors().filter(
+      (a) => isExternal(a.href) && HINT.exec(a.inner)?.[2] === 'åpnes i ny fane',
+    );
+    // The code link of the personal project, LinkedIn and GitHub of the side column.
+    expect(norwegian.map((a) => a.href).sort()).toEqual([
+      'https://github.com/Ponomaleks/fastapi-contacts-api',
+      'https://github.com/ponomaleks',
+      'https://www.linkedin.com/in/ponomalex/',
+    ]);
+    for (const a of norwegian) {
+      expect(a.page.split(sep).join('/'), where(a)).toMatch(/(^|\/)cv\/no(\.html|\/index\.html)$/);
+      expect(HINT.exec(a.inner)?.[1], where(a)).toBe('fj-link__hint');
     }
   });
 });
@@ -87,6 +108,7 @@ describe('every other link (D-09)', () => {
       if (/\sclass="cv-preview__page"/.test(a.tag)) continue;
       expect(a.tag, where(a)).not.toMatch(/\starget=/);
       expect(a.inner, where(a)).not.toContain('opens in a new tab');
+      expect(a.inner, where(a)).not.toContain('åpnes i ny fane');
     }
   });
 });
