@@ -1,0 +1,193 @@
+---
+// One job on the CV timeline (AC-01, AC-03): always open, unlike the home ExperienceList. A rail
+// and a marker sit beside it (the first job's marker is filled); the role is the h3, the client and
+// internal projects the h4. A job holds client projects, internal projects or plain paragraphs.
+import Tag from '../ui/Tag.astro';
+
+interface Props {
+  job: {
+    role: string;
+    employer: string;
+    employerNote?: string;
+    period: string;
+    paragraphs?: string[];
+    clientProjects?: { name: string; description: string; stack?: string[] }[];
+    /** Label before each client project's technologies, from the CV data. */
+    appliedLabel?: string;
+    /** Eyebrow above the internal projects, from the CV data. */
+    internalLabel?: string;
+    internalProjects?: { name: string; description: string }[];
+  };
+  /** The first job gets the filled marker. */
+  first?: boolean;
+}
+
+const { job, first = false } = Astro.props;
+---
+
+<article class="cv-job">
+  <span
+    class:list={['cv-job__marker', { 'cv-job__marker--filled': first }]}
+    aria-hidden="true"
+  ></span>
+  <header class="cv-job__head">
+    <div>
+      <h3 class="cv-job__role">{job.role}</h3>
+      <p class="cv-job__org">
+        <strong>{job.employer}</strong>
+        {job.employerNote && <span> · {job.employerNote}</span>}
+      </p>
+    </div>
+    <span class="cv-job__when">{job.period}</span>
+  </header>
+  {job.clientProjects && job.clientProjects.length > 0 && (
+    <ol class="cv-job__list">
+      {job.clientProjects.map((p) => (
+        <li>
+          <h4>{p.name}</h4>
+          <p>{p.description}</p>
+          {p.stack && p.stack.length > 0 && (
+            <div class="cv-job__tech fj-tag-row">
+              {job.appliedLabel && <span class="cv-job__label">{job.appliedLabel}</span>}
+              <Tag items={p.stack} />
+            </div>
+          )}
+        </li>
+      ))}
+    </ol>
+  )}
+  {job.internalProjects && job.internalProjects.length > 0 && (
+    <div class="cv-job__internal">
+      {job.internalLabel && <span class="cv-job__eyebrow">{job.internalLabel}</span>}
+      <ul class="cv-job__list">
+        {job.internalProjects.map((p) => (
+          <li>
+            <h4>{p.name}</h4>
+            <p>{p.description}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )}
+  {job.paragraphs && job.paragraphs.length > 0 && (
+    <div class="cv-job__text">
+      {job.paragraphs.map((t) => (
+        <p>{t}</p>
+      ))}
+    </div>
+  )}
+</article>
+
+<style>
+  .cv-job {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--fjord-space-5);
+    padding-inline-start: var(--fjord-space-7);
+  }
+  /* The rail runs from the marker to the bottom of the entry. */
+  .cv-job::before {
+    content: '';
+    position: absolute;
+    inset-inline-start: var(--fjord-space-1);
+    inset-block: calc(var(--fjord-space-2) + var(--fjord-space-0-5)) 0;
+    inline-size: var(--fjord-border-width);
+    background: var(--fjord-color-border);
+  }
+  .cv-job__marker {
+    position: absolute;
+    inset-inline-start: 0;
+    inset-block-start: var(--fjord-space-2);
+    box-sizing: border-box;
+    inline-size: calc(var(--fjord-space-2) + var(--fjord-border-width));
+    block-size: calc(var(--fjord-space-2) + var(--fjord-border-width));
+    border: var(--fjord-border-width) solid var(--fjord-color-border-strong);
+    border-radius: var(--fjord-radius-round);
+    background: var(--fjord-color-bg);
+  }
+  .cv-job__marker--filled {
+    border-color: var(--fjord-color-link);
+    background: var(--fjord-color-link);
+  }
+  .cv-job__head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--fjord-space-1-5) var(--fjord-space-6);
+  }
+  .cv-job__role {
+    margin: 0;
+    font-size: var(--fjord-text-h4);
+    font-weight: var(--fjord-weight-semibold);
+    line-height: var(--fjord-leading-snug);
+  }
+  .cv-job__org {
+    margin: var(--fjord-space-1) 0 0;
+    font-size: var(--fjord-text-ui);
+    line-height: var(--fjord-leading-ui);
+  }
+  .cv-job__org span,
+  .cv-job__when,
+  .cv-job__label,
+  .cv-job__eyebrow {
+    color: var(--fjord-color-text-muted);
+  }
+  .cv-job__when,
+  .cv-job__label,
+  .cv-job__eyebrow {
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-mono-sm);
+  }
+  .cv-job__eyebrow {
+    letter-spacing: var(--fjord-tracking-label);
+    text-transform: uppercase;
+  }
+  .cv-job__when {
+    white-space: nowrap;
+  }
+  .cv-job__list {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .cv-job__list > li {
+    display: flex;
+    flex-direction: column;
+    gap: var(--fjord-space-2);
+    padding: var(--fjord-space-4) 0;
+    border-block-start: var(--fjord-border-width) solid var(--fjord-color-border);
+  }
+  .cv-job h4 {
+    margin: 0;
+    font-size: var(--fjord-text-ui-lg);
+    font-weight: var(--fjord-weight-semibold);
+    line-height: var(--fjord-leading-snug);
+  }
+  .cv-job p {
+    margin: 0;
+    max-inline-size: 66ch;
+    line-height: var(--fjord-leading-body);
+  }
+  .cv-job__tech {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--fjord-space-2) var(--fjord-space-3);
+    margin-block-start: var(--fjord-space-0-5);
+  }
+  .cv-job__internal {
+    display: flex;
+    flex-direction: column;
+    gap: var(--fjord-space-1);
+    padding-block-start: var(--fjord-space-1);
+  }
+  .cv-job__text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--fjord-space-3);
+  }
+</style>

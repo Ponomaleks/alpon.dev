@@ -1,0 +1,73 @@
+---
+// Personal projects of the CV (AC-01): an optional muted note, then each project between hairlines
+// with its stack, text and an external code link (home D-09).
+import Link from '../ui/Link.astro';
+
+interface Props {
+  note?: string;
+  projects: { title: string; stack: string; text: string; href: string }[];
+}
+
+const { note, projects } = Astro.props;
+---
+
+<div class="cv-projects">
+  {note && <p class="cv-projects__note">{note}</p>}
+  {projects.map((p) => (
+    <article class="cv-projects__item">
+      <h3 class="cv-projects__title">
+        {p.title} <span class="cv-projects__stack">{p.stack}</span>
+      </h3>
+      <p>{p.text}</p>
+      <span class="cv-projects__link">
+        <Link href={p.href} external>
+          {p.href.replace(/^https?:\/\//, '')}
+        </Link>
+      </span>
+    </article>
+  ))}
+</div>
+
+<style>
+  .cv-projects {
+    display: flex;
+    flex-direction: column;
+    gap: var(--fjord-space-4);
+  }
+  .cv-projects__note {
+    margin: 0;
+    color: var(--fjord-color-text-muted);
+  }
+  .cv-projects__item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--fjord-space-2);
+    padding-block-start: var(--fjord-space-4);
+    border-block-start: var(--fjord-border-width) solid var(--fjord-color-border);
+  }
+  .cv-projects__item p {
+    margin: 0;
+    max-inline-size: 62ch;
+    line-height: var(--fjord-leading-body);
+  }
+  .cv-projects__title {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--fjord-space-1) var(--fjord-space-3);
+    margin: 0;
+    font-size: var(--fjord-text-ui-lg);
+    font-weight: var(--fjord-weight-semibold);
+    line-height: var(--fjord-leading-snug);
+  }
+  .cv-projects__stack {
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-mono-sm);
+    font-weight: var(--fjord-weight-regular);
+    color: var(--fjord-color-text-muted);
+  }
+  .cv-projects__link {
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-mono-sm);
+  }
+</style>
