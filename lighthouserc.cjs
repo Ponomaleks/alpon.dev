@@ -28,7 +28,7 @@ module.exports = {
       startServerReadyTimeout: 60_000,
       // Lighthouse refuses to audit a document answered with 404 (ERRORED_DOCUMENT_REQUEST), so the
       // Not-found page is audited at its own path, served with the same headers.
-      url: [`${baseUrl}/`, `${baseUrl}/404`],
+      url: [`${baseUrl}/`, `${baseUrl}/404`, `${baseUrl}/cv/en`, `${baseUrl}/cv/no`],
       chromePath: chromium.executablePath(),
       numberOfRuns: 3,
       settings: {
