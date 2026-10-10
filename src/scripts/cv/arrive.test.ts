@@ -54,6 +54,22 @@ describe('arrive', () => {
     expect(() => run('#skills', {})).not.toThrow();
   });
 
+  it('reads a percent-encoded id as the browser does', () => {
+    const experience = el();
+    run('#%65xperience', { experience });
+    expect(experience.focus).toHaveBeenCalledTimes(1);
+  });
+
+  // Review R1-1: `/cv/en#%` must not stop the page script.
+  it.each(['#%', '#%E0%A4%A', '#experience%'])(
+    'ignores the fragment %s, which cannot be decoded, without throwing',
+    (hash) => {
+      const experience = el();
+      expect(() => run(hash, { experience })).not.toThrow();
+      expect(experience.focus).not.toHaveBeenCalled();
+    },
+  );
+
   it.each([
     '#experience%20',
     '#experience/../x',

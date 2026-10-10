@@ -35,7 +35,7 @@ const store = sessionStore();
 // restored only without a fragment and only above the first section of this page.
 const carried = store ? takePosition(store) : null;
 if (location.hash) {
-  arrive({ hash: decodeURIComponent(location.hash), ids, document });
+  arrive({ hash: location.hash, ids, document });
 } else if (sections[0]) {
   const firstSectionLine = sections[0].getBoundingClientRect().top + scrollY - offset() - 1;
   const top = positionToRestore(carried, firstSectionLine);
