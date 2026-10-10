@@ -4,7 +4,7 @@ Feature **cv** (roadmap step 5, [spec](docs/features/cv/spec.md)), tasks T1 to T
 
 Base: `v2`. Production (`main`) is not touched.
 
-**State: ready for review.** The Claims list is ticked by the Owner (40 rows, 2026-10-10) and the Linux baselines are committed from the `visual-baselines` workflow.
+**State: reviewed, ready to merge.** Review round 2 is a PASS ([record](docs/features/cv/_review/review-2026-10-11.md)); the seven blocking findings of [round 1](docs/features/cv/_review/review-2026-10-10.md) are fixed. The Claims list is ticked by the Owner (40 rows, 2026-10-10) and the Linux baselines are committed from the `visual-baselines` workflow. What the feature is and how to use it: [changelog](docs/features/cv/changelog.md).
 
 ## What changed
 
@@ -47,15 +47,28 @@ The approved Linux baselines are the screenshots: [`tests/visual/__screenshots__
 
 ## Test results
 
-Local gate on `f600f00` (Windows, one `&&` chain before the push):
+Local gate on `55adbf6` (Windows, 2026-10-11, one `&&` chain):
 
-- `npm run test:unit`: 69 files, 1295 tests passed (141 s)
+- `npm run test:unit`: 69 files, 1307 tests passed (175 s)
 - `npm run lint`: 0 errors
-- `npm run build`, `check:budgets`, `check:contact:built`, `check:placeholders`: green
-- `npm run lhci`: passed on `/`, `/404`, `/cv/en`, `/cv/no`; LCP 1974, 1678, 1972 and 1969 ms
-- Playwright `tests/e2e` and `tests/a11y` with `--workers=4`: 1835 passed, 13 skipped, 0 failed
+- `npm run build`, `check:budgets`, `check:contact:built`, `check:placeholders`: green; the CV page's own scripts are 1.1 KB gzip (budget 10 KB)
+- `npm run lhci`: passed on `/`, `/404`, `/cv/en`, `/cv/no`; LCP of the three runs 1969 to 1977, 1669 to 1680, 1817 to 1972 and 1820 to 1823 ms
+- Playwright `tests/e2e` and `tests/a11y` with `--workers=4`: 1923 passed, 13 skipped, 0 failed
 
-CI on `c6069d1`: `quality`, both `e2e` shards, `check` and `visual` green. The first run with shards (`b2a4377`): `quality` 5 min 26 s, `e2e (1)` 11 min 40 s (932 passed, 80 skipped), `e2e (2)` 14 min 58 s (927 passed, 85 skipped), 15 min 6 s in all, no test failed or passed on a retry.
+CI on `0bc6e0f`: `visual` and both `e2e` shards green (976 and 971 passed, none failed or flaky); `quality` failed once in the Lighthouse step on the LCP of `/` (2000.44 ms against 2000, B-86) and passed when the Owner ran the job again; `check` green. The first run with shards (`b2a4377`): `quality` 5 min 26 s, `e2e (1)` 11 min 40 s, `e2e (2)` 14 min 58 s, 15 min 6 s in all.
+
+Run of the feature (2026-10-11, the built site on `wrangler dev`, driven with Chromium outside the test suite):
+
+| AC | Observed |
+| -- | -------- |
+| AC-15, AC-18 | `/cv`, `/cv/en` and `/cv/no` answer 200 with the page, `max-age=0, must-revalidate` and the security policy; both CV PDFs answer 200, `inline` under `Alexander_Ponomarenko_CV_{EN,NO}.pdf`, one hour; a page image one hour |
+| AC-17 | `/cv` names `/cv/en` as canonical; both pages name each other and `x-default` is the English page; `/cv/no` has `lang="no"` and its own title |
+| AC-02, AC-03 | `/cv/no`: "Last ned PDF", "Ta kontakt", "Skriv ut", "Se original-PDF", "Kopier"; eight Norwegian sections; levels "Øvre mellomnivå", "Mellomnivå", "Morsmål"; no bracketed text |
+| AC-08, AC-19 | at 390, with "Work experience" in view, "NO" in the Sticky action bar opened `/cv/no#experience` with focus on the section and the heading "Arbeidserfaring" 51 px under the header; the bar then offers "Last ned PDF"; Back returned to `/cv/en` at the place left. At 1440, "NO" in the CV head at 120 px opened `/cv/no` at 120 px with no fragment and nothing left in session storage |
+| AC-09, AC-05 | 0 requests for a page image before "View original PDF"; two after, both loaded, each a link to the CV PDF in a new tab with its own name; the second activation closes it. "Download PDF" saved `Alexander_Ponomarenko_CV_EN.pdf` |
+| AC-13, AC-14 | `/#cv-no` arrived at `/cv/no` and Back returned to the page before, not to home; `/#cv` arrived at `/cv/en`; `/#contact` stayed on the home page |
+| AC-11, AC-12 | `/cv/no` in print media from Natt: no header, footer, bar, side column, button or preview; eight sections and one contact line; white sheet, dark text; the theme on screen stayed Natt; three A4 sheets |
+| AC-23, AC-07 | scripts off: eight sections, two downloads, the preview opens, no "Print" and no "Copy", the switch opens `/cv/no` |
 
 Manual checks:
 
@@ -91,7 +104,7 @@ All three are in [owner-inputs.md](docs/features/cv/owner-inputs.md), with the O
 
 ## Left open
 
-- Backlog: B-61 (the home wording against the CV), B-64 (workers of the local Playwright run), B-65 (one suspected flake), B-66 (the CV labels exist twice), B-38 (the home page's local LCP sits at the limit).
+- Backlog: B-61 (the home wording against the CV), B-64 (workers of the local Playwright run), B-66 (the CV labels exist twice), B-38 and B-86 (the LCP of the home page sits at the limit, locally and now once in CI; Owner decision), B-65, B-81 and B-85 (flakes on record), B-82 to B-84 (non-blocking findings of review round 2).
 - AC-08: a single first frame at the top before the carried position is restored, about one arrival in ten under load, accepted by the Owner.
 - Safari was not checked for print or for the preview.
 
