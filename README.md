@@ -68,9 +68,11 @@ npx playwright install chromium   # once, for the tests and Lighthouse CI
 
 ### CI
 
-`.github/workflows/ci.yml` runs on every pull request and on pushes to `main` and `v2`. It has two jobs, `check` and `visual`, which are the checks that branch protection requires:
+`.github/workflows/ci.yml` runs on every pull request and on pushes to `main` and `v2`. Branch protection requires two checks, `check` and `visual`. `check` gathers the results of `quality` and of the two `e2e` shards, which run side by side:
 
-- `check`: lint, unit tests, build, budgets, placeholder and contact checks, Playwright (Chromium desktop and phone; Firefox and WebKit on the contact place spec), Lighthouse CI.
+- `quality`: lint, unit tests, build, budgets, placeholder and contact checks, Lighthouse CI.
+- `e2e` (two shards): Playwright e2e and axe (Chromium desktop and phone; Firefox and WebKit on the contact place spec), half of the suite each.
+- `check`: passes only when `quality` and both shards passed.
 - `visual`: the visual tests against the Linux baselines.
 
 ### Visual baselines
