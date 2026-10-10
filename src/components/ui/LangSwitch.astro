@@ -5,15 +5,24 @@ interface Props {
   current: 'en' | 'no';
   /** Accessible name of the group, in the page language. */
   group: string;
+  /** Language of the group name when the place the switch stands in is marked otherwise. */
+  lang?: 'no';
   size?: 'default' | 'large';
   enHref: string;
   noHref: string;
 }
 
-const { current, group, size = 'default', enHref, noHref } = Astro.props;
+const { current, group, lang, size = 'default', enHref, noHref } = Astro.props;
 ---
 
-<div class="lang-switch" role="group" aria-label={group} data-lang-switch data-size={size}>
+<div
+  class="lang-switch"
+  role="group"
+  aria-label={group}
+  lang={lang}
+  data-lang-switch
+  data-size={size}
+>
   <a href={enHref} data-switch-to="en" aria-current={current === 'en' ? 'true' : undefined}>
     EN
   </a>

@@ -20,6 +20,8 @@ export interface BarLangSwitch {
   current: 'en' | 'no';
   /** Accessible name of the group, in the page language. */
   group: string;
+  /** Marks a group name in another language than the bar's (the Norwegian CV page). */
+  lang?: 'no';
   enHref: string;
   noHref: string;
 }

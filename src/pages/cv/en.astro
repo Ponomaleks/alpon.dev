@@ -20,6 +20,7 @@ const mobileBarActions: readonly [BarSlot, BarSlot] = [
     kind: 'lang-switch',
     current: lang,
     group: lang === 'no' ? 'CV-språk' : 'CV language',
+    lang: lang === 'no' ? 'no' : undefined,
     enHref: contact.links.cvPages.en,
     noHref: contact.links.cvPages.no,
   },

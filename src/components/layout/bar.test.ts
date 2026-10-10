@@ -39,6 +39,7 @@ const switchNo: [BarLangSwitch, BarAction] = [
     kind: 'lang-switch',
     current: 'no',
     group: 'CV-språk',
+    lang: 'no',
     enHref: '/cv/en',
     noHref: '/cv/no',
   },
@@ -297,6 +298,18 @@ describe('MobileBar: language switch slot (AC-19)', () => {
     expect(en).toMatch(/aria-current="true"/);
     expect(no).toMatch(/href="\/cv\/no"/);
     expect(no).not.toMatch(/aria-current/);
+  });
+
+  // Review R1-3 (AC-02, WCAG 3.1.2): the bar is marked English on a Norwegian page, so the
+  // Norwegian name of the group needs its own language.
+  it('marks a Norwegian group name as Norwegian inside the English bar', () => {
+    const open = group('switch-no').match(/^<div\b[^>]*>/)?.[0] ?? '';
+    expect(open).toContain('aria-label="CV-språk"');
+    expect(open).toMatch(/\slang="no"/);
+  });
+
+  it('gives the group no lang when the slot has none', () => {
+    expect(group('switch-en').match(/^<div\b[^>]*>/)?.[0]).not.toMatch(/\slang=/);
   });
 
   it('marks NO current when the Norwegian page gives the switch', () => {

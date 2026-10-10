@@ -124,6 +124,10 @@ describe.each(files)('built $file', ({ file, cv, lang, canonical }) => {
   it('gives the bar the language switch and the download of the CV language', () => {
     const bar = /<details\b[^>]*data-shell-bar[^>]*>([\s\S]*?)<\/details>/.exec(html())?.[1] ?? '';
     expect(bar).toMatch(/data-lang-switch/);
+    // Review R1-3: the bar is English on the Norwegian page; the group name there is Norwegian.
+    const group = /<div\b([^>]*\bdata-lang-switch[^>]*)>/.exec(bar)?.[1] ?? '';
+    expect(attr(group, 'aria-label')).toBe(lang === 'no' ? 'CV-språk' : 'CV language');
+    expect(attr(group, 'lang')).toBe(lang === 'no' ? 'no' : undefined);
     const current = [...bar.matchAll(/<a\b([^>]*\bdata-switch-to="[^"]*"[^>]*)>/g)].filter(
       (m) => attr(m[1] ?? '', 'aria-current') === 'true',
     );
