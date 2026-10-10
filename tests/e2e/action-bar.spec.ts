@@ -26,8 +26,10 @@ async function open(page: Page, path: string, width = 390) {
   });
 }
 
+// At once: these tests place the page and read the bar; the smooth scroll of the root (scroll.spec.ts)
+// would still be on its way.
 async function scrollTo(page: Page, y: number) {
-  await page.evaluate((top) => window.scrollTo(0, top), y);
+  await page.evaluate((top) => window.scrollTo({ top, behavior: 'instant' }), y);
   // The script reads the scroll position in an animation frame.
   await page.evaluate(
     () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))),
@@ -159,6 +161,11 @@ test.describe('bar away and returned, motion allowed (AC-08, G-4, G-5)', () => {
       await expect(page.locator(`${BAR} > summary`)).not.toBeInViewport();
       // Not announced and not focusable: Tab never reaches the bar's actions.
       await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
+      // Focus moves the page at once here: with the smooth scroll of the root a focus further up
+      // scrolls the page up over several frames, and the bar returns by its own rule mid-walk.
+      await page.evaluate(() =>
+        document.documentElement.style.setProperty('scroll-behavior', 'auto'),
+      );
       const reached: string[] = [];
       for (let i = 0; i < 40; i++) {
         await page.keyboard.press('Tab');
