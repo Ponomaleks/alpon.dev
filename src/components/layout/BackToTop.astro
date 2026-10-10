@@ -95,20 +95,44 @@ const { sample = false, lang, 'data-demo-state': demoState } = Astro.props;
      motion allowed it fades in with a short rise; under reduced motion it only fades, nothing
      moves (AC-21). Scroll-tied, never time-based: no duration. */
   @supports (animation-timeline: scroll()) {
+    /* The last animation hides the link again over the end of the page, where the footer is, so
+       it covers nothing there and the page needs no reserve (AC-22). It fills forwards only: before
+       its range it does not apply and the appearance above it decides. */
     .back-to-top[data-back-to-top] {
-      animation: back-to-top-show var(--fjord-ease-linear) both;
+      --back-to-top-clear: calc(var(--fjord-tap-min) + var(--fjord-space-6) + var(--fjord-space-4));
+
+      animation:
+        back-to-top-show var(--fjord-ease-linear) both,
+        back-to-top-hide var(--fjord-ease-linear) forwards;
       animation-timeline: scroll(root);
-      animation-range: 100vh 150vh;
+      animation-range:
+        100vh 150vh,
+        calc(100% - 2 * var(--back-to-top-clear)) calc(100% - var(--back-to-top-clear));
     }
 
     @media (prefers-reduced-motion: no-preference) {
       .back-to-top[data-back-to-top] {
         animation:
           back-to-top-show var(--fjord-ease-linear) both,
-          back-to-top-rise var(--fjord-ease-linear) both;
+          back-to-top-rise var(--fjord-ease-linear) both,
+          back-to-top-hide var(--fjord-ease-linear) forwards;
         animation-timeline: scroll(root);
-        animation-range: 100vh 150vh;
+        animation-range:
+          100vh 150vh,
+          100vh 150vh,
+          calc(100% - 2 * var(--back-to-top-clear)) calc(100% - var(--back-to-top-clear));
       }
+    }
+  }
+
+  @keyframes back-to-top-hide {
+    from {
+      opacity: 1;
+      visibility: visible;
+    }
+    to {
+      opacity: 0;
+      visibility: hidden;
     }
   }
 

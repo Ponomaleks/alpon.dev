@@ -134,8 +134,25 @@ for (const { name, path } of pages) {
         await lastLink.focus();
         await scrollTo(page, 'end');
         const link = page.getByRole('link', { name: 'Back to top' });
-        await expect(link).toBeVisible();
         await expect(lastLink).toBeFocused();
+        // Where the browser ties the link to scrolling it is gone at the end of the page, so it
+        // covers nothing and the page ends with the footer, as in the page design: no reserve
+        // (Owner, 2026-10-10). Elsewhere it is always shown and the reserve keeps the end clear.
+        const tied = await page.evaluate(() => CSS.supports('animation-timeline: scroll()'));
+        if (tied) {
+          await expect(link).toBeHidden();
+          const end = await page.evaluate(() => {
+            const footer = document.querySelector('footer');
+            if (!footer) throw new Error('no footer');
+            return {
+              page: document.documentElement.scrollHeight,
+              footer: Math.round(footer.getBoundingClientRect().bottom + scrollY),
+            };
+          });
+          expect(end.page - end.footer).toBeLessThanOrEqual(1);
+          return;
+        }
+        await expect(link).toBeVisible();
         const linkBox = await link.boundingBox();
         const focusedBox = await lastLink.boundingBox();
         const lastLine = await page.evaluate(() => {

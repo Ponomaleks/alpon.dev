@@ -192,6 +192,17 @@ pre {
   }
 }
 
+/* Where the link is tied to scrolling it hides itself over the end of the page (BackToTop.astro),
+   so the page ends with the footer, as in the page design, and keeps no block for it. */
+@supports (animation-timeline: scroll()) {
+  @media (min-width: 768px) {
+    :root:has([data-back-to-top]) body::after,
+    :root:has([data-shell-bar]:not([open])):has([data-back-to-top]) body::after {
+      block-size: 0;
+    }
+  }
+}
+
 /* The page design's main: tall enough to keep the footer low on a short page (B-18). Sizes are
    outside the token rule (base-components ADR-0004). */
 main {
