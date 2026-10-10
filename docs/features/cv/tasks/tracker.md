@@ -48,7 +48,7 @@ The two phases are a work order only: one branch, `feat/cv`, and one pull reques
 | T30 | [Build the printed CV: print styles, the contact line and the Print button](./t30-cv-print.md) | ui | Alexander Ponomarenko | L | T29 | done |
 | T31 | [Add BackToTop to the Shell with its reserve](./t31-back-to-top.md) | ui | Alexander Ponomarenko | L | T28 | done |
 | T32 | [Mark the current link in the mobile menu and check the header's marker on the rendered page](./t32-menu-current-marker.md) | ui | Alexander Ponomarenko | S | T28 | done |
-| T33 | [Add the visual tests of the CV pages and re-take the baselines BackToTop changed](./t33-cv-visual-baselines.md) | tests | Alexander Ponomarenko | M | T30, T31, T32 | in_progress |
-| T34 | [Write the pull request body with the Claims list and close the documents](./t34-cv-pr-body.md) | docs | Alexander Ponomarenko | M | T33 | todo |
+| T33 | [Add the visual tests of the CV pages and re-take the baselines BackToTop changed](./t33-cv-visual-baselines.md) | tests | Alexander Ponomarenko | M | T30, T31, T32 | done |
+| T34 | [Write the pull request body with the Claims list and close the documents](./t34-cv-pr-body.md) | docs | Alexander Ponomarenko | M | T33 | done |
 
 **Total:** 34 tasks, ~17.5 person-days (5a: 28 tasks, ~13.75; 5b: 6 tasks, ~3.75).
