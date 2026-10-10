@@ -36,8 +36,7 @@ const { as: Heading = 'h2', title, id, index, eyebrow, lead, size = 'md' } = Ast
     display: flex;
     flex-direction: column;
     gap: var(--fjord-space-4);
-    /* The design system's literal (`.fj-sechead`); no token holds it. */
-    max-width: 760px;
+    max-width: calc(var(--fjord-space-32) * 6);
   }
   .eyebrow {
     display: inline-flex;
