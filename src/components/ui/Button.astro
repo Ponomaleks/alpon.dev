@@ -92,6 +92,17 @@ const classes = [
     user-select: none;
   }
 
+  /* The design system's Button draws its icons at 18px, and at 16px in the small size. */
+  .fj-btn svg {
+    width: calc(var(--fjord-icon-md) - var(--fjord-space-0-5));
+    height: calc(var(--fjord-icon-md) - var(--fjord-space-0-5));
+  }
+
+  .fj-btn--sm svg {
+    width: var(--fjord-icon-sm);
+    height: var(--fjord-icon-sm);
+  }
+
   /* The design's 36px button. Its touch target stays 44px through the overlay (spec D-08). */
   .fj-btn--sm {
     height: calc(var(--fjord-space-8) + var(--fjord-space-1));

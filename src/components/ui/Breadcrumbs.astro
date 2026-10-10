@@ -29,27 +29,34 @@ const last = items.length - 1;
 </nav>
 
 <style>
+  /* Sizes and gaps as the design system's `.fj-crumbs`. */
+  .crumbs {
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-ui-xs);
+    font-weight: var(--fjord-weight-regular);
+    line-height: var(--fjord-leading-ui);
+    color: var(--fjord-color-text-muted);
+  }
   ol {
     display: flex;
     flex-wrap: wrap;
-    align-items: center;
-    gap: var(--fjord-space-2);
+    gap: var(--fjord-space-1-5);
     margin: 0;
     padding: 0;
     list-style: none;
-    font-family: var(--fjord-font-mono);
-    font-size: var(--fjord-text-mono-sm);
-    line-height: var(--fjord-leading-none);
-    color: var(--fjord-color-text-muted);
   }
-  li:not(:last-child)::after {
+  li {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--fjord-space-1-5);
+  }
+  li + li::before {
     content: '/';
-    margin-inline-start: var(--fjord-space-2);
-    color: var(--fjord-color-text-muted);
+    opacity: var(--fjord-opacity-muted);
   }
   a {
     position: relative;
-    color: var(--fjord-color-link);
+    color: var(--fjord-color-text-muted);
     text-decoration: none;
   }
   /* A 44 x 44 target on the link. */
@@ -62,7 +69,9 @@ const last = items.length - 1;
     height: max(100%, var(--fjord-tap-min));
   }
   a:hover {
-    color: var(--fjord-color-link-hover);
+    color: var(--fjord-color-link);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
   }
   a:focus-visible {
     outline: var(--fjord-focus-width) solid var(--fjord-color-focus-ring);

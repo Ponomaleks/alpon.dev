@@ -55,8 +55,11 @@ const { current, group, size = 'default', enHref, noHref } = Astro.props;
       background-color var(--fjord-duration-200) var(--fjord-ease-out),
       color var(--fjord-duration-200);
   }
+  /* The design system's `.fj-seg--lg`: 56 x 36 segments, the 13px type. */
   [data-size='large'] a {
     height: calc(var(--fjord-space-1) * 9);
+    min-width: var(--fjord-space-14);
+    font-size: var(--fjord-text-ui-xs);
   }
   /* A 44 x 44 target around each drawn segment (C-7). */
   a::before {
