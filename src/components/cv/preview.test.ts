@@ -13,7 +13,14 @@ let container: AstroContainer;
 
 beforeAll(async () => {
   const config = await getViteConfig({})({ mode: 'test', command: 'serve' });
-  server = await createServer({ ...config, server: { middlewareMode: true }, appType: 'custom' });
+  server = await createServer({
+    ...config,
+    // No file watcher (tests never change files; Astro's own sync server does the same), and a
+    // dependency cache of its own, so a unit run does not replace the one of `astro dev` (B-46, B-68).
+    cacheDir: 'node_modules/.vite-unit',
+    server: { middlewareMode: true, watch: null },
+    appType: 'custom',
+  });
   container = await AstroContainer.create();
 }, 120_000);
 afterAll(() => server?.close());
