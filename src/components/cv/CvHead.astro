@@ -77,7 +77,7 @@ const t = copy[lang];
   .cv-head {
     display: flex;
     flex-direction: column;
-    gap: var(--fjord-space-6);
+    gap: var(--fjord-space-5);
     padding-top: var(--fjord-space-page-head);
   }
   .bar {
@@ -90,7 +90,8 @@ const t = copy[lang];
   .name {
     display: flex;
     flex-direction: column;
-    gap: var(--fjord-space-2);
+    gap: var(--fjord-space-3);
+    min-width: 0;
   }
   h1 {
     margin: 0;
@@ -103,14 +104,16 @@ const t = copy[lang];
     margin: 0;
     font-size: var(--fjord-text-h4);
     font-weight: var(--fjord-weight-medium);
-    line-height: var(--fjord-leading-snug);
+    /* The page design sets no line height on the role line: it keeps the body's. */
+    line-height: var(--fjord-leading-body);
     color: var(--fjord-color-link);
   }
   .place {
     margin: 0;
     font-family: var(--fjord-font-mono);
     font-size: var(--fjord-text-mono-sm);
-    line-height: var(--fjord-leading-ui);
+    line-height: var(--fjord-leading-mono);
+    font-variant-numeric: tabular-nums;
     color: var(--fjord-color-text-muted);
   }
   .tools {
@@ -122,6 +125,7 @@ const t = copy[lang];
   .row {
     display: flex;
     flex-wrap: wrap;
+    align-items: center;
     gap: var(--fjord-space-3);
   }
   @media (min-width: 1024px) {

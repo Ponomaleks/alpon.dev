@@ -49,7 +49,7 @@ const number = (i: number) => String(i + 1).padStart(2, '0');
               ))}
             </ul>
           ) : (
-            s.paragraphs?.map((p) => <p>{p}</p>)
+            s.paragraphs?.map((p) => <p class="cv-page__text">{p}</p>)
           )}
           {s.skillGroups && (
             <div class="cv-page__skills">
@@ -94,7 +94,7 @@ const number = (i: number) => String(i + 1).padStart(2, '0');
     padding: 0 var(--fjord-grid-margin);
   }
   .cv-page__preview {
-    margin-top: var(--fjord-space-6);
+    margin-top: var(--fjord-space-5);
   }
   .cv-page__grid {
     display: grid;
@@ -112,19 +112,35 @@ const number = (i: number) => String(i + 1).padStart(2, '0');
   .cv-page__skills {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    gap: var(--fjord-space-6);
+    gap: var(--fjord-space-5) var(--fjord-grid-gutter);
   }
   .cv-page__jobs {
     display: flex;
     flex-direction: column;
+    gap: var(--fjord-space-10);
   }
+  /* Running text as the page design's Prose (`.fj-prose`): the reading measure and the body's
+     line height. */
+  .cv-page__text,
   .cv-page__list {
+    max-width: var(--fjord-measure);
     margin: 0;
-    padding-left: var(--fjord-space-5);
-    display: flex;
-    flex-direction: column;
-    gap: var(--fjord-space-2);
     line-height: var(--fjord-leading-body);
+  }
+  .cv-page__text {
+    text-wrap: pretty;
+  }
+  /* The design's list indent (1.3em) and space between items (0.35em). */
+  .cv-page__list {
+    padding-left: calc(var(--fjord-text-body) * 1.3);
+  }
+  .cv-page__list li + li {
+    margin-top: calc(var(--fjord-text-body) * 0.35);
+  }
+  .cv-page__list li::marker {
+    color: var(--fjord-color-text-muted);
+    font-family: var(--fjord-font-mono);
+    font-size: calc(var(--fjord-text-body) * 0.85);
   }
   @media (min-width: 768px) {
     .cv-page__skills {
