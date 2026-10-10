@@ -95,6 +95,11 @@ const { sample = false, lang, 'data-demo-state': demoState } = Astro.props;
      motion allowed it fades in with a short rise; under reduced motion it only fades, nothing
      moves (AC-21). Scroll-tied, never time-based: no duration. */
   @supports (animation-timeline: scroll()) {
+    /* No block at the end of the page for a link that is gone there (base.css reads this). */
+    :global(:root:has([data-back-to-top])) {
+      --back-to-top-reserve: 0px;
+    }
+
     /* The last animation hides the link again over the end of the page, where the footer is, so
        it covers nothing there and the page needs no reserve (AC-22). It fills forwards only: before
        its range it does not apply and the appearance above it decides. */

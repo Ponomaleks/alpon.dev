@@ -186,20 +186,14 @@ pre {
     scroll-padding-bottom: calc(var(--fjord-tap-min) + var(--fjord-space-6) + var(--fjord-space-4));
   }
 
+  /* Where the link is tied to scrolling it hides itself over the end of the page and sets the
+     reserve to nothing (BackToTop.astro), so the page ends with the footer, as in the page design. */
   :root:has([data-back-to-top]) body::after,
   :root:has([data-shell-bar]:not([open])):has([data-back-to-top]) body::after {
-    block-size: calc(var(--fjord-tap-min) + var(--fjord-space-6) + var(--fjord-space-4));
-  }
-}
-
-/* Where the link is tied to scrolling it hides itself over the end of the page (BackToTop.astro),
-   so the page ends with the footer, as in the page design, and keeps no block for it. */
-@supports (animation-timeline: scroll()) {
-  @media (min-width: 768px) {
-    :root:has([data-back-to-top]) body::after,
-    :root:has([data-shell-bar]:not([open])):has([data-back-to-top]) body::after {
-      block-size: 0;
-    }
+    block-size: var(
+      --back-to-top-reserve,
+      calc(var(--fjord-tap-min) + var(--fjord-space-6) + var(--fjord-space-4))
+    );
   }
 }
 
