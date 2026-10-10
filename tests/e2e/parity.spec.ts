@@ -244,7 +244,8 @@ test.describe('CV pages (the stub viewer, reworded)', () => {
         await expect(images.nth(n - 1)).toHaveAttribute('src', `/cv/cv-${lang}-${n}.webp`);
       }
       const boxes = await Promise.all([0, 1].map((i) => images.nth(i).boundingBox()));
-      expect(boxes[0] && boxes[1] && Math.abs(boxes[0].y - boxes[1].y) < 2).toBe(true);
+      // One page under the other, at a readable width (cv spec D-11).
+      expect(boxes[0] && boxes[1] && boxes[1].y >= boxes[0].y + boxes[0].height - 1).toBe(true);
     });
 
     test(`P-34 downloads, new-tab page images and meta line (${lang})`, async ({ page }) => {
