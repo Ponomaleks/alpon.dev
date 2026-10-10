@@ -43,12 +43,64 @@ async function scrollTo(page: Page, y: number | 'end') {
 const supportsTimeline = (page: Page) =>
   page.evaluate(() => CSS.supports('animation-timeline: scroll()'));
 
+// Review R1-5: Chromium ties animation to scrolling, so the branch for a browser that cannot is
+// forced here. The @supports blocks that do the tying are removed through the CSSOM, which leaves
+// the styles such a browser applies: the link shown all the time and the reserve of base.css.
+async function untie(page: Page) {
+  const removed = await page.evaluate(() => {
+    let count = 0;
+    const strip = (owner: CSSStyleSheet | CSSGroupingRule) => {
+      for (let i = owner.cssRules.length - 1; i >= 0; i -= 1) {
+        const rule = owner.cssRules[i];
+        if (rule instanceof CSSSupportsRule && rule.conditionText.includes('animation-timeline')) {
+          owner.deleteRule(i);
+          count += 1;
+        } else if (rule instanceof CSSGroupingRule) strip(rule);
+      }
+    };
+    for (const sheet of document.styleSheets) strip(sheet);
+    return count;
+  });
+  expect(removed).toBeGreaterThan(0);
+  await frames(page);
+}
+
 type Box = { x: number; y: number; width: number; height: number };
 const overlap = (a: Box, b: Box) => {
   const w = Math.min(a.x + a.width, b.x + b.width) - Math.max(a.x, b.x);
   const h = Math.min(a.y + a.height, b.y + b.height) - Math.max(a.y, b.y);
   return Math.max(0, w) * Math.max(0, h);
 };
+
+/** At the end of the page, with the link shown: it covers 0 px of the last line and of the focused last footer link. */
+async function expectEndClear(page: Page) {
+  const link = page.getByRole('link', { name: 'Back to top' });
+  await expect(link).toBeVisible();
+  const linkBox = await link.boundingBox();
+  const focusedBox = await page.locator('footer a').last().boundingBox();
+  const lastLine = await page.evaluate(() => {
+    // The box of the last text in the document: the page's last line.
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    let last: Range | null = null;
+    for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+      const parent = n.parentElement;
+      if (!n.textContent?.trim() || !parent) continue;
+      if (parent.closest('script, style, template')) continue;
+      if (parent.closest('a[href="#top"]')) continue;
+      if (getComputedStyle(parent).display === 'none') continue;
+      const range = document.createRange();
+      range.selectNodeContents(n);
+      if (range.getBoundingClientRect().height > 0) last = range;
+    }
+    const r = last?.getBoundingClientRect();
+    return r ? { x: r.x, y: r.y, width: r.width, height: r.height } : null;
+  });
+  expect(linkBox).not.toBeNull();
+  expect(focusedBox).not.toBeNull();
+  expect(lastLine).not.toBeNull();
+  expect(overlap(linkBox as Box, focusedBox as Box)).toBe(0);
+  expect(overlap(linkBox as Box, lastLine as Box)).toBe(0);
+}
 
 for (const { name, path } of pages) {
   test.describe(`${name}: below 768 there is no BackToTop (AC-22)`, () => {
@@ -152,31 +204,32 @@ for (const { name, path } of pages) {
           expect(end.page - end.footer).toBeLessThanOrEqual(1);
           return;
         }
-        await expect(link).toBeVisible();
-        const linkBox = await link.boundingBox();
-        const focusedBox = await lastLink.boundingBox();
-        const lastLine = await page.evaluate(() => {
-          // The box of the last text in the document: the page's last line.
-          const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
-          let last: Range | null = null;
-          for (let n = walker.nextNode(); n; n = walker.nextNode()) {
-            const parent = n.parentElement;
-            if (!n.textContent?.trim() || !parent) continue;
-            if (parent.closest('script, style, template')) continue;
-            if (parent.closest('a[href="#top"]')) continue;
-            if (getComputedStyle(parent).display === 'none') continue;
-            const range = document.createRange();
-            range.selectNodeContents(n);
-            if (range.getBoundingClientRect().height > 0) last = range;
-          }
-          const r = last?.getBoundingClientRect();
-          return r ? { x: r.x, y: r.y, width: r.width, height: r.height } : null;
-        });
-        expect(linkBox).not.toBeNull();
-        expect(focusedBox).not.toBeNull();
-        expect(lastLine).not.toBeNull();
-        expect(overlap(linkBox as Box, focusedBox as Box)).toBe(0);
-        expect(overlap(linkBox as Box, lastLine as Box)).toBe(0);
+        await expectEndClear(page);
+      });
+
+      test('without scroll-driven animation it is shown all the time, the top included (AC-21)', async ({
+        page,
+      }) => {
+        await open(page, path, width);
+        await untie(page);
+        const link = page.getByRole('link', { name: 'Back to top' });
+        for (const y of [0, 1500, 'end'] as const) {
+          await scrollTo(page, y);
+          await expect(link).toBeVisible();
+          await expect(link).toHaveCSS('opacity', '1');
+        }
+      });
+
+      test('without scroll-driven animation the reserve keeps the end of the page clear (AC-22)', async ({
+        page,
+      }) => {
+        await open(page, path, width);
+        await untie(page);
+        const lastLink = page.locator('footer a').last();
+        await lastLink.focus();
+        await scrollTo(page, 'end');
+        await expect(lastLink).toBeFocused();
+        await expectEndClear(page);
       });
 
       test('has a visible focus ring (AC-21)', async ({ page }) => {
