@@ -6,9 +6,9 @@ The site is a portfolio piece itself, so code quality, accessibility and perform
 
 ## Live Demo
 
-[**View the live website →**](https://v2-alpon-dev.ponomalex-work.workers.dev/)
+[**View the live website →**](https://alpon.dev/)
 
-This is the preview of the `v2` branch, the new site. [alpon.dev](https://alpon.dev/) still serves the temporary stub from `main` (see [Two lines](#two-lines)).
+[alpon.dev](https://alpon.dev/) still serves the temporary stub from `main`; the new site is the `v2` branch, which deploys as a preview until it is released (see [Two lines](#two-lines)).
 
 ## Two lines
 
