@@ -9,6 +9,7 @@ const themes = ['dag', 'natt'] as const;
 
 // Parts outside the document: none of them is rendered in print media.
 const hidden = {
+  'skip link': '.skip-link',
   header: 'body > header',
   'mobile menu': '.menu, dialog',
   breadcrumbs: '.crumbs',
@@ -145,8 +146,15 @@ for (const path of pages) {
               return s.breakAfter === 'avoid' || s.breakAfter === 'avoid-page';
             },
           );
+          const jobHeads = [...document.querySelectorAll('.cv-job__head')].map((el) => {
+            const s = getComputedStyle(el);
+            return s.breakAfter === 'avoid' || s.breakAfter === 'avoid-page';
+          });
           return {
-            jobs: avoidInside('.cv-job'),
+            // A job is longer than a sheet can spare: its head stays with what follows and each of
+            // its parts stays whole, the job itself may run over (Owner, 2026-10-10).
+            jobHeads,
+            jobParts: avoidInside('.cv-job__list > li, .cv-job__text > p'),
             projects: avoidInside('.cv-projects__item'),
             rows: avoidInside('.dated-rows > li'),
             headings,
@@ -156,6 +164,21 @@ for (const path of pages) {
           expect(flags.length, kind).toBeGreaterThan(0);
           expect(flags.every(Boolean), kind).toBe(true);
         }
+        const wholeJobs = await page.evaluate(() =>
+          [...document.querySelectorAll('.cv-job')].map((el) => getComputedStyle(el).breakInside),
+        );
+        // Keeping a whole job together pushed it to the next sheet and left the sheet before half empty.
+        for (const value of wholeJobs) expect(value).toBe('auto');
+      });
+
+      test('does not print the skip link even while it has focus (AC-11)', async ({ page }) => {
+        await page.emulateMedia({ media: 'screen' });
+        await page.keyboard.press('Tab');
+        await expect(page.locator('.skip-link')).toBeFocused();
+        await page.emulateMedia({ media: 'print' });
+        expect(
+          await page.locator('.skip-link').evaluate((el) => getComputedStyle(el).display),
+        ).toBe('none');
       });
 
       test('prints an A4 document and leaves the theme on screen alone (AC-12)', async ({
@@ -166,7 +189,8 @@ for (const path of pages) {
         expect(pdf.subarray(0, 4).toString()).toBe('%PDF');
         const pageCount = (pdf.toString('latin1').match(/\/Type\s*\/Page[^s]/g) ?? []).length;
         expect(pageCount).toBeGreaterThan(0);
-        expect(pageCount).toBeLessThanOrEqual(4);
+        // The two-page CV prints on two sheets, three at most: no half-empty sheets.
+        expect(pageCount).toBeLessThanOrEqual(3);
         expect(await page.evaluate(() => document.documentElement.dataset.theme)).toBe(before);
         await page.emulateMedia({ media: 'screen' });
         expect(await page.evaluate(() => document.documentElement.dataset.theme)).toBe(theme);

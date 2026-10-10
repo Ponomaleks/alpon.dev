@@ -16,7 +16,7 @@ const headingId = `${id}-heading`;
 ---
 
 <section id={id} class="cv-section" aria-labelledby={headingId}>
-  <SectionHeader id={headingId} index={index} title={heading} />
+  <SectionHeader id={headingId} index={index} title={heading} size="sm" />
   <div class="cv-section__body">
     <slot />
   </div>
@@ -26,7 +26,7 @@ const headingId = `${id}-heading`;
   .cv-section {
     display: flex;
     flex-direction: column;
-    gap: var(--fjord-space-6);
+    gap: var(--fjord-space-5);
     scroll-margin-top: var(--fjord-scroll-offset);
   }
   .cv-section__body {

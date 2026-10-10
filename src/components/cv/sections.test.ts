@@ -42,6 +42,8 @@ describe('CvSection', () => {
     );
     expect(html).toMatch(/<section\b[^>]*\bid="skills"/);
     expect(html).toMatch(/<h2\b[^>]*>\s*Skills\s*<\/h2>/);
+    // The page design draws the CV section headings in the small size (`size="sm"` in Cv.jsx).
+    expect(html).toMatch(/<header\b[^>]*\bdata-size="sm"/);
     expect(html).toContain('02');
     expect(html).toContain('Body text');
     const labelled = html.match(/aria-labelledby="([^"]+)"/)?.[1];

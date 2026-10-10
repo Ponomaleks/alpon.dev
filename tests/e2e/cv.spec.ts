@@ -338,3 +338,30 @@ test.describe('targets of at least 44 x 44 at 390 (AC-24)', () => {
     }
   }
 });
+
+// The page design gives the grid no space of its own at the end (`.x-cvgrid`): the closing band
+// brings the distance (Owner, 2026-10-10).
+for (const path of ['/cv/en', '/cv/no']) {
+  for (const width of [390, 834, 1440]) {
+    test(`${path} at ${width}: the grid adds no space before the closing band`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto(path);
+      const gap = await page.evaluate(() => {
+        const grid = document.querySelector('.cv-page__grid');
+        const band = document.querySelector('.fj-band');
+        if (!grid || !band) throw new Error('grid or band missing');
+        const last = grid.lastElementChild?.getBoundingClientRect().bottom ?? 0;
+        const main = grid.querySelector('.cv-page__main')?.getBoundingClientRect().bottom ?? 0;
+        return {
+          padding: getComputedStyle(grid).paddingBottom,
+          toBand: band.getBoundingClientRect().top - Math.max(last, main),
+          bandMargin: parseFloat(getComputedStyle(band).marginTop),
+        };
+      });
+      expect(gap.padding).toBe('0px');
+      expect(Math.abs(gap.toBand - gap.bandMargin)).toBeLessThanOrEqual(1);
+    });
+  }
+}

@@ -100,7 +100,8 @@ const number = (i: number) => String(i + 1).padStart(2, '0');
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     gap: var(--fjord-space-12);
-    padding: var(--fjord-space-12) 0 var(--fjord-space-section);
+    /* As the page design's `.x-section--tight`: space above only; the closing band brings its own. */
+    padding: var(--fjord-space-block) 0 0;
   }
   .cv-page__main {
     display: flex;
@@ -141,6 +142,7 @@ const number = (i: number) => String(i + 1).padStart(2, '0');
      of tokens.css already gives every theme the Dag colours; here the Shell and the controls go,
      the contact line shows and entries keep together. No @page rule: the browser's margins apply. */
   @media print {
+    :global(.skip-link),
     :global(body > header),
     :global(.menu),
     :global(dialog),
@@ -159,6 +161,14 @@ const number = (i: number) => String(i + 1).padStart(2, '0');
     :global(html),
     :global(body) {
       background: var(--fjord-print-bg);
+    }
+    /* Nothing after the content: the Shell's reserve at the end of the page and the screen height
+       of main would add an empty sheet. */
+    :global(body)::after {
+      display: none !important;
+    }
+    :global(main) {
+      min-height: 0;
     }
     :global(body) {
       font-size: var(--fjord-text-body-sm);
@@ -184,7 +194,21 @@ const number = (i: number) => String(i + 1).padStart(2, '0');
       padding: var(--fjord-space-6) 0 0;
     }
     .cv-page__main {
-      gap: var(--fjord-space-6);
+      gap: var(--fjord-space-5);
+    }
+    /* A sheet is denser than a screen: the rows of the lists sit closer. */
+    .cv-page__skills {
+      gap: var(--fjord-space-3) var(--fjord-space-6);
+    }
+    .cv-page :global(.cv-job__list > li),
+    .cv-page :global(.dated-rows > li) {
+      padding-block: var(--fjord-space-2);
+    }
+    .cv-page :global(.fj-skills) {
+      padding-top: var(--fjord-space-2);
+    }
+    .cv-page :global(.cv-job) {
+      gap: var(--fjord-space-3);
     }
     .cv-page :global(.cv-head) {
       padding-top: 0;
@@ -197,10 +221,27 @@ const number = (i: number) => String(i + 1).padStart(2, '0');
     .cv-page :global(a[href^='http']:not(.cv-print-line a, .cv-projects__item a))::after {
       content: ' (' attr(href) ')';
     }
+    /* The sheet is the measure: the reading widths of the screen would leave a third of it empty. */
+    .cv-page__main :global(*) {
+      max-inline-size: none !important;
+      max-width: none !important;
+    }
+    /* A heading keeps its number and stays with what follows; so does the label of a sub-list. */
     .cv-page__main :global(section[id] > :first-child) {
+      break-inside: avoid;
       break-after: avoid;
     }
-    .cv-page :global(.cv-job),
+    .cv-page :global(.cv-job__eyebrow) {
+      break-after: avoid;
+    }
+    /* A job is longer than a sheet can spare: kept whole it moved to the next sheet and left the
+       one before half empty. Its head stays with what follows, and each of its parts stays whole. */
+    .cv-page :global(.cv-job__head) {
+      break-inside: avoid;
+      break-after: avoid;
+    }
+    .cv-page :global(.cv-job__list > li),
+    .cv-page :global(.cv-job__text > p),
     .cv-page :global(.cv-projects__item),
     .cv-page :global(.dated-rows > li) {
       break-inside: avoid;

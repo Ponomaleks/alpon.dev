@@ -59,6 +59,7 @@ Traceability:
 | Sticky action bar (Shell) | extend | language-switch action kind (home ADR-0002) |
 | Mobile menu (Shell) | extend | marker of the current page (B-05) |
 | `BaseLayout` | extend | canonical and language alternates as page options; BackToTop |
+| `src/styles/base.css` | extend | moves inside a page scroll smoothly where motion is allowed, as in the page design, and at once under reduced motion; one rule on the root, no script (Owner, 2026-10-10) |
 | `public/_redirects`, `public/_headers`, `public/sitemap.xml` | extend | AC-15, AC-17, AC-18 |
 | Build checks: CV PDF checksum check; contact check covers the CV pages; budget check knows the new scripts | new, extend | AC-25, AC-27, AC-23 |
 | `/styleguide` | extend | sections for every new component and for BackToTop, with marked sample data |
@@ -273,7 +274,7 @@ Decided by the Owner on 2026-10-09, after implement measured that the switch of 
 
 **Given** a Visitor is on a CV page
 **When** they activate "Print" where scripts run, or print from the browser's own menu with scripts on or off
-**Then** the printed document holds the name, the role line, the location line, one line with the email, phone, LinkedIn and GitHub from the site's single contact source, and every section, and none of: the header, the mobile menu, the breadcrumbs, the language switch, the actions, the Original PDF preview, the side column with its contents list and download, the Sticky action bar, BackToTop, the closing band, the footer; no job, project, education or course entry is split across two sheets, and no section heading is left alone at the foot of a sheet; links to other sites show their address as text. The contact line is part of the printed document only and is not shown on screen. With scripts off the "Print" button is not shown
+**Then** the printed document holds the name, the role line, the location line, one line with the email, phone, LinkedIn and GitHub from the site's single contact source, and every section, and none of: the header, the mobile menu, the breadcrumbs, the language switch, the actions, the Original PDF preview, the side column with its contents list and download, the Sticky action bar, BackToTop, the closing band, the footer; no client project, internal project, paragraph of a job, personal project, education or course entry is split across two sheets; the head of a job, a section heading with its number and the label of a sub-list are not left alone at the foot of a sheet; a job as a whole may run over to the next sheet, because keeping it whole left the sheet before half empty; the text uses the width of the sheet and the document ends with the content, with no empty sheet (Owner, 2026-10-10: each two-page CV prints on three sheets); the skip link is not printed, also while it has focus; links to other sites show their address as text. The contact line is part of the printed document only and is not shown on screen. With scripts off the "Print" button is not shown
 
 ### AC-12 (US-05) — domain invariant
 
