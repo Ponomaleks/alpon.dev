@@ -159,12 +159,25 @@ test.describe('the Motion control (AC-30)', () => {
           document.querySelector('[data-contours-parallax]'),
           document.querySelector('main .portrait'),
         ]
-          .map((el) => (el ? getComputedStyle(el).transform : 'missing'))
-          .join(' | '),
+          // The numbers of each computed transform (`none` gives none).
+          .map((el) => {
+            if (!el) throw new Error('hero layer missing');
+            return (getComputedStyle(el).transform.match(/-?[0-9.]+(?:e-?[0-9]+)?/g) ?? []).map(
+              Number,
+            );
+          }),
       );
     const first = await read();
     await page.waitForTimeout(300);
-    expect(await read()).toBe(first);
+    const second = await read();
+    // Two reads of a stopped layer can differ in the last digits (about 0.0001 px seen in CI on the
+    // mobile project, B-81): compare within 0.01 px, far below any movement of the running hero.
+    expect(second.map((values) => values.length)).toEqual(first.map((values) => values.length));
+    second.forEach((values, layer) =>
+      values.forEach((value, i) =>
+        expect(Math.abs(value - (first[layer]?.[i] ?? NaN))).toBeLessThanOrEqual(0.01),
+      ),
+    );
   });
 
   test('the control is reachable by keyboard and shows a focus ring', async ({
