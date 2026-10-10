@@ -204,13 +204,17 @@ const number = (i: number) => String(i + 1).padStart(2, '0');
       display: block;
       margin-top: var(--fjord-space-3);
     }
+    /* Plain blocks, not a grid and a flex column: Firefox does not break a grid item across sheets,
+       so the whole content moved to the second sheet and left the first with the head alone. */
     .cv-page__grid {
-      grid-template-columns: minmax(0, 1fr);
-      gap: 0;
+      display: block;
       padding: var(--fjord-space-6) 0 0;
     }
     .cv-page__main {
-      gap: var(--fjord-space-5);
+      display: block;
+    }
+    .cv-page__main > :global(section + section) {
+      margin-top: var(--fjord-space-5);
     }
     /* A sheet is denser than a screen: the rows of the lists sit closer. */
     .cv-page__skills {
