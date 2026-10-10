@@ -9,7 +9,7 @@ export interface DatedRow {
   title: string;
   organisation?: string;
   note?: string;
-  /** Language of the title and organisation when it differs from the page. */
+  /** Language of the organisation's name when it differs from the page. */
   lang?: string;
 }
 

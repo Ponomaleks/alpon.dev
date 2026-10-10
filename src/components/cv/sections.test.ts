@@ -117,7 +117,7 @@ describe('DatedRows', () => {
     },
     {
       period: '2021',
-      title: 'Norskkurs nivå 2',
+      title: 'Norwegian',
       organisation: 'Folkeuniversitetet',
       lang: 'no',
     },
@@ -141,9 +141,12 @@ describe('DatedRows', () => {
     );
   });
 
-  it('marks a Norwegian name as Norwegian', async () => {
+  // Review R1-4 (WCAG 3.1.2): `lang` is the language of the organisation's name; the title is
+  // in the language of the page.
+  it('marks the name of a Norwegian organisation as Norwegian, and not the title', async () => {
     const html = await render('DatedRows', { rows });
-    expect(html).toMatch(/lang="no"[^>]*>\s*Norskkurs nivå 2/);
-    expect(html).not.toMatch(/lang="no"[^>]*>\s*Bachelor in Computer Science/);
+    expect(html).toMatch(/lang="no"[^>]*>\s*Folkeuniversitetet/);
+    expect(html).not.toMatch(/lang="no"[^>]*>\s*Norwegian/);
+    expect(html).not.toMatch(/lang="no"[^>]*>\s*(?:Bachelor in Computer Science|Some University)/);
   });
 });

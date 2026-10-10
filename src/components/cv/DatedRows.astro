@@ -6,7 +6,7 @@ interface Row {
   title: string;
   organisation?: string;
   note?: string;
-  /** Language of the title and organisation when it differs from the page. */
+  /** Language of the organisation's name when it differs from the page. */
   lang?: string;
 }
 interface Props {
@@ -26,9 +26,7 @@ const { rows } = Astro.props;
           {second && <span>{second}</span>}
         </p>
         <div class="dated-rows__main">
-          <p class="dated-rows__title" lang={row.lang}>
-            {row.title}
-          </p>
+          <p class="dated-rows__title">{row.title}</p>
           {row.organisation && (
             <p class="dated-rows__org" lang={row.lang}>
               {row.organisation}
