@@ -32,7 +32,14 @@ describe('langHref', () => {
   });
 });
 
-type Handler = (e: { preventDefault(): void }) => void;
+interface Keys {
+  button?: number;
+  ctrlKey?: boolean;
+  metaKey?: boolean;
+  shiftKey?: boolean;
+  altKey?: boolean;
+}
+type Handler = (e: { preventDefault(): void } & Keys) => void;
 
 interface FakeLink {
   attrs: Map<string, string>;
@@ -58,9 +65,9 @@ function link(lang: string, href: string, current = false): FakeLink {
   };
 }
 
-function click(l: FakeLink) {
+function click(l: FakeLink, keys: Keys = {}) {
   const preventDefault = vi.fn();
-  l.handlers.forEach((h) => h({ preventDefault }));
+  l.handlers.forEach((h) => h({ preventDefault, ...keys }));
   return preventDefault;
 }
 
@@ -129,6 +136,26 @@ describe('initLangSwitch: the CV head keeps the position, never a section', () =
     ids.value = 'experience';
     click(other(head));
     expect(other(head).attrs.get('href')).toBe('/cv/en');
+    expect(savePosition).toHaveBeenCalledTimes(1);
+  });
+
+  // Review R1-2 (ADR-0001: "one navigation of one tab"). A click that opens the other page in
+  // another tab or window, or saves it, leaves this tab where it is: nothing to carry.
+  it.each([
+    ['Ctrl', { ctrlKey: true }],
+    ['Cmd', { metaKey: true }],
+    ['Shift', { shiftKey: true }],
+    ['Alt', { altKey: true }],
+    ['the middle button', { button: 1 }],
+  ] as const)('saves no position on a click with %s', (_name, keys) => {
+    const { head, other, savePosition } = setup('en', { value: null });
+    expect(click(other(head), keys)).not.toHaveBeenCalled();
+    expect(savePosition).not.toHaveBeenCalled();
+  });
+
+  it('saves the position on a plain click of the main button', () => {
+    const { head, other, savePosition } = setup('en', { value: null });
+    click(other(head), { button: 0, ctrlKey: false, metaKey: false, shiftKey: false });
     expect(savePosition).toHaveBeenCalledTimes(1);
   });
 
