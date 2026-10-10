@@ -365,3 +365,67 @@ for (const path of ['/cv/en', '/cv/no']) {
     });
   }
 }
+
+// AC-01, AC-07: the sizes and gaps measured on the page design (`alpon.dev standalone.html`,
+// `#/cv/en`, 1440 wide). Each value is the design's; the build once drifted from every one of them.
+test.describe('the sizes of the page design at 1440 (AC-01, AC-07)', () => {
+  test.use({ viewport: { width: 1440, height: 900 } });
+
+  test('the head: gaps, the large switch and its place beside the name', async ({ page }) => {
+    await page.goto('/cv/en');
+    const head = page.locator('.cv-head');
+    await expect(head).toHaveCSS('row-gap', '20px');
+    await expect(head.locator('.name')).toHaveCSS('row-gap', '12px');
+    await expect(page.locator('.cv-page__preview')).toHaveCSS('margin-top', '20px');
+    for (const lang of ['en', 'no']) {
+      const box = await head
+        .locator(`[data-lang-switch] a[data-switch-to="${lang}"]`)
+        .boundingBox();
+      expect(box?.width).toBe(56);
+      expect(box?.height).toBe(36);
+    }
+    // The tools end level with the name block, so the switch starts below the top of the name.
+    const [name, tools, h1, sw] = await Promise.all(
+      ['.name', '.tools', 'h1', '[data-lang-switch]'].map((s) => head.locator(s).boundingBox()),
+    );
+    if (!name || !tools || !h1 || !sw) throw new Error('a part of the head is missing');
+    expect(Math.abs(name.y + name.height - (tools.y + tools.height))).toBeLessThanOrEqual(1);
+    expect(sw.y - h1.y).toBeGreaterThan(8);
+    expect(sw.y + sw.height).toBeLessThan(h1.y + h1.height);
+  });
+
+  test('the sections: full column width, the reading measure only on running text', async ({
+    page,
+  }) => {
+    await page.goto('/cv/en');
+    const main = await page.locator('.cv-page__main').boundingBox();
+    for (const id of ['skills', 'languages', 'experience', 'education']) {
+      const body = await page.locator(`#${id} .cv-section__body`).boundingBox();
+      expect(body?.width).toBe(main?.width);
+    }
+    const prose = await page.locator('#profile .cv-page__text').boundingBox();
+    expect(prose?.width).toBeLessThan(main?.width ?? 0);
+    await expect(page.locator('.cv-page__skills')).toHaveCSS('row-gap', '20px');
+    await expect(page.locator('.cv-page__jobs')).toHaveCSS('row-gap', '40px');
+    await expect(page.locator('#education .dated-rows li').first()).toHaveCSS(
+      'grid-template-columns',
+      /^128px /,
+    );
+  });
+
+  test('the side column: 45 px contents rows and 57 px contact rows', async ({ page }) => {
+    await page.goto('/cv/en');
+    const pitch = async (selector: string) => {
+      const [a, b] = await Promise.all(
+        [0, 1].map((i) => page.locator(selector).nth(i).boundingBox()),
+      );
+      return (b?.y ?? 0) - (a?.y ?? 0);
+    };
+    expect(await pitch('.cv-aside__toc li')).toBe(45);
+    expect(await pitch('.cv-aside__row')).toBe(57);
+    await expect(page.locator('.cv-aside__row').first()).toHaveCSS(
+      'grid-template-columns',
+      /^88px /,
+    );
+  });
+});
