@@ -18,8 +18,10 @@ import ThemeToggle from '../components/layout/ThemeToggle.astro';
 import Header from '../components/layout/Header.astro';
 import MobileMenu from '../components/layout/MobileMenu.astro';
 import MobileBar from '../components/layout/MobileBar.astro';
+import BackToTop from '../components/layout/BackToTop.astro';
+import PrintContactLine from '../components/cv/PrintContactLine.astro';
 import CtaBand from '../components/layout/CtaBand.astro';
-import { defaultBarActions, homeBandActions } from '../data/shell-actions';
+import { defaultBarActions, homeBandActions, type BarSlot } from '../data/shell-actions';
 import Contours from '../components/brand/Contours.astro';
 import TerrainMap from '../components/brand/TerrainMap.astro';
 import Wordmark from '../components/brand/Wordmark.astro';
@@ -30,8 +32,26 @@ import QuickFacts from '../components/home/QuickFacts.astro';
 import ExperienceList from '../components/home/ExperienceList.astro';
 import Recommendations from '../components/home/Recommendations.astro';
 import SelectedProjects from '../components/home/SelectedProjects.astro';
+import Breadcrumbs from '../components/ui/Breadcrumbs.astro';
+import LangSwitch from '../components/ui/LangSwitch.astro';
+import SkillGroup from '../components/cv/SkillGroup.astro';
+import LanguageList from '../components/cv/LanguageList.astro';
+import CvJob from '../components/cv/CvJob.astro';
+import DatedRows from '../components/cv/DatedRows.astro';
+import OriginalPdfPreview from '../components/cv/OriginalPdfPreview.astro';
+import { contact } from '../data/contact';
+import { cvPdf } from '../data/cv/index';
 import type { ExperienceEntry } from '../data/home';
-import { sampleLongRecommendation, sampleProjects, sampleRecommendations } from '../data/samples';
+import {
+  sampleCvContents,
+  sampleCvJobs,
+  sampleCvLanguages,
+  sampleCvRows,
+  sampleCvSkillGroups,
+  sampleLongRecommendation,
+  sampleProjects,
+  sampleRecommendations,
+} from '../data/samples';
 
 const iconNames: IconName[] = [
   'arrow-right',
@@ -48,6 +68,9 @@ const iconNames: IconName[] = [
   'chevron-up',
   'copy',
   'download',
+  'file-down',
+  'eye',
+  'arrow-up',
   'user-plus',
   'mail',
   'phone',
@@ -102,6 +125,50 @@ const contactRows = [
   ['GitHub', 'github.com/sample', 'https://github.com/'],
 ] as const;
 const sentenceStates = [undefined, 'hover', 'focus'] as const;
+// The CV components (cv AC-29). Breadcrumbs and the Language switch take no forced state, so a
+// wrapper carries data-demo-state and the styles below draw the state on the link inside.
+const twoCrumbs = [{ label: 'Sample site', href: '/' }, { label: 'Sample page' }];
+const threeCrumbs = [
+  { label: 'Sample site', href: '/' },
+  { label: 'Sample part', href: '/' },
+  { label: 'Sample page' },
+];
+const cvPages = { enHref: contact.links.cvPages.en, noHref: contact.links.cvPages.no };
+const switchSamples = [
+  { size: 'large', current: 'en', demo: undefined },
+  { size: 'large', current: 'no', demo: undefined },
+  { size: 'default', current: 'en', demo: 'hover' },
+  { size: 'default', current: 'no', demo: 'focus' },
+] as const;
+const cvBarSample: readonly [BarSlot, BarSlot] = [
+  { kind: 'lang-switch', current: 'en', group: 'CV language', ...cvPages },
+  {
+    label: 'Download PDF',
+    href: cvPdf.en.href,
+    icon: 'file-down',
+    download: cvPdf.en.downloadName,
+  },
+];
+// The CV form of the contact list: "Based in" with the Residence and no "Save contact"; the
+// Norwegian form has its own labels and copy action (cv screens C-3, C-4).
+const cvContactSamples = [
+  {
+    lang: undefined,
+    email: 'Email',
+    phone: 'Phone',
+    based: 'Based in',
+    copy: 'Copy',
+    done: 'Copied',
+  },
+  {
+    lang: 'no',
+    email: 'E-post',
+    phone: 'Telefon',
+    based: 'Bosted',
+    copy: 'Kopier',
+    done: 'Kopiert',
+  },
+];
 const stateLabel = { hover: 'Hover', focus: 'Focus', active: 'Pressed' } as const;
 ---
 
@@ -111,6 +178,7 @@ const stateLabel = { hover: 'Hover', focus: 'Focus', active: 'Pressed' } as cons
   noindex
   mobileBar={false}
   ctaBand={false}
+  backToTop={false}
 >
   <div class="sg">
     <h1>Styleguide</h1>
@@ -148,6 +216,23 @@ const stateLabel = { hover: 'Hover', focus: 'Focus', active: 'Pressed' } as cons
         </Button>
         <Button href="/" variant="secondary">
           As link
+        </Button>
+      </div>
+      <div class="sg__row">
+        <Button variant="ghost">Ghost</Button>
+        {states.map((s) => (
+          <Button variant="ghost" data-demo-state={s}>
+            {stateLabel[s]}
+          </Button>
+        ))}
+        <Button variant="ghost" size="sm">
+          Small
+        </Button>
+        <Button variant="ghost" icon="eye">
+          With icon
+        </Button>
+        <Button variant="ghost" size="sm" icon="eye">
+          Small with icon
         </Button>
       </div>
       <div class="sg__block">
@@ -275,6 +360,7 @@ const stateLabel = { hover: 'Hover', focus: 'Focus', active: 'Pressed' } as cons
       <div class="sg__row">
         <Toast sample icon="check" message="Copied" meta="alpon@example.com" />
         <Toast sample message="Couldn't copy. Select the address to copy it." lang="en" />
+        <Toast sample icon="check" message="Kopiert" meta="sample@example.com" lang="no" />
         <span data-needs-script id="sg-show-toast">
           <Button variant="secondary">Show toast</Button>
         </span>
@@ -353,6 +439,9 @@ const stateLabel = { hover: 'Hover', focus: 'Focus', active: 'Pressed' } as cons
       </div>
       <div class="sg__phone sg__phone--bar">
         <MobileBar sample collapsed actions={defaultBarActions} />
+      </div>
+      <div class="sg__phone sg__phone--bar">
+        <MobileBar sample actions={cvBarSample} />
       </div>
     </section>
 
@@ -461,6 +550,48 @@ const stateLabel = { hover: 'Hover', focus: 'Focus', active: 'Pressed' } as cons
       <Button variant="secondary" href="/alexander-ponomarenko.vcf" icon="user-plus" download>
         Save contact (.vcf)
       </Button>
+      {cvContactSamples.map((form) => (
+        <div class="sg__aside sg__gap" data-sample>
+          <p class="sg__sample-label">Sample data</p>
+          <dl class="sg__contact" lang={form.lang}>
+            <div class="sg__contact-row">
+              <dt>{form.email}</dt>
+              <dd>
+                <a class="sg__contact-value" href="mailto:sample@example.com">
+                  sample@example.com
+                </a>
+                <span class="sg__contact-copy">
+                  <CopyButton label={form.copy} done={form.done} />
+                </span>
+              </dd>
+            </div>
+            {contactRows.map(([k, v, outside]) => (
+              <div class="sg__contact-row">
+                <dt>{k === 'Phone' ? form.phone : k}</dt>
+                <dd>
+                  {outside ? (
+                    <span class="sg__contact-value">
+                      <Link href={outside} external quiet>
+                        {v}
+                      </Link>
+                    </span>
+                  ) : (
+                    <a class="sg__contact-value" href="/">
+                      {v}
+                    </a>
+                  )}
+                </dd>
+              </div>
+            ))}
+            <div class="sg__contact-row">
+              <dt>{form.based}</dt>
+              <dd>
+                <span class="sg__contact-value">Sample place</span>
+              </dd>
+            </div>
+          </dl>
+        </div>
+      ))}
     </section>
 
     <section data-section="QR tile" class="sg__section">
@@ -506,6 +637,131 @@ const stateLabel = { hover: 'Hover', focus: 'Focus', active: 'Pressed' } as cons
         <SelectedProjects items={sampleProjects} as="h3" />
       </div>
     </section>
+
+    <section data-section="Breadcrumbs" class="sg__section">
+      <h2>Breadcrumbs</h2>
+      <div data-sample>
+        <p class="sg__sample-label">Sample data</p>
+        <div class="sg__stack">
+          <Breadcrumbs label="Breadcrumb, two items" items={twoCrumbs} />
+          <Breadcrumbs label="Breadcrumb, three items" items={threeCrumbs} />
+          <div data-demo-state="hover">
+            <Breadcrumbs label="Breadcrumb, hover" items={twoCrumbs} />
+          </div>
+          <div data-demo-state="focus">
+            <Breadcrumbs label="Breadcrumb, focus" items={twoCrumbs} />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section data-section="Language switch" class="sg__section">
+      <h2>Language switch</h2>
+      <div data-sample>
+        <p class="sg__sample-label">Sample data</p>
+        <div class="sg__row">
+          {switchSamples.map(({ size, current, demo }) => (
+            <div data-demo-state={demo}>
+              <LangSwitch current={current} size={size} group="CV language" {...cvPages} />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section data-section="Skill group" class="sg__section">
+      <h2>Skill group</h2>
+      <div data-sample>
+        <p class="sg__sample-label">Sample data</p>
+        <div class="sg__pair">
+          {sampleCvSkillGroups.map((group) => (
+            <SkillGroup group={group} />
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section data-section="Language list" class="sg__section">
+      <h2>Language list</h2>
+      <div class="sg__aside" data-sample>
+        <p class="sg__sample-label">Sample data</p>
+        <LanguageList languages={sampleCvLanguages} />
+      </div>
+    </section>
+
+    <section data-section="CV job" class="sg__section">
+      <h2>CV job</h2>
+      <div data-sample>
+        <p class="sg__sample-label">Sample data</p>
+        <div class="sg__stack">
+          {sampleCvJobs.map((job, i) => (
+            <CvJob
+              first={i === 0}
+              job={{
+                ...job,
+                appliedLabel: 'Applied technologies',
+                internalLabel: 'Internal projects',
+              }}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section data-section="Dated rows" class="sg__section">
+      <h2>Dated rows</h2>
+      <div data-sample>
+        <p class="sg__sample-label">Sample data</p>
+        <DatedRows rows={sampleCvRows} />
+      </div>
+    </section>
+
+    <section data-section="Contents list" class="sg__section">
+      <h2>Contents list</h2>
+      <div class="sg__aside" data-sample>
+        <p class="sg__sample-label">Sample data</p>
+        <ol class="sg__toc">
+          {sampleCvContents.map((heading, i) => (
+            <li>
+              <a href={`#sample-section-${i + 1}`} data-demo-state={sentenceStates[i]}>
+                <span>{String(i + 1).padStart(2, '0')}</span>
+                {heading}
+              </a>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+
+    <section data-section="Original PDF preview" class="sg__section">
+      <h2>Original PDF preview</h2>
+      <div data-sample>
+        <p class="sg__sample-label">Sample data</p>
+        <div class="sg__stack">
+          <OriginalPdfPreview lang="en" />
+          <OriginalPdfPreview lang="en" open />
+        </div>
+      </div>
+    </section>
+
+    <section data-section="BackToTop" class="sg__section">
+      <h2>BackToTop</h2>
+      <div class="sg__row">
+        <BackToTop sample />
+        <BackToTop sample data-demo-state="hover" />
+        <BackToTop sample data-demo-state="focus" />
+      </div>
+    </section>
+
+    <section data-section="Print contact line" class="sg__section">
+      <h2>Print contact line</h2>
+      <div data-sample>
+        <p class="sg__sample-label">Sample data</p>
+        <div class="sg__print-frame">
+          <PrintContactLine />
+        </div>
+      </div>
+    </section>
   </div>
 </BaseLayout>
 
@@ -520,6 +776,17 @@ const stateLabel = { hover: 'Hover', focus: 'Focus', active: 'Pressed' } as cons
 </script>
 
 <style>
+  /* The line is hidden on screen; the frame shows it as it prints, on the print colours. */
+  .sg__print-frame {
+    padding: var(--fjord-space-6);
+    background: var(--fjord-print-bg);
+    color: var(--fjord-print-text);
+    border: 1px solid var(--fjord-color-border);
+  }
+  .sg__print-frame :global(.cv-print-line) {
+    display: block;
+    color: var(--fjord-print-text);
+  }
   .sg {
     max-width: var(--fjord-content-max);
     padding: var(--fjord-space-section) var(--fjord-grid-margin);
@@ -721,6 +988,78 @@ const stateLabel = { hover: 'Hover', focus: 'Focus', active: 'Pressed' } as cons
     justify-content: flex-end;
     gap: var(--fjord-space-3);
     margin-inline-start: auto;
+  }
+
+  /* The width of a side column, for the parts the CV page draws there. */
+  .sg__aside {
+    max-inline-size: var(--fjord-measure-narrow);
+  }
+
+  .sg__pair {
+    display: grid;
+    gap: var(--fjord-space-6);
+  }
+
+  @media (min-width: 768px) {
+    .sg__pair {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  /* Forced states of the links inside Breadcrumbs and the Language switch (hook H-4). */
+  [data-demo-state='hover'] :global(.crumbs a) {
+    color: var(--fjord-color-link-hover);
+  }
+
+  [data-demo-state='hover'] :global(.lang-switch a:not([aria-current])) {
+    color: var(--fjord-color-text);
+  }
+
+  [data-demo-state='focus'] :global(.crumbs a),
+  [data-demo-state='focus'] :global(.lang-switch a:not([aria-current])) {
+    outline: var(--fjord-focus-width) solid var(--fjord-color-focus-ring);
+    outline-offset: var(--fjord-focus-offset);
+  }
+
+  /* The same look as the contents list of cv/CvAside, rebuilt here (the side column is not
+     displayed below 1024). */
+  .sg__toc {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .sg__toc a {
+    display: flex;
+    align-items: center;
+    gap: var(--fjord-space-3);
+    min-block-size: var(--fjord-tap-min);
+    border-top: var(--fjord-border-width) solid var(--fjord-color-border);
+    font-size: var(--fjord-text-ui);
+    color: var(--fjord-color-text);
+    text-decoration: none;
+  }
+
+  .sg__toc a span {
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-mono-sm);
+    font-weight: var(--fjord-weight-medium);
+    line-height: var(--fjord-leading-none);
+    color: var(--fjord-color-text-muted);
+  }
+
+  .sg__toc a:hover,
+  .sg__toc a[data-demo-state='hover'] {
+    color: var(--fjord-color-link);
+  }
+
+  .sg__toc a:focus-visible,
+  .sg__toc a[data-demo-state='focus'] {
+    outline: var(--fjord-focus-width) solid var(--fjord-color-focus-ring);
+    outline-offset: var(--fjord-focus-offset);
+    border-radius: var(--fjord-radius-xs);
   }
 
   .sg__sentence {

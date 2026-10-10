@@ -466,3 +466,70 @@ test.describe('the panel top bar lines up with the header', () => {
     }
   });
 });
+
+// AC-20, B-05: the current link of the spruce panel differs from the other links by more than
+// colour: an accent rule at the start of its row. Every link keeps the weight of the page design.
+test.describe('current link in the mobile menu (AC-20)', () => {
+  const link = (page: Page, name: string) =>
+    panel(page).locator('[data-menu-nav] a', { hasText: name });
+  const look = (page: Page, name: string) =>
+    link(page, name).evaluate((el) => {
+      const cs = getComputedStyle(el);
+      const before = getComputedStyle(el, '::before');
+      const side = (s: CSSStyleDeclaration) => ({
+        border: s.borderInlineStartWidth,
+        borderStyle: s.borderInlineStartStyle,
+        shadow: s.boxShadow,
+        content: s.content,
+        width: s.width,
+        bg: s.backgroundColor,
+      });
+      return {
+        current: el.getAttribute('aria-current'),
+        weight: Number(cs.fontWeight),
+        own: side(cs),
+        pseudo: side(before),
+      };
+    });
+  const hasRule = (l: Awaited<ReturnType<typeof look>>) =>
+    (l.own.border !== '0px' && l.own.borderStyle !== 'none') ||
+    (l.own.shadow !== 'none' && /inset/.test(l.own.shadow)) ||
+    (l.pseudo.content !== 'none' &&
+      l.pseudo.content !== 'normal' &&
+      l.pseudo.bg !== 'rgba(0, 0, 0, 0)');
+
+  for (const path of ['/cv/en', '/cv/no']) {
+    test(`on ${path} the current link has the rule and the weight of the other links`, async ({
+      page,
+    }) => {
+      await open(page, path);
+      await openMenu(page);
+      const cv = await look(page, 'CV');
+      const contactLink = await look(page, 'Contact');
+      expect(cv.current).toBe('page');
+      expect(contactLink.current).toBeNull();
+      expect(cv.weight).toBe(600);
+      expect(contactLink.weight).toBe(600);
+      expect(hasRule(cv)).toBe(true);
+      expect(hasRule(contactLink)).toBe(false);
+    });
+  }
+
+  test('on the home page no link has the rule, and every link has the weight of the design', async ({
+    page,
+  }) => {
+    await open(page, '/');
+    await openMenu(page);
+    for (const name of ['CV', 'Contact']) {
+      const l = await look(page, name);
+      expect(l.current).toBeNull();
+      expect(l.weight).toBe(600);
+      expect(hasRule(l)).toBe(false);
+    }
+  });
+
+  test('on /cv/no the panel is marked English', async ({ page }) => {
+    await open(page, '/cv/no');
+    await expect(panel(page)).toHaveAttribute('lang', 'en');
+  });
+});

@@ -24,6 +24,9 @@ import Header from '${layout('Header.astro')}';
 <div data-case="plain"><Header /></div>
 <div data-case="cv"><Header current="cv" /></div>
 <div data-case="contact"><Header current="contact" /></div>
+<div data-case="cv-no"><Header current="cv" cvLang="no" /></div>
+<div data-case="cv-en"><Header current="cv" cvLang="en" /></div>
+<div data-case="no-current-no"><Header cvLang="no" /></div>
 <div data-case="spruce"><Header variant="on-spruce" /></div>
 <div data-case="secondary"><Header cta="secondary" /></div>
 <div data-case="sample"><Header sample /></div>
@@ -172,6 +175,22 @@ describe('Header: current page (AC-01)', () => {
     const marked = anchors(header('cv')).filter((a) => /aria-current="page"/.test(a));
     expect(marked).toHaveLength(1);
     expect(marked[0]).toMatch(/>\s*CV\s*</);
+  });
+
+  it('current="cv" with cvLang leads the CV link to that CV page and marks it (AC-02)', () => {
+    for (const [name, lang] of [
+      ['cv-no', 'no'],
+      ['cv-en', 'en'],
+    ] as const) {
+      const marked = anchors(header(name)).filter((a) => /aria-current="page"/.test(a));
+      expect(marked).toHaveLength(1);
+      expect(marked[0]).toMatch(/>\s*CV\s*</);
+      expect(marked[0]).toContain(`href="${contact.links.cvPages[lang]}"`);
+    }
+  });
+
+  it('without `current` no link is marked, whatever cvLang is', () => {
+    expect(header('no-current-no')).not.toMatch(/aria-current/);
   });
 
   it('current="contact" marks the Contact link only', () => {

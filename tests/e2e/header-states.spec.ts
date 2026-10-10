@@ -201,3 +201,58 @@ test.describe('scripts off (AC-33)', () => {
     });
   }
 });
+
+// AC-20, B-05: the header's current-page marker on the rendered page, by computed style (not CSS
+// text). The page design draws a 1px underline in the text colour and the text colour itself.
+test.describe('current-page marker in the header (AC-20, B-05)', () => {
+  test.use({ colorScheme: 'light' });
+  const navLink = (page: Page, name: string) =>
+    page.locator('header[data-header] .header__nav').getByRole('link', { name, exact: true });
+  const look = (page: Page, name: string) =>
+    navLink(page, name).evaluate((el) => {
+      const cs = getComputedStyle(el);
+      const probe = document.createElement('span');
+      probe.style.color = 'var(--fjord-color-text)';
+      document.body.append(probe);
+      const text = getComputedStyle(probe).color;
+      probe.remove();
+      return {
+        current: el.getAttribute('aria-current'),
+        color: cs.color,
+        text,
+        shadow: cs.boxShadow,
+      };
+    });
+
+  for (const path of ['/cv/en', '/cv/no']) {
+    test(`"CV" is underlined and in the text colour on ${path}, "Contact" is not`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width: 1440, height: 900 });
+      await page.goto(path);
+      const cv = await look(page, 'CV');
+      expect(cv.current).toBe('page');
+      expect(cv.color).toBe(cv.text);
+      expect(cv.shadow).not.toBe('none');
+      expect(cv.shadow).toContain(cv.text);
+      expect(cv.shadow).toMatch(/inset/);
+      const contactLink = await look(page, 'Contact');
+      expect(contactLink.current).toBeNull();
+      expect(contactLink.shadow).toBe('none');
+    });
+  }
+
+  for (const [label, path] of [
+    ['the home page', '/'],
+    ['the Not-found page', '/does-not-exist'],
+  ] as const) {
+    test(`no link is marked on ${label}`, async ({ page }) => {
+      await page.setViewportSize({ width: 1440, height: 900 });
+      await page.goto(path);
+      await expect(page.locator('header[data-header] [aria-current]')).toHaveCount(0);
+      for (const name of ['CV', 'Contact']) {
+        expect((await look(page, name)).shadow).toBe('none');
+      }
+    });
+  }
+});

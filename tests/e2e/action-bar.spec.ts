@@ -26,8 +26,10 @@ async function open(page: Page, path: string, width = 390) {
   });
 }
 
+// At once: these tests place the page and read the bar; the smooth scroll of the root (scroll.spec.ts)
+// would still be on its way.
 async function scrollTo(page: Page, y: number) {
-  await page.evaluate((top) => window.scrollTo(0, top), y);
+  await page.evaluate((top) => window.scrollTo({ top, behavior: 'instant' }), y);
   // The script reads the scroll position in an animation frame.
   await page.evaluate(
     () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))),
@@ -95,7 +97,7 @@ test.describe('the bar actions are secondary, with a contact card download (AC-3
       await expect(bar.getByRole('link')).toHaveCount(2);
       const cv = bar.getByRole('link', { name: 'View CV' });
       const save = bar.getByRole('link', { name: 'Save contact (.vcf)' });
-      await expect(cv).toHaveAttribute('href', '/cv');
+      await expect(cv).toHaveAttribute('href', '/cv/en');
       await expect(save).toHaveAttribute('href', '/alexander-ponomarenko.vcf');
       await expect(save).toHaveAttribute('download', /.*/);
       for (const action of [cv, save]) {
@@ -159,6 +161,11 @@ test.describe('bar away and returned, motion allowed (AC-08, G-4, G-5)', () => {
       await expect(page.locator(`${BAR} > summary`)).not.toBeInViewport();
       // Not announced and not focusable: Tab never reaches the bar's actions.
       await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
+      // Focus moves the page at once here: with the smooth scroll of the root a focus further up
+      // scrolls the page up over several frames, and the bar returns by its own rule mid-walk.
+      await page.evaluate(() =>
+        document.documentElement.style.setProperty('scroll-behavior', 'auto'),
+      );
       const reached: string[] = [];
       for (let i = 0; i < 40; i++) {
         await page.keyboard.press('Tab');
@@ -411,6 +418,67 @@ test.describe('Not-found: a collapsed bar stays collapsed while scrolling (AC-39
     await expect(bar).toBeInViewport();
   });
 });
+
+// The CV pages give the bar another layout, the language switch in its first slot (cv AC-19;
+// review R1-7): the same collapse to the tab and return, with scripts on and off.
+const cvBars = [
+  { name: 'CV en', path: '/cv/en', group: 'CV language', download: 'Download PDF' },
+  { name: 'CV no', path: '/cv/no', group: 'CV-språk', download: 'Last ned PDF' },
+] as const;
+
+for (const scripts of [true, false]) {
+  for (const { name, path, group, download } of cvBars) {
+    test.describe(`${name}: the bar tab, scripts ${scripts ? 'on' : 'off'} (cv AC-19)`, () => {
+      test.use({ javaScriptEnabled: scripts, reducedMotion: 'reduce' });
+
+      const openCv = async (page: Page) => {
+        await page.setViewportSize({ width: 390, height: 600 });
+        await page.goto(path);
+      };
+
+      const expectCvBar = async (page: Page, expanded: boolean) => {
+        const bar = page.locator(BAR);
+        if (expanded) await expect(bar).toHaveAttribute('open', '');
+        else await expect(bar).not.toHaveAttribute('open', /.*/);
+        await expect(bar.getByRole('group', { name: group }).getByRole('link')).toHaveCount(
+          expanded ? 2 : 0,
+        );
+        await expect(bar.locator('[data-lang-switch]')).toBeVisible({ visible: expanded });
+        await expect(bar.getByRole('link', { name: download })).toBeVisible({ visible: expanded });
+        await expect(page.locator(TAB)).toBeVisible();
+      };
+
+      test('a pointer collapses the bar to the tab and brings it back', async ({ page }) => {
+        await openCv(page);
+        await expectCvBar(page, true);
+        await page.locator(TAB).click();
+        await expectCvBar(page, false);
+        const tab = await box(page.locator(TAB));
+        expect(tab.width).toBeGreaterThanOrEqual(44);
+        expect(tab.height).toBeGreaterThanOrEqual(44);
+        expect(Math.round(tab.y + tab.height)).toBe(600 - STRIP);
+        const panel = await box(page.locator(BAR));
+        expect(panel.y + panel.height).toBeGreaterThanOrEqual(600);
+        expect(panel.width).toBe(390);
+        await page.locator(TAB).click();
+        await expectCvBar(page, true);
+        const open = await box(page.locator(BAR));
+        expect(Math.round(open.y + open.height)).toBe(600);
+      });
+
+      test('the keyboard collapses and restores the bar (Enter and Space)', async ({ page }) => {
+        await openCv(page);
+        const tab = page.locator(TAB);
+        await tab.focus();
+        await page.keyboard.press('Enter');
+        await expectCvBar(page, false);
+        await expect(tab).toBeFocused();
+        await page.keyboard.press('Space');
+        await expectCvBar(page, true);
+      });
+    });
+  }
+}
 
 // Toast above the tab and the instant change with reduced motion (home T6b, AC-39).
 

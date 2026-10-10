@@ -23,6 +23,8 @@ import MobileMenu from '${layout('MobileMenu.astro')}';
 <html lang="en"><head><title>menu</title></head><body>
 <div data-case="plain"><MobileMenu /></div>
 <div data-case="cv"><MobileMenu current="cv" /></div>
+<div data-case="cv-no"><MobileMenu current="cv" cvLang="no" /></div>
+<div data-case="no-current-no"><MobileMenu cvLang="no" /></div>
 <div data-case="sample"><MobileMenu sample /></div>
 </body></html>
 `;
@@ -185,6 +187,19 @@ describe('MobileMenu: SCR-03 open content (AC-04)', () => {
   });
 });
 
+describe('MobileMenu: CV link follows cvLang (AC-02)', () => {
+  it('current="cv" with cvLang="no" leads to the Norwegian CV page and is marked', () => {
+    const marked = anchors(made('cv-no')).filter((a) => /aria-current="page"/.test(a));
+    expect(marked).toHaveLength(1);
+    expect(text(marked[0] ?? '')).toMatch(/CV/);
+    expect(marked[0]).toContain(`href="${contact.links.cvPages.no}"`);
+  });
+
+  it('without `current` no link is marked, whatever cvLang is', () => {
+    expect(made('no-current-no')).not.toMatch(/aria-current/);
+  });
+});
+
 describe('MobileMenu: on spruce, as the page design (AC-04, AC-21)', () => {
   for (const name of ['plain', 'sample']) {
     it(`the ${name} panel root carries fjord-on-spruce and its Contours the spruce tone`, () => {
@@ -233,5 +248,28 @@ describe('MobileMenu: built CSS (G-3, AC-28)', () => {
   it('moves only inside a no-preference or a reduced-motion guard', () => {
     expect(css).toMatch(/dialog\[open\]|\.menu\[open\]|\[open\]/);
     expect(css).toMatch(/prefers-reduced-motion/);
+  });
+});
+
+describe('MobileMenu: the current-link marker (AC-20, B-05)', () => {
+  const rules = () =>
+    [...cssOnly.matchAll(/([^{}]*aria-current[^{}]*)\{([^}]*)\}/g)].filter((m) =>
+      /\.menu__nav/.test(m[1] ?? ''),
+    );
+
+  it('follows aria-current="page", not a class a script adds', () => {
+    expect(rules().length).toBeGreaterThan(0);
+    expect(cssOnly).not.toMatch(/\.menu__nav\s+a\.[\w-]*current/);
+    expect(cssOnly).not.toMatch(/\.menu__nav\s+a\.is-/);
+  });
+
+  it('differs from the other links by more than colour: an accent rule, and no weight of its own', () => {
+    const body = rules()
+      .map((m) => m[2])
+      .join(';');
+    // Every link keeps the weight of the page design (Owner, 2026-10-09).
+    expect(body).not.toMatch(/font-weight/);
+    expect(body).toMatch(/(border-inline-start|box-shadow|background)[^;]*var\(--fjord-/);
+    expect(body).not.toMatch(/#[0-9a-f]{3,8}\b/i);
   });
 });

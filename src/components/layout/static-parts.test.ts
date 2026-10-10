@@ -13,6 +13,7 @@ import { join, relative } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { contact } from '../../data/contact';
+import { cvPdf } from '../../data/cv/index';
 
 // AC-13, AC-14, AC-20 (T9): SkipLink, CtaBand and Footer. A real production build of a
 // throwaway fixture page (outside the repo); the test reads the built HTML. Focus and
@@ -31,6 +32,7 @@ import SkipLink from '${layout('SkipLink.astro')}';
 import CtaBand from '${layout('CtaBand.astro')}';
 import * as shellActions from '${shellActionsPath}';
 import Footer from '${layout('Footer.astro')}';
+import BackToTop from '${layout('BackToTop.astro')}';
 ---
 <html lang="en"><head><title>static</title></head><body>
 <div data-case="skip"><SkipLink /></div>
@@ -39,6 +41,8 @@ import Footer from '${layout('Footer.astro')}';
 <div data-case="band-home-en"><CtaBand actions={shellActions.homeBandActions?.('en')} /></div>
 <div data-case="band-home-no"><CtaBand cvLang="no" actions={shellActions.homeBandActions?.('no')} /></div>
 <div data-case="footer"><Footer /></div>
+<div data-case="top"><BackToTop /></div>
+<div data-case="top-no"><BackToTop lang="en" /></div>
 </body></html>
 `;
 
@@ -152,6 +156,16 @@ describe('CtaBand (AC-20)', () => {
     expect(classesOf(cv)).toContain('fj-btn--secondary');
     expect(text(cv)).toContain('Download CV');
     expect(made('band-en')).not.toContain(contact.links.cvNo);
+  });
+
+  it('"Download CV" saves the PDF of cvLang under its download name (AC-20)', () => {
+    for (const [name, lang] of [
+      ['band-en', 'en'],
+      ['band-no', 'no'],
+    ] as const) {
+      const cv = anchorTo(made(name), cvPdf[lang].href) ?? '';
+      expect(cv).toContain(`download="${cvPdf[lang].downloadName}"`);
+    }
   });
 
   it('with cvLang="no" "Download CV" downloads the Norwegian PDF', () => {
@@ -433,4 +447,24 @@ describe('sources hold no literal contact value', () => {
       for (const v of values) expect(source, v).not.toContain(v);
     });
   }
+});
+
+// AC-21 (T31): BackToTop is a plain link to the top that works with scripts off.
+describe('BackToTop (AC-21)', () => {
+  it('is one link named "Back to top" to #top', () => {
+    const [link, ...rest] = anchors(made('top'));
+    expect(rest).toEqual([]);
+    expect(link).toMatch(/^<a\b[^>]*\bhref="#top"/);
+    expect(text(link ?? '')).toContain('Back to top');
+  });
+
+  it('hides its arrow icon from assistive technology and carries no script', () => {
+    const html = made('top');
+    expect(html).toMatch(/<svg\b[^>]*aria-hidden="true"/);
+    expect(html).not.toMatch(/<script\b/);
+  });
+
+  it('points at an id no element has, so the browser scrolls to the top and resets the focus start', () => {
+    expect(page).not.toMatch(/\sid="top"/);
+  });
 });

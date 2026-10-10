@@ -15,7 +15,14 @@ let container: AstroContainer;
 
 beforeAll(async () => {
   const config = await getViteConfig({})({ mode: 'test', command: 'serve' });
-  server = await createServer({ ...config, server: { middlewareMode: true }, appType: 'custom' });
+  server = await createServer({
+    ...config,
+    // No file watcher (tests never change files; Astro's own sync server does the same), and a
+    // dependency cache of its own, so a unit run does not replace the one of `astro dev` (B-46, B-68).
+    cacheDir: 'node_modules/.vite-unit',
+    server: { middlewareMode: true, watch: null },
+    appType: 'custom',
+  });
   container = await AstroContainer.create();
 }, 120_000);
 afterAll(() => server?.close());
@@ -69,13 +76,15 @@ describe('Hero content (AC-01)', () => {
     expect(t).not.toContain('Nittedal');
   });
 
-  it('has exactly one primary button, "View CV", linking to /cv', async () => {
+  it('has exactly one primary button, "View CV", linking to contact.links.cv', async () => {
+    expect(contact.links.cv).toBe('/cv/en');
+    expect(contact.links.cvPages).toEqual({ en: '/cv/en', no: '/cv/no' });
     const html = await renderHero();
     const primaries = html.match(
       /<(?:a|button)\b[^>]*class="[^"]*\bfj-btn--primary\b[^"]*"[^>]*>/g,
     );
     expect(primaries).toHaveLength(1);
-    expect(primaries?.[0]).toContain('href="/cv"');
+    expect(primaries?.[0]).toContain(`href="${contact.links.cv}"`);
     const anchor = html.match(/<a\b[^>]*\bfj-btn--primary\b[^>]*>([\s\S]*?)<\/a>/);
     expect(text(anchor?.[1] ?? '')).toBe('View CV');
   });

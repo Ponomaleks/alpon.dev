@@ -16,14 +16,34 @@
 /img/*
   Cache-Control: public, max-age=604800
 
-/cv/*
-  Cache-Control: public, max-age=3600, must-revalidate
+/cv
+  Cache-Control: public, max-age=0, must-revalidate
+
+/cv/en
+  Cache-Control: public, max-age=0, must-revalidate
+
+/cv/no
+  Cache-Control: public, max-age=0, must-revalidate
 
 /cv/alexander-ponomarenko-cv-en.pdf
+  Cache-Control: public, max-age=3600, must-revalidate
   Content-Disposition: inline; filename="Alexander_Ponomarenko_CV_EN.pdf"
 
 /cv/alexander-ponomarenko-cv-no.pdf
+  Cache-Control: public, max-age=3600, must-revalidate
   Content-Disposition: inline; filename="Alexander_Ponomarenko_CV_NO.pdf"
+
+/cv/cv-en-1.webp
+  Cache-Control: public, max-age=3600, must-revalidate
+
+/cv/cv-en-2.webp
+  Cache-Control: public, max-age=3600, must-revalidate
+
+/cv/cv-no-1.webp
+  Cache-Control: public, max-age=3600, must-revalidate
+
+/cv/cv-no-2.webp
+  Cache-Control: public, max-age=3600, must-revalidate
 
 /alexander-ponomarenko.vcf
   Content-Type: text/vcard; charset=utf-8

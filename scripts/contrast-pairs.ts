@@ -55,6 +55,9 @@ export const PAIRS: Pair[] = [
   pair('link', 'bg', 'text', ALL),
   pair('link', 'bg-raised', 'text', ALL),
   pair('link-hover', 'bg', 'text', ALL),
+  // Ghost Button: link text on the page ground, hover text on the soft fill.
+  pair('link-hover', 'accent-soft', 'text', ALL),
+  pair('link', 'accent-soft', 'text', ALL),
   // Inverse grounds, the primary CTA and floating UI.
   pair('text-inverse', 'bg-inverse', 'text', PAGE),
   // The on-spruce wordmark (footer, header, menu panel) takes the inverse colour on the spruce ground.
@@ -88,6 +91,11 @@ export const PAIRS: Pair[] = [
   // TerrainMap .terrain__trail: the dashed route where it crosses the sunken map frame. The panel
   // is aria-hidden decoration and no control has a strong border on a sunken ground.
   pair('border-strong', 'bg-sunken', 'decorative', PAGE),
+  // CV navigation: Breadcrumbs (muted trail, link, current text on the page ground) and LangSwitch
+  // (muted label on the raised pill, selected label as bg on the text fill) use pairs listed above;
+  // the pill border is decorative next to the text labels.
+  // MobileMenu current link: the rule at the start of the row is --fjord-color-link on the panel ground.
+  pair('link', 'bg', 'ui', ['on-spruce']),
 ];
 
 export interface HomePair {

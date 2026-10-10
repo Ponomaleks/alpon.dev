@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process';
-import { cpSync, mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -53,6 +53,18 @@ describe('tokens --check', () => {
 
   it('fails naming the file when tokens.css is missing', () => {
     const check = run(fixtureRoot(), '--check');
+    expect(check.status).not.toBe(0);
+    expect(check.stderr).toContain('src/styles/tokens.css');
+  });
+
+  it('passes only with the print block: a tokens.css without it is stale (cv AC-12)', () => {
+    const dir = fixtureRoot();
+    expect(run(dir).status).toBe(0);
+    const file = join(dir, 'src/styles/tokens.css');
+    const css = readFileSync(file, 'utf8');
+    expect(css).toContain('@media print {');
+    writeFileSync(file, css.replace(/@media print \{[\s\S]*?\n\}\n/, ''));
+    const check = run(dir, '--check');
     expect(check.status).not.toBe(0);
     expect(check.stderr).toContain('src/styles/tokens.css');
   });

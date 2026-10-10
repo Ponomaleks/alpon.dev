@@ -37,7 +37,7 @@ The site itself is a portfolio piece: code quality, accessibility and performanc
 
 ## Content rules
 
-- English for main content. Norwegian for small warm details: "Hei", "Ta kontakt", "Nå", "Oslo, Norge", "Skann meg", "Ikke funnet", "Sist oppdatert". The shell's call to action is English, "Get in touch", as in the page design; BRAND.md's "Norwegian for the call to action" applies to labels such as "Ta kontakt", not to the shell buttons. Button labels and their states are interface text and stay English: the copy confirmation is "Copied", in the Copy button and in the Toast (home spec D-18).
+- English for main content. Norwegian for small warm details: "Hei", "Ta kontakt", "Nå", "Oslo, Norge", "Skann meg", "Ikke funnet", "Sist oppdatert". The shell's call to action is English, "Get in touch", as in the page design; BRAND.md's "Norwegian for the call to action" applies to labels such as "Ta kontakt", not to the shell buttons. Interface text (button labels and their states) follows the language of the page it is on: English on the English pages and in the Shell, Norwegian for the Norwegian CV page's own controls. So the copy action is "Copy" with the confirmation "Copied", in the button and in the Toast, on the home page and the English CV page (home spec D-18), and "Kopier" with "Kopiert", marked `lang="no"`, on the Norwegian CV page (cv screens C-4).
 - Voice: modest and concrete. No "passionate", "rockstar", superlatives.
 - Dashes are allowed in user-facing text: the long dash (U+2014) and the en dash (U+2013) as used in the design copy (e.g. date ranges `Nov 2022 – Jan 2026`).
 - Never name the EPAM client or its events directly (NDA). Indirect descriptions are allowed and the design copy is the reference (e.g. "a global B2B software leader (Fortune Global 500)", "an international conference series", "28,000+ attendees").
@@ -47,6 +47,7 @@ The site itself is a portfolio piece: code quality, accessibility and performanc
 - Location has two meanings, keep them apart: "Oslo, Norge" / Oslo area is the region of work (hero, contacts, vCard `ADR: Oslo, Norway`); "Nittedal" is the place of residence and appears in the CV (`1482 Nittedal, Norway`) in the home quick facts ("Based in: Nittedal, Oslo area") and in the footer "Based in" column ("Nittedal, Norge", with the municipality coordinates 60.07° N, 10.87° E). `src/data/contact.ts` keeps the two as separate fields.
 - Contact title: vCard `TITLE` is the broad role "Software Engineer"; the specialisation goes to `NOTE` (Full Stack Developer, agentic engineering).
 - Downloads are real files, never placeholders: "Download CV" links to `public/cv/alexander-ponomarenko-cv-en.pdf` or `public/cv/alexander-ponomarenko-cv-no.pdf` by the current CV language (EN on pages without a language), and "Save contact" links to `public/alexander-ponomarenko.vcf`; both use the `download` attribute. The CV "View original PDF" preview uses the page images `public/cv/cv-{en,no}-{1,2}.webp`.
+- The CV exists twice: as a CV PDF (`public/cv/alexander-ponomarenko-cv-{en,no}.pdf`, the source of truth for the CV content) and as a CV page (`/cv/en`, `/cv/no`, text in `src/data/cv/{en,no}.ts`). A CV update changes both. When a CV PDF is replaced, the same pull request does this, in this order (cv spec AC-25): (1) update the CV page in that CV language from the new file; (2) make the page images of that file again (`tools/cv-previews.py`); (3) set the CV date (`cvDate` in `src/data/cv/index.ts`, one value for both CV languages); (4) only after that, update the `sha256` of that file in `src/data/cv/index.ts`; (5) have the Owner confirm the CV rows of the Claims list again (`docs/features/cv/owner-inputs.md`, table 3). `npm run check:cv`, part of `npm run lint`, fails while a CV PDF differs from its recorded checksum (or is missing) and names the file and the CV page to check. It compares checksums only and reads no text, so comparing the text of the page with the file stays the Owner's check.
 
 ## Quality bar
 
@@ -91,19 +92,23 @@ public/            fonts, cv/, qr/, vCard, _headers, _redirects, static files (c
 scripts/           build-time Node/TS checks (e.g. contrast check)
 src/
   data/            contact.ts and other typed data
+    cv/            CV data per CV language, the CV date, the checksum of each CV PDF
   styles/          tokens.css, base.css, prose.css
   components/
     ui/            Button, Link, Badge, Tag, Stat, SectionHeader, Callout, CodeBlock, ...
     layout/        Header, Footer, ThemeToggle, SkipLink, MobileBar
     brand/         Contours, QrTile
     home/          Hero, KeyFacts, About, QuickFacts, ExperienceList, ContactBlock, Portrait, MotionControl
+    cv/            CvPage, CvHead, CvMeta, CvSection, CvJob, CvProjects, CvAside, DatedRows, SkillGroup, LanguageList, OriginalPdfPreview
     prose/         Prose and its element mappings
   scripts/
     home/          page scripts of the home page
+    cv/            page script of the CV pages (arrival at a section, language switch, copy email)
+    shared/        modules that more than one page uses (copy-email)
     shell/         Shell scripts (header, menu, theme, action bar, toast)
   integrations/    build integrations (CSP hash, one stylesheet per page)
   layouts/         BaseLayout.astro
-  pages/           index.astro, 404.astro, later cv/, projects/[slug], thoughts/
+  pages/           index.astro, 404.astro, cv.astro, cv/ (en, no), styleguide.astro, later projects/[slug], thoughts/
   content/         content collections (projects, later thoughts)
 tests/
   e2e/             smoke.spec.ts, parity.spec.ts (one test per docs/stub-parity.md id)

@@ -1,0 +1,163 @@
+---
+import Icon from '../ui/Icon.astro';
+
+// BackToTop (AC-21, AC-22): a link to the top of the page, fixed in the bottom end corner from 768.
+// Below 768 that corner belongs to the Sticky action bar, so the link is not displayed. No script:
+// "#top" names the empty element BaseLayout puts first in the body, so the browser scrolls to the
+// start of the document and the next Tab starts again at the skip link. Where the browser ties animation to scrolling the link appears
+// after about one and a half screens, also under reduced motion; elsewhere it is shown all the time. Its space at the end of
+// the page is reserved in base.css (hook H-5: data-back-to-top).
+// `sample` leaves the hook off and draws the link in the flow for the Styleguide.
+interface Props {
+  sample?: boolean;
+  /** `en` on a Norwegian page: the Shell stays English (AC-02). */
+  lang?: 'en';
+  /** Forces a state for the Styleguide (hook H-4). */
+  'data-demo-state'?: 'hover' | 'focus';
+}
+
+const { sample = false, lang, 'data-demo-state': demoState } = Astro.props;
+---
+
+<a
+  class="back-to-top"
+  href="#top"
+  lang={lang}
+  data-back-to-top={sample ? undefined : ''}
+  data-sample={sample ? '' : undefined}
+  data-demo-state={demoState}
+>
+  <Icon name="arrow-up" />
+  <span class="back-to-top__label">Back to top</span>
+</a>
+
+<style>
+  .back-to-top {
+    display: none;
+    place-items: center;
+    inline-size: var(--fjord-tap-min);
+    block-size: var(--fjord-tap-min);
+    box-sizing: border-box;
+    border-radius: var(--fjord-radius-pill);
+    border: var(--fjord-border-width) solid var(--fjord-color-border);
+    background-color: var(--fjord-color-bg-raised);
+    box-shadow: var(--fjord-shadow-float);
+    color: var(--fjord-color-text);
+  }
+
+  .back-to-top[data-sample] {
+    display: inline-grid;
+  }
+
+  .back-to-top[data-back-to-top] {
+    position: fixed;
+    inset-inline-end: max(var(--fjord-space-4), env(safe-area-inset-right));
+    inset-block-end: var(--fjord-space-6);
+    z-index: var(--fjord-z-fab);
+  }
+
+  @media (min-width: 768px) {
+    .back-to-top[data-back-to-top] {
+      display: inline-grid;
+    }
+  }
+
+  .back-to-top:hover,
+  .back-to-top[data-demo-state='hover'] {
+    background-color: var(--fjord-color-accent-soft);
+    color: var(--fjord-color-text);
+  }
+
+  .back-to-top:focus-visible,
+  .back-to-top[data-demo-state='focus'] {
+    outline: var(--fjord-focus-width) solid var(--fjord-color-focus-ring);
+    outline-offset: var(--fjord-focus-offset);
+    border-radius: var(--fjord-radius-pill);
+  }
+
+  .back-to-top__label {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .back-to-top {
+      transition: background-color var(--fjord-duration-200) var(--fjord-ease-out);
+    }
+  }
+
+  /* Scroll-tied appearance: hidden (and so not focusable) at the top, shown from about one and a
+     half screens, as in the page design. Without support the link is shown all the time. With
+     motion allowed it fades in with a short rise; under reduced motion it only fades, nothing
+     moves (AC-21). Scroll-tied, never time-based: no duration. */
+  @supports (animation-timeline: scroll()) {
+    /* No block at the end of the page for a link that is gone there (base.css reads this). */
+    :global(:root:has([data-back-to-top])) {
+      --back-to-top-reserve: 0px;
+    }
+
+    /* The last animation hides the link again over the end of the page, where the footer is, so
+       it covers nothing there and the page needs no reserve (AC-22). It fills forwards only: before
+       its range it does not apply and the appearance above it decides. */
+    .back-to-top[data-back-to-top] {
+      --back-to-top-clear: calc(var(--fjord-tap-min) + var(--fjord-space-6) + var(--fjord-space-4));
+
+      animation:
+        back-to-top-show var(--fjord-ease-linear) both,
+        back-to-top-hide var(--fjord-ease-linear) forwards;
+      animation-timeline: scroll(root);
+      animation-range:
+        100vh 150vh,
+        calc(100% - 2 * var(--back-to-top-clear)) calc(100% - var(--back-to-top-clear));
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .back-to-top[data-back-to-top] {
+        animation:
+          back-to-top-show var(--fjord-ease-linear) both,
+          back-to-top-rise var(--fjord-ease-linear) both,
+          back-to-top-hide var(--fjord-ease-linear) forwards;
+        animation-timeline: scroll(root);
+        animation-range:
+          100vh 150vh,
+          100vh 150vh,
+          calc(100% - 2 * var(--back-to-top-clear)) calc(100% - var(--back-to-top-clear));
+      }
+    }
+  }
+
+  @keyframes back-to-top-hide {
+    from {
+      opacity: 1;
+      visibility: visible;
+    }
+    to {
+      opacity: 0;
+      visibility: hidden;
+    }
+  }
+
+  @keyframes back-to-top-show {
+    from {
+      opacity: 0;
+      visibility: hidden;
+    }
+    to {
+      opacity: 1;
+      visibility: visible;
+    }
+  }
+
+  @keyframes back-to-top-rise {
+    from {
+      translate: 0 var(--fjord-space-2);
+    }
+    to {
+      translate: 0 0;
+    }
+  }
+</style>

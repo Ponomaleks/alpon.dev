@@ -179,7 +179,10 @@ test.describe('Sticky action bar', () => {
     page,
   }) => {
     await page.goto('/styleguide');
-    const bars = page.locator('[data-section="Sticky action bar"] .mobile-bar[data-sample]');
+    // The home pair's two samples; the CV pair (cv T24) is a third sample, with a language switch.
+    const bars = page.locator(
+      '[data-section="Sticky action bar"] .mobile-bar[data-sample]:not(:has([data-lang-switch]))',
+    );
     await expect(bars).toHaveCount(2);
     await expect(bars.nth(0).getByRole('link')).toHaveCount(2);
     await expect(bars.nth(0).getByRole('link').first()).toBeVisible();

@@ -4,9 +4,13 @@
 // Built half (home AC-27): the Person data, the mail-link sentence and the hero coordinates in
 // dist/index.html against contact.ts.
 //
+// CV half (cv AC-27): the side column and the location line of dist/cv.html, dist/cv/en.html and
+// dist/cv/no.html against contact.ts.
+//
 // Run from the repo root: node scripts/check-contact.ts [--built]
 
 import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { contact, type Contact } from '../src/data/contact.ts';
 import { buildPerson } from '../src/data/person.ts';
 
@@ -135,19 +139,131 @@ export function checkBuiltContact(c: Contact, html: string): string[] {
   return problems;
 }
 
+/** The built CV files, relative to dist. */
+export const CV_PAGES = ['cv.html', 'cv/en.html', 'cv/no.html'] as const;
+
+const decode = (text: string) =>
+  text
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/\s+/g, ' ')
+    .trim();
+
+/** Email, phone, LinkedIn, GitHub and Residence of the CV side column, and the location line, against contact.ts. */
+export function checkBuiltCvPages(c: Contact, distDir: string): string[] {
+  const problems: string[] = [];
+  for (const name of CV_PAGES) {
+    const file = join(distDir, name);
+    if (!existsSync(file)) {
+      problems.push(`${name}: file not found in ${distDir}, run the build first`);
+      continue;
+    }
+    const html = readFileSync(file, 'utf8');
+    const miss = (fact: string, expected: string, found: string | string[] | undefined) => {
+      const list = [found ?? []].flat();
+      problems.push(
+        `${name}: ${fact}: contact.ts has "${expected}", the side column has ${list.map((f) => `"${f}"`).join(', ') || 'nothing'}`,
+      );
+    };
+
+    const aside = /<aside\b[^>]*class="[^"]*\bcv-aside\b[^"]*"[^>]*>[\s\S]*?<\/aside>/i.exec(
+      html,
+    )?.[0];
+    if (!aside) {
+      for (const [fact, value] of [
+        ['email', c.email],
+        ['phone', c.phone],
+        ['linkedin', c.linkedin],
+        ['github', c.github],
+        ['residence', c.residence.name],
+      ] as const)
+        miss(fact, value, undefined);
+    } else {
+      const hrefs = [...aside.matchAll(/<a\b[^>]*\bhref="([^"]*)"/gi)].map((m) => m[1] ?? '');
+      const mails = hrefs
+        .filter((h) => h.startsWith('mailto:'))
+        .map((h) => h.slice(7).split('?')[0] ?? '');
+      if (!mails.includes(c.email)) miss('email', c.email, mails);
+      const tels = hrefs.filter((h) => h.startsWith('tel:')).map((h) => h.slice(4));
+      if (!tels.includes(c.phone.replace(/[^\d+]/g, ''))) miss('phone', c.phone, tels);
+      const external = hrefs.filter((h) => /^https?:/.test(h));
+      if (!external.includes(c.linkedin)) miss('linkedin', c.linkedin, external);
+      if (!external.includes(c.github)) miss('github', c.github, external);
+      const based = [
+        ...aside.matchAll(
+          /<span\b[^>]*class="[^"]*\bcv-aside__value\b[^"]*"[^>]*\blang="no"[^>]*>([\s\S]*?)<\/span>/gi,
+        ),
+      ].map((m) => decode(m[1] ?? ''));
+      if (!based.includes(c.residence.name)) miss('residence', c.residence.name, based);
+    }
+
+    // The printed line: exactly one, and its four links equal contact.ts (AC-27, T30).
+    const lines = [
+      ...html.matchAll(/<p\b[^>]*class="[^"]*\bcv-print-line\b[^"]*"[^>]*>([\s\S]*?)<\/p>/gi),
+    ];
+    if (lines.length !== 1) {
+      problems.push(
+        `${name}: printed contact line: the page must have one, it has ${lines.length}`,
+      );
+    } else {
+      const links = [...(lines[0]?.[1] ?? '').matchAll(/<a\b[^>]*\bhref="([^"]*)"/gi)].map(
+        (m) => m[1] ?? '',
+      );
+      const printed: [string, string, string | undefined][] = [
+        [
+          'email',
+          c.email,
+          links
+            .find((h) => h.startsWith('mailto:'))
+            ?.slice(7)
+            .split('?')[0],
+        ],
+        [
+          'phone',
+          c.phone.replace(/[^\d+]/g, ''),
+          links.find((h) => h.startsWith('tel:'))?.slice(4),
+        ],
+        ['linkedin', c.linkedin, links.find((h) => h.includes('linkedin.com'))],
+        ['github', c.github, links.find((h) => h.includes('github.com'))],
+      ];
+      for (const [fact, expected, found] of printed)
+        if (found !== expected)
+          problems.push(
+            `${name}: printed contact line: ${fact}: contact.ts has "${expected}", the printed line has ${found ? `"${found}"` : 'nothing'}`,
+          );
+    }
+
+    const town = c.residence.name.split(',', 1)[0]?.trim() ?? '';
+    const place = /<p\b[^>]*class="[^"]*\bplace\b[^"]*"[^>]*>([\s\S]*?)<\/p>/i.exec(html)?.[1];
+    const line = place === undefined ? undefined : decode(place);
+    if (line === undefined || !line.includes(town))
+      problems.push(
+        `${name}: location: the location line must name the town "${town}" of the Residence, it has ${line === undefined ? 'no location line' : `"${line}"`}`,
+      );
+  }
+  return problems;
+}
+
 if (import.meta.main && process.argv.includes('--built')) {
   const page = 'dist/index.html';
   if (!existsSync(page)) {
     console.error(`contact check failed: ${page} not found, run the build first`);
     process.exit(1);
   }
-  const problems = checkBuiltContact(contact, readFileSync(page, 'utf8'));
+  const problems = [
+    ...checkBuiltContact(contact, readFileSync(page, 'utf8')),
+    ...checkBuiltCvPages(contact, 'dist'),
+  ];
   if (problems.length > 0) {
     console.error(`built contact check failed:\n  ${problems.join('\n  ')}`);
     process.exit(1);
   }
   console.log(
-    'contact: the built home page matches contact.ts (Person data, mail link, coordinates)',
+    'contact: the built home page and the CV pages match contact.ts (Person data, mail link, coordinates, side column, location)',
   );
 } else if (import.meta.main) {
   const vcf = readFileSync('public/alexander-ponomarenko.vcf', 'utf8');

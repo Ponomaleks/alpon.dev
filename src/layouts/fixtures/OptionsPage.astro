@@ -21,6 +21,8 @@ export function getStaticPaths() {
         { label: 'Get the brief', href: '/brief.pdf', icon: 'download', download: true },
       ],
     },
+    'back-to-top-off': { backToTop: false },
+    'back-to-top-on': { backToTop: true },
     'band-off': { ctaBand: false },
     'band-on': { ctaBand: true },
     'band-custom': {
@@ -31,6 +33,14 @@ export function getStaticPaths() {
     },
     'cvlang-en': { cvLang: 'en' },
     'cvlang-no': { cvLang: 'no' },
+    canonical: { canonical: '/cv/en' },
+    alternates: {
+      alternates: [
+        { hreflang: 'en', href: '/cv/en' },
+        { hreflang: 'no', href: '/cv/no' },
+        { hreflang: 'x-default', href: '/cv/en' },
+      ],
+    },
   } as const;
   return Object.entries(cases).map(([name, options]) => ({ params: { name }, props: { options } }));
 }

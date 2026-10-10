@@ -4,12 +4,14 @@
 // `sample` renders it in the flow, always visible, for the Styleguide.
 interface Props {
   sample?: boolean;
+  /** `en` on a Norwegian page: the Shell stays English (AC-02). */
+  lang?: 'en';
 }
 
-const { sample = false } = Astro.props;
+const { sample = false, lang } = Astro.props;
 ---
 
-<a class="skip-link" href="#main" data-sample={sample ? '' : undefined}>
+<a class="skip-link" href="#main" lang={lang} data-sample={sample ? '' : undefined}>
   Skip to content
 </a>
 

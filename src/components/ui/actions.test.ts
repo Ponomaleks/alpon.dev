@@ -32,6 +32,10 @@ const ICONS = [
   'phone',
   'linkedin',
   'github',
+  // T7 (AC-06, AC-24): the icons the CV page needs.
+  'file-down',
+  'eye',
+  'arrow-up',
 ] as const;
 let out = '';
 let page = '';
@@ -48,6 +52,10 @@ import IconButton from '${ui('IconButton.astro')}';
 <div data-case="btn-secondary"><Button href="/go" variant="secondary">Go</Button></div>
 <div data-case="btn-large-block-arrow"><Button href="/go" size="lg" block arrow>Go</Button></div>
 <div data-case="btn-icon"><Button href="/cv" variant="secondary" icon="file-text">View CV</Button></div>
+<div data-case="ghost"><Button href="/go" variant="ghost">Go</Button></div>
+<div data-case="ghost-sm"><Button variant="ghost" size="sm">Go</Button></div>
+<div data-case="ghost-icon"><Button href="/cv" variant="ghost" icon="eye">Preview</Button></div>
+<div data-case="ghost-sm-icon"><Button variant="ghost" size="sm" icon="file-down">Get</Button></div>
 <div data-case="btn-element"><Button>Press</Button></div>
 <div data-case="btn-disabled"><Button disabled>Off</Button></div>
 <div data-case="btn-disabled-link"><Button href="/go" disabled>Off</Button></div>
@@ -193,6 +201,42 @@ describe('Button', () => {
 
   it('passes data-demo-state through', () => {
     expect(made('btn-demo-hover')).toContain('data-demo-state="hover"');
+  });
+});
+
+describe('Button ghost variant (AC-06)', () => {
+  it.each(['ghost', 'ghost-sm', 'ghost-icon', 'ghost-sm-icon'])(
+    '%s has the ghost class, never the primary class, no style attribute',
+    (name) => {
+      const el = made(name);
+      const c = classesOf(el);
+      expect(c).toEqual(expect.arrayContaining(['fj-btn', 'fj-btn--ghost']));
+      expect(c).not.toContain('fj-btn--primary');
+      expect(c).not.toContain('fj-btn--secondary');
+      expect(el).not.toMatch(/\sstyle=/);
+    },
+  );
+
+  it('small adds the sm class; a leading icon renders a hidden svg before the label', () => {
+    expect(classesOf(made('ghost-sm'))).toContain('fj-btn--sm');
+    expect(classesOf(made('ghost'))).not.toContain('fj-btn--sm');
+    for (const [name, label] of [
+      ['ghost-icon', 'Preview'],
+      ['ghost-sm-icon', 'Get'],
+    ] as const) {
+      const el = made(name);
+      expect(el.indexOf('<svg')).toBeGreaterThan(-1);
+      expect(el.indexOf('<svg')).toBeLessThan(el.indexOf(label));
+      expect(el).toMatch(/<svg[^>]*aria-hidden="true"/);
+    }
+  });
+
+  it('is styled from tokens: transparent fill, text colour, hover and demo states', () => {
+    const base = rules().find(([sel]) => sel.split(',').includes('.fj-btn--ghost'));
+    expect(base?.[1]).toMatch(/background-color:\s*transparent/);
+    expect(base?.[1]).toMatch(/color:\s*var\(--fjord-color-/);
+    const hover = rules().find(([sel]) => sel.includes('.fj-btn--ghost:hover'));
+    expect(hover?.[0]).toContain('.fj-btn--ghost[data-demo-state=hover]');
   });
 });
 

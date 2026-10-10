@@ -65,6 +65,15 @@ a:hover {
   }
 }
 
+/* Moves inside a page (the contact place, "On this page", BackToTop, the skip link) scroll
+   smoothly, as in the page design; the browser sets the pace. Arriving from another page is never
+   animated. Under reduced motion the rule below it wins and the page moves at once. */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
 /* A guard for whatever a component declares later (handoff base.css): under reduced motion no
    animation loops and nothing scrolls smoothly; single fades still run. */
 @media (prefers-reduced-motion: reduce) {
@@ -159,6 +168,32 @@ pre {
   :root:has([data-shell-bar]) body::after,
   :root:has([data-shell-bar]:not([open])) body::after {
     block-size: 0;
+  }
+}
+
+/* BackToTop clearance (AC-22, hook H-5): from 768 the fixed link sits in the bottom end corner, so
+   the end of the page keeps its height (tap-min), the corner gap and a gap above it clear, and
+   focused elements stop above it. Below 768 the link is not displayed and the bar's reserve
+   above applies. Written after the bar's reset so that it wins on a page that has both. */
+:root:has([data-back-to-top]) body::after {
+  content: '';
+  display: block;
+}
+
+@media (min-width: 768px) {
+  :root:has([data-back-to-top]),
+  :root:has([data-shell-bar]:not([open])):has([data-back-to-top]) {
+    scroll-padding-bottom: calc(var(--fjord-tap-min) + var(--fjord-space-6) + var(--fjord-space-4));
+  }
+
+  /* Where the link is tied to scrolling it hides itself over the end of the page and sets the
+     reserve to nothing (BackToTop.astro), so the page ends with the footer, as in the page design. */
+  :root:has([data-back-to-top]) body::after,
+  :root:has([data-shell-bar]:not([open])):has([data-back-to-top]) body::after {
+    block-size: var(
+      --back-to-top-reserve,
+      calc(var(--fjord-tap-min) + var(--fjord-space-6) + var(--fjord-space-4))
+    );
   }
 }
 

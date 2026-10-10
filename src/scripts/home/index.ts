@@ -1,16 +1,21 @@
 // The home page's one script entry (AC-32): wires every home module.
 import { initCarousel } from './carousel';
-import { initCopyEmail } from './copy-email';
+import { initCopyEmail } from '../shared/copy-email';
 import { initCountUp } from './count-up';
 import { initHeroHeader } from './hero-header';
 import { initMotion } from './motion';
 import { initParallax } from './parallax';
 import { initQuoteToggle } from './quote-toggle';
 import { initReveal } from './reveal';
+import { legacyCvTarget } from './legacy-cv';
 
 const matches = (query: string) => matchMedia(query);
 const ObserverCtor = 'IntersectionObserver' in window ? IntersectionObserver : null;
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// Legacy CV addresses hand over to the CV pages; replace keeps one Back on the page before.
+const legacyTarget = legacyCvTarget(location.hash);
+if (legacyTarget) location.replace(legacyTarget);
 
 initHeroHeader();
 // Reading sessionStorage can throw when the browser blocks it: keep the choice in memory then.

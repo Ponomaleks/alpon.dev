@@ -3,7 +3,7 @@ import Icon, { type IconName } from './Icon.astro';
 
 interface Props {
   href?: string;
-  variant?: 'primary' | 'secondary';
+  variant?: 'primary' | 'secondary' | 'ghost';
   size?: 'sm' | 'lg';
   block?: boolean;
   /** Trailing arrow that nudges on hover. */
@@ -11,8 +11,10 @@ interface Props {
   /** Leading icon. */
   icon?: IconName;
   disabled?: boolean;
-  /** Marks a link as a file download. */
-  download?: boolean;
+  /** Marks a link as a file download; a string is the file name the browser saves it under. */
+  download?: boolean | string;
+  /** Language of the label when it differs from the page's. */
+  lang?: string;
   /** Forces a state for the Styleguide (hook H-4). */
   'data-demo-state'?: 'hover' | 'focus' | 'active';
 }
@@ -26,6 +28,7 @@ const {
   icon,
   disabled = false,
   download = false,
+  lang,
   'data-demo-state': demoState,
 } = Astro.props;
 
@@ -54,6 +57,7 @@ const classes = [
     href={disabled ? undefined : href}
     aria-disabled={disabled ? 'true' : undefined}
     download={download || undefined}
+    lang={lang}
     data-demo-state={demoState}
   >
     {icon && <Icon name={icon} />}
@@ -86,6 +90,17 @@ const classes = [
     white-space: nowrap;
     cursor: pointer;
     user-select: none;
+  }
+
+  /* The design system's Button draws its icons at 18px, and at 16px in the small size. */
+  .fj-btn svg {
+    width: calc(var(--fjord-icon-md) - var(--fjord-space-0-5));
+    height: calc(var(--fjord-icon-md) - var(--fjord-space-0-5));
+  }
+
+  .fj-btn--sm svg {
+    width: var(--fjord-icon-sm);
+    height: var(--fjord-icon-sm);
   }
 
   /* The design's 36px button. Its touch target stays 44px through the overlay (spec D-08). */
@@ -141,6 +156,21 @@ const classes = [
     background-color: var(--fjord-color-accent-soft);
     border-color: var(--fjord-color-text);
     color: var(--fjord-color-text);
+  }
+
+  /* Ghost: a text-link look without a border (site design-system copy). */
+  .fj-btn--ghost {
+    background-color: transparent;
+    color: var(--fjord-color-link);
+    padding: 0 var(--fjord-space-3);
+  }
+
+  .fj-btn--ghost:hover,
+  .fj-btn--ghost:active,
+  .fj-btn--ghost[data-demo-state='hover'],
+  .fj-btn--ghost[data-demo-state='active'] {
+    background-color: var(--fjord-color-accent-soft);
+    color: var(--fjord-color-link-hover);
   }
 
   .fj-btn:focus-visible,

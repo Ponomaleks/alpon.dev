@@ -43,6 +43,7 @@ const SECTIONS = [
   'Mobile menu panel',
   'Sticky action bar',
   'Closing band',
+  'BackToTop',
 ];
 
 describe('built styleguide.html (SCR-04)', () => {
@@ -104,7 +105,6 @@ describe('built styleguide.html (SCR-04)', () => {
 
   it('shows the Toast sample with its meta, outside the live region', () => {
     const s = section('Toast');
-    expect(s).not.toContain('lang="no"');
     expect(s).toContain('Copied');
     expect(s).toContain('Show toast');
   });
@@ -165,7 +165,8 @@ describe('Shell samples (AC-21, SCR-04)', () => {
     const s = section('Mobile menu panel');
     expect(s).toMatch(/class="[^"]*menu--sample/);
     expect(s).toContain('data-sample');
-    expect(s).toContain('aria-current="page"');
+    expect(s.match(/aria-current="page"/g)).toHaveLength(1);
+    expect(s).toMatch(/<a\b[^>]*aria-current="page"[^>]*>[\s\S]*?CV[\s\S]*?<\/a>/);
     expect(s).not.toMatch(/<dialog\b/);
     expect(html().match(/<dialog\b/g) ?? []).toHaveLength(1);
   });
@@ -182,7 +183,8 @@ describe('Shell samples (AC-21, SCR-04)', () => {
     const bars = section('Sticky action bar').match(
       /<details\b[^>]*\bmobile-bar\b[^>]*>[\s\S]*?<\/details>/g,
     );
-    expect(bars).toHaveLength(2);
+    // T24 adds a third bar, the CV pair (open), after the two home-pair bars.
+    expect(bars).toHaveLength(3);
     const [openBar = '', collapsed = ''] = bars ?? [];
     const isOpen = (b: string) => /^<details\b[^>]*\sopen(?=[\s>=])/.test(b);
     expect(isOpen(openBar)).toBe(true);
@@ -300,6 +302,11 @@ const HOME_SECTIONS = [
 ];
 
 describe('home component sections (T16, SCR-04)', () => {
+  // The home form of the Contact list: the part before the CV forms, which T24 adds in
+  // data-sample blocks.
+  const homeContactList = () =>
+    section('Contact list').split(/<div\b[^>]*\sdata-sample[\s>]/)[0] ?? '';
+
   it.each(HOME_SECTIONS)('has one data-section block for %s', (name) => {
     expect(html().match(new RegExp(`data-section="${name}"`, 'g'))).toHaveLength(1);
     expect(section(name).length).toBeGreaterThan(0);
@@ -349,7 +356,7 @@ describe('home component sections (T16, SCR-04)', () => {
   });
 
   it('shows the Contact list: five rows, Copy in three states, Save contact', () => {
-    const s = section('Contact list');
+    const s = homeContactList();
     expect(s.match(/<dt\b/g)).toHaveLength(5);
     expect(s).toContain('Copy');
     for (const st of ['default', 'hover', 'focus'])
@@ -361,7 +368,7 @@ describe('home component sections (T16, SCR-04)', () => {
 
   // Design fixes (T14): the row label, the design's copy control and the add-to-contacts icon.
   it('shows the Contact list as the home page draws it: "Region", the copy control, user-plus', () => {
-    const s = section('Contact list');
+    const s = homeContactList();
     const labels = [...s.matchAll(/<dt\b[^>]*>([^<]*)<\/dt>/g)].map((m) => (m[1] ?? '').trim());
     expect(labels).toEqual(['Email', 'Phone', 'LinkedIn', 'GitHub', 'Region']);
     expect(s).not.toContain('Based in');
@@ -474,7 +481,10 @@ describe('changed base samples (T17, SCR-04)', () => {
       .filter((t) => /^<span\b[^>]*class="toast(?:\s[^"]*)?"/.test(t));
 
   it('shows the Toast success sample with the check icon, "Copied" and an address (AC-14)', () => {
-    const ok = toasts().filter((t) => /^<span\b[^>]*\sdata-icon="check"/.test(t));
+    // The English success sample; T24 adds a Norwegian one ("Kopiert"), marked lang="no".
+    const ok = toasts().filter(
+      (t) => /^<span\b[^>]*\sdata-icon="check"/.test(t) && !t.includes('lang="no"'),
+    );
     expect(ok).toHaveLength(1);
     expect(ok[0]).toContain('Copied');
     expect(ok[0]).toMatch(/toast__meta[^>]*>[^<]*@/);
@@ -486,8 +496,9 @@ describe('changed base samples (T17, SCR-04)', () => {
     );
     expect(refusal).toHaveLength(1);
     expect(refusal[0]?.split(/<\/span>/)[0]).not.toContain('data-icon');
-    expect(toasts().filter((t) => /^<span\b[^>]*\sdata-icon=/.test(t))).toHaveLength(1);
-    expect(toasts()).toHaveLength(2);
+    // T24 adds the Norwegian "Kopiert" sample, which carries a check icon too.
+    expect(toasts().filter((t) => /^<span\b[^>]*\sdata-icon=/.test(t))).toHaveLength(2);
+    expect(toasts()).toHaveLength(3);
   });
 });
 
@@ -593,9 +604,183 @@ describe('Testimonial and Selected projects samples (T29, SCR-04)', () => {
   });
 });
 
+// T24: the components of phase 5a with marked sample data (AC-29; screens.md SCR-04 "New sections"
+// and "Changed sections"). Every sample is static: the CV page script does not run here.
+const CV_SECTIONS = [
+  'Breadcrumbs',
+  'Language switch',
+  'Skill group',
+  'Language list',
+  'CV job',
+  'Dated rows',
+  'Contents list',
+  'Original PDF preview',
+];
+const SAMPLE_OPEN = /<div\b[^>]*\sdata-sample[\s>]/;
+
+describe('CV component sections (T24, SCR-04)', () => {
+  const sampleBlocks = (name: string) =>
+    section(name)
+      .split(/(?=<div\b[^>]*\sdata-sample[\s>])/)
+      .filter((b) => SAMPLE_OPEN.test(b.slice(0, 200)) && b.startsWith('<div'));
+
+  it.each(CV_SECTIONS)('has one data-section block for %s', (name) => {
+    expect(html().match(new RegExp(`data-section="${name}"`, 'g'))).toHaveLength(1);
+    expect(section(name).length).toBeGreaterThan(0);
+  });
+
+  it.each(CV_SECTIONS)('labels %s "Sample data" and keeps its content in data-sample', (name) => {
+    const labels = section(name).match(
+      /<p\b[^>]*class="[^"]*sg__sample-label[^"]*"[^>]*>\s*Sample data\s*<\/p>/g,
+    );
+    expect(labels?.length ?? 0).toBeGreaterThanOrEqual(1);
+    expect(sampleBlocks(name).length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('shows Breadcrumbs with two items and with three, the current item marked', () => {
+    const s = section('Breadcrumbs');
+    const navs = s.match(/<nav\b[^>]*class="crumbs"[\s\S]*?<\/nav>/g) ?? [];
+    expect(navs.map((n) => n.match(/<li\b/g)?.length)).toEqual(expect.arrayContaining([2, 3]));
+    for (const n of navs) expect(n.match(/aria-current="page"/g)).toHaveLength(1);
+    expect(s).toMatch(/data-demo-state="hover"/);
+    expect(s).toMatch(/data-demo-state="focus"/);
+  });
+
+  it('shows the Language switch large and default, each language current once', () => {
+    const s = section('Language switch');
+    const switches = s.match(/<div\b[^>]*data-lang-switch[^>]*>/g) ?? [];
+    expect(switches.some((t) => /data-size="large"/.test(t))).toBe(true);
+    expect(switches.some((t) => !/data-size="large"/.test(t))).toBe(true);
+    expect(s).toMatch(/<a\b[^>]*aria-current="true"[^>]*>\s*EN\s*<\/a>/);
+    expect(s).toMatch(/<a\b[^>]*aria-current="true"[^>]*>\s*NO\s*<\/a>/);
+    expect(s).toMatch(/data-demo-state="hover"/);
+    expect(s).toMatch(/data-demo-state="focus"/);
+  });
+
+  it('shows two Skill groups, three Language rows and the Dated rows states', () => {
+    expect(section('Skill group').match(/<h3\b/g)).toHaveLength(2);
+    expect(section('Language list').match(/<li\b/g)).toHaveLength(3);
+    const rows = section('Dated rows');
+    expect(rows).toMatch(/lang="no"/);
+    expect(rows.match(/<li\b/g)?.length ?? 0).toBeGreaterThanOrEqual(2);
+  });
+
+  it('shows the CV job: current job with client and internal projects, an earlier job with paragraphs', () => {
+    const s = section('CV job');
+    expect(s.match(/<h3\b/g)?.length ?? 0).toBeGreaterThanOrEqual(2);
+    expect(s).toMatch(/<h4\b/);
+    expect(s).toContain('Internal projects');
+    expect(s).toContain('Applied technologies');
+  });
+
+  it('shows the Contents list with eight numbered links', () => {
+    const s = section('Contents list');
+    expect(s.match(/<a\b[^>]*href="#[^"]+"/g)).toHaveLength(8);
+    expect(s).toMatch(/data-demo-state="hover"/);
+    expect(s).toMatch(/data-demo-state="focus"/);
+  });
+
+  it('shows the Original PDF preview closed and open, with two English page images and the meta line', () => {
+    const s = section('Original PDF preview');
+    const details = s.match(/<details\b[^>]*>/g) ?? [];
+    expect(details).toHaveLength(2);
+    expect(details.filter((d) => /\sopen[\s>=]/.test(d))).toHaveLength(1);
+    expect(s).toContain('CV page 1 of 2, English, PDF, opens in a new tab');
+    expect(s).toContain('CV page 2 of 2, English, PDF, opens in a new tab');
+    expect(s).toContain('PDF · 2 pages · A4');
+  });
+
+  it('adds the ghost Button, default and small, with an icon', () => {
+    const s = section('Button');
+    expect(s.match(/fj-btn--ghost/g)?.length ?? 0).toBeGreaterThanOrEqual(3);
+    expect(s).toMatch(
+      /<[a-z]+\b[^>]*fj-btn--ghost[^>]*fj-btn--sm|<[a-z]+\b[^>]*fj-btn--sm[^>]*fj-btn--ghost/,
+    );
+    expect(s).toMatch(/<(a|button)\b[^>]*fj-btn--ghost[^>]*>[\s\S]*?<svg\b/);
+  });
+
+  it('lists file-down, eye and arrow-up in Icon', () => {
+    for (const n of ['file-down', 'eye', 'arrow-up'])
+      expect(section('Icon')).toMatch(new RegExp(String.raw`<code\b[^>]*>${n}</code>`));
+  });
+
+  it('shows the CV pair in the Sticky action bar: language switch and Download PDF, open', () => {
+    const bars =
+      section('Sticky action bar').match(
+        /<details\b[^>]*\bmobile-bar\b[^>]*>[\s\S]*?<\/details>/g,
+      ) ?? [];
+    const cv = bars.filter((b) => b.includes('data-lang-switch'));
+    expect(cv).toHaveLength(1);
+    expect(cv[0]).toMatch(/^<details\b[^>]*\sopen(?=[\s>=])/);
+    expect(cv[0]).toContain('Download PDF');
+    expect(cv[0]).not.toContain('fj-btn--primary');
+    expect(cv[0]).toContain('data-sample');
+  });
+
+  it('shows the Contact list CV form in English and in Norwegian, with no Save contact', () => {
+    const forms = section('Contact list')
+      .split(/(?=<div\b[^>]*\sdata-sample[\s>])/)
+      .filter((b) => b.includes('Bosted') || b.includes('Telefon') || b.includes('Based in'));
+    const text = forms.filter((b) => !b.includes('Save contact')).join('\n');
+    for (const w of ['Based in', 'Bosted', 'E-post', 'Telefon', 'Kopier'])
+      expect(text).toContain(w);
+    expect(text).toMatch(/lang="no"/);
+  });
+
+  it('shows the Toast "Kopiert" with an address, marked Norwegian', () => {
+    expect(section('Toast')).toMatch(/<span\b[^>]*lang="no"[^>]*>\s*Kopiert\s*<\/span>/);
+  });
+
+  it('keeps CV content inside data-sample and uses no real CV text', () => {
+    expect(readFileSync(join(repo, 'src/data/samples.ts'), 'utf8')).toMatch(/cv/i);
+    for (const name of CV_SECTIONS) {
+      const body = section(name);
+      const before = body.slice(0, Math.max(0, body.search(SAMPLE_OPEN)));
+      expect(before).not.toMatch(/<(nav|ol|ul|li|dl|article|details|h3|h4)\b/);
+      for (const b of sampleBlocks(name))
+        for (const w of ['Nittedal', 'EPAM', 'Ponomarenko']) expect(b).not.toContain(w);
+    }
+  });
+});
+
 describe('visual baselines cover every section (home T25)', () => {
   it('the list of the visual spec is the list of data-section blocks on the built page, in order', () => {
     const onPage = [...html().matchAll(/<section [^>]*data-section="([^"]+)"/g)].map((m) => m[1]);
     expect([...VISUAL_SECTIONS]).toEqual(onPage);
+  });
+});
+
+describe('BackToTop on the Styleguide (AC-29, sad §5 backToTop)', () => {
+  it('has no fixed BackToTop: every link to #top is inside the sample section', () => {
+    const all = html().match(/<a\b[^>]*\bhref="#top"[^>]*>/g) ?? [];
+    const sample = section('BackToTop').match(/<a\b[^>]*\bhref="#top"[^>]*>/g) ?? [];
+    expect(sample.length).toBeGreaterThan(0);
+    expect(all).toHaveLength(sample.length);
+    for (const a of sample) expect(a).toContain('data-sample');
+  });
+
+  it('shows the control in default, hover and focus', () => {
+    const s = section('BackToTop');
+    expect(s).toContain('Back to top');
+    for (const st of ['hover', 'focus']) expect(s).toContain(`data-demo-state="${st}"`);
+    expect(s.match(/href="#top"/g)?.length).toBeGreaterThanOrEqual(3);
+  });
+});
+
+describe('Print contact line on the Styleguide (cv T30, SCR-04)', () => {
+  it('has the section, shown as it prints, inside data-sample', () => {
+    const s = section('Print contact line');
+    expect(s.length).toBeGreaterThan(0);
+    expect(s).toContain('data-sample');
+    expect(s).toContain('cv-print-line');
+  });
+
+  it('shows the four facts of the contact source in the sample', async () => {
+    const { contact } = await import('../data/contact');
+    const s = section('Print contact line');
+    expect(s).toContain(contact.email);
+    expect(s).toContain(contact.phone);
+    expect(s).toContain(contact.linkedin);
+    expect(s).toContain(contact.github);
   });
 });

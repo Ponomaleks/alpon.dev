@@ -13,6 +13,8 @@ interface Props {
    * target, for a value in a list (the profile rows of the Contact block).
    */
   quiet?: boolean;
+  /** External only: the hint in the language of the page, where that is not English. */
+  newTabHint?: string;
   /** A link on its own line that leads on inside the site: adds the arrow that moves on hover. */
   standalone?: boolean;
   /** Forces a state for the Styleguide (hook H-4). */
@@ -23,6 +25,7 @@ const {
   href,
   external = false,
   quiet = false,
+  newTabHint = 'opens in a new tab',
   standalone = false,
   'data-demo-state': demoState,
 } = Astro.props;
@@ -42,7 +45,7 @@ const lone = standalone && !external;
   data-demo-state={demoState}
 >
   <slot />
-  {external && <span class="fj-link__hint">(opens in a new tab)</span>}
+  {external && <span class="fj-link__hint">({newTabHint})</span>}
   {external && (
     <span class="fj-link__icon">
       <Icon name="arrow-up-right" />
@@ -107,8 +110,8 @@ const lone = standalone && !external;
     background-position: 0 calc(50% + 0.5em * var(--fjord-leading-snug) + var(--fjord-space-0-5));
   }
 
-  /* The design's 16px arrow beside the standalone link. */
-  .fj-link--quiet .fj-link__icon svg,
+  /* The design's 16px arrow beside the standalone and the external link. */
+  .fj-link--external .fj-link__icon svg,
   .fj-link--standalone .fj-link__icon svg {
     inline-size: var(--fjord-space-4);
     block-size: var(--fjord-space-4);

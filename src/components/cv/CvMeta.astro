@@ -1,0 +1,33 @@
+---
+// The meta line (screens SCR-05 / SCR-06): "Last updated", the CV date in a <time>, then the
+// format line. Used in the CV head and under the open Original PDF preview. Text follows the CV language.
+import { cvDate } from '../../data/cv/index';
+import type { CvLang } from '../../data/cv/types';
+
+interface Props {
+  lang: CvLang;
+}
+
+const { lang } = Astro.props;
+
+const copy = {
+  en: { updated: 'Last updated', format: 'PDF · 2 pages · A4' },
+  no: { updated: 'Sist oppdatert', format: 'PDF · 2 sider · A4' },
+} as const;
+const { updated, format } = copy[lang];
+---
+
+<p class="cv-meta" lang={lang === 'no' ? 'no' : undefined}>
+  {updated} <time datetime={cvDate}>{cvDate}</time> · {format}
+</p>
+
+<style>
+  .cv-meta {
+    margin: 0;
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-mono-sm);
+    line-height: var(--fjord-leading-mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--fjord-color-text-muted);
+  }
+</style>

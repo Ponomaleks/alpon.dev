@@ -298,6 +298,49 @@
   }
 }
 
+@media print {
+  :root,
+  [data-theme="dag"],
+  [data-theme="natt"],
+  :root[data-theme="natt"],
+  :root:not([data-theme]),
+  :root[data-theme="natt"] [data-hero],
+  :root:not([data-theme]) [data-hero] {
+    --fjord-color-bg: var(--fjord-print-bg);
+    --fjord-color-bg-raised: #FFFFFF;
+    --fjord-color-bg-sunken: #E9ECE6;
+    --fjord-color-bg-inverse: var(--fjord-spruce);
+    --fjord-color-text: var(--fjord-print-text);
+    --fjord-color-text-muted: var(--fjord-muted);
+    --fjord-color-text-inverse: var(--fjord-snow);
+    --fjord-color-link: var(--fjord-accent);
+    --fjord-color-link-hover: var(--fjord-spruce);
+    --fjord-color-focus-ring: var(--fjord-accent);
+    --fjord-color-border: #D6DDD8;
+    --fjord-color-border-strong: #7E8C85;
+    --fjord-color-contour-line: rgba(46, 94, 78, .13);
+    --fjord-color-selection: #DCE8E2;
+    --fjord-color-accent-soft: #DCE8E2;
+    --fjord-color-cta-bg: var(--fjord-spruce);
+    --fjord-color-cta-text: var(--fjord-snow);
+    --fjord-color-cta-hover: var(--fjord-accent);
+    --fjord-color-success: #2F6B4F;
+    --fjord-color-warning: #8A6420;
+    --fjord-color-danger: #9A3F35;
+    --fjord-color-success-soft: #DDEBE2;
+    --fjord-color-warning-soft: #F1E8D6;
+    --fjord-color-danger-soft: #F2E0DC;
+    --fjord-color-scrim: rgba(27, 36, 33, .32);
+    --fjord-color-tooltip-bg: var(--fjord-ink);
+    --fjord-color-tooltip-text: var(--fjord-snow);
+    --fjord-color-danger-on-inverse: #E0998F;
+    --fjord-photo-filter: saturate(.72) contrast(.97) sepia(.06);
+    color-scheme: light;
+    color: var(--fjord-color-text);
+    --fjord-shadow-float: 0 1px 2px rgba(27, 36, 33, .06), 0 12px 32px -8px rgba(27, 36, 33, .18);
+  }
+}
+
 .fjord-on-spruce,
 :root[data-theme="dag"] .header[data-over-hero],
 .header[data-sample][data-over-hero][data-sample-theme="dag"] {

@@ -21,10 +21,16 @@ interface ToastDetail {
   icon?: string;
 }
 
-function setup(clipboard: { writeText: (text: string) => Promise<void> } | undefined) {
+function setup(
+  clipboard: { writeText: (text: string) => Promise<void> } | undefined,
+  extraAttrs: Record<string, string> = {},
+) {
   const toasts: ToastDetail[] = [];
   let click: () => unknown = () => undefined;
-  const attrs = new Map<string, string>([['data-copy-email', ADDRESS]]);
+  const attrs = new Map<string, string>([
+    ['data-copy-email', ADDRESS],
+    ...Object.entries(extraAttrs),
+  ]);
   const button = {
     getAttribute: (name: string) => attrs.get(name) ?? null,
     setAttribute: (name: string, value: string) => void attrs.set(name, value),
@@ -181,5 +187,42 @@ describe('the done state of the Copy button', () => {
     expect(toasts).toHaveLength(2);
     await vi.advanceTimersByTimeAsync(DURATION * 2);
     expect(toasts).toHaveLength(2);
+  });
+});
+
+// T13 (AC-02, AC-04, AC-23; sad §8): the module holds no Norwegian text. The button carries the
+// language and the texts: data-copy-lang, data-copy-done-label, data-copy-refusal.
+describe('a button that follows the language of the page', () => {
+  const NO = {
+    'data-copy-lang': 'no',
+    'data-copy-done-label': 'Kopiert',
+    'data-copy-refusal': 'Kunne ikke kopiere. Marker adressen for å kopiere den.',
+  };
+  const ok = { writeText: () => Promise.resolve() };
+  const denied = { writeText: () => Promise.reject(new Error('denied')) };
+
+  it('confirms with Kopiert, the address and lang "no"', async () => {
+    const { toasts, press } = setup(ok, NO);
+    await press();
+    expect(toasts).toEqual([{ message: 'Kopiert', meta: ADDRESS, lang: 'no', icon: 'check' }]);
+  });
+
+  it('gives the refusal in the language of the button, marked with it', async () => {
+    const { toasts, press } = setup(denied, NO);
+    await press();
+    expect(toasts).toEqual([{ message: NO['data-copy-refusal'], lang: 'no' }]);
+  });
+
+  it('gives the Norwegian refusal also when there is no clipboard API', async () => {
+    const { toasts, press } = setup(undefined, NO);
+    await press();
+    expect(toasts[0]?.message).toBe(NO['data-copy-refusal']);
+    expect(toasts[0]?.lang).toBe('no');
+  });
+
+  it('an English button sends no lang', async () => {
+    const { toasts, press } = setup(ok);
+    await press();
+    expect(toasts[0]).not.toHaveProperty('lang');
   });
 });

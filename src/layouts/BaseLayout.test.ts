@@ -3,6 +3,7 @@ import { mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { contact } from '../data/contact';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 // BaseLayout head contract (sad §8, AC-13, AC-06): a real production build into a throwaway
@@ -231,8 +232,12 @@ describe('the Shell around a page (AC-06, AC-07, AC-24)', () => {
 });
 
 describe('page option current', () => {
+  it('the data points the CV link at the canonical English page', () => {
+    expect(contact.links.cv).toBe('/cv/en');
+  });
+
   it.each([
-    ['current-cv', '/cv'],
+    ['current-cv', contact.links.cv],
     ['current-contact', '/#contact'],
   ])('%s marks the %s link in the header and in the menu', (name, href) => {
     const source = opt(name);
@@ -296,6 +301,56 @@ describe('page option mobileBar', () => {
   });
 });
 
+describe('page option backToTop (AC-21, AC-22, sad §5)', () => {
+  /** The BackToTop link: a link to #top. */
+  const backToTop = (source: string) => tag(source, /<a\b(?=[^>]*\bhref="#top")[^>]*>/);
+
+  it('is rendered by default, after the footer, as a link named "Back to top"', () => {
+    const source = html('fixture.html');
+    expect(backToTop(source)).not.toBe('');
+    expect(count(source, /\bhref="#top"/g)).toBe(1);
+    const link = source.match(/<a\b(?=[^>]*\bhref="#top")[^>]*>[\s\S]*?<\/a>/)?.[0] ?? '';
+    expect(link.replace(/<[^>]+>/g, ' ')).toMatch(/Back to top/);
+    expect(source.indexOf('href="#top"')).toBeGreaterThan(source.indexOf('</main>'));
+  });
+
+  it('true is the same as the default', () => {
+    expect(backToTop(opt('back-to-top-on'))).not.toBe('');
+    expect(backToTop(opt('back-to-top-on'))).toBe(backToTop(html('fixture.html')));
+  });
+
+  it('false leaves it out and keeps the rest of the Shell', () => {
+    const source = opt('back-to-top-off');
+    expect(source).not.toContain('href="#top"');
+    expect(source).toContain('class="fj-band');
+    expect(source).toContain('<footer');
+  });
+
+  it('is marked English on a Norwegian page and carries no lang on an English one', () => {
+    expect(backToTop(html('fixture-no.html'))).toMatch(/\slang="en"/);
+    expect(backToTop(html('fixture.html'))).not.toContain('lang=');
+  });
+
+  it('is on the home page and the Not-found page', () => {
+    for (const page of ['index.html', '404.html']) expect(html(page)).toContain('href="#top"');
+  });
+
+  // The link hides at the top while it still has focus, and where "#top" named no element the
+  // next Tab did not reach the skip link in about one run of fifteen. An explicit target before the
+  // skip link is where the browser starts the next Tab from.
+  it('targets one empty element with the id "top", the first in the body, before the skip link', () => {
+    for (const page of ['fixture.html', 'index.html', '404.html']) {
+      const source = html(page);
+      expect(count(source, /\sid="top"/g)).toBe(1);
+      expect(source).toMatch(/<body[^>]*>\s*<span id="top"><\/span>\s*<a\b[^>]*class="skip-link"/);
+    }
+  });
+
+  it('leaves the target out with the link', () => {
+    expect(html('fixture-opt/back-to-top-off.html')).not.toMatch(/\sid="top"/);
+  });
+});
+
 describe('page option mobileBarActions (AC-38, ADR-0002)', () => {
   /** The anchors inside the bar's root element. */
   const barAnchors = (source: string) => {
@@ -306,7 +361,7 @@ describe('page option mobileBarActions (AC-38, ADR-0002)', () => {
   it('the default gives "View CV" and "Save contact (.vcf)", both secondary', () => {
     const [cv, save, ...rest] = barAnchors(html('fixture.html'));
     expect(rest).toEqual([]);
-    expect(cv).toContain('href="/cv"');
+    expect(cv).toContain(`href="${contact.links.cv}"`);
     expect(cv).toContain('View CV');
     expect(save).toContain('href="/alexander-ponomarenko.vcf"');
     expect(save).toContain('Save contact (.vcf)');
@@ -387,6 +442,79 @@ describe('page option cvLang', () => {
     const anchor = bandDownload(opt('cvlang-no'));
     expect(anchor).toContain('href="/cv/alexander-ponomarenko-cv-no.pdf"');
     expect(anchor).not.toContain('-en.pdf');
+  });
+});
+
+describe('page option canonical (AC-16)', () => {
+  it('sets the canonical link and og:url to the given site path', () => {
+    const page = 'fixture-opt/canonical.html';
+    expect(canonicalTag(page)).toContain('href="https://alpon.dev/cv/en"');
+    expect(metaContent(page, 'og:url')).toBe('https://alpon.dev/cv/en');
+  });
+
+  it('the default is still the page own path', () => {
+    const page = 'fixture-opt/bar-on.html';
+    expect(canonicalTag(page)).toContain('href="https://alpon.dev/fixture-opt/bar-on"');
+    expect(metaContent(page, 'og:url')).toBe('https://alpon.dev/fixture-opt/bar-on');
+  });
+});
+
+describe('page option alternates (AC-17)', () => {
+  const alternates = (page: string) =>
+    [...head(page).matchAll(/<link\b[^>]*rel="alternate"[^>]*>/g)].map(([m]) => m);
+
+  it('renders one link per entry with its hreflang and absolute address', () => {
+    const links = alternates('fixture-opt/alternates.html');
+    expect(links).toHaveLength(3);
+    const pairs = links.map((l) => [
+      l.match(/hreflang="([^"]*)"/)?.[1],
+      l.match(/href="([^"]*)"/)?.[1],
+    ]);
+    expect(pairs).toEqual([
+      ['en', 'https://alpon.dev/cv/en'],
+      ['no', 'https://alpon.dev/cv/no'],
+      ['x-default', 'https://alpon.dev/cv/en'],
+    ]);
+  });
+
+  it('renders none by default', () => {
+    expect(alternates('fixture.html')).toEqual([]);
+    expect(alternates('fixture-opt/bar-on.html')).toEqual([]);
+  });
+});
+
+describe('a Norwegian page marks the Shell English (AC-02, AC-20)', () => {
+  const source = () => html('fixture-no.html');
+  const body = () => source().match(/<body[^>]*>([\s\S]*)<\/body>/)?.[1] ?? '';
+
+  it('has <html lang="no"> and a main without a lang of its own', () => {
+    expect(source()).toMatch(/<html lang="no"/);
+    expect(tag(body(), /<main\b[^>]*>/)).not.toContain('lang=');
+  });
+
+  it.each([
+    ['skip link', /<a\b[^>]*class="skip-link[^>]*>/],
+    ['header', /<header\b[^>]*>/],
+    ['menu panel', /<dialog\b[^>]*id="mobile-menu"[^>]*>/],
+    ['closing band', /<section\b[^>]*class="fj-band[^>]*>/],
+    ['footer', /<footer\b[^>]*>/],
+    ['bar frame', /<details\b[^>]*data-shell-bar[^>]*>/],
+    ['Toast region', /<[^>]*data-toast-region[^>]*>/],
+  ])('the %s carries lang="en"', (_name, pattern) => {
+    const found = tag(body(), pattern);
+    expect(found).not.toBe('');
+    expect(found).toMatch(/\slang="en"/);
+  });
+
+  it('the CV link of header and menu follows cvLang, and the band downloads the NO PDF', () => {
+    const marked = [...body().matchAll(/<a\b[^>]*aria-current="page"[^>]*>/g)].map(([a]) => a);
+    expect(marked).toHaveLength(2);
+    for (const anchor of marked) expect(anchor).toContain(`href="${contact.links.cvPages.no}"`);
+    expect(bandDownload(source())).toContain('href="/cv/alexander-ponomarenko-cv-no.pdf"');
+  });
+
+  it('an English page leaves the Shell without a lang of its own', () => {
+    expect(tag(html('fixture.html'), /<header\b[^>]*>/)).not.toContain('lang=');
   });
 });
 
