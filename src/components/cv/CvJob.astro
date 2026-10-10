@@ -134,15 +134,23 @@ const { job, first = false } = Astro.props;
   .cv-job__eyebrow {
     color: var(--fjord-color-text-muted);
   }
+  /* The design's `.fjord-mono-small`. */
   .cv-job__when,
-  .cv-job__label,
-  .cv-job__eyebrow {
+  .cv-job__label {
     font-family: var(--fjord-font-mono);
     font-size: var(--fjord-text-mono-sm);
+    line-height: var(--fjord-leading-mono);
+    font-variant-numeric: tabular-nums;
   }
+  /* The design system's Eyebrow (`.fj-eyebrow`). */
   .cv-job__eyebrow {
+    display: flex;
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-mono-label);
+    font-weight: var(--fjord-weight-medium);
+    line-height: var(--fjord-leading-none);
     letter-spacing: var(--fjord-tracking-label);
-    text-transform: uppercase;
+    font-variant-numeric: tabular-nums;
   }
   .cv-job__when {
     white-space: nowrap;

@@ -36,43 +36,58 @@ const newTabHint = lang === 'no' ? cvNoLabels.newTabHint : undefined;
   .cv-projects {
     display: flex;
     flex-direction: column;
-    gap: var(--fjord-space-4);
   }
+  /* The page design's `.x-cvnote`: closer to the heading, one section gap above the projects. */
   .cv-projects__note {
-    margin: 0;
+    margin: calc(-1 * var(--fjord-space-2)) 0 var(--fjord-space-5);
     color: var(--fjord-color-text-muted);
   }
+  /* The page design's `.x-cvlist`: every project between two hairlines. */
   .cv-projects__item {
     display: flex;
     flex-direction: column;
     gap: var(--fjord-space-2);
-    padding-block-start: var(--fjord-space-4);
-    border-block-start: var(--fjord-border-width) solid var(--fjord-color-border);
+    padding-block: var(--fjord-space-4);
+    border-block: var(--fjord-border-width) solid var(--fjord-color-border);
+  }
+  .cv-projects__item + .cv-projects__item {
+    border-block-start: 0;
   }
   .cv-projects__item p {
     margin: 0;
-    max-inline-size: 62ch;
+    max-inline-size: 66ch;
     line-height: var(--fjord-leading-body);
   }
+  /* The design's `.fjord-h4` title with the stack beside it (`.x-cvlist__head`). */
   .cv-projects__title {
     display: flex;
     flex-wrap: wrap;
     align-items: baseline;
-    gap: var(--fjord-space-1) var(--fjord-space-3);
+    gap: var(--fjord-space-1) var(--fjord-space-4);
     margin: 0;
-    font-size: var(--fjord-text-ui-lg);
+    font-size: var(--fjord-text-h4);
     font-weight: var(--fjord-weight-semibold);
+    letter-spacing: var(--fjord-tracking-heading);
     line-height: var(--fjord-leading-snug);
   }
   .cv-projects__stack {
     font-family: var(--fjord-font-mono);
     font-size: var(--fjord-text-mono-sm);
     font-weight: var(--fjord-weight-regular);
+    line-height: var(--fjord-leading-mono);
+    letter-spacing: var(--fjord-tracking-body);
+    font-variant-numeric: tabular-nums;
     color: var(--fjord-color-text-muted);
   }
+  /* The design's mono external link: the inline mono size, regular weight, the body's line. */
   .cv-projects__link {
+    display: flex;
     font-family: var(--fjord-font-mono);
-    font-size: var(--fjord-text-mono-sm);
+    font-size: var(--fjord-text-mono-inline);
+    line-height: var(--fjord-leading-body);
+  }
+  .cv-projects__link :global(.fj-link) {
+    font-weight: var(--fjord-weight-regular);
   }
   /* A 44 px high target around the drawn link, which keeps its size (AC-24; screens C-7). */
   .cv-projects__link :global(.fj-link) {
