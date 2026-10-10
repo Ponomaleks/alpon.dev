@@ -88,6 +88,7 @@ Decided by the Owner; they go to the PR's design-difference list as they are.
 | D-08 | "Last updated" in the CV head shows the same date as the footer | the CV date, a value of its own | the footer date is the date of the contact facts; a Recruiter reads the CV line as the age of the CV (Owner, 2026-10-08) |
 | D-09 | No separate address for the CV without a language; one page for both languages | the short CV address shows the English CV page and names the English address as its canonical one | roadmap decision: the short addresses serve the pages with no redirect |
 | D-10 | "Get in touch" in the CV head is English on the Norwegian CV page, marked as English | "Ta kontakt" on the Norwegian CV page, in Norwegian like the other controls of the page; the header and the closing band keep "Get in touch" | the button belongs to the CV page, not to the Shell; "Ta kontakt" is in the Norwegian list of `CLAUDE.md` (Owner, 2026-10-09) |
+| D-11 | The Original PDF preview draws the two page images side by side in a block of at most 720 px, about 350 px a page | one page under the other, each as wide as the content: the width of the screen on a phone, 700 px or more from 834 | at 350 px a page the file cannot be read, so the preview was of no use; the stub shows the file at a readable size, and its embedded viewer is not rebuilt (D-03) (Owner, 2026-10-10) |
 
 Not a difference: the side column's contact list shows "Nittedal, Norge", the Residence. The CV is where the Residence belongs (`CLAUDE.md` Content rules); the Work region stays on the home page.
 
@@ -262,7 +263,7 @@ Decided by the Owner on 2026-10-09, after implement measured that the switch of 
 
 **Given** a Visitor is on a CV page, with scripts on or off
 **When** they activate "View original PDF"
-**Then** the Original PDF preview opens and its state is announced; it shows one image for each page of the CV PDF in the CV language of the page, side by side at every width as the page design draws them, and the meta line of AC-05 in the CV language of the page; each image is a link that opens that CV PDF in a new tab, and each has its own name, in the CV language of the page, that says the page, the language, that it is a PDF and that it opens in a new tab (on the English page "CV page 1 of 2, English, PDF, opens in a new tab" and "CV page 2 of 2, English, PDF, opens in a new tab"); activating the control again closes it. On arrival the preview is closed and no page image has been requested
+**Then** the Original PDF preview opens and its state is announced; it shows one image for each page of the CV PDF in the CV language of the page, one under the other at every width, each as wide as the content, so that the page can be read (D-11), and the meta line of AC-05 in the CV language of the page; each image is a link that opens that CV PDF in a new tab, and each has its own name, in the CV language of the page, that says the page, the language, that it is a PDF and that it opens in a new tab (on the English page "CV page 1 of 2, English, PDF, opens in a new tab" and "CV page 2 of 2, English, PDF, opens in a new tab"); activating the control again closes it. On arrival the preview is closed and no page image has been requested
 
 ### AC-10 (US-04) — error
 

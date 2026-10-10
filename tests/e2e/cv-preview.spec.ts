@@ -64,7 +64,11 @@ for (const c of cases) {
       await expect(details).not.toHaveAttribute('open', '');
     });
 
-    test('the two pages sit side by side at every width (AC-09)', async ({ page }) => {
+    // Readable, not thumbnails (Owner, 2026-10-10; spec D-11): one page under the other, each as
+    // wide as the content, at every width.
+    test('the two pages sit one under the other, each as wide as the content (AC-09)', async ({
+      page,
+    }) => {
       for (const width of [390, 834, 1440]) {
         await page.setViewportSize({ width, height: 900 });
         await page.goto(c.path);
@@ -72,8 +76,17 @@ for (const c of cases) {
         const [a, b] = await page
           .locator('.cv-preview__page')
           .evaluateAll((els) => els.map((el) => el.getBoundingClientRect().toJSON()));
-        expect(Math.abs(a.top - b.top)).toBeLessThan(1);
-        expect(b.left).toBeGreaterThanOrEqual(a.right - 1);
+        const content = await page
+          .locator('.cv-page__preview')
+          .evaluate((el) => el.getBoundingClientRect().width);
+        expect(b.top).toBeGreaterThanOrEqual(a.bottom - 1);
+        expect(Math.abs(a.left - b.left)).toBeLessThan(1);
+        for (const box of [a, b]) {
+          expect(Math.abs(box.width - content)).toBeLessThanOrEqual(1);
+          expect(box.height / box.width).toBeCloseTo(297 / 210, 1);
+        }
+        // A page of 1240 px drawn at 700 px or more can be read; on a phone it takes the screen.
+        if (width >= 834) expect(a.width).toBeGreaterThanOrEqual(700);
       }
     });
 
