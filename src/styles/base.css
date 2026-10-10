@@ -65,6 +65,15 @@ a:hover {
   }
 }
 
+/* Moves inside a page (the contact place, "On this page", BackToTop, the skip link) scroll
+   smoothly, as in the page design; the browser sets the pace. Arriving from another page is never
+   animated. Under reduced motion the rule below it wins and the page moves at once. */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
 /* A guard for whatever a component declares later (handoff base.css): under reduced motion no
    animation loops and nothing scrolls smoothly; single fades still run. */
 @media (prefers-reduced-motion: reduce) {
