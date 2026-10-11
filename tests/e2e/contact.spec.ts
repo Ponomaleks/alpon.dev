@@ -444,3 +444,38 @@ test.describe('QR tile (AC-17)', () => {
     await expect(page.getByText('Skann meg')).toBeHidden();
   });
 });
+
+// save-contact-hint AC-02: the inline note is for touch devices only and needs no script.
+test.describe('the inline note under "Add to contacts" (save-contact-hint AC-02)', () => {
+  const NOTE = 'Downloads a contact card. Open it from Downloads to add.';
+
+  test('is shown on a touch device and hidden elsewhere', async ({ page }, testInfo) => {
+    await page.goto('/');
+    const note = page.locator(SECTION).getByText(NOTE);
+    await expect(note).toHaveCount(1);
+    const touch = await page.evaluate(
+      () => matchMedia('(hover: none) and (pointer: coarse)').matches,
+    );
+    expect(touch).toBe(testInfo.project.name === 'mobile');
+    if (touch) {
+      await expect(note).toBeVisible();
+      const save = await box(
+        page.locator(SECTION).getByRole('link', { name: 'Add to contacts (vCard file)' }),
+      );
+      const rect = await box(note);
+      expect(rect.y).toBeGreaterThanOrEqual(save.y + save.height);
+      expect(rect.x).toBeCloseTo(save.x, 0);
+    } else {
+      await expect(note).toBeHidden();
+    }
+  });
+
+  test.describe('with scripts off', () => {
+    test.use({ javaScriptEnabled: false });
+    test('the note is still there on a touch device', async ({ page }, testInfo) => {
+      test.skip(testInfo.project.name !== 'mobile', 'touch devices only');
+      await page.goto('/');
+      await expect(page.locator(SECTION).getByText(NOTE)).toBeVisible();
+    });
+  });
+});

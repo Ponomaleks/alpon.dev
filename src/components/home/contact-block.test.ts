@@ -214,6 +214,18 @@ describe('ContactBlock', () => {
     expect(save?.attrs).toMatch(/\bdownload\b/);
   });
 
+  it('puts the inline note with the download icon right after the action (save-contact-hint AC-02)', async () => {
+    const html = await renderBlock();
+    const icon = readFileSync('src/components/ui/Icon.astro', 'utf8');
+    const d = icon.match(/download:\s*'([^']+)'/)?.[1] ?? 'no download icon';
+    const note = html.match(/<p\b[^>]*class="save-note"[^>]*>[\s\S]*?<\/p>/)?.[0] ?? '';
+    expect(text(note)).toBe('Downloads a contact card. Open it from Downloads to add.');
+    expect(note).toContain('d="' + d + '"');
+    expect(note).toMatch(/<svg\b[^>]*aria-hidden="true"/);
+    expect(html.indexOf('save-note')).toBeGreaterThan(html.indexOf('Add to contacts'));
+    expect(html.indexOf('save-note')).toBeLessThan(html.indexOf('Skann meg'));
+  });
+
   it('has no primary button (D-09)', async () => {
     const html = await renderBlock();
     expect(html).not.toMatch(/\b(btn|button)--primary\b|data-variant="primary"|fjord-btn--primary/);

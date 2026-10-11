@@ -27,6 +27,7 @@ import TerrainMap from '../components/brand/TerrainMap.astro';
 import Wordmark from '../components/brand/Wordmark.astro';
 import QrTile from '../components/brand/QrTile.astro';
 import Portrait from '../components/home/Portrait.astro';
+import SaveContactNote from '../components/home/SaveContactNote.astro';
 import MotionControl from '../components/home/MotionControl.astro';
 import QuickFacts from '../components/home/QuickFacts.astro';
 import ExperienceList from '../components/home/ExperienceList.astro';
@@ -557,6 +558,9 @@ const stateLabel = { hover: 'Hover', focus: 'Focus', active: 'Pressed' } as cons
       >
         Add to contacts
       </Button>
+      <div class="sg__gap">
+        <SaveContactNote sample />
+      </div>
       {cvContactSamples.map((form) => (
         <div class="sg__aside sg__gap" data-sample>
           <p class="sg__sample-label">Sample data</p>

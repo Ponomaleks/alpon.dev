@@ -1,0 +1,42 @@
+---
+// The inline note under "Add to contacts" (save-contact-hint AC-02): says that a file is
+// downloaded and where to find it. Shown on touch devices only, by CSS alone, so it works with
+// scripts off; desktop has the QR tile instead. `sample` draws it on every device (Styleguide).
+import Icon from '../ui/Icon.astro';
+
+interface Props {
+  sample?: boolean;
+}
+
+const { sample = false } = Astro.props;
+---
+
+<p class:list={['save-note', { 'save-note--sample': sample }]}>
+  <Icon name="download" />
+  Downloads a contact card. Open it from Downloads to add.
+</p>
+
+<style>
+  .save-note {
+    display: none;
+    align-items: flex-start;
+    gap: var(--fjord-space-2);
+    margin: 0;
+    font-size: var(--fjord-text-ui-xs);
+    line-height: var(--fjord-leading-snug);
+    color: var(--fjord-color-text-muted);
+  }
+  .save-note--sample {
+    display: flex;
+  }
+  @media (hover: none) and (pointer: coarse) {
+    .save-note {
+      display: flex;
+    }
+  }
+  .save-note :global(svg) {
+    flex: none;
+    width: var(--fjord-icon-sm);
+    height: var(--fjord-icon-sm);
+  }
+</style>

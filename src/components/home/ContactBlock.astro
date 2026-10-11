@@ -10,6 +10,7 @@ import Link from '../ui/Link.astro';
 import Button from '../ui/Button.astro';
 import CopyButton from '../ui/CopyButton.astro';
 import QrTile from '../brand/QrTile.astro';
+import SaveContactNote from './SaveContactNote.astro';
 import { contact } from '../../data/contact';
 
 interface Props {
@@ -92,6 +93,7 @@ const tel = `tel:${contact.phone.replace(/[^\d+]/g, '')}`;
         >
           Add to contacts
         </Button>
+        <SaveContactNote />
       </div>
       <QrTile />
     </div>
@@ -202,8 +204,12 @@ const tel = `tel:${contact.phone.replace(/[^\d+]/g, '')}`;
     flex: none;
     margin-inline-start: auto;
   }
+  /* The action and, on touch devices, the note under it (save-contact-hint AC-02). */
   .contact__actions {
     display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--fjord-space-2);
   }
   .contact__main :global(.qr) {
     margin-top: var(--fjord-space-2);

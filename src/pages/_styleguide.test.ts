@@ -364,6 +364,9 @@ describe('home component sections (T16, SCR-04)', () => {
     expect(s).toContain('Add to contacts');
     expect(s).toContain('href="/alexander-ponomarenko.vcf"');
     expect(s).toMatch(/<span\b[^>]*lang="no"[^>]*>\s*Oslo, Norge/);
+    // save-contact-hint AC-10: the inline note, drawn on every device here.
+    expect(s).toMatch(/<p\b[^>]*class="save-note save-note--sample"/);
+    expect(s).toContain('Downloads a contact card. Open it from Downloads to add.');
   });
 
   // Design fixes (T14): the row label, the design's copy control and the add-to-contacts icon.
