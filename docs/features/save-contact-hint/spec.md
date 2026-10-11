@@ -59,7 +59,7 @@ A tester on a phone tried to select the phone number to copy it and got the link
 - The contact card holds the number without spaces. The page still shows it with spaces. The QR files are not changed (`CLAUDE.md`, Architecture decisions).
 - The phone row of the Contact block gets a "Copy" button like the email row, and a selection of the number is copied without spaces. The menu a browser shows on a long press on a link ("copy link") is the browser's own: it fires no copy event and a page cannot change what it copies. The "Copy" button is the way that always works.
 
-On the same day the Owner decided that the QR tile is shown at every width, not from 1024 only (AC-15; it changes home AC-17). On a phone it is there to be scanned by someone else's phone; so below 768 it is drawn across the column and its hint, which speaks of pointing a phone's camera at it, is left out. The line "Or scan the QR code on a computer." in the sheet keeps its wording.
+On the same day the Owner decided that the QR tile is shown at every width, not from 1024 only (AC-15; it changes home AC-17). On a phone it is there to be scanned by someone else's phone; so below 768 it is drawn across the column and its hint, which speaks of pointing a phone's camera at it, is left out. The last line of the sheet no longer speaks of a computer: it reads "Or scan the QR code on this page.".
 
 Out of scope: the contact list in the side column of the CV pages keeps "Copy" on the email row only.
 
@@ -100,7 +100,7 @@ Out of scope: the contact list in the side column of the CV pages keeps "Copy" o
 
 **Given** a Visitor on the home page with scripts on, on a device that matches `(hover: none) and (pointer: coarse)`
 **When** they activate "Add to contacts" in the Contact block, the closing band or the Sticky action bar
-**Then** the download starts as before (the click is not prevented) and the sheet opens as a modal dialog above everything else, with the title "Add the contact card", under it the file name "Alexander Ponomarenko.vcf", the lead "It goes to your Downloads.", the steps 01 "If your browser asks, tap Download.", 02 "Open Downloads in your Files app.", 03 "Tap the file and save it as a contact.", the button "Got it" and the line "Or scan the QR code on a computer.". The copy is the same on every device, and the sheet opens on every activation; nothing is stored
+**Then** the download starts as before (the click is not prevented) and the sheet opens as a modal dialog above everything else, with the title "Add the contact card", under it the file name "Alexander Ponomarenko.vcf", the lead "It goes to your Downloads.", the steps 01 "If your browser asks, tap Download.", 02 "Open Downloads in your Files app.", 03 "Tap the file and save it as a contact.", the button "Got it" and the line "Or scan the QR code on this page.". The copy is the same on every device, and the sheet opens on every activation; nothing is stored
 
 ### AC-04 (US-01) — happy
 

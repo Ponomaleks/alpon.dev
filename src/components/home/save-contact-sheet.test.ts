@@ -62,7 +62,7 @@ describe('SaveContactSheet', () => {
       '03',
       'Tap the file and save it as a contact.',
       'Got it',
-      'Or scan the QR code on a computer.',
+      'Or scan the QR code on this page.',
     ];
     expect(t).toBe(parts.join(' '));
   });

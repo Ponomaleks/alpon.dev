@@ -1,4 +1,4 @@
-Draft until the Owner check (AC-11) and the visual baselines (T7) are done.
+Draft until the visual baselines (T7) are committed. The Owner check (AC-11) is done.
 
 Spec: `docs/features/save-contact-hint/spec.md`. Replaces backlog B-58 (pull request 9, closed).
 
@@ -6,7 +6,7 @@ Spec: `docs/features/save-contact-hint/spec.md`. Replaces backlog B-58 (pull req
 
 - The contact card action reads "Add to contacts". The Contact block and the home closing band show ".vcf" as mono, muted meta text; the Sticky action bar shows the label alone (D-01). Its name for assistive technology is "Add to contacts (vCard file)" everywhere.
 - On touch devices (`(hover: none) and (pointer: coarse)`) a note stands under the action in the Contact block: "Downloads a contact card. Open it from Downloads to add." CSS only, no script.
-- On touch devices, with scripts on, a tap on any of the three actions of the home page starts the download as before and opens a bottom sheet, a native modal `<dialog>`: "Add the contact card" with the file name under it, "It goes to your Downloads.", three steps, "Got it", "Or scan the QR code on a computer.". Escape, a tap outside and "Got it" close it; focus returns to the action. One set of copy for every device, nothing stored.
+- On touch devices, with scripts on, a tap on any of the three actions of the home page starts the download as before and opens a bottom sheet, a native modal `<dialog>`: "Add the contact card" with the file name under it, "It goes to your Downloads.", three steps, "Got it", "Or scan the QR code on this page.". Escape, a tap outside and "Got it" close it; focus returns to the action. One set of copy for every device, nothing stored.
 - Desktop, scripts off and the Not-found page: the file downloads and no sheet opens.
 - After user testing (2026-10-12): the contact card holds the phone number without spaces; the phone row of the Contact block has a "Copy" button that copies the number without spaces; a selection of the number is copied without spaces too. A long press on the link still shows the browser's own menu, which a page cannot change.
 - The QR tile is shown at every width, not from 1024 only (Owner decision 2026-10-12; home AC-17 changed). Below 768 it is as wide as the contact list and has no hint; from 768 it keeps the design's 132 px with the hint beside it.
@@ -14,9 +14,9 @@ Spec: `docs/features/save-contact-hint/spec.md`. Replaces backlog B-58 (pull req
 
 ## Owner check before the baselines (AC-11)
 
-- [ ] iPhone, LinkedIn in-app browser, preview address of this branch: activate "Add to contacts" and record what happens (does the file download, does the sheet open, can it be closed).
+- [x] iPhone, LinkedIn in-app browser, preview address of this branch: activate "Add to contacts".
 
-Result: not done yet.
+Result (Owner, 2026-10-12): the in-app browser behaves as the other browsers do. The file downloads, the sheet opens and can be closed.
 
 ## Tests
 

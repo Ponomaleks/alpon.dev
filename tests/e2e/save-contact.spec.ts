@@ -15,7 +15,7 @@ const COPY = [
   'If your browser asks, tap Download.',
   'Open Downloads in your Files app.',
   'Tap the file and save it as a contact.',
-  'Or scan the QR code on a computer.',
+  'Or scan the QR code on this page.',
 ];
 
 const actions = [
