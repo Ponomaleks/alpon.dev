@@ -127,11 +127,13 @@ describe('MobileBar: live', () => {
     expect(html).not.toMatch(/data-sample/);
   });
 
-  it('has exactly two actions: "View CV" then "Save contact (.vcf)"', () => {
+  it('has exactly two actions: "View CV" then "Add to contacts"', () => {
     const [cv, save, ...rest] = anchors(made('live'));
     expect(rest).toEqual([]);
     expect(cv).toMatch(/>\s*(?:<svg[\s\S]*?<\/svg>\s*)?View CV\s*</);
-    expect(save).toMatch(/Save contact \(\.vcf\)/);
+    // save-contact-hint D-01: the bar has no room for the ".vcf" meta at 360.
+    expect(save).toMatch(/Add to contacts\s*<span class="fj-btn__sr">\s*\(vCard file\)<\/span>/);
+    expect(save).not.toContain('fj-btn__meta');
     expect(made('live')).not.toMatch(/Get in touch/);
   });
 
@@ -142,7 +144,7 @@ describe('MobileBar: live', () => {
     expect(cv).not.toMatch(/\sdownload\b/);
   });
 
-  it('Save contact (.vcf) is a download of the contact card', () => {
+  it('Add to contacts is a download of the contact card', () => {
     const save = anchors(made('live'))[1] ?? '';
     expect(save).toContain('href="/alexander-ponomarenko.vcf"');
     expect(save).toMatch(/\sdownload(?:=""|\s|>)/);
@@ -177,7 +179,7 @@ describe('MobileBar: collapsible (AC-39, D-11)', () => {
     expect(html.indexOf('<summary')).toBeGreaterThanOrEqual(0);
     expect(anchors(html)).toHaveLength(2);
     expect(html.indexOf('View CV')).toBeGreaterThan(html.indexOf('</summary>'));
-    expect(html.indexOf('Save contact (.vcf)')).toBeGreaterThan(html.indexOf('</summary>'));
+    expect(html.indexOf('Add to contacts')).toBeGreaterThan(html.indexOf('</summary>'));
     expect(summary()).not.toMatch(/<a\b/);
   });
 });
@@ -192,7 +194,7 @@ describe('MobileBar: custom pair', () => {
     expect(second).toMatch(/Get the brief/);
     expect(second).toMatch(/\sdownload(?:=""|\s|>)/);
     expect(first).not.toMatch(/\sdownload\b/);
-    expect(made('custom')).not.toMatch(/View CV|Save contact|Get in touch/);
+    expect(made('custom')).not.toMatch(/View CV|Add to contacts|Get in touch/);
   });
 
   it('is secondary for both actions', () => {
@@ -215,11 +217,13 @@ describe('BarAction type and the default pair (ADR-0002)', () => {
     for (const action of defaultBarActions) expect(Object.keys(action)).not.toContain('variant');
   });
 
-  it('the default pair is "View CV" and "Save contact (.vcf)" from contact.ts', () => {
+  it('the default pair is "View CV" and "Add to contacts" from contact.ts', () => {
     expect(defaultBarActions).toHaveLength(2);
     expect(defaultBarActions[0]).toMatchObject({ label: 'View CV', href: contact.links.cv });
     expect(defaultBarActions[1]).toMatchObject({
-      label: 'Save contact (.vcf)',
+      label: 'Add to contacts',
+      meta: '.vcf',
+      metaName: '(vCard file)',
       href: '/alexander-ponomarenko.vcf',
       // The design's add-to-contacts glyph (ContactList: icon "user-plus"), not the download arrow.
       icon: 'user-plus',

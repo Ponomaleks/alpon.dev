@@ -8,6 +8,10 @@ export interface BarAction {
   label: string;
   href: string;
   icon?: IconName;
+  /** Quiet text after the label (a file type). The bar has no room for it and leaves it out. */
+  meta?: string;
+  /** Read after the label by assistive technology only. */
+  metaName?: string;
   /** A string is the file name the browser saves the file under. */
   download?: boolean | string;
   /** Marks a label in another language than the page's (the Norwegian CV's own download). */
@@ -32,7 +36,9 @@ export type BarSlot = BarAction | BarLangSwitch;
 export const defaultBarActions: readonly [BarAction, BarAction] = [
   { label: 'View CV', href: contact.links.cv, icon: 'file-text' },
   {
-    label: 'Save contact (.vcf)',
+    label: 'Add to contacts',
+    meta: '.vcf',
+    metaName: '(vCard file)',
     href: '/alexander-ponomarenko.vcf',
     icon: 'user-plus',
     download: true,
@@ -54,6 +60,12 @@ export const defaultBandActions = (
 
 /** Home: the band repeats no contact action (AC-40), so both actions are secondary downloads. */
 export const homeBandActions = (cvLang: 'en' | 'no' = 'en'): readonly [BandAction, BandAction] => [
-  { label: 'Save contact (.vcf)', href: '/alexander-ponomarenko.vcf', download: true },
+  {
+    label: 'Add to contacts',
+    meta: '.vcf',
+    metaName: '(vCard file)',
+    href: '/alexander-ponomarenko.vcf',
+    download: true,
+  },
   { label: 'Download CV', href: cvPdf[cvLang].href, download: true },
 ];

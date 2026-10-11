@@ -149,7 +149,7 @@ const cvBarSample: readonly [BarSlot, BarSlot] = [
     download: cvPdf.en.downloadName,
   },
 ];
-// The CV form of the contact list: "Based in" with the Residence and no "Save contact"; the
+// The CV form of the contact list: "Based in" with the Residence and no "Add to contacts"; the
 // Norwegian form has its own labels and copy action (cv screens C-3, C-4).
 const cvContactSamples = [
   {
@@ -547,8 +547,15 @@ const stateLabel = { hover: 'Hover', focus: 'Focus', active: 'Pressed' } as cons
           </dd>
         </div>
       </dl>
-      <Button variant="secondary" href="/alexander-ponomarenko.vcf" icon="user-plus" download>
-        Save contact (.vcf)
+      <Button
+        variant="secondary"
+        href="/alexander-ponomarenko.vcf"
+        icon="user-plus"
+        download
+        meta=".vcf"
+        metaName="(vCard file)"
+      >
+        Add to contacts
       </Button>
       {cvContactSamples.map((form) => (
         <div class="sg__aside sg__gap" data-sample>

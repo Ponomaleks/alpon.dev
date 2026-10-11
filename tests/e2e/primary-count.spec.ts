@@ -200,7 +200,7 @@ test.describe('the closing band of the home page (AC-34, AC-40)', () => {
     const band = page.locator('.fj-band');
     await expect(band.locator('.fj-btn--primary')).toHaveCount(0);
     await expect(band.getByRole('link', { name: /get in touch/i })).toHaveCount(0);
-    await expect(band.getByRole('link', { name: 'Save contact (.vcf)' })).toBeVisible();
+    await expect(band.getByRole('link', { name: 'Add to contacts (vCard file)' })).toBeVisible();
     await expect(band.getByRole('link', { name: 'Download CV' })).toBeVisible();
     await expect(band.locator('.fj-btn--secondary')).toHaveCount(2);
   });

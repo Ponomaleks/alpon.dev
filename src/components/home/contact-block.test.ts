@@ -100,7 +100,7 @@ describe('ContactBlock', () => {
     expect(copy).toContain('type="button"');
   });
 
-  it('draws "Save contact (.vcf)" with the add-to-contacts icon (design: user-plus)', async () => {
+  it('draws "Add to contacts" with the add-to-contacts icon (design: user-plus)', async () => {
     const html = await renderBlock();
     const save = html.match(/<a\b[^>]*href="\/alexander-ponomarenko\.vcf"[^>]*>[\s\S]*?<\/a>/)?.[0];
     const icon = readFileSync('src/components/ui/Icon.astro', 'utf8');
@@ -201,10 +201,15 @@ describe('ContactBlock', () => {
     expect(links.some((a) => href(a.attrs) === `mailto:${contact.email}`)).toBe(true);
   });
 
-  it('offers "Save contact (.vcf)" as a download of the contact card (AC-16)', async () => {
+  it('offers "Add to contacts" as a download of the contact card (AC-16)', async () => {
     const links = anchors(await renderBlock());
-    const save = links.find((a) => a.label.includes('Save contact (.vcf)'));
+    const save = links.find((a) => a.label.includes('Add to contacts'));
     expect(save).toBeDefined();
+    // save-contact-hint AC-01: the file type is meta text; assistive technology gets the long form.
+    expect(save?.label).toBe('Add to contacts .vcf (vCard file)');
+    expect(await renderBlock()).toMatch(
+      /Add to contacts\s*<span class="fj-btn__meta" aria-hidden="true"[^>]*>\.vcf<\/span>\s*<span class="fj-btn__sr"[^>]*>\s*\(vCard file\)<\/span>/,
+    );
     expect(href(save?.attrs ?? '')).toBe('/alexander-ponomarenko.vcf');
     expect(save?.attrs).toMatch(/\bdownload\b/);
   });

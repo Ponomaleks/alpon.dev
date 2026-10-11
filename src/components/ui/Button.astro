@@ -13,6 +13,10 @@ interface Props {
   disabled?: boolean;
   /** Marks a link as a file download; a string is the file name the browser saves it under. */
   download?: boolean | string;
+  /** Quiet text after the label, e.g. a file type; hidden from assistive technology. */
+  meta?: string;
+  /** Read after the label by assistive technology only, e.g. the file type in words. */
+  metaName?: string;
   /** Language of the label when it differs from the page's. */
   lang?: string;
   /** Forces a state for the Styleguide (hook H-4). */
@@ -28,6 +32,8 @@ const {
   icon,
   disabled = false,
   download = false,
+  meta,
+  metaName,
   lang,
   'data-demo-state': demoState,
 } = Astro.props;
@@ -45,6 +51,12 @@ const classes = [
   <button type="button" class:list={classes} disabled={disabled} data-demo-state={demoState}>
     {icon && <Icon name={icon} />}
     <slot />
+    {meta && (
+      <span class="fj-btn__meta" aria-hidden="true">
+        {meta}
+      </span>
+    )}
+    {metaName && <span class="fj-btn__sr">{` ${metaName}`}</span>}
     {arrow && (
       <span class="fj-btn__arrow">
         <Icon name="arrow-right" />
@@ -62,6 +74,12 @@ const classes = [
   >
     {icon && <Icon name={icon} />}
     <slot />
+    {meta && (
+      <span class="fj-btn__meta" aria-hidden="true">
+        {meta}
+      </span>
+    )}
+    {metaName && <span class="fj-btn__sr">{` ${metaName}`}</span>}
     {arrow && (
       <span class="fj-btn__arrow">
         <Icon name="arrow-right" />
@@ -191,6 +209,23 @@ const classes = [
 
   .fj-btn__arrow {
     display: inline-flex;
+  }
+
+  /* The file type beside the label (save-contact-hint AC-01): mono, muted. */
+  .fj-btn__meta {
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-mono-sm);
+    font-weight: var(--fjord-weight-regular);
+    color: var(--fjord-color-text-muted);
+  }
+
+  .fj-btn__sr {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 
   /* Reduced motion = fades only: the colour transitions, the arrow nudge and the press only

@@ -1,10 +1,10 @@
 ---
-// Contact block (AC-13 to AC-17): five rows, Copy on the email row, Save contact, the QR tile and
+// Contact block (AC-13 to AC-17): five rows, Copy on the email row, Add to contacts, the QR tile and
 // the mail-link sentence. The section wrapper (id="contact") is placed by the page. No primary
 // button here (D-09); data only from contact.ts.
 // Layout follows the page design (.x-split, ContactList, .x-qr): the list, the action and the QR
 // tile in one column; the sentence stands where the design draws the message form, beside the
-// list from 1024 and under "Save contact" below.
+// list from 1024 and under "Add to contacts" below.
 import SectionHeader from '../ui/SectionHeader.astro';
 import Link from '../ui/Link.astro';
 import Button from '../ui/Button.astro';
@@ -82,8 +82,15 @@ const tel = `tel:${contact.phone.replace(/[^\d+]/g, '')}`;
         </div>
       </dl>
       <div class="contact__actions">
-        <Button variant="secondary" href="/alexander-ponomarenko.vcf" icon="user-plus" download>
-          Save contact (.vcf)
+        <Button
+          variant="secondary"
+          href="/alexander-ponomarenko.vcf"
+          icon="user-plus"
+          download
+          meta=".vcf"
+          metaName="(vCard file)"
+        >
+          Add to contacts
         </Button>
       </div>
       <QrTile />

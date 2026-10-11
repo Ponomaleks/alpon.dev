@@ -52,7 +52,7 @@ Ids match the base-components inventory where the screen is the same.
 ```mermaid
 flowchart TD
     A["Recruiter opens SCR-01 Home page, in Dag or Natt, and has not scrolled"] --> B{"Screen width?"}
-    B -->|"below 768, drawn at 390 by 844 (AC-01)"| C["First screen without scrolling: badge 'Open to work' with 'Oslo area', 'Hei.' and 'Oslo, Norge' with the Work region coordinates, the name as the main heading, both roles, the lead, one primary 'View CV', the Now line. Header offers 'Get in touch'. Sticky action bar offers 'View CV' and 'Save contact (.vcf)'"]
+    B -->|"below 768, drawn at 390 by 844 (AC-01)"| C["First screen without scrolling: badge 'Open to work' with 'Oslo area', 'Hei.' and 'Oslo, Norge' with the Work region coordinates, the name as the main heading, both roles, the lead, one primary 'View CV', the Now line. Header offers 'Get in touch'. Sticky action bar offers 'View CV' and 'Add to contacts'"]
     B -->|"768 to 1023"| D["The same hero content, no Sticky action bar, the portrait under the text"]
     B -->|"1024 and wider (AC-02)"| E["The portrait sits beside the text, is announced as an image with the name, and the page does not shift when it loads"]
     C --> P["Below 1024 the portrait sits under the text (AC-02)"]
@@ -72,7 +72,7 @@ flowchart TD
     J1 -->|"scrolls on"| F["Key facts and About (Flow US-04)"]
 ```
 
-A Recruiter opens the home page and has not scrolled. On a phone (drawn at 390 by 844) the first screen shows, without scrolling, the availability badge, "Hei." and "Oslo, Norge" with the Work region coordinates, the name as the main heading, the two roles, the lead, one primary "View CV" and the Now line; the header offers "Get in touch" and the Sticky action bar offers "View CV" and "Save contact (.vcf)". From 768 the bar is gone; below 1024 the portrait sits under the text and from 1024 it sits beside it, is announced as an image with Alexander's name and does not shift the page. The Now line shows the project first if the Owner supplied one, and only the MSc otherwise, never text in square brackets. Because the Projects pages do not exist, "View CV" stands alone; the dashed branch with "See projects" belongs to step 7. "View CV" leads to the CV address (for now the English PDF), the header's "Get in touch" to the contact section, and scrolling on to the key facts.
+A Recruiter opens the home page and has not scrolled. On a phone (drawn at 390 by 844) the first screen shows, without scrolling, the availability badge, "Hei." and "Oslo, Norge" with the Work region coordinates, the name as the main heading, the two roles, the lead, one primary "View CV" and the Now line; the header offers "Get in touch" and the Sticky action bar offers "View CV" and "Add to contacts". From 768 the bar is gone; below 1024 the portrait sits under the text and from 1024 it sits beside it, is announced as an image with Alexander's name and does not shift the page. The Now line shows the project first if the Owner supplied one, and only the MSc otherwise, never text in square brackets. Because the Projects pages do not exist, "View CV" stands alone; the dashed branch with "See projects" belongs to step 7. "View CV" leads to the CV address (for now the English PDF), the header's "Get in touch" to the contact section, and scrolling on to the key facts.
 
 ### Flow: US-02 — Reach him the way I prefer
 
@@ -93,19 +93,19 @@ flowchart TD
     C -->|"yes"| C2{"Does the browser allow clipboard access?"}
     C2 -->|"yes (AC-14)"| C3["The address is on the clipboard. A Toast with a check mark says 'Copied' with the address, is announced and leaves by itself. Below 768 it sits above the Sticky action bar, or above its tab when the bar is collapsed"]
     C2 -->|"no (AC-15)"| C4["No confirmation. The Visitor is told to copy the address by hand"]
-    L -->|"'Save contact (.vcf)' (AC-16)"| D["The contact card downloads: name, title 'Software Engineer', phone, email, profiles, Work region"]
+    L -->|"'Add to contacts' (AC-16)"| D["The contact card downloads: name, title 'Software Engineer', phone, email, profiles, Work region"]
     L --> Q{"Screen 1024 or wider?"}
     Q -->|"yes (AC-17)"| Q1["QR tile for the current theme with 'Skann meg' and the camera hint. Scanning it with a phone offers the contact"]
     Q -->|"no"| Q2["No QR tile and no hint, the Visitor is holding the phone"]
-    L -->|"reads on to the end of the page"| R["Closing band right under the contact section: 'Save contact (.vcf)' and 'Download CV', both secondary, no 'Get in touch' (AC-40)"]
-    R -->|"'Save contact (.vcf)'"| D
+    L -->|"reads on to the end of the page"| R["Closing band right under the contact section: 'Add to contacts' and 'Download CV', both secondary, no 'Get in touch' (AC-40)"]
+    R -->|"'Add to contacts'"| D
     R -->|"'Download CV'"| R1["The English CV PDF downloads"]
     R -.->|"other pages with the band, from step 5"| R2["The band keeps 'Get in touch' and 'Download CV'"]
     L --> F["Beside the Contact block, in the place of the page design's Message form: a mail-link sentence, with scripts on or off (interim, see IS-03)"]
     F -->|"the mail link"| M1
 ```
 
-A Recruiter reaches the contact section by scrolling, or a Visitor on any page activates "Contact" or "Get in touch" in the header or the Mobile menu panel. On the home page the menu closes and the page moves to the section; from another page, such as the Not-found page, the home page opens at it. Either way the section's heading is in view below the header and keyboard focus is at the section. The Contact block shows the heading, the lead and rows for email, phone, LinkedIn, GitHub and "Based in" with "Oslo, Norge". The email opens the mail app, the phone number the phone app, and the profiles open on the other site in the same tab. "Copy" depends on the browser: with scripts off it is not offered and the address stays a selectable mail link; with scripts on and clipboard access, the address is copied and a Toast confirms "Kopiert" with the address, announced, and leaves by itself (on a phone it sits above the Sticky action bar, or above its tab when the bar is collapsed); where clipboard access is refused no confirmation appears and the Visitor is told to copy by hand. "Save contact (.vcf)" downloads the contact card. From 1024 the QR tile with "Skann meg" and the camera hint is shown and scanning it offers the contact; below 1024 neither is shown. At the end of the page the closing band offers "Save contact (.vcf)" and "Download CV" (the English PDF), both secondary and without "Get in touch"; on other pages the band keeps its usual pair (dashed, from step 5). Where the page design draws the Message form, the contact section shows a mail-link sentence, the same with scripts on or off (interim, see IS-03); it opens the mail app like the email row.
+A Recruiter reaches the contact section by scrolling, or a Visitor on any page activates "Contact" or "Get in touch" in the header or the Mobile menu panel. On the home page the menu closes and the page moves to the section; from another page, such as the Not-found page, the home page opens at it. Either way the section's heading is in view below the header and keyboard focus is at the section. The Contact block shows the heading, the lead and rows for email, phone, LinkedIn, GitHub and "Based in" with "Oslo, Norge". The email opens the mail app, the phone number the phone app, and the profiles open on the other site in the same tab. "Copy" depends on the browser: with scripts off it is not offered and the address stays a selectable mail link; with scripts on and clipboard access, the address is copied and a Toast confirms "Kopiert" with the address, announced, and leaves by itself (on a phone it sits above the Sticky action bar, or above its tab when the bar is collapsed); where clipboard access is refused no confirmation appears and the Visitor is told to copy by hand. "Add to contacts" downloads the contact card. From 1024 the QR tile with "Skann meg" and the camera hint is shown and scanning it offers the contact; below 1024 neither is shown. At the end of the page the closing band offers "Add to contacts" and "Download CV" (the English PDF), both secondary and without "Get in touch"; on other pages the band keeps its usual pair (dashed, from step 5). Where the page design draws the Message form, the contact section shows a mail-link sentence, the same with scripts on or off (interim, see IS-03); it opens the mail app like the email row.
 
 ### Flow: US-04 — Get the background in numbers and a paragraph
 
@@ -191,7 +191,7 @@ A Visitor opens the home page. If the device asks for reduced motion, no Ambient
 ```mermaid
 flowchart TD
     A["Tech lead opens SCR-01"] --> B{"Do scripts run?"}
-    B -->|"no (AC-32)"| C["Every section is visible and readable. Every link of the Contact block works and 'Save contact' works. No Ambient motion, no Motion control, no 'Copy'"]
+    B -->|"no (AC-32)"| C["Every section is visible and readable. Every link of the Contact block works and 'Add to contacts' works. No Ambient motion, no Motion control, no 'Copy'"]
     C --> C2["The rest still works: experience entries open (Flow US-05), the sentence in the place of the Message form is a plain mail link (Flow US-02), the Sticky action bar collapses (Flow US-14), the header keeps its default look (Flow US-11)"]
     B -->|"yes"| D{"Motion allowed?"}
     D -->|"no, reduced motion"| E["Every section is shown at once (AC-31)"]
@@ -201,7 +201,7 @@ flowchart TD
     X["An inline script, an inline style or a script the security policy does not name appears in the page (AC-32)"] --> Y["The browser refuses it. The page stays readable, with no visible step for the Visitor"]
 ```
 
-A Tech lead opens the home page. With scripts off every section is visible and readable, every link of the Contact block and "Save contact" work, and nothing that needs a script is offered: no Ambient motion, no Motion control and no "Copy". The rest still works: experience entries open, the sentence in the place of the Message form is a plain mail link, the Sticky action bar collapses and the header keeps its default look. With scripts on and reduced motion, every section is shown at once. With scripts on and motion allowed, a section that is already in view when the page opens, or that is reached through a link to it, is shown at once, and a section scrolled into view for the first time fades in once and stays. Separately, if an inline script, an inline style or a script the security policy does not name appears in the page, the browser refuses it and the page stays readable; the Visitor sees no step.
+A Tech lead opens the home page. With scripts off every section is visible and readable, every link of the Contact block and "Add to contacts" work, and nothing that needs a script is offered: no Ambient motion, no Motion control and no "Copy". The rest still works: experience entries open, the sentence in the place of the Message form is a plain mail link, the Sticky action bar collapses and the header keeps its default look. With scripts on and reduced motion, every section is shown at once. With scripts on and motion allowed, a section that is already in view when the page opens, or that is reached through a link to it, is shown at once, and a section scrolled into view for the first time fades in once and stays. Separately, if an inline script, an inline style or a script the security policy does not name appears in the page, the browser refuses it and the page stays readable; the Visitor sees no step.
 
 ### Flow: US-11 — A header that fits the hero
 
@@ -231,9 +231,9 @@ A Visitor opens the home page at 390, 834 or 1440 wide. With scripts off the hea
 flowchart TD
     A["Recruiter opens SCR-01 or SCR-02"] --> B{"Screen below 768?"}
     B -->|"no"| X["No Sticky action bar"]
-    B -->|"yes (AC-38)"| C["Sticky action bar with 'View CV' and 'Save contact (.vcf)', both secondary. The page set these actions, the bar itself is not edited"]
+    B -->|"yes (AC-38)"| C["Sticky action bar with 'View CV' and 'Add to contacts', both secondary. The page set these actions, the bar itself is not edited"]
     C -->|"'View CV'"| V["CV address. Interim IS-01: the English PDF"]
-    C -->|"'Save contact (.vcf)'"| D["The contact card downloads"]
+    C -->|"'Add to contacts'"| D["The contact card downloads"]
     C -->|"activates the arrow tab, with scripts on or off (AC-39)"| T["The bar collapses and only the tab remains: a target of at least 44 px that never covers the last lines of the page or the focused element. The state is announced and the tab is reachable by keyboard"]
     T -->|"activates the tab again"| C
     T -->|"scrolls up or down"| T2["The bar stays collapsed, scrolling never brings it back (AC-39)"]
@@ -244,7 +244,7 @@ flowchart TD
     O["Owner on SCR-04"] --> O1["The bar is shown as a sample with the new pair and the collapse tab"]
 ```
 
-A Recruiter opens the home page or the Not-found page. At 768 and wider there is no Sticky action bar. Below 768 the bar offers "View CV" and "Save contact (.vcf)", both in the secondary style; the page sets these actions and the bar itself is not edited. "View CV" leads to the CV address (for now the English PDF) and "Save contact" downloads the contact card. Activating the bar's small arrow tab, with scripts on or off, collapses the bar so that only the tab remains, at least 44 px, never covering the last lines of the page or the focused element; the state is announced and the tab is reachable by keyboard. While the bar is collapsed, scrolling never brings it back; only the tab does. A bar that is not collapsed, including one brought back with the tab, behaves as in base-components: it stays in place with scripts off or reduced motion, and otherwise leaves on the way down and returns on the way up. The CV page (step 5) and the project pages (step 7) set their own pairs (dashed). The Owner sees the bar with the new pair and the tab as a sample on the Styleguide.
+A Recruiter opens the home page or the Not-found page. At 768 and wider there is no Sticky action bar. Below 768 the bar offers "View CV" and "Add to contacts", both in the secondary style; the page sets these actions and the bar itself is not edited. "View CV" leads to the CV address (for now the English PDF) and "Add to contacts" downloads the contact card. Activating the bar's small arrow tab, with scripts on or off, collapses the bar so that only the tab remains, at least 44 px, never covering the last lines of the page or the focused element; the state is announced and the tab is reachable by keyboard. While the bar is collapsed, scrolling never brings it back; only the tab does. A bar that is not collapsed, including one brought back with the tab, behaves as in base-components: it stays in place with scripts off or reduced motion, and otherwise leaves on the way down and returns on the way up. The CV page (step 5) and the project pages (step 7) set their own pairs (dashed). The Owner sees the bar with the new pair and the tab as a sample on the Styleguide.
 
 ### Out of scope (no human-facing UI flow)
 
@@ -270,7 +270,7 @@ A Recruiter opens the home page or the Not-found page. At 768 and wider there is
 | AC-13 | Flow US-02, node "Contact block" and the email, phone and profile branches | |
 | AC-14 | Flow US-02, branch `yes (AC-14)` of "Does the browser allow clipboard access?" | The Toast above the bar is base-components AC-30; above the tab when the bar is collapsed (Owner decision) |
 | AC-15 | Flow US-02, branch `no (AC-15)` of "Do scripts run?" and branch `no (AC-15)` of "Does the browser allow clipboard access?" | |
-| AC-16 | Flow US-02, branch `'Save contact (.vcf)' (AC-16)` | Also reached from the closing band and from Flow US-14 |
+| AC-16 | Flow US-02, branch `'Add to contacts' (AC-16)` | Also reached from the closing band and from Flow US-14 |
 | AC-17 | Flow US-02, both branches of "Screen 1024 or wider?" | |
 | AC-18 | Flow US-02, node "Visitor on any page activates 'Contact' or 'Get in touch'" and both branches of "Already on SCR-01?" | SCR-02 and SCR-03 are the other entry points |
 | AC-26 | N/A: head meta and structured data, read by search engines and apps, no screen of the site | US-08 out of scope here |
@@ -284,7 +284,7 @@ A Recruiter opens the home page or the Not-found page. At 768 and wider there is
 | AC-34 | Flow US-11, node "Never more than two primary buttons on the visible screen" and node for SCR-02 | The count itself is an e2e check |
 | AC-35 | N/A: the parity suite runs in CI | The six behaviours are drawn in Flows US-01, US-02 and US-14 |
 | AC-36 | Flow US-10, both branches of "How does a section below the hero come into view?" | |
-| AC-38 | Flow US-14, branch `yes (AC-38)` with the `'View CV'` and `'Save contact (.vcf)'` branches | On SCR-01 and SCR-02 |
+| AC-38 | Flow US-14, branch `yes (AC-38)` with the `'View CV'` and `'Add to contacts'` branches | On SCR-01 and SCR-02 |
 | AC-39 | Flow US-14, branch `activates the arrow tab, with scripts on or off (AC-39)`, then `activates the tab again` and `scrolls up or down` | A bar brought back with the tab scrolls like a normal bar (Owner decision) |
 | AC-40 | Flow US-02, node "Closing band right under the contact section" and its branches | Other pages: dashed, from step 5 |
 | AC-41 | Flow US-09, both branches of "Scroll-tied motion supported and motion allowed?" | In this feature only SCR-01 shows the band |

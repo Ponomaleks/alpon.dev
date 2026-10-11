@@ -242,7 +242,7 @@ test.describe('the email address stays on one line on a phone', () => {
 });
 
 // screens.md H-3: from 1024 the mail-link sentence stands beside the list, where the page design
-// draws the message form; below 1024 it follows "Save contact".
+// draws the message form; below 1024 it follows "Add to contacts".
 test.describe('the mail-link sentence beside the list (screens.md H-3)', () => {
   test('beside the list from 1024', async ({ page }) => {
     await openIn(page, 'dag', 1024);
@@ -252,10 +252,10 @@ test.describe('the mail-link sentence beside the list (screens.md H-3)', () => {
     expect(sentence.y).toBeLessThan(list.y + list.height);
   });
 
-  test('under "Save contact" below 1024', async ({ page }) => {
+  test('under "Add to contacts" below 1024', async ({ page }) => {
     await openIn(page, 'dag', 834);
     const save = await box(
-      page.locator(SECTION).getByRole('link', { name: 'Save contact (.vcf)' }),
+      page.locator(SECTION).getByRole('link', { name: 'Add to contacts (vCard file)' }),
     );
     const sentence = await box(page.locator(`${SECTION} .contact__sentence`));
     expect(sentence.y).toBeGreaterThanOrEqual(save.y + save.height);
@@ -360,10 +360,10 @@ test.describe('refused copy (AC-15)', () => {
   });
 });
 
-test.describe('Save contact (AC-16)', () => {
+test.describe('Add to contacts (AC-16)', () => {
   test('downloads the contact card with every field', async ({ page }) => {
     await page.goto('/');
-    const link = page.locator(SECTION).getByRole('link', { name: 'Save contact (.vcf)' });
+    const link = page.locator(SECTION).getByRole('link', { name: 'Add to contacts (vCard file)' });
     const [download] = await Promise.all([page.waitForEvent('download'), link.click()]);
     const path = await download.path();
     const card = await readFile(path, 'utf8');

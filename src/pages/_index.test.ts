@@ -116,13 +116,13 @@ describe('built index.html, page options (AC-11, AC-40)', () => {
     expect(main()).toMatch(/\sdata-hero[\s>=]/);
   });
 
-  it('gives the closing band the home pair: Save contact, then Download CV, both secondary', () => {
+  it('gives the closing band the home pair: Add to contacts, then Download CV, both secondary', () => {
     const band =
       html().match(/<section\s[^>]*class="fj-band[^>]*>([\s\S]*?)<\/section>/)?.[1] ?? '';
     const anchors = [...band.matchAll(/<a\b[^>]*>[\s\S]*?<\/a>/g)].map((m) => m[0]);
     expect(anchors).toHaveLength(2);
     expect(anchors[0]).toContain('href="/alexander-ponomarenko.vcf"');
-    expect(anchors[0]).toContain('Save contact');
+    expect(anchors[0]).toContain('Add to contacts');
     expect(anchors[1]).toContain('Download CV');
     expect(anchors[1]).toContain('-cv-en.pdf');
     for (const a of anchors) {

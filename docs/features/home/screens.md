@@ -50,7 +50,7 @@ These rows replace or add to §Shell states of the base manifest. Every other Sh
 |---|---|---|---|---|
 | header-cta-primary (replaces the base row) | Every page, every width, outside the over-hero states of SCR-01 | Header "Get in touch" is filled. It no longer depends on the bar | Header, Button (primary) | AC-33, AC-34, D-14 |
 | header-cta-secondary (replaces the base row) | Only the over-hero states of SCR-01 at 768 and wider, or `headerCta: 'secondary'` | Header "Get in touch" is outlined | Header, Button (secondary) | AC-33, D-14 |
-| bar-open (replaces `bar-on-screen`) | Below 768, the page has not left the bar out | Bar fixed to the bottom with the page's two actions, both secondary; default pair "View CV" (file icon) and "Save contact (.vcf)" (`download`). A 44 × 44 tab with a chevron pointing down stands on the bar's top edge at the right. No primary button in the bar on any page | MobileBar, Button ×2 (secondary), Icon (`file-text`, `chevron-down`) | AC-38, AC-39, D-10, D-11; wireframe S-7 |
+| bar-open (replaces `bar-on-screen`) | Below 768, the page has not left the bar out | Bar fixed to the bottom with the page's two actions, both secondary; default pair "View CV" (file icon) and "Add to contacts" (`download`). A 44 × 44 tab with a chevron pointing down stands on the bar's top edge at the right. No primary button in the bar on any page | MobileBar, Button ×2 (secondary), Icon (`file-text`, `chevron-down`) | AC-38, AC-39, D-10, D-11; wireframe S-7 |
 | bar-collapsed (new) | The Visitor activates the tab, by touch or keyboard, with scripts on or off | The two actions are gone; the tab remains in the bottom right corner, chevron pointing up, with a 12 px strip of the panel under it. With motion allowed the panel and the tab slide there. The platform announces the collapsed state. Scrolling never brings the bar back. With reduced motion the change is instant | MobileBar (tab only), Icon (`chevron-up`) | AC-39; sad.md §6 Sticky action bar, branch `the arrow tab`; wireframe S-7 |
 | bar-restored (new) | The Visitor activates the tab of a collapsed bar | bar-open again; from now on it behaves like a bar that was never collapsed, so bar-away and bar-returned apply again | MobileBar | AC-39; ux-flows "Design input, decided" |
 | bar-away / bar-returned (narrowed) | Scripts on, motion allowed, the bar is **not** collapsed | As in the base manifest (G-4, G-5), the tab leaves and returns with the bar. The header action does not change with it | MobileBar | AC-39, D-14 |
@@ -71,7 +71,7 @@ bar-open                                  bar-collapsed
 |                               +----+ |  |        ( ✓ Copied   address )        |
 |                               | ⌄  | |  |                               +----+ |
 +===============================+    +=+  |                               | ⌃  | |
-| [ ▤ View CV     ] [ ⇩ Save contact ] |  +-------------------------------+----+-+
+| [ ▤ View CV  ] [ ⇩ Add to contacts ] |  +-------------------------------+----+-+
 +--------------------------------------+     safe-area inset below the tab
    safe-area inset below the buttons
   tab: 44 × 44, same background and border as the bar, no border where it meets the bar
@@ -84,7 +84,7 @@ bar-open                                  bar-collapsed
 
 ### SCR-01 — Home page
 
-The whole page design, content first. Page options: `headerOverHero: true`, `ctaBandActions` = "Save contact (.vcf)" and "Download CV" (both secondary), `structuredData` = the Person object; the bar keeps its default pair. Sections in order: hero, key facts, About 01, Experience 02, Recommendations 03 (only with an agreed quote), Contact (03 or 04), closing band, footer. Visual baseline per section at 390 / 834 / 1440 × Dag / Natt with motion off; Design match compares with `design/screenshots/{dag,natt}_home.png`, differences limited to IS-01 to IS-03 and D-01 to D-14.
+The whole page design, content first. Page options: `headerOverHero: true`, `ctaBandActions` = "Add to contacts" and "Download CV" (both secondary), `structuredData` = the Person object; the bar keeps its default pair. Sections in order: hero, key facts, About 01, Experience 02, Recommendations 03 (only with an agreed quote), Contact (03 or 04), closing band, footer. Visual baseline per section at 390 / 834 / 1440 × Dag / Natt with motion off; Design match compares with `design/screenshots/{dag,natt}_home.png`, differences limited to IS-01 to IS-03 and D-01 to D-14.
 
 | State | Trigger / condition | Components (from the inventory) | Source-ref |
 |---|---|---|---|
@@ -119,7 +119,7 @@ The whole page design, content first. Page options: `headerOverHero: true`, `cta
 | recommendations, present | At least one Recommendation with consent in the content | SectionHeader "03 / Recommendations", "From people I’ve worked with". Each Testimonial: the quote word for word, closed to three lines with "Show more" when longer (D-19), name, role, Link "On LinkedIn" (new tab, D-09) when it comes from LinkedIn (D-21). Two columns from 768; with more cards than columns a carousel that goes round, with previous and next IconButtons and swipe (D-20). Contact is 04 | SectionHeader, Testimonial, Link, IconButton; AC-09, AC-42, AC-43, D-09 |
 | recommendations, absent (empty) | No Recommendation with consent | The section is not rendered. Contact is 03, numbers have no gap. No empty-state block | AC-10; design-system "Empty states" |
 | selected projects | N/A: Dormant section, not rendered on this page until step 7; no "All projects" link, no gap in the numbers. Shown on SCR-04 only | — | AC-11, D-05 |
-| contact | Always; also the target `/#contact` | Section `id="contact"`. SectionHeader with the next number, "Contact", "Get in touch", lead "Email is fastest. Phone and LinkedIn work too.". ContactList rows: Email (mail link), Phone (call link), LinkedIn and GitHub (short addresses, external Link with its icon, new tab, spec D-09), Region "Oslo, Norge" (`lang="no"`, spec D-15); the values are mono, in the text colour, underlined only on hover; below 768 the label column is 60 px with tighter gaps so that the email address stays on one line down to 360, from 768 it is the design's 88 px. Under it Button "Save contact (.vcf)" (secondary, `download`, icon `user-plus`). Beside it from 1024, under it below: the mail-link sentence. No primary button in this section | SectionHeader, ContactList, Button (secondary), Link; AC-13, AC-16, AC-34, D-03; H-3 |
+| contact | Always; also the target `/#contact` | Section `id="contact"`. SectionHeader with the next number, "Contact", "Get in touch", lead "Email is fastest. Phone and LinkedIn work too.". ContactList rows: Email (mail link), Phone (call link), LinkedIn and GitHub (short addresses, external Link with its icon, new tab, spec D-09), Region "Oslo, Norge" (`lang="no"`, spec D-15); the values are mono, in the text colour, underlined only on hover; below 768 the label column is 60 px with tighter gaps so that the email address stays on one line down to 360, from 768 it is the design's 88 px. Under it Button "Add to contacts" (secondary, `download`, icon `user-plus`). Beside it from 1024, under it below: the mail-link sentence. No primary button in this section | SectionHeader, ContactList, Button (secondary), Link; AC-13, AC-16, AC-34, D-03; H-3 |
 | contact arrived by link | "Contact" or "Get in touch" in the header or SCR-03, from this page or another | The heading is in view below the header, SCR-03 is closed, keyboard focus is at the section. The section is shown at once, never faded in | AC-18, AC-36; sad.md §6 Reach the contact place |
 | mail-link sentence (interim) | Always, scripts on or off | Where the page design draws the Message form: one sentence, "Hiring? A short email about the role is the quickest way to reach me.", where "a short email" is the mail link. Its address comes from `src/data/contact.ts` and is not shown as text, since the ContactList beside it shows it (T-6) | Link; IS-03, AC-27 |
 | qr shown | Screen at least 1024 | QrTile for the current theme, 132 wide, caption "Skann meg" (`lang="no"`) under the tile inside the figure, text alternative, and beside the figure the hint "Point your phone’s camera here to open my contact card." | QrTile; AC-17; H-3 |
@@ -128,10 +128,10 @@ The whole page design, content first. Page options: `headerOverHero: true`, `cta
 | copy success | The browser allows the clipboard write | Toast with the check icon: "Copied" and the address, in English; announced, leaves by itself; above the tab below 768. The "Copy" control shows "Copied" (success colour, no icon) for the copied duration and returns to "Copy"; same size, same name (spec D-18) | CopyButton (done state), Toast, Icon (`check`); AC-14 |
 | copy refused (error) | The browser refuses or has no clipboard access | Toast without the check icon, in English: "Couldn't copy. Select the address to copy it." No confirmation. The address stays a selectable mail link | CopyButton, Toast; AC-15; sad.md §6 "Flagged by the flows" item 1 |
 | copy not offered | Scripts off, or the page script did not load | "Copy" is not displayed and leaves no gap; the address stays a selectable mail link | AC-15, AC-32 |
-| closing band, home | End of the page, right under the contact section | CtaBand with "Save contact (.vcf)" and "Download CV" (English PDF), both secondary, `download`; no "Get in touch". Contours as in §Shell state changes `cta-band` | CtaBand, Button ×2 (secondary); AC-40, AC-41, D-12; H-3 |
+| closing band, home | End of the page, right under the contact section | CtaBand with "Add to contacts" and "Download CV" (English PDF), both secondary, `download`; no "Get in touch". Contours as in §Shell state changes `cta-band` | CtaBand, Button ×2 (secondary); AC-40, AC-41, D-12; H-3 |
 | section reveal | Scripts on, motion allowed, a section below the hero is outside the viewport at start and scrolls into view | It fades in once and stays. A section in view at start, or the target of the address fragment, is shown at once | AC-36, D-04 |
 | primary count | Any scroll position, 390 / 834 / 1440 | At most two primary buttons on the visible screen: the header's "Get in touch" and, at the top, "View CV". None from page content over the contact section or at the end | AC-34 |
-| no-script | Scripts off | Every section visible and readable; every Contact block link and "Save contact" work; experience entries open; the bar collapses; default header. Not displayed: Motion control, "Copy", theme switch, menu button. No Ambient motion, no count-up, no reveal, no parallax | AC-32; base manifest `no-script` |
+| no-script | Scripts off | Every section visible and readable; every Contact block link and "Add to contacts" work; experience entries open; the bar collapses; default header. Not displayed: Motion control, "Copy", theme switch, menu button. No Ambient motion, no count-up, no reveal, no parallax | AC-32; base manifest `no-script` |
 | reduced-motion | `prefers-reduced-motion: reduce` | motion absent, key facts static, sections shown at once, no parallax, the band is still; experience entries, the bar and the Toast change instantly or with a fade | AC-31 |
 | Shell states | Base manifest §Shell states with §Shell state changes above | as there | S-7 |
 | interactive states | Hover, focus, pressed on any control of the page content | As base manifest `interactive states`; every target at least 44 × 44 at 390 | spec §6 Touch targets |
@@ -157,7 +157,7 @@ H-1  SCR-01 at 390 × 844 — first screen, Dag, motion running
 |█ ● Nå: MSc Computer Science at …    █|  Now line
 |█                              +----+█|
 +===============================+ ⌄  +=+  bar-open (S-7)
-| [ ▤ View CV     ] [ ⇩ Save contact ] |
+| [ ▤ View CV  ] [ ⇩ Add to contacts ] |
 +--------------------------------------+
   below the fold, in order:
   |█  ( portrait, round, 200 )  ~contours~ █|
@@ -216,7 +216,7 @@ H-3  SCR-01 at 1440 — contact section and the end of the page
    GitHub    github.com/ponomaleks
    Region    Oslo, Norge
    ------------------------------------------------
-   ( ⇩ Save contact (.vcf) )                           secondary
+   ( ⇩ Add to contacts )                           secondary
    +------+  Point your phone’s camera here
    |  QR  |  to open my contact card.                  from 1024 only
    +------+
@@ -224,11 +224,11 @@ H-3  SCR-01 at 1440 — contact section and the end of the page
 |████████████████████████████████████████████████████████████████████████████████|
 |█  Let’s build something good together.                            ~contours~  █|  shift with scrolling
 |█  If your team is hiring in the Oslo area, I’d like to hear about it.         █|
-|█  ( ⇩ Save contact (.vcf) )  ( Download CV )           both secondary         █|
+|█  ( ⇩ Add to contacts )  ( Download CV )               both secondary         █|
 |████████████████████████████████████████████████████████████████████████████████|
    footer
   390: one column; "Copy" stays at the end of the email row; the sentence follows
-  "Save contact"; no QR and no hint; bar-open or bar-collapsed below
+  "Add to contacts"; no QR and no hint; bar-open or bar-collapsed below
   scripts off: no "Copy"
 ```
 
@@ -239,7 +239,7 @@ Delta only. The page content, its layout and every state not listed here are as 
 | State | Trigger / condition | Components (from the inventory) | Source-ref |
 |---|---|---|---|
 | default | As base manifest SCR-02 `default, stacked` and `default, two columns` | as there, with MobileBar in its new form below 768 | base manifest SCR-02; wireframe below |
-| bar-open / bar-collapsed / bar-restored | Below 768 | MobileBar with "View CV" and "Save contact (.vcf)", both secondary, and the tab. "Save contact" downloads the contact card | AC-38, AC-39; S-7 |
+| bar-open / bar-collapsed / bar-restored | Below 768 | MobileBar with "View CV" and "Add to contacts", both secondary, and the tab. "Add to contacts" downloads the contact card | AC-38, AC-39; S-7 |
 | header | Any scroll position | The header never changes style; "Get in touch" is always primary; only the bottom border appears after scrolling | AC-34, D-14; ux-flows Flow US-11, node for SCR-02 |
 | contact links | "Contact" or "Get in touch" in the header or SCR-03 | SCR-01 opens at its contact section (state `contact arrived by link`) | AC-18 |
 | primary count | Any scroll position | At most two primary buttons on screen: the header's "Get in touch" and "Back to home" | AC-34 |
@@ -252,7 +252,7 @@ SCR-02 at 390 — changed part only
 |--------------------------------------|
 |  footer                       +----+ |
 +===============================+ ⌄  +=+
-| [ ▤ View CV     ] [ ⇩ Save contact ] |  was: View CV + Get in touch (primary)
+| [ ▤ View CV  ] [ ⇩ Add to contacts ] |  was: View CV + Get in touch (primary)
 +--------------------------------------+
   header "Get in touch" is filled in every bar state
 ```
@@ -292,7 +292,7 @@ Delta only. Page options, the real Header and Footer, the demo states and every 
 | Experience list | ExperienceList / ExperienceItem, Tag | one entry open with summary, points and tags; closed entries; current marker; an entry with no points and no tags; heading hover / focus |
 | Testimonial | Testimonial, Link | two cards with marked sample quotes |
 | Selected projects (Dormant) | SectionHeader, Link "All projects", ProjectCard ×3, Badge, Tag | as the page design: the first card large (media 7 parts, text 5 from 1024), two compact cards in two columns from 768; each card with status, year, title, summary, one result with its label, tags, "Live" and "Code" where they exist; one card without a live link. "Sample data" label |
-| Contact list | ContactList, CopyButton, Button | five rows, "Copy" default / hover / focus, "Save contact (.vcf)" |
+| Contact list | ContactList, CopyButton, Button | five rows, "Copy" default / hover / focus, "Add to contacts" |
 | QR tile | QrTile | Dag asset and Natt asset with "Skann meg" |
 | Mail-link sentence | Link | the sentence of T-6; link default / hover / focus |
 

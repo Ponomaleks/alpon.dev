@@ -186,13 +186,15 @@ describe('CtaBand actions (AC-40, ADR-0002)', () => {
     ['band-home-en', contact.links.cvEn, contact.links.cvNo],
     ['band-home-no', contact.links.cvNo, contact.links.cvEn],
   ])(
-    'the home pair in %s is "Save contact (.vcf)" and "Download CV", both secondary',
+    'the home pair in %s is "Add to contacts" and "Download CV", both secondary',
     (name, cvHref, otherCv) => {
       const html = made(name);
       const [save, cv, ...rest] = anchors(html);
       expect(rest).toEqual([]);
       expect(save).toContain(`href="${homeVcf}"`);
-      expect(text(save ?? '')).toContain('Save contact (.vcf)');
+      expect(text(save ?? '')).toContain('Add to contacts');
+      expect(save).toContain('<span class="fj-btn__meta" aria-hidden="true">.vcf</span>');
+      expect(save).toContain('(vCard file)');
       expect(save).toMatch(/\sdownload\b/);
       expect(cv).toContain(`href="${cvHref}"`);
       expect(text(cv ?? '')).toContain('Download CV');

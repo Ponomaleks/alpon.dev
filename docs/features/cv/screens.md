@@ -361,7 +361,7 @@ Delta only. Page options gain `backToTop: false`. The CV page script does not ru
 | Icon | Icon | adds `file-down`, `eye`, `arrow-up` |
 | Mobile menu panel | MobileMenu (static sample) | the current link in its new form |
 | Sticky action bar | MobileBar (inline samples) | adds the CV pair: language switch and "Download PDF", open |
-| Contact list | ContactList, CopyButton | adds the CV form: "Based in" with the Residence, no "Save contact"; the Norwegian labels with "Kopier" |
+| Contact list | ContactList, CopyButton | adds the CV form: "Based in" with the Residence, no "Add to contacts"; the Norwegian labels with "Kopier" |
 | Toast | Toast | adds "Kopiert" with an address, marked Norwegian |
 
 ## Decided at this stage
