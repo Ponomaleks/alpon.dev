@@ -107,7 +107,7 @@ This feature is small (S): the screens and the test plan are in this file, and t
 
 **Given** the open sheet in Dag or in Natt
 **When** the Visitor looks at it
-**Then** below 768 it spans the screen at the bottom with 16 px top corners and 20 px side padding; from 768 it is at most 480 px wide, centred, 16 px above the bottom, with all corners 16 px. The header has a 40 px soft-accent circle with the `user-plus` icon and the title; the steps have mono numbers in the accent colour; "Got it" is 48 px high and full width. Every colour, size, radius and shadow comes from `--fjord-*` tokens, there is no drag handle, and the text meets WCAG 2.2 AA contrast in both themes
+**Then** below 768 it spans the screen at the bottom with 16 px top corners and 20 px side padding; from 768 it is at most 480 px wide, centred, 16 px above the bottom, with all corners 16 px. The header has a 40 px soft-accent circle with the `user-plus` icon and the title; the steps have mono numbers in the accent colour; "Got it" is the Button in its large size (52 px), full width; the last line is left-aligned, as the rest of the site. Every colour, size, radius and shadow comes from `--fjord-*` tokens, there is no drag handle, and the text meets WCAG 2.2 AA contrast in both themes
 
 ### AC-07 (US-01) — domain invariant
 

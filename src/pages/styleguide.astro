@@ -28,6 +28,7 @@ import Wordmark from '../components/brand/Wordmark.astro';
 import QrTile from '../components/brand/QrTile.astro';
 import Portrait from '../components/home/Portrait.astro';
 import SaveContactNote from '../components/home/SaveContactNote.astro';
+import SaveContactSheet from '../components/home/SaveContactSheet.astro';
 import MotionControl from '../components/home/MotionControl.astro';
 import QuickFacts from '../components/home/QuickFacts.astro';
 import ExperienceList from '../components/home/ExperienceList.astro';
@@ -603,6 +604,15 @@ const stateLabel = { hover: 'Hover', focus: 'Focus', active: 'Pressed' } as cons
           </dl>
         </div>
       ))}
+    </section>
+
+    <section data-section="Save contact sheet" class="sg__section">
+      <h2>Save contact sheet</h2>
+      <p class="sg__note">
+        Opens after "Add to contacts" on touch devices. Static sample: the live sheet is a modal
+        dialog at the bottom of the screen.
+      </p>
+      <SaveContactSheet sample />
     </section>
 
     <section data-section="QR tile" class="sg__section">

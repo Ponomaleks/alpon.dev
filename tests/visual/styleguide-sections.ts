@@ -26,6 +26,7 @@ export const SECTIONS = [
   'Quick facts',
   'Experience list',
   'Contact list',
+  'Save contact sheet',
   'QR tile',
   'Mail-link sentence',
   'Testimonial',

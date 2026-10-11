@@ -12,6 +12,7 @@ import SelectedProjects from '../components/home/SelectedProjects.astro';
 import ExperienceList from '../components/home/ExperienceList.astro';
 import Recommendations from '../components/home/Recommendations.astro';
 import ContactBlock from '../components/home/ContactBlock.astro';
+import SaveContactSheet from '../components/home/SaveContactSheet.astro';
 import { contact } from '../data/contact';
 import { visibleRecommendations } from '../data/home';
 import { buildPerson } from '../data/person';
@@ -68,6 +69,7 @@ const numbers = numberSections({
       <ContactBlock index={numbers.contact} />
     </div>
   </section>
+  <SaveContactSheet />
   <script>
     import '../scripts/home/index';
   </script>

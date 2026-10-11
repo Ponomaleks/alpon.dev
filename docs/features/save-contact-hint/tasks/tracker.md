@@ -10,7 +10,7 @@ One branch, `feat/save-contact-hint`, and one pull request into `v2`. The tasks 
 | T1 | Write the spec and the task list, and mark backlog B-58 as not built | docs | — | done |
 | T2 | Give the Button meta text and rename the contact card action to "Add to contacts" | ui | T1 | done |
 | T3 | Add the inline note under the action in the Contact block | ui | T2 | done |
-| T4 | Build the SaveContactSheet dialog in both themes with its Styleguide sample | ui | T2 | todo |
+| T4 | Build the SaveContactSheet dialog in both themes with its Styleguide sample | ui | T2 | done |
 | T5 | Open and close the sheet from the home page script | wiring | T3, T4 | todo |
 | T6 | Owner check in the LinkedIn in-app browser on an iPhone | docs | T5 | todo |
 | T7 | Take the visual baselines and write the pull request body | test | T6 | todo |
