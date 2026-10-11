@@ -392,6 +392,7 @@ describe('home component sections (T16, SCR-04)', () => {
         ),
       )?.[1] ?? `no ${name} icon`;
     expect(save).toContain(`d="${glyph('user-plus')}"`);
+    expect(save).not.toMatch(/\sdownload\b/);
   });
 
   it('shows the standalone link with its arrow, at rest and hovered', () => {

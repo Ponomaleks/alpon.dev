@@ -50,13 +50,11 @@ test.describe('static files and headers', () => {
     });
   }
 
-  test('P-11 vCard is served as a text/vcard attachment', async ({ request }) => {
+  test('P-11 vCard is served as text/vcard with no Content-Disposition', async ({ request }) => {
     const response = await request.get('/alexander-ponomarenko.vcf');
     expect(response.status()).toBe(200);
     expect(response.headers()['content-type']).toBe('text/vcard; charset=utf-8');
-    expect(response.headers()['content-disposition']).toBe(
-      'attachment; filename="Alexander Ponomarenko.vcf"',
-    );
+    expect(response.headers()['content-disposition']).toBeUndefined();
   });
 
   test('P-12 og.png is served at 1200x630', async ({ request }) => {
@@ -148,11 +146,11 @@ test.describe('home page', () => {
     expect(await page.evaluate(() => navigator.clipboard.readText())).toBe('ponomaleks@gmail.com');
   });
 
-  test('P-23 "Save contact" downloads the vCard', async ({ page }) => {
+  test('P-23 "Save contact" links to the vCard, which Chromium saves', async ({ page }) => {
     await page.goto('/');
     const link = page.locator('#contact').getByRole('link', { name: 'Save contact (.vcf)' });
     await expect(link).toHaveAttribute('href', '/alexander-ponomarenko.vcf');
-    await expect(link).toHaveAttribute('download', /.*/);
+    await expect(link).not.toHaveAttribute('download');
     const [download] = await Promise.all([page.waitForEvent('download'), link.click()]);
     expect(download.suggestedFilename()).toMatch(/\.vcf$/);
   });

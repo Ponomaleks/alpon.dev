@@ -201,12 +201,13 @@ describe('ContactBlock', () => {
     expect(links.some((a) => href(a.attrs) === `mailto:${contact.email}`)).toBe(true);
   });
 
-  it('offers "Save contact (.vcf)" as a download of the contact card (AC-16)', async () => {
+  it('links "Save contact (.vcf)" to the contact card, with no download attribute (AC-16)', async () => {
     const links = anchors(await renderBlock());
     const save = links.find((a) => a.label.includes('Save contact (.vcf)'));
     expect(save).toBeDefined();
     expect(href(save?.attrs ?? '')).toBe('/alexander-ponomarenko.vcf');
-    expect(save?.attrs).toMatch(/\bdownload\b/);
+    // Without the attribute a phone that can show a contact card opens it (backlog B-58).
+    expect(save?.attrs).not.toMatch(/\bdownload\b/);
   });
 
   it('has no primary button (D-09)', async () => {

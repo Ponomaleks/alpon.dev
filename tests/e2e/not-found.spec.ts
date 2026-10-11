@@ -107,7 +107,7 @@ test.describe('layout and the bar (AC-17)', () => {
       await expect(links.nth(0)).toHaveAccessibleName('View CV');
       await expect(links.nth(1)).toHaveAccessibleName('Save contact (.vcf)');
       await expect(links.nth(1)).toHaveAttribute('href', '/alexander-ponomarenko.vcf');
-      await expect(links.nth(1)).toHaveAttribute('download', /.*/);
+      await expect(links.nth(1)).not.toHaveAttribute('download');
       await expect(page.locator('.mobile-bar .fj-btn--primary')).toHaveCount(0);
     });
 

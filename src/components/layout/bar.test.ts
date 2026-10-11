@@ -142,10 +142,10 @@ describe('MobileBar: live', () => {
     expect(cv).not.toMatch(/\sdownload\b/);
   });
 
-  it('Save contact (.vcf) is a download of the contact card', () => {
+  it('Save contact (.vcf) links to the contact card, with no download attribute', () => {
     const save = anchors(made('live'))[1] ?? '';
     expect(save).toContain('href="/alexander-ponomarenko.vcf"');
-    expect(save).toMatch(/\sdownload(?:=""|\s|>)/);
+    expect(save).not.toMatch(/\sdownload\b/);
     expect(save).toMatch(/<svg\b[^>]*aria-hidden="true"/);
   });
 
@@ -223,8 +223,9 @@ describe('BarAction type and the default pair (ADR-0002)', () => {
       href: '/alexander-ponomarenko.vcf',
       // The design's add-to-contacts glyph (ContactList: icon "user-plus"), not the download arrow.
       icon: 'user-plus',
-      download: true,
     });
+    // No download: a phone that can show a contact card opens it (backlog B-58).
+    expect(defaultBarActions[1]).not.toHaveProperty('download');
   });
 });
 

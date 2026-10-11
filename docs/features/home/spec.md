@@ -299,7 +299,7 @@ Not a difference: the hero coordinates stay 59.91° N, 10.75° E. They belong to
 
 **Given** a Recruiter in the Contact block
 **When** they activate "Save contact (.vcf)"
-**Then** the browser downloads the contact card, with the name, the title "Software Engineer", the phone, the email, the profiles and the Work region
+**Then** the browser opens the contact card where it can show one (a phone offers to add the contact) and saves the file elsewhere; the link has no `download` attribute and the file is served as `text/vcard` with no `Content-Disposition`. The card holds the name, the title "Software Engineer", the phone, the email, the profiles and the Work region
 
 ### AC-17 (US-02) — happy
 
@@ -387,7 +387,7 @@ In every one of these states the header's text and actions are readable at the c
 
 **Given** a Recruiter on a phone, on the home page or on the Not-found page
 **When** they look at the Sticky action bar
-**Then** it offers "View CV" and "Save contact (.vcf)", both in the secondary style; "Save contact" downloads the contact card. Each page sets the actions of its bar through a page option, and no page edits the bar itself
+**Then** it offers "View CV" and "Save contact (.vcf)", both in the secondary style; "Save contact" opens or saves the contact card as AC-16 says. Each page sets the actions of its bar through a page option, and no page edits the bar itself
 
 ### AC-39 (US-14) — happy
 

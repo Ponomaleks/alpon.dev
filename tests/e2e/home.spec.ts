@@ -394,7 +394,7 @@ test.describe('scripts off (AC-32)', () => {
     await expect(contact.locator('a[href*="github.com"]')).toBeVisible();
     const save = contact.getByRole('link', { name: /Save contact/ });
     await expect(save).toBeVisible();
-    await expect(save).toHaveAttribute('download', /.*/);
+    await expect(save).not.toHaveAttribute('download');
     const downloading = page.waitForEvent('download');
     await save.click();
     expect((await downloading).suggestedFilename()).toMatch(/\.vcf$/);

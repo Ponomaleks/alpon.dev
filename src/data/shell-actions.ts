@@ -34,8 +34,8 @@ export const defaultBarActions: readonly [BarAction, BarAction] = [
   {
     label: 'Save contact (.vcf)',
     href: '/alexander-ponomarenko.vcf',
+    // No download: a phone that can show a contact card opens it; other browsers save the file.
     icon: 'user-plus',
-    download: true,
   },
 ];
 
@@ -52,8 +52,8 @@ export const defaultBandActions = (
   { label: 'Download CV', href: cvPdf[cvLang].href, download: cvPdf[cvLang].downloadName },
 ];
 
-/** Home: the band repeats no contact action (AC-40), so both actions are secondary downloads. */
+/** Home: the band repeats no contact action (AC-40), so both actions are secondary. */
 export const homeBandActions = (cvLang: 'en' | 'no' = 'en'): readonly [BandAction, BandAction] => [
-  { label: 'Save contact (.vcf)', href: '/alexander-ponomarenko.vcf', download: true },
+  { label: 'Save contact (.vcf)', href: '/alexander-ponomarenko.vcf' },
   { label: 'Download CV', href: cvPdf[cvLang].href, download: true },
 ];

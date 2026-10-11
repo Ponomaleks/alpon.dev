@@ -36,7 +36,7 @@ Note: the cv feature serves `/cv`, `/cv/en` and `/cv/no` as pages (P-01..P-03); 
 | Id | Behaviour | Test |
 |---|---|---|
 | P-10 | `/cv/alexander-ponomarenko-cv-{en,no}.pdf` served inline, `Content-Disposition: inline; filename="Alexander_Ponomarenko_CV_{EN,NO}.pdf"` | active |
-| P-11 | `/alexander-ponomarenko.vcf` served as `text/vcard; charset=utf-8`, `attachment; filename="Alexander Ponomarenko.vcf"` | active |
+| P-11 | `/alexander-ponomarenko.vcf` served as `text/vcard; charset=utf-8` (stub: also `attachment; filename="Alexander Ponomarenko.vcf"`; v2: no `Content-Disposition`, so a phone opens the contact card, Owner 2026-10-08) | active |
 | P-12 | `/og.png` is served (1200×630, referenced by `og:image`) | active |
 | P-13 | `/favicon.svg`, `/apple-touch-icon.png`, `/robots.txt`, `/sitemap.xml` are served | active |
 | P-14 | Every response carries `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, `Strict-Transport-Security` | active |
@@ -50,7 +50,7 @@ Note: the cv feature serves `/cv`, `/cv/en` and `/cv/no` as pages (P-01..P-03); 
 | P-20 | Shows name "Alexander Ponomarenko" and role "Software Engineer" / "Full Stack Developer" | active |
 | P-21 | Contact data visible and linked: phone `+47 405 94 584` (`tel:+4740594584`), email `ponomaleks@gmail.com` (`mailto:`), LinkedIn `linkedin.com/in/ponomalex`, GitHub `github.com/ponomaleks`, "Oslo, Norge" | active |
 | P-22 | Copy-email button copies the address and confirms (stub: "Copied"; v2: "Copied", home spec D-18) | active |
-| P-23 | "Save contact" links to `/alexander-ponomarenko.vcf` with a `download` attribute | active |
+| P-23 | "Save contact" links to `/alexander-ponomarenko.vcf` (stub: with a `download` attribute; v2: without it, see P-11) | active |
 | P-24 | Head meta: title, description, canonical `https://alpon.dev/`, `og:*` with `og:image=https://alpon.dev/og.png` 1200×630, `twitter:card=summary_large_image`, JSON-LD `Person` (name, jobTitle, email, telephone, Oslo/NO address, `sameAs` LinkedIn + GitHub) | active |
 | P-25 | Skip link is the first focusable element | active |
 | P-26 | Fonts: the two brand font files preloaded (Schibsted Grotesk and JetBrains Mono, one variable file each; home sad §1) | active |

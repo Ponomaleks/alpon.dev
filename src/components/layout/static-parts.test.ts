@@ -193,7 +193,7 @@ describe('CtaBand actions (AC-40, ADR-0002)', () => {
       expect(rest).toEqual([]);
       expect(save).toContain(`href="${homeVcf}"`);
       expect(text(save ?? '')).toContain('Save contact (.vcf)');
-      expect(save).toMatch(/\sdownload\b/);
+      expect(save).not.toMatch(/\sdownload\b/);
       expect(cv).toContain(`href="${cvHref}"`);
       expect(text(cv ?? '')).toContain('Download CV');
       expect(cv).toMatch(/\sdownload\b/);

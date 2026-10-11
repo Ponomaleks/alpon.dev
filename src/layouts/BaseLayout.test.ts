@@ -365,7 +365,7 @@ describe('page option mobileBarActions (AC-38, ADR-0002)', () => {
     expect(cv).toContain('View CV');
     expect(save).toContain('href="/alexander-ponomarenko.vcf"');
     expect(save).toContain('Save contact (.vcf)');
-    expect(save).toMatch(/\sdownload(?:=""|\s|>)/);
+    expect(save).not.toMatch(/\sdownload\b/);
     for (const anchor of [cv, save]) {
       expect(anchor).toContain('fj-btn--secondary');
       expect(anchor).not.toContain('fj-btn--primary');

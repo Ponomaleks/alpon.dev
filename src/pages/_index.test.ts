@@ -128,8 +128,10 @@ describe('built index.html, page options (AC-11, AC-40)', () => {
     for (const a of anchors) {
       expect(a).toContain('fj-btn--secondary');
       expect(a).not.toContain('fj-btn--primary');
-      expect(a).toMatch(/\sdownload(?:=""|\s|>)/);
     }
+    // Only the CV is a download; the contact card opens where the browser can show one (AC-16).
+    expect(anchors[0]).not.toMatch(/\sdownload\b/);
+    expect(anchors[1]).toMatch(/\sdownload(?:=""|\s|>)/);
     expect(band).not.toContain('Get in touch');
   });
 
