@@ -53,6 +53,7 @@ describe('SaveContactSheet', () => {
     const t = text(await render());
     const parts = [
       'Add the contact card',
+      'Alexander Ponomarenko.vcf',
       'It goes to your Downloads.',
       '01',
       'If your browser asks, tap Download.',
@@ -73,10 +74,25 @@ describe('SaveContactSheet', () => {
     expect(list.match(/<span\b[^>]*aria-hidden="true"[^>]*>\s*0[123]\s*<\/span>/g)).toHaveLength(3);
   });
 
-  it('does not show the file name (D-04) and has no drag handle (D-06)', async () => {
+  it('names the file as the browser saves it, under the title beside the icon (D-04)', async () => {
     const html = await render();
-    expect(html).not.toContain('.vcf');
-    expect(html).not.toMatch(/handle/);
+    // public/_headers gives the saved file its name; the sheet must show that name.
+    const headers = readFileSync('public/_headers', 'utf8');
+    const saved = headers.match(
+      /^\/alexander-ponomarenko\.vcf\r?\n(?:[ \t]+.*\r?\n)*?[ \t]+Content-Disposition:.*filename="([^"]+)"/m,
+    )?.[1];
+    expect(saved).toBe('Alexander Ponomarenko.vcf');
+    const head =
+      html.match(/<div\b[^>]*class="save-sheet__head"[\s\S]*?<\/div>\s*<\/div>/)?.[0] ?? '';
+    expect(text(head)).toBe('Add the contact card ' + saved);
+    expect(head).toMatch(/<svg\b/);
+    expect(head).toMatch(
+      new RegExp('<p\\b[^>]*class="save-sheet__file"[^>]*>\\s*' + saved + '\\s*</p>'),
+    );
+  });
+
+  it('has no drag handle (D-06)', async () => {
+    expect(await render()).not.toMatch(/handle/);
   });
 
   it('has one button, "Got it": primary, large, full width (AC-06, D-05)', async () => {

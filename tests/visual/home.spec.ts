@@ -59,3 +59,44 @@ test.describe('Home visual baselines', () => {
     }
   }
 });
+
+// save-contact-hint AC-06: the open sheet of "Add to contacts", below 768 and from 768, in both
+// themes. It is opened directly: the baseline shows the sheet, not the touch-device rule.
+test.describe('Contact card sheet visual baselines', () => {
+  test.skip(({ browserName }) => browserName !== 'chromium');
+  test.skip(process.platform !== 'linux', 'visual baselines are Linux-only (sad §11)');
+  test.skip(
+    MODE !== 'compare' && MODE !== 'write',
+    'runs only in the Playwright image with FJORD_VISUAL=compare or write',
+  );
+
+  for (const theme of ['dag', 'natt'] as const) {
+    for (const width of [390, 834]) {
+      test.describe(`${theme} at ${width}`, () => {
+        test.use({
+          viewport: { width, height: 900 },
+          colorScheme: theme === 'natt' ? 'dark' : 'light',
+          reducedMotion: 'reduce',
+        });
+
+        test('the open sheet matches the approved baseline', async ({ page }, testInfo) => {
+          test.skip(testInfo.project.name !== 'desktop', 'one run per viewport is enough');
+          const name = `home-contact-sheet-${theme}-${width}.png`;
+          if (MODE === 'compare')
+            expect(
+              existsSync(testInfo.snapshotPath(name)),
+              `no approved Linux baseline for ${name}: add the visual-baselines label to the PR, review and commit the workflow's artifact`,
+            ).toBe(true);
+          await page.addInitScript((t) => localStorage.setItem('fjord-theme', t), theme);
+          await page.goto('/');
+          await page.evaluate(() => document.fonts.ready);
+          const sheet = page.locator('#save-contact-sheet');
+          await sheet.evaluate((el) => (el as HTMLDialogElement).showModal());
+          // The button takes focus on opening; a baseline without the focus ring is steadier.
+          await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
+          await expect(sheet).toHaveScreenshot(name, { maxDiffPixelRatio: 0.001 });
+        });
+      });
+    }
+  }
+});

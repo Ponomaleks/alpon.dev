@@ -47,7 +47,7 @@ This feature is small (S): the screens and the test plan are in this file, and t
 | D-01 | The label is "Add to contacts". The file type ".vcf" is separate meta text in the Contact block and the closing band. The Sticky action bar shows the label only | measured at 360 in the bar: "Add to contacts" with ".vcf" overflows the screen by 18 px; the label alone is narrower than "Save contact (.vcf)" was |
 | D-02 | One set of copy for every touch device, no platform or browser detection | the flow is the same on iOS and Android (Owner test); names of system controls are localised, so the steps do not describe them |
 | D-03 | The sheet opens from the three actions of the home page only. The Not-found page's bar gets the new label and no sheet | the sheet's script stays a page script of home; a Shell script has a 5 KB budget |
-| D-04 | The sheet's title is neutral ("Add the contact card") and does not say the file was downloaded; the file name is not shown | the browser may ask first and the Visitor may refuse |
+| D-04 | The sheet's title is neutral ("Add the contact card") and does not say the file was downloaded. Under the title the sheet names the file as the browser saves it, "Alexander Ponomarenko.vcf" (the name `public/_headers` gives it, not the name in the address) | the browser may ask first and the Visitor may refuse; the Visitor has to know which file to look for in Downloads (Owner decision 2026-10-11) |
 | D-05 | "Got it" is a primary button. The one-primary rule is counted inside the open sheet, because the page under a modal dialog is inert | Owner decision 2026-10-11 |
 | D-06 | Step numbers are mono "01", "02", "03" in the accent colour, not filled circles; no drag handle; the wide form starts at 768, not 600; icons are the site's 1.5 px line icons; the Button keeps its size and weight | brand rules and the site's breakpoints (Owner decision 2026-10-11) |
 | D-07 | The header icon of the sheet is `user-plus`, the icon of the action, not a check mark | a check mark would say the contact was saved (D-04) |
@@ -89,7 +89,7 @@ This feature is small (S): the screens and the test plan are in this file, and t
 
 **Given** a Visitor on the home page with scripts on, on a device that matches `(hover: none) and (pointer: coarse)`
 **When** they activate "Add to contacts" in the Contact block, the closing band or the Sticky action bar
-**Then** the download starts as before (the click is not prevented) and the sheet opens as a modal dialog above everything else, with the title "Add the contact card", the lead "It goes to your Downloads.", the steps 01 "If your browser asks, tap Download.", 02 "Open Downloads in your Files app.", 03 "Tap the file and save it as a contact.", the button "Got it" and the line "Or scan the QR code on a computer.". The copy is the same on every device, the file name is not shown, and the sheet opens on every activation; nothing is stored
+**Then** the download starts as before (the click is not prevented) and the sheet opens as a modal dialog above everything else, with the title "Add the contact card", under it the file name "Alexander Ponomarenko.vcf", the lead "It goes to your Downloads.", the steps 01 "If your browser asks, tap Download.", 02 "Open Downloads in your Files app.", 03 "Tap the file and save it as a contact.", the button "Got it" and the line "Or scan the QR code on a computer.". The copy is the same on every device, and the sheet opens on every activation; nothing is stored
 
 ### AC-04 (US-01) — happy
 
@@ -107,7 +107,7 @@ This feature is small (S): the screens and the test plan are in this file, and t
 
 **Given** the open sheet in Dag or in Natt
 **When** the Visitor looks at it
-**Then** below 768 it spans the screen at the bottom with 16 px top corners and 20 px side padding; from 768 it is at most 480 px wide, centred, 16 px above the bottom, with all corners 16 px. The header has a 40 px soft-accent circle with the `user-plus` icon and the title; the steps have mono numbers in the accent colour; "Got it" is the Button in its large size (52 px), full width; the last line is left-aligned, as the rest of the site. Every colour, size, radius and shadow comes from `--fjord-*` tokens, there is no drag handle, and the text meets WCAG 2.2 AA contrast in both themes
+**Then** below 768 it spans the screen at the bottom with 16 px top corners and 20 px side padding; from 768 it is at most 480 px wide, centred, 16 px above the bottom, with all corners 16 px. The header has a 40 px soft-accent circle with the `user-plus` icon and, beside it, the title with the file name under it in the mono font and the muted colour; the steps have mono numbers in the accent colour; "Got it" is the Button in its large size (52 px), full width; the last line is centred under it. Every colour, size, radius and shadow comes from `--fjord-*` tokens, there is no drag handle, and the text meets WCAG 2.2 AA contrast in both themes
 
 ### AC-07 (US-01) — domain invariant
 
@@ -155,7 +155,9 @@ The quality bar of `CLAUDE.md` applies unchanged: WCAG 2.2 AA, the performance b
 
 Visual baselines go through the `visual-baselines` label workflow, after AC-11. The label change also changes the existing baselines of the home page, the Not-found page and the Styleguide.
 
-Not covered: in-app browsers that do not download at all (AC-11 records one of them); a Visitor who refuses the browser's download question while the sheet is open; a laptop with a touch screen, which usually does not match the media query.
+Not covered: in-app browsers that do not download at all (AC-11 records one of them); a Visitor who refuses the browser's download question while the sheet is open.
+
+A laptop with a touch screen does not match the media query and gets neither the note nor the sheet. That is intended: it has the QR tile.
 
 ## 8. Open questions
 

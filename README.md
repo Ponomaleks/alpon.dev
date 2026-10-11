@@ -156,7 +156,7 @@ Checks after a production deploy:
 - `https://alpon.dev`: the page, the CV and the buttons.
 - `https://alpon.dev/cv`: the English CV page (while `main` serves the stub: the English PDF opens).
 - `https://alpon.dev/nope`: the branded 404 page.
-- A phone: scan the QR code from the business card and try "Save contact".
+- A phone: scan the QR code from the business card and try "Add to contacts": the file downloads and, on a phone, a sheet says where to find it.
 - Link preview: https://www.linkedin.com/post-inspector/ shows `og.png`.
 - Headers: https://securityheaders.com/?q=alpon.dev
 

@@ -208,7 +208,8 @@ describe('ContactBlock', () => {
     // save-contact-hint AC-01: the file type is meta text; assistive technology gets the long form.
     expect(save?.label).toBe('Add to contacts .vcf (vCard file)');
     expect(await renderBlock()).toMatch(
-      /Add to contacts\s*<span class="fj-btn__meta" aria-hidden="true"[^>]*>\.vcf<\/span>\s*<span class="fj-btn__sr"[^>]*>\s*\(vCard file\)<\/span>/,
+      // Label and meta share one line box, so the two sizes sit on one baseline.
+      /<span class="fj-btn__label"[^>]*>\s*Add to contacts\s*<span class="fj-btn__meta" aria-hidden="true"[^>]*>\.vcf<\/span>\s*<\/span>\s*<span class="fj-btn__sr"[^>]*>\s*\(vCard file\)<\/span>/,
     );
     expect(href(save?.attrs ?? '')).toBe('/alexander-ponomarenko.vcf');
     expect(save?.attrs).toMatch(/\bdownload\b/);

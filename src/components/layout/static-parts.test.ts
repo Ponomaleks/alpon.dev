@@ -193,7 +193,9 @@ describe('CtaBand actions (AC-40, ADR-0002)', () => {
       expect(rest).toEqual([]);
       expect(save).toContain(`href="${homeVcf}"`);
       expect(text(save ?? '')).toContain('Add to contacts');
-      expect(save).toContain('<span class="fj-btn__meta" aria-hidden="true">.vcf</span>');
+      expect(save).toContain(
+        '<span class="fj-btn__label">Add to contacts<span class="fj-btn__meta" aria-hidden="true">.vcf</span></span>',
+      );
       expect(save).toContain('(vCard file)');
       expect(save).toMatch(/\sdownload\b/);
       expect(cv).toContain(`href="${cvHref}"`);

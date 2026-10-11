@@ -14,6 +14,9 @@ interface Props {
 const { sample = false } = Astro.props;
 const Root = sample ? 'div' : 'dialog';
 const Title = sample ? 'h3' : 'h2';
+// The name the browser saves the contact card under (public/_headers, Content-Disposition):
+// what the Visitor looks for in Downloads. A unit test holds the two together.
+const file = 'Alexander Ponomarenko.vcf';
 const steps = [
   'If your browser asks, tap Download.',
   'Open Downloads in your Files app.',
@@ -30,9 +33,12 @@ const steps = [
     <span class="save-sheet__icon">
       <Icon name="user-plus" />
     </span>
-    <Title class="save-sheet__title" id={sample ? undefined : 'save-contact-sheet-title'}>
-      Add the contact card
-    </Title>
+    <div class="save-sheet__heading">
+      <Title class="save-sheet__title" id={sample ? undefined : 'save-contact-sheet-title'}>
+        Add the contact card
+      </Title>
+      <p class="save-sheet__file">{file}</p>
+    </div>
   </div>
   <p class="save-sheet__lead">It goes to your Downloads.</p>
   <ol class="save-sheet__steps" role="list">
@@ -152,6 +158,21 @@ const steps = [
     margin: 0;
   }
 
+  .save-sheet__heading {
+    display: flex;
+    flex-direction: column;
+    gap: var(--fjord-space-1);
+    min-inline-size: 0;
+  }
+
+  .save-sheet__file {
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-mono-sm);
+    line-height: var(--fjord-leading-snug);
+    color: var(--fjord-color-text-muted);
+    overflow-wrap: anywhere;
+  }
+
   .save-sheet__lead {
     font-size: var(--fjord-text-ui);
     line-height: var(--fjord-leading-normal);
@@ -188,6 +209,7 @@ const steps = [
     font-size: var(--fjord-text-ui-xs);
     line-height: var(--fjord-leading-snug);
     color: var(--fjord-color-text-muted);
+    text-align: center;
   }
 
   /* The sheet slides up and the scrim fades in; with reduced motion both simply appear (AC-07). */

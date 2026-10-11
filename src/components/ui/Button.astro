@@ -50,11 +50,15 @@ const classes = [
 {href === undefined ? (
   <button type="button" class:list={classes} disabled={disabled} data-demo-state={demoState}>
     {icon && <Icon name={icon} />}
-    <slot />
-    {meta && (
-      <span class="fj-btn__meta" aria-hidden="true">
-        {meta}
+    {meta ? (
+      <span class="fj-btn__label">
+        <slot />
+        <span class="fj-btn__meta" aria-hidden="true">
+          {meta}
+        </span>
       </span>
+    ) : (
+      <slot />
     )}
     {metaName && <span class="fj-btn__sr">{` ${metaName}`}</span>}
     {arrow && (
@@ -73,11 +77,15 @@ const classes = [
     data-demo-state={demoState}
   >
     {icon && <Icon name={icon} />}
-    <slot />
-    {meta && (
-      <span class="fj-btn__meta" aria-hidden="true">
-        {meta}
+    {meta ? (
+      <span class="fj-btn__label">
+        <slot />
+        <span class="fj-btn__meta" aria-hidden="true">
+          {meta}
+        </span>
       </span>
+    ) : (
+      <slot />
     )}
     {metaName && <span class="fj-btn__sr">{` ${metaName}`}</span>}
     {arrow && (
@@ -211,8 +219,10 @@ const classes = [
     display: inline-flex;
   }
 
-  /* The file type beside the label (save-contact-hint AC-01): mono, muted. */
+  /* The file type beside the label (save-contact-hint AC-01): mono, muted. Label and meta are
+     inline text in one line box, so the smaller size sits on the label's baseline. */
   .fj-btn__meta {
+    margin-inline-start: var(--fjord-space-3);
     font-family: var(--fjord-font-mono);
     font-size: var(--fjord-text-mono-sm);
     font-weight: var(--fjord-weight-regular);

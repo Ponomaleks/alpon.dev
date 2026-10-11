@@ -7,8 +7,10 @@ test.use({ reducedMotion: 'reduce' });
 
 const NAME = 'Add to contacts (vCard file)';
 const SHEET = '#save-contact-sheet';
+const FILE = 'Alexander Ponomarenko.vcf';
 const COPY = [
   'Add the contact card',
+  FILE,
   'It goes to your Downloads.',
   'If your browser asks, tap Download.',
   'Open Downloads in your Files app.',
@@ -29,7 +31,8 @@ const isTouch = (page: Page) =>
 async function activate(page: Page, scope: string) {
   const link = page.locator(scope).getByRole('link', { name: NAME });
   const [download] = await Promise.all([page.waitForEvent('download'), link.click()]);
-  expect(download.suggestedFilename()).toMatch(/\.vcf$/);
+  // The sheet names this file (D-04): the name the browser saves it under.
+  expect(download.suggestedFilename()).toBe(FILE);
   return link;
 }
 
@@ -52,7 +55,6 @@ test.describe('on a touch device', () => {
       await expect(sheet.getByRole('heading', { level: 2 })).toHaveText('Add the contact card');
       for (const line of COPY) await expect(sheet.getByText(line, { exact: true })).toBeVisible();
       await expect(sheet.getByRole('listitem')).toHaveCount(3);
-      await expect(sheet).not.toContainText('.vcf');
       await expect(sheet.getByRole('button')).toHaveText('Got it');
       // Modal: in the top layer, the page under it cannot be reached.
       expect(await sheet.evaluate((el) => el.matches(':modal'))).toBe(true);
