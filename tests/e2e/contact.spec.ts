@@ -513,30 +513,50 @@ test.describe('QR tile (AC-17)', () => {
     });
   }
 
-  // save-contact-hint AC-15 (Owner, 2026-10-12): the tile is shown at every width.
-  for (const width of [360, 390, 834, 1023]) {
-    test(`at ${width} the tile, its caption and the hint are shown inside the screen`, async ({
-      page,
-    }) => {
-      await openIn(page, 'dag', width);
-      const tile = page.locator(`${SECTION} .qr`);
-      await tile.scrollIntoViewIfNeeded();
-      await expect(tile).toBeVisible();
-      await expect(tile.getByText('Skann meg')).toBeVisible();
-      await expect(tile.locator('.qr__hint')).toBeVisible();
-      const image = await box(tile.locator('img[data-theme="dag"]'));
+  // save-contact-hint AC-15 (Owner, 2026-10-12): the tile is shown at every width. Below 768 it
+  // spans the column, so a phone held out to another phone shows a code that is easy to scan,
+  // and the hint is left out; from 768 it has the design's size with the hint beside it.
+  const placed = async (page: Page, width: number) => {
+    await openIn(page, 'dag', width);
+    const tile = page.locator(`${SECTION} .qr`);
+    await tile.scrollIntoViewIfNeeded();
+    await expect(tile).toBeVisible();
+    await expect(tile.getByText('Skann meg')).toBeVisible();
+    const image = await box(tile.locator('img[data-theme="dag"]'));
+    // Under the action (and its note), above the mail-link sentence below 1024.
+    const save = await box(
+      page.locator(SECTION).getByRole('link', { name: 'Add to contacts (vCard file)' }),
+    );
+    const sentence = await box(page.locator(`${SECTION} .contact__sentence`));
+    expect(image.y).toBeGreaterThanOrEqual(save.y + save.height);
+    expect(sentence.y).toBeGreaterThanOrEqual(image.y + image.height);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(width);
+    return { tile, image };
+  };
+
+  for (const width of [360, 390, 767]) {
+    test(`at ${width} the tile spans the column, is square, and has no hint`, async ({ page }) => {
+      const { tile, image } = await placed(page, width);
+      const list = await box(page.locator(`${SECTION} .contact__list`));
+      expect(image.x).toBeCloseTo(list.x, 0);
+      expect(image.width).toBeCloseTo(list.width, 0);
+      expect(image.height).toBeCloseTo(image.width, 0);
+      await expect(tile.locator('.qr__hint')).toBeHidden();
+      const caption = await box(tile.locator('figcaption'));
+      expect(caption.y).toBeGreaterThanOrEqual(image.y + image.height);
+      expect(caption.x).toBeCloseTo(image.x, 0);
+    });
+  }
+
+  for (const width of [768, 834, 1023]) {
+    test(`at ${width} the tile has the design's size with the hint beside it`, async ({ page }) => {
+      const { tile, image } = await placed(page, width);
       expect(image.width).toBeCloseTo(132, 0);
+      expect(image.height).toBeCloseTo(132, 0);
+      await expect(tile.locator('.qr__hint')).toBeVisible();
       const hint = await box(tile.locator('.qr__hint'));
       expect(hint.x).toBeGreaterThanOrEqual(image.x + image.width);
       expect(hint.x + hint.width).toBeLessThanOrEqual(width);
-      // The tile stands under the action (and its note), above the mail-link sentence below 1024.
-      const save = await box(
-        page.locator(SECTION).getByRole('link', { name: 'Add to contacts (vCard file)' }),
-      );
-      const sentence = await box(page.locator(`${SECTION} .contact__sentence`));
-      expect(image.y).toBeGreaterThanOrEqual(save.y + save.height);
-      expect(sentence.y).toBeGreaterThanOrEqual(image.y + image.height);
-      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(width);
     });
   }
 });

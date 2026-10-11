@@ -59,7 +59,7 @@ A tester on a phone tried to select the phone number to copy it and got the link
 - The contact card holds the number without spaces. The page still shows it with spaces. The QR files are not changed (`CLAUDE.md`, Architecture decisions).
 - The phone row of the Contact block gets a "Copy" button like the email row, and a selection of the number is copied without spaces. The menu a browser shows on a long press on a link ("copy link") is the browser's own: it fires no copy event and a page cannot change what it copies. The "Copy" button is the way that always works.
 
-On the same day the Owner decided that the QR tile is shown at every width, not from 1024 only (AC-15; it changes home AC-17). On a phone it is there to be scanned by someone else's phone; its hint and the line "Or scan the QR code on a computer." in the sheet keep their wording.
+On the same day the Owner decided that the QR tile is shown at every width, not from 1024 only (AC-15; it changes home AC-17). On a phone it is there to be scanned by someone else's phone; so below 768 it is drawn across the column and its hint, which speaks of pointing a phone's camera at it, is left out. The line "Or scan the QR code on a computer." in the sheet keeps its wording.
 
 Out of scope: the contact list in the side column of the CV pages keeps "Copy" on the email row only.
 
@@ -172,7 +172,7 @@ Out of scope: the contact list in the side column of the CV pages keeps "Copy" o
 
 **Given** a Visitor in the Contact block at any width, in Dag or Natt
 **When** they look under "Add to contacts"
-**Then** they see the QR tile for the theme with the caption "Skann meg" and the hint beside it, inside the screen down to 360; below 1024 it stands between the action and the mail-link sentence
+**Then** they see the QR tile for the theme with the caption "Skann meg" under it, inside the screen down to 360; below 1024 it stands between the action and the mail-link sentence. Below 768 the tile is as wide as the contact list and the hint is not shown, so the code is large enough to be scanned from the phone's screen; from 768 the tile is 132 px wide with the hint beside it
 
 ## 6. Non-functional requirements
 

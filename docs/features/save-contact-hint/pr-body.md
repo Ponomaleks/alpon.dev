@@ -9,7 +9,7 @@ Spec: `docs/features/save-contact-hint/spec.md`. Replaces backlog B-58 (pull req
 - On touch devices, with scripts on, a tap on any of the three actions of the home page starts the download as before and opens a bottom sheet, a native modal `<dialog>`: "Add the contact card" with the file name under it, "It goes to your Downloads.", three steps, "Got it", "Or scan the QR code on a computer.". Escape, a tap outside and "Got it" close it; focus returns to the action. One set of copy for every device, nothing stored.
 - Desktop, scripts off and the Not-found page: the file downloads and no sheet opens.
 - After user testing (2026-10-12): the contact card holds the phone number without spaces; the phone row of the Contact block has a "Copy" button that copies the number without spaces; a selection of the number is copied without spaces too. A long press on the link still shows the browser's own menu, which a page cannot change.
-- The QR tile is shown at every width, not from 1024 only (Owner decision 2026-10-12; home AC-17 changed).
+- The QR tile is shown at every width, not from 1024 only (Owner decision 2026-10-12; home AC-17 changed). Below 768 it is as wide as the contact list and has no hint; from 768 it keeps the design's 132 px with the hint beside it.
 - The Styleguide shows the Button with meta, the note and the sheet as a static sample (new section "Save contact sheet").
 
 ## Owner check before the baselines (AC-11)
@@ -23,7 +23,7 @@ Result: not done yet.
 - Unit (`npm run test:unit`): 1343 passed, 72 files.
 - Lint (`npm run lint`): exit 0.
 - Build, `check:budgets`, `check:contact:built`: within limits.
-- Playwright, full local run with `--workers=4` on the final state: 1967 passed, 195 skipped, 0 failed. An earlier full run found two things, both fixed before this one: a selection made over the whole number was not copied without spaces (it is anchored on the element, not on its text), and the scripts-off test expected one script-only control in the Contact block where there are now two.
+- Playwright, full local run with `--workers=4` on the final state: 1971 passed, 195 skipped, 0 failed. An earlier full run found two things, both fixed before this one: a selection made over the whole number was not copied without spaces (it is anchored on the element, not on its text), and the scripts-off test expected one script-only control in the Contact block where there are now two.
 - Axe: the open sheet in Dag and Natt at 390 and 834, zero violations.
 - Visual: the baselines are written by the `visual-baselines` label workflow and are not committed yet, so the visual job in CI fails until they are.
 - Lighthouse CI: not run locally.
