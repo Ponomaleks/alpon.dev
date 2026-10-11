@@ -1,5 +1,3 @@
-Draft until the visual baselines (T7) are committed. The Owner check (AC-11) is done.
-
 Spec: `docs/features/save-contact-hint/spec.md`. Replaces backlog B-58 (pull request 9, closed).
 
 ## What changed
@@ -18,6 +16,10 @@ Spec: `docs/features/save-contact-hint/spec.md`. Replaces backlog B-58 (pull req
 
 Result (Owner, 2026-10-12): the in-app browser behaves as the other browsers do. The file downloads, the sheet opens and can be closed.
 
+## Screenshots
+
+The committed baselines under `tests/visual/__screenshots__/linux/home.spec.ts/`: `home-contact-sheet-{dag,natt}-{390,834}.png`, `home-contact-{dag,natt}-{390,834,1440}.png`, `home-closing-band-{dag,natt}-{390,834,1440}.png`.
+
 ## Tests
 
 - Unit (`npm run test:unit`): 1343 passed, 72 files.
@@ -25,7 +27,8 @@ Result (Owner, 2026-10-12): the in-app browser behaves as the other browsers do.
 - Build, `check:budgets`, `check:contact:built`: within limits.
 - Playwright, full local run with `--workers=4` on the final state: 1971 passed, 195 skipped, 0 failed. An earlier full run found two things, both fixed before this one: a selection made over the whole number was not copied without spaces (it is anchored on the element, not on its text), and the scripts-off test expected one script-only control in the Contact block where there are now two.
 - Axe: the open sheet in Dag and Natt at 390 and 834, zero violations.
-- Visual: the baselines are written by the `visual-baselines` label workflow and are not committed yet, so the visual job in CI fails until they are.
+- Visual: the baselines of run 38185366743 (commit 171fbce) were reviewed by the Owner and are committed: 10 new (the open sheet at 390 and 834 in Dag and Natt, the Styleguide section "Save contact sheet") and 116 changed. Of the changed ones, the home contact section, the closing band, the bar and the Styleguide contact list show the new parts; about 70 Styleguide sections below "Contact list" only moved by a fraction of a pixel, because the page above them grew, and show the same content.
+- Known limit of one baseline: at 390 the home contact section is now taller than the 900 px test window, so `home-contact-{dag,natt}-390.png` also show the header, the skip link and the Sticky action bar over the section (Owner decision 2026-10-12: kept as it is).
 - Lighthouse CI: not run locally.
 
 ## Differences from the canvas "Save contact hint"
