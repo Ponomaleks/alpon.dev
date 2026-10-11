@@ -34,6 +34,15 @@ describe('contact.ts against the vCard (AC-15)', () => {
     expect(problems.join('\n')).toContain(field);
   });
 
+  // save-contact-hint AC-12: the card holds the number without spaces, so a phone can dial it
+  // and paste it; the page keeps the spaced form.
+  it('wants the phone in the vCard without spaces', () => {
+    expect(vcf).toMatch(/^TEL[^:\r\n]*:\+4740594584\r?$/m);
+    const spaced = vcf.replace(/^(TEL[^:\r\n]*:).*$/m, '$1' + contact.phone);
+    expect(spaced).toContain(contact.phone);
+    expect(checkContact(contact, spaced, TODAY).join('\n')).toContain('phone');
+  });
+
   it('passes Oslo, Norge against ADR locality Oslo', () => {
     const only = 'ADR;TYPE=WORK:;;;Oslo;;;Norway';
     const problems = checkContact({ ...contact, workRegion: 'Oslo, Norge' }, only, TODAY);

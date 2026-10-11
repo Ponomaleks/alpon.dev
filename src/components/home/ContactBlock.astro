@@ -1,5 +1,6 @@
 ---
-// Contact block (AC-13 to AC-17): five rows, Copy on the email row, Add to contacts, the QR tile and
+// Contact block (AC-13 to AC-17): five rows, Copy on the email and phone rows (the phone without
+// spaces, save-contact-hint AC-13), Add to contacts, the QR tile and
 // the mail-link sentence. The section wrapper (id="contact") is placed by the page. No primary
 // button here (D-09); data only from contact.ts.
 // Layout follows the page design (.x-split, ContactList, .x-qr): the list, the action and the QR
@@ -20,7 +21,9 @@ interface Props {
 
 const { index } = Astro.props;
 const short = (url: string) => url.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '');
-const tel = `tel:${contact.phone.replace(/[^\d+]/g, '')}`;
+// The number without spaces: the tel link, the Copy button and the vCard use this form.
+const phoneCompact = contact.phone.replace(/[^\d+]/g, '');
+const tel = `tel:${phoneCompact}`;
 ---
 
 <div class="contact">
@@ -48,9 +51,12 @@ const tel = `tel:${contact.phone.replace(/[^\d+]/g, '')}`;
         <div class="contact__row">
           <dt>Phone</dt>
           <dd>
-            <a class="contact__value" href={tel}>
+            <a class="contact__value" href={tel} data-copy-plain>
               {contact.phone}
             </a>
+            <span class="contact__copy" data-needs-script>
+              <CopyButton data-copy-phone={phoneCompact} />
+            </span>
           </dd>
         </div>
         <div class="contact__row">

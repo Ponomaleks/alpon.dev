@@ -1,6 +1,6 @@
 // The home page's one script entry (AC-32): wires every home module.
 import { initCarousel } from './carousel';
-import { initCopyEmail } from '../shared/copy-email';
+import { initCopyEmail, initCopyPhone, initPlainCopy } from '../shared/copy-email';
 import { initCountUp } from './count-up';
 import { initHeroHeader } from './hero-header';
 import { initMotion } from './motion';
@@ -51,6 +51,8 @@ const copied = getComputedStyle(document.documentElement).getPropertyValue(
 );
 const copiedMs = parseFloat(copied) * (copied.trim().endsWith('ms') ? 1 : 1000);
 initCopyEmail({ document, navigator, duration: copiedMs });
+initCopyPhone({ document, navigator, duration: copiedMs });
+initPlainCopy({ document });
 
 // The sheet of "Add to contacts": every contact card action of the page opens it on touch devices.
 const saveSheet = document.querySelector<HTMLDialogElement>('dialog#save-contact-sheet');

@@ -14,3 +14,6 @@ One branch, `feat/save-contact-hint`, and one pull request into `v2`. The tasks 
 | T5 | Open and close the sheet from the home page script | wiring | T3, T4 | done |
 | T6 | Owner check in the LinkedIn in-app browser on an iPhone | docs | T5 | todo |
 | T7 | Take the visual baselines and write the pull request body | test | T6 | todo |
+| T8 | Write the phone number in the contact card without spaces | domain | T1 | done |
+| T9 | Add "Copy" to the phone row and copy a selection of the number without spaces | ui | T8 | done |
+| T10 | Show the QR tile at every width | ui | T1 | done |

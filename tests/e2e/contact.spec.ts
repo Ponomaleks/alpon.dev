@@ -360,6 +360,82 @@ test.describe('refused copy (AC-15)', () => {
   });
 });
 
+// save-contact-hint AC-13, AC-14: the phone number is copied without spaces, by the Copy button
+// of its row and from a selection of the number.
+test.describe('copy the phone number (save-contact-hint AC-13, AC-14)', () => {
+  test.use({ permissions: ['clipboard-read', 'clipboard-write'] });
+  const NUMBER = '+4740594584';
+
+  test('Copy puts the number without spaces on the clipboard and a Toast confirms it', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    const row = page.locator(SECTION + ' .contact__row').nth(1);
+    await expect(row.getByRole('link')).toHaveText('+47 405 94 584');
+    const button = row.getByRole('button', { name: 'Copy' });
+    await button.click();
+    const toast = page.getByRole('status').locator('.toast');
+    await expect(toast).toContainText('Copied');
+    await expect(toast).toContainText(NUMBER);
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(NUMBER);
+    await expect(button).toHaveAttribute('data-done', 'true');
+    // The email row's button is untouched.
+    await expect(page.locator(SECTION + ' [data-copy-email]')).not.toHaveAttribute('data-done');
+  });
+
+  test('the two Copy buttons are 44 px targets and do not push the number onto a second line at 360', async ({
+    page,
+  }) => {
+    await openIn(page, 'dag', 360);
+    const row = page.locator(SECTION + ' .contact__row').nth(1);
+    const button = await box(row.getByRole('button', { name: 'Copy' }));
+    expect(button.height).toBeGreaterThanOrEqual(44);
+    const link = await box(row.getByRole('link'));
+    expect(link.height).toBeLessThanOrEqual(44);
+    expect(link.x + link.width).toBeLessThanOrEqual(button.x);
+    const emailCopy = await box(page.locator(SECTION + ' [data-copy-email]'));
+    expect(button.x).toBeCloseTo(emailCopy.x, 0);
+  });
+
+  test('a selection of the number is copied without spaces', async ({ page }) => {
+    await page.goto('/');
+    const link = page.locator(SECTION + ' a[href^="tel:"]');
+    await link.evaluate((el) => {
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      const selection = getSelection();
+      selection?.removeAllRanges();
+      selection?.addRange(range);
+    });
+    await page.keyboard.press('ControlOrMeta+C');
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(NUMBER);
+  });
+
+  test('a selection of other text is copied as it is', async ({ page }) => {
+    await page.goto('/');
+    const lead = page.locator(SECTION).getByText('Email is fastest. Phone and LinkedIn work too.');
+    await lead.evaluate((el) => {
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      const selection = getSelection();
+      selection?.removeAllRanges();
+      selection?.addRange(range);
+    });
+    await page.keyboard.press('ControlOrMeta+C');
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(
+      'Email is fastest. Phone and LinkedIn work too.',
+    );
+  });
+
+  test.describe('with scripts off', () => {
+    test.use({ javaScriptEnabled: false });
+    test('no Copy is offered in the phone row', async ({ page }) => {
+      await page.goto('/');
+      await expect(page.locator(SECTION + ' [data-copy-phone]')).toBeHidden();
+    });
+  });
+});
+
 test.describe('Add to contacts (AC-16)', () => {
   test('downloads the contact card with every field', async ({ page }) => {
     await page.goto('/');
@@ -369,7 +445,9 @@ test.describe('Add to contacts (AC-16)', () => {
     const card = await readFile(path, 'utf8');
     expect(card).toContain('FN:Alexander Ponomarenko');
     expect(card).toMatch(/^TITLE:Software Engineer\r?$/m);
-    expect(card).toContain('+47 405 94 584');
+    // save-contact-hint AC-12: no spaces in the card's number.
+    expect(card).toMatch(/^TEL[^:\r\n]*:\+4740594584\r?$/m);
+    expect(card).not.toContain('+47 405 94 584');
     expect(card).toContain(EMAIL);
     expect(card).toContain('https://www.linkedin.com/in/ponomalex/');
     expect(card).toContain('https://github.com/ponomaleks');
@@ -435,14 +513,32 @@ test.describe('QR tile (AC-17)', () => {
     });
   }
 
-  test('below 1024 neither the tile nor the hint is shown', async ({ page }) => {
-    await page.setViewportSize({ width: 1023, height: 900 });
-    await page.goto('/');
-    const tile = page.locator(`${SECTION} .qr`);
-    await expect(tile).toBeHidden();
-    await expect(page.getByText('camera')).toBeHidden();
-    await expect(page.getByText('Skann meg')).toBeHidden();
-  });
+  // save-contact-hint AC-15 (Owner, 2026-10-12): the tile is shown at every width.
+  for (const width of [360, 390, 834, 1023]) {
+    test(`at ${width} the tile, its caption and the hint are shown inside the screen`, async ({
+      page,
+    }) => {
+      await openIn(page, 'dag', width);
+      const tile = page.locator(`${SECTION} .qr`);
+      await tile.scrollIntoViewIfNeeded();
+      await expect(tile).toBeVisible();
+      await expect(tile.getByText('Skann meg')).toBeVisible();
+      await expect(tile.locator('.qr__hint')).toBeVisible();
+      const image = await box(tile.locator('img[data-theme="dag"]'));
+      expect(image.width).toBeCloseTo(132, 0);
+      const hint = await box(tile.locator('.qr__hint'));
+      expect(hint.x).toBeGreaterThanOrEqual(image.x + image.width);
+      expect(hint.x + hint.width).toBeLessThanOrEqual(width);
+      // The tile stands under the action (and its note), above the mail-link sentence below 1024.
+      const save = await box(
+        page.locator(SECTION).getByRole('link', { name: 'Add to contacts (vCard file)' }),
+      );
+      const sentence = await box(page.locator(`${SECTION} .contact__sentence`));
+      expect(image.y).toBeGreaterThanOrEqual(save.y + save.height);
+      expect(sentence.y).toBeGreaterThanOrEqual(image.y + image.height);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(width);
+    });
+  }
 });
 
 // save-contact-hint AC-02: the inline note is for touch devices only and needs no script.

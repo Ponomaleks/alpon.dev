@@ -178,6 +178,9 @@ describe('built index.html, scripts (AC-32, AC-36)', () => {
       'initCountUp',
       'initReveal',
       'initCopyEmail',
+      'initCopyPhone',
+      'initPlainCopy',
+      'initSaveContact',
     ]) {
       expect(entry).toContain(fn);
     }

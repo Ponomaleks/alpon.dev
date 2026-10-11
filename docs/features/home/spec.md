@@ -303,9 +303,9 @@ Not a difference: the hero coordinates stay 59.91° N, 10.75° E. They belong to
 
 ### AC-17 (US-02) — happy
 
-**Given** a Recruiter on a screen at least 1024 wide
+**Given** a Recruiter on a screen of any width
 **When** they look below the Contact block
-**Then** they see the QR tile with the caption "Skann meg", marked as Norwegian, and the hint that pointing a phone camera at it opens the contact card; the tile matches the theme, has a text alternative, and scanning it offers the contact. Below 1024 the tile and the hint are not shown, because the Visitor is holding the phone
+**Then** they see the QR tile with the caption "Skann meg", marked as Norwegian, and the hint that pointing a phone camera at it opens the contact card; the tile matches the theme, has a text alternative, and scanning it offers the contact. The tile and the hint are shown at every width (Owner decision 2026-10-12, save-contact-hint AC-15; before that they were shown from 1024 only)
 
 ### AC-18 (US-02) — cross-context
 

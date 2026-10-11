@@ -90,6 +90,46 @@
         "tests/visual/",
         "docs/features/save-contact-hint/pr-body.md"
       ]
+    },
+    {
+      "id": "T8",
+      "title": "Write the phone number in the contact card without spaces",
+      "layer": "domain",
+      "deps": ["T1"],
+      "acs": ["AC-12"],
+      "dod": "public/alexander-ponomarenko.vcf holds TEL as +4740594584; scripts/check-contact.ts compares the card with the contact source's number without spaces and names the field on a difference; the e2e test on the downloaded card expects the compact number.",
+      "files_hint": [
+        "public/alexander-ponomarenko.vcf",
+        "scripts/check-contact.ts",
+        "tests/e2e/contact.spec.ts"
+      ]
+    },
+    {
+      "id": "T9",
+      "title": "Add \"Copy\" to the phone row and copy a selection of the number without spaces",
+      "layer": "ui",
+      "deps": ["T8"],
+      "acs": ["AC-13", "AC-14"],
+      "dod": "The phone row of the Contact block has a Copy button behind data-needs-script that writes the number without spaces and confirms like the email one; a selection inside the number is copied without spaces and any other selection is untouched; unit tests on the script and the markup, e2e on the clipboard and on the row at 360.",
+      "files_hint": [
+        "src/components/home/ContactBlock.astro",
+        "src/scripts/shared/copy-email.ts",
+        "src/scripts/home/index.ts",
+        "tests/e2e/contact.spec.ts"
+      ]
+    },
+    {
+      "id": "T10",
+      "title": "Show the QR tile at every width",
+      "layer": "ui",
+      "deps": ["T1"],
+      "acs": ["AC-15"],
+      "dod": "QrTile has no rule that hides it by screen width; e2e: the tile, its caption and the hint are visible and inside the screen at 360, 390, 834 and 1023, between the action and the mail-link sentence; home AC-17, screens, ux-flows, sad and CLAUDE.md say every width.",
+      "files_hint": [
+        "src/components/brand/QrTile.astro",
+        "tests/e2e/contact.spec.ts",
+        "docs/features/home/"
+      ]
     }
   ]
 }

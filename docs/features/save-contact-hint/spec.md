@@ -52,6 +52,17 @@ This feature is small (S): the screens and the test plan are in this file, and t
 | D-06 | Step numbers are mono "01", "02", "03" in the accent colour, not filled circles; no drag handle; the wide form starts at 768, not 600; icons are the site's 1.5 px line icons; the Button keeps its size and weight | brand rules and the site's breakpoints (Owner decision 2026-10-11) |
 | D-07 | The header icon of the sheet is `user-plus`, the icon of the action, not a check mark | a check mark would say the contact was saved (D-04) |
 
+### 1.4 Added after user testing (2026-10-12)
+
+A tester on a phone tried to select the phone number to copy it and got the link with it. Two additions, both about the phone number as something to paste into a dialler or a contact (AC-12 to AC-14):
+
+- The contact card holds the number without spaces. The page still shows it with spaces. The QR files are not changed (`CLAUDE.md`, Architecture decisions).
+- The phone row of the Contact block gets a "Copy" button like the email row, and a selection of the number is copied without spaces. The menu a browser shows on a long press on a link ("copy link") is the browser's own: it fires no copy event and a page cannot change what it copies. The "Copy" button is the way that always works.
+
+On the same day the Owner decided that the QR tile is shown at every width, not from 1024 only (AC-15; it changes home AC-17). On a phone it is there to be scanned by someone else's phone; its hint and the line "Or scan the QR code on a computer." in the sheet keep their wording.
+
+Out of scope: the contact list in the side column of the CV pages keeps "Copy" on the email row only.
+
 ## 2. Goals
 
 - A Visitor on a phone or tablet who taps the contact card action knows that a file is downloaded, where it goes and how to turn it into a contact.
@@ -60,7 +71,7 @@ This feature is small (S): the screens and the test plan are in this file, and t
 
 - Opening the contact card without a download (B-58, not possible).
 - Platform or browser detection, descriptions of system controls, storage, analytics.
-- A hint on desktop: the QR tile covers phones there.
+- A hint on desktop: the QR tile is enough there.
 - A sheet on the Not-found page (D-03).
 
 ## 4. User stories
@@ -139,6 +150,30 @@ This feature is small (S): the screens and the test plan are in this file, and t
 **When** the Owner opens the home page in the LinkedIn in-app browser on an iPhone and activates "Add to contacts"
 **Then** the Owner records what happens, and the pull request states it. Visual baselines are taken only after this check
 
+### AC-12 (US-01) — domain invariant
+
+**Given** the contact card file
+**When** it is read
+**Then** its phone number has no spaces ("+4740594584"), and the contact check fails, naming the field, if the number differs from the one in the contact source with its spaces removed
+
+### AC-13 (US-01) — happy
+
+**Given** a Visitor in the Contact block with scripts on
+**When** they activate "Copy" in the phone row
+**Then** the number without spaces is on the clipboard, the button shows "Copied" for a short time and a Toast confirms with "Copied" and the number, as for the email. Where copying is refused they are told to select the number, and no confirmation is shown. With scripts off the button is not offered
+
+### AC-14 (US-01) — happy
+
+**Given** a Visitor who selects the phone number, or a part of it, in the Contact block
+**When** they copy the selection
+**Then** the clipboard holds the selected digits without spaces. A selection that reaches outside the number is copied as it is
+
+### AC-15 (US-01) — happy
+
+**Given** a Visitor in the Contact block at any width, in Dag or Natt
+**When** they look under "Add to contacts"
+**Then** they see the QR tile for the theme with the caption "Skann meg" and the hint beside it, inside the screen down to 360; below 1024 it stands between the action and the mail-link sentence
+
 ## 6. Non-functional requirements
 
 The quality bar of `CLAUDE.md` applies unchanged: WCAG 2.2 AA, the performance budget, tokens only, strict CSP.
@@ -151,6 +186,7 @@ The quality bar of `CLAUDE.md` applies unchanged: WCAG 2.2 AA, the performance b
 | Closing band, Sticky action bar | new label | — | unit; the existing e2e on the label |
 | Sheet, below 768 | open, Dag and Natt | canvas boards 2 and 3 (copy and details per §1.3) | e2e mobile: download event and dialog with the copy; Escape, outside tap and "Got it" close it and focus returns; axe in both themes; visual at 390 |
 | Sheet, from 768 | open, Dag and Natt | canvas board 4 | visual at 834 |
+| Contact block, phone row | "Copy" at the end of the row, as in the email row | — | unit on the markup and the script; e2e: clipboard after "Copy" and after copying a selection; the row at 360 |
 | Desktop | no note, no sheet | — | e2e desktop: download event, no dialog, no note |
 
 Visual baselines go through the `visual-baselines` label workflow, after AC-11. The label change also changes the existing baselines of the home page, the Not-found page and the Styleguide.

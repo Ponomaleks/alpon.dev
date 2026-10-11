@@ -385,14 +385,10 @@ sequenceDiagram
     Note over U,UI: Focus comes from the browser's own navigation to a place on a page. Where a browser does not move focus, the smallest script that does is added (§8 Contact place)
     UI-->>U: Contact block with Get in touch, the lead, rows for email, phone, LinkedIn, GitHub and Based in with Oslo, Norge, and one sentence with the email address as a mail link (interim IS-03)
     Note over U,UI: Over the contact section the page content holds no primary button
-    alt screen 1024 or wider
-        UI-->>U: QR tile for the current theme with Skann meg and the camera hint
-        opt scans the tile
-            U->>X: points a phone camera at the tile
-            X-->>U: the phone offers to add the contact
-        end
-    else screen below 1024
-        UI-->>U: no QR tile and no hint
+    UI-->>U: QR tile for the current theme with Skann meg and the camera hint, at every width
+    opt scans the tile
+        U->>X: points a phone camera at the tile
+        X-->>U: the phone offers to add the contact
     end
     alt email address or the mail-link sentence
         U->>X: follows the mail link, the mail app opens a message to Alexander

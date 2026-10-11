@@ -173,6 +173,29 @@ describe('ContactBlock', () => {
     expect(html.indexOf(contact.email)).toBeLessThan(html.indexOf('data-copy-email'));
   });
 
+  // save-contact-hint AC-13, AC-14: Copy on the phone row too, with the number without spaces.
+  it('offers Copy at the end of the phone row, behind data-needs-script', async () => {
+    const html = await renderBlock();
+    const compact = contact.phone.replace(/[^\d+]/g, '');
+    const buttons = [...html.matchAll(/<button\b([^>]*)>([\s\S]*?)<\/button>/g)];
+    const copy = buttons.find((m) => /data-copy-phone/.test(m[1] ?? ''));
+    expect(copy).toBeDefined();
+    expect(text(copy?.[2] ?? '')).toContain('Copy');
+    expect(copy?.[1]).toContain('data-copy-phone="' + compact + '"');
+    const before = html.slice(0, copy?.index ?? 0);
+    expect(before).toMatch(/data-needs-script[^>]*>\s*$/);
+    expect(html.indexOf(contact.phone)).toBeLessThan(html.indexOf('data-copy-phone'));
+    expect(html.indexOf('data-copy-phone')).toBeLessThan(html.indexOf('linkedin.com'));
+    expect(buttons).toHaveLength(2);
+  });
+
+  it('marks the phone value so that a selection is copied without spaces', async () => {
+    const html = await renderBlock();
+    const tel = html.match(/<a\b[^>]*href="tel:[^"]*"[^>]*>/)?.[0] ?? '';
+    expect(tel).toMatch(/\sdata-copy-plain\b/);
+    expect(html.match(/data-copy-plain/g)).toHaveLength(1);
+  });
+
   // Owner's design review (reverses D-18): the Copy control has the design's own done state.
   // Both faces come from the server; the script only sets `data-done`. The name stays "Copy":
   // the done face is hidden from assistive technology, so only the Toast announces the copy.
@@ -250,6 +273,14 @@ describe('QrTile', () => {
       expect(() => readFileSync(`public/qr/qr-vcard-${theme}.svg`)).not.toThrow();
     }
     expect(html).toMatch(/data-theme/);
+  });
+
+  // save-contact-hint AC-15: shown at every width, so no rule hides the tile by screen width.
+  it('is not hidden below any width', () => {
+    const css = readFileSync('src/components/brand/QrTile.astro', 'utf8');
+    const rule = css.match(/\n {2}\.qr \{([^}]*)\}/)?.[1] ?? '';
+    expect(rule).toMatch(/display:\s*flex/);
+    expect(css).not.toContain('min-width: 1024px');
   });
 
   it('gives the images a text alternative (AC-17)', async () => {

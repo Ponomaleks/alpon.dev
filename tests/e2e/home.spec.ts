@@ -413,7 +413,10 @@ test.describe('scripts off (AC-32)', () => {
     await expect(page.locator('[data-motion-control]')).toBeHidden();
     await expect(page.getByRole('button', { name: /Copy/ })).toHaveCount(0);
     await expect(page.locator('[data-copy-email]')).toBeHidden();
-    await expect(page.locator('main [data-needs-script]')).toBeHidden();
+    await expect(page.locator('[data-copy-phone]')).toBeHidden();
+    const scriptOnly = page.locator('main [data-needs-script]');
+    expect(await scriptOnly.count()).toBeGreaterThan(0);
+    for (const part of await scriptOnly.all()) await expect(part).toBeHidden();
   });
 });
 
