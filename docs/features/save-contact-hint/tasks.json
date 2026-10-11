@@ -1,0 +1,95 @@
+{
+  "slug": "save-contact-hint",
+  "tasks": [
+    {
+      "id": "T1",
+      "title": "Write the spec and the task list, and mark backlog B-58 as not built",
+      "layer": "docs",
+      "deps": [],
+      "acs": [],
+      "dod": "docs/features/save-contact-hint/ holds spec.md, tasks.json and tasks/tracker.md, and the B-58 row of docs/backlog.md says it was not built and names this feature.",
+      "files_hint": ["docs/features/save-contact-hint/", "docs/backlog.md"]
+    },
+    {
+      "id": "T2",
+      "title": "Give the Button meta text and rename the contact card action to \"Add to contacts\"",
+      "layer": "ui",
+      "deps": ["T1"],
+      "acs": ["AC-01", "AC-10"],
+      "dod": "The Contact block and the home closing band read \"Add to contacts\" with \".vcf\" as mono, muted meta text; the Sticky action bar reads \"Add to contacts\" only; the name for assistive technology is \"Add to contacts (vCard file)\" in all three; the Styleguide shows the Button with meta; the unit and e2e tests and the live documents (CLAUDE.md, home spec, screens, ux-flows, sad, stub-parity) use the new label.",
+      "files_hint": [
+        "src/components/ui/Button.astro",
+        "src/data/shell-actions.ts",
+        "src/components/home/ContactBlock.astro",
+        "src/components/layout/CtaBand.astro",
+        "src/components/layout/MobileBar.astro",
+        "src/pages/styleguide.astro",
+        "tests/e2e/",
+        "docs/features/home/",
+        "CLAUDE.md"
+      ]
+    },
+    {
+      "id": "T3",
+      "title": "Add the inline note under the action in the Contact block",
+      "layer": "ui",
+      "deps": ["T2"],
+      "acs": ["AC-02", "AC-10"],
+      "dod": "The note with the download icon is in the Contact block's markup, shown only under (hover: none) and (pointer: coarse) by CSS alone; e2e: visible on the mobile project, hidden on the desktop project; the Styleguide shows it.",
+      "files_hint": [
+        "src/components/home/ContactBlock.astro",
+        "src/pages/styleguide.astro",
+        "tests/e2e/contact.spec.ts"
+      ]
+    },
+    {
+      "id": "T4",
+      "title": "Build the SaveContactSheet dialog in both themes with its Styleguide sample",
+      "layer": "ui",
+      "deps": ["T2"],
+      "acs": ["AC-06", "AC-07", "AC-08", "AC-10"],
+      "dod": "SaveContactSheet.astro renders a <dialog> named by its level 2 title with the copy of AC-03, tokens only, the form below 768 and from 768, the slide-up under no-preference only; a static sample is on the Styleguide; the contrast check covers its colour pairs.",
+      "files_hint": [
+        "src/components/home/SaveContactSheet.astro",
+        "src/pages/index.astro",
+        "src/pages/styleguide.astro",
+        "scripts/check-contrast.ts"
+      ]
+    },
+    {
+      "id": "T5",
+      "title": "Open and close the sheet from the home page script",
+      "layer": "wiring",
+      "deps": ["T3", "T4"],
+      "acs": ["AC-03", "AC-04", "AC-05", "AC-08", "AC-09"],
+      "dod": "On a device matching (hover: none) and (pointer: coarse) a click on any contact card action of the home page opens the sheet without preventing the download; Escape, a tap outside and \"Got it\" close it and focus returns to the action; desktop, scripts off and the Not-found page open nothing; unit tests on the module, e2e on the mobile and desktop projects, axe on the open sheet in both themes, budgets and CSP checks green.",
+      "files_hint": [
+        "src/scripts/home/save-contact.ts",
+        "src/scripts/home/index.ts",
+        "tests/e2e/save-contact.spec.ts",
+        "tests/a11y/"
+      ]
+    },
+    {
+      "id": "T6",
+      "title": "Owner check in the LinkedIn in-app browser on an iPhone",
+      "layer": "docs",
+      "deps": ["T5"],
+      "acs": ["AC-11"],
+      "dod": "The Owner's result on the preview address is recorded in docs/features/save-contact-hint/pr-body.md.",
+      "files_hint": ["docs/features/save-contact-hint/pr-body.md"]
+    },
+    {
+      "id": "T7",
+      "title": "Take the visual baselines and write the pull request body",
+      "layer": "test",
+      "deps": ["T6"],
+      "acs": ["AC-06"],
+      "dod": "Visual tests cover the open sheet at 390 and 834 in Dag and Natt; the baselines of the sheet and the changed baselines of the home page, the Not-found page and the Styleguide come from the visual-baselines label workflow and are committed; pr-body.md holds what changed, the screenshots, the test results and the differences from the canvas.",
+      "files_hint": [
+        "tests/visual/",
+        "docs/features/save-contact-hint/pr-body.md"
+      ]
+    }
+  ]
+}
