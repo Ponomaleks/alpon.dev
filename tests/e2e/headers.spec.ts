@@ -26,7 +26,12 @@ for (const { name, path, status } of RESPONSES) {
     expect(policies).toHaveLength(1);
     const policy = policies[0]?.value ?? '';
     const scriptSrc = policy.split(';').find((d) => d.trim().startsWith('script-src'));
-    expect(scriptSrc?.trim()).toBe(`script-src 'self' ${HASH}`);
+    // release-1 AC-02, D-02: the one script file of Web Analytics and its one endpoint, by name.
+    expect(scriptSrc?.trim()).toBe(
+      `script-src 'self' ${HASH} https://static.cloudflareinsights.com/beacon.min.js`,
+    );
+    const connectSrc = policy.split(';').find((d) => d.trim().startsWith('connect-src'));
+    expect(connectSrc?.trim()).toBe("connect-src 'self' https://cloudflareinsights.com");
     expect(policy).not.toMatch(/unsafe-inline|unsafe-eval/);
     expect(policy).toContain("frame-ancestors 'self'");
   });

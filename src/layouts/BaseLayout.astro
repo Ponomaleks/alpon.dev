@@ -146,5 +146,13 @@ const structuredDataJson = structuredData
     {backToTop && <BackToTop lang={shellLang} />}
     {mobileBar && <MobileBar actions={mobileBarActions} lang={shellLang} />}
     <Toast lang={shellLang} />
+    {/* Cloudflare Web Analytics, as the dashboard issues it for alpon.dev, the last element of
+         the body (release-1 D-01). The token is public. public/_headers names the file (D-02). */}
+    <script
+      is:inline
+      type="module"
+      src="https://static.cloudflareinsights.com/beacon.min.js"
+      data-cf-beacon='{"token": "145a994b908a49539c57bf82ca84fb4f"}'
+    ></script>
   </body>
 </html>

@@ -3,6 +3,7 @@ import { mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { parse, type DefaultTreeAdapterMap } from 'parse5';
 import { contact } from '../data/contact';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
@@ -142,6 +143,37 @@ describe.each([
     expect([tokens, fonts, base].every((i) => i >= 0)).toBe(true);
     expect(tokens).toBeLessThan(fonts);
     expect(fonts).toBeLessThan(base);
+  });
+});
+
+// release-1 AC-01, D-01: the script of the Cloudflare dashboard, as issued, ends the body.
+describe.each(['fixture.html', '404.html'])('the Web Analytics script on %s (AC-01)', (page) => {
+  type Element = DefaultTreeAdapterMap['element'];
+  const SRC = 'https://static.cloudflareinsights.com/beacon.min.js';
+  const elementsOf = (node: DefaultTreeAdapterMap['node']): Element[] =>
+    'childNodes' in node
+      ? node.childNodes.flatMap((child) => ('tagName' in child ? [child] : []))
+      : [];
+  const all = (node: Element): Element[] => [node, ...elementsOf(node).flatMap(all)];
+  const root = () => elementsOf(parse(html(page))).find((el) => el.tagName === 'html') as Element;
+
+  it('is the last element of the body, with the attributes of spec D-01 and no body', () => {
+    const body = elementsOf(root()).find((el) => el.tagName === 'body') as Element;
+    const last = elementsOf(body).at(-1);
+    expect(last?.tagName).toBe('script');
+    expect(Object.fromEntries((last?.attrs ?? []).map((a) => [a.name, a.value]))).toEqual({
+      type: 'module',
+      src: SRC,
+      'data-cf-beacon': '{"token": "145a994b908a49539c57bf82ca84fb4f"}',
+    });
+    expect(last?.childNodes).toEqual([]);
+  });
+
+  it('is on the page once', () => {
+    const scripts = all(root()).filter(
+      (el) => el.tagName === 'script' && el.attrs.some((a) => a.name === 'src' && a.value === SRC),
+    );
+    expect(scripts).toHaveLength(1);
   });
 });
 

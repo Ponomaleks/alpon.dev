@@ -51,9 +51,10 @@ test('a load of the home page makes no request that leaves the machine (AC-04)',
     left.push(route.request().url());
     return route.abort();
   });
-  const bodies: Promise<string>[] = [];
+  const answers: { url: string; body: Promise<string> }[] = [];
   page.on('response', (response) => {
-    if (new URL(response.url()).origin === stubbed) bodies.push(response.text());
+    if (new URL(response.url()).origin === stubbed)
+      answers.push({ url: response.url(), body: response.text() });
   });
 
   await page.goto('/', { waitUntil: 'networkidle' });
@@ -61,5 +62,7 @@ test('a load of the home page makes no request that leaves the machine (AC-04)',
   await page.waitForLoadState('networkidle');
 
   expect(left).toEqual([]);
-  for (const body of await Promise.all(bodies)) expect(body).toBe('');
+  // The page asks for the Web Analytics script once (AC-01) and gets the local, empty answer.
+  expect(answers.map((a) => a.url)).toEqual([SCRIPT]);
+  expect(await answers[0]?.body).toBe('');
 });

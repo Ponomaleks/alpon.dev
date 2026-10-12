@@ -4,6 +4,7 @@ import {
   cpSync,
   existsSync,
   mkdtempSync,
+  readdirSync,
   readFileSync,
   rmSync,
   symlinkSync,
@@ -91,6 +92,35 @@ describe('the real build', () => {
     );
     expect(delivered).toEqual(expected);
     expect(csp).not.toMatch(/unsafe-inline|unsafe-eval|\*/);
+  });
+
+  it('every page loads the Web Analytics script once and no other script from another origin (release-1 AC-01)', () => {
+    const pages = readdirSync(out, { recursive: true, encoding: 'utf8' }).filter((file) =>
+      file.endsWith('.html'),
+    );
+    expect(pages.length).toBeGreaterThanOrEqual(6);
+    for (const page of pages) {
+      const sources: string[] = [];
+      const walk = (node: unknown) => {
+        const n = node as {
+          tagName?: string;
+          attrs?: { name: string; value: string }[];
+          childNodes?: unknown[];
+          content?: { childNodes: unknown[] };
+        };
+        if (n.tagName === 'script')
+          for (const a of n.attrs ?? [])
+            if (
+              (a.name === 'src' || a.name === 'href') &&
+              /^(?:[a-z][a-z0-9+.-]*:)?\/\//i.test(a.value)
+            )
+              sources.push(a.value);
+        n.content?.childNodes.forEach(walk);
+        n.childNodes?.forEach(walk);
+      };
+      walk(parse(readFileSync(join(out, page), 'utf8')));
+      expect(sources, page).toEqual(['https://static.cloudflareinsights.com/beacon.min.js']);
+    }
   });
 
   it('leaves the / rule with Cache-Control only', () => {

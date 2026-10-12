@@ -53,7 +53,7 @@ The site itself is a portfolio piece: code quality, accessibility and performanc
 ## Quality bar
 
 - WCAG 2.2 AA: semantic HTML, logical headings, skip link, visible `:focus-visible`, 44px touch targets, no hover-only information, alt text. Exception: footer text links keep the tight spacing of the page design and meet WCAG 2.2 AA target size (2.5.8: at least 24px, or at least 24px between target centres) instead of the 44px rule.
-- Performance budget per page (Lighthouse mobile): Performance, Accessibility, Best Practices, SEO >= 95; LCP <= 2.0 s; CLS <= 0.02; TBT <= 100 ms; initial JS <= 50 KB gzip (islands loaded on interaction do not count).
+- Performance budget per page (Lighthouse mobile): Performance, Accessibility, Best Practices, SEO >= 95; LCP <= 2.0 s; CLS <= 0.02; TBT <= 100 ms; initial JS <= 50 KB gzip (islands loaded on interaction do not count). The budget is for the site's own code: the Cloudflare Web Analytics script, a third-party module script that every page loads last, is not counted (release-1 spec D-04), and Lighthouse CI blocks its address (D-05).
 - No layout shift from fonts (preload the 2 critical files, `font-display: swap`, metric-matched fallbacks).
 - Security headers in `public/_headers` (CSP without `unsafe-inline` scripts where possible, HSTS, Referrer-Policy, Permissions-Policy).
 
