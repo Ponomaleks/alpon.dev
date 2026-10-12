@@ -9,7 +9,7 @@ This feature is small (XS): like save-contact-hint it has no `sad.md` and no ADR
 
 | # | Task | Layer | Blocked by | Status |
 |---|---|---|---|---|
-| T1 | Write the spec and the task list, close backlog B-61, add the two backlog items and the content rule | docs | — | in_progress |
+| T1 | Write the spec and the task list, close backlog B-61, add the two backlog items and the content rule | docs | — | done |
 | T2 | Answer requests to the Web Analytics host locally in every Playwright test | tests | T1 | todo |
 | T3 | Add the Web Analytics script to every page and name it in the security policy | wiring | T2 | todo |
 | T4 | Block the address of the Web Analytics script in Lighthouse CI | infra | T3 | todo |
