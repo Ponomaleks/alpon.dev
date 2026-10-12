@@ -1,0 +1,161 @@
+{
+  "slug": "release-1",
+  "tasks": [
+    {
+      "id": "T1",
+      "title": "Write the spec and the task list, close backlog B-61, add the two backlog items and the content rule",
+      "layer": "docs",
+      "deps": [],
+      "acs": [],
+      "dod": "docs/features/release-1/ holds spec.md, tasks.json and tasks/tracker.md; in docs/backlog.md B-61 is closed with the reason of spec D-07 and two items are new (a preview image for the CV pages with a \"CV\" label; the real-user LCP of the home page after one to two weeks of traffic); the \"Content rules\" of CLAUDE.md hold the rule of spec §1.2 on facts the Owner provided; npm run lint is green.",
+      "files_hint": ["docs/features/release-1/", "docs/backlog.md", "CLAUDE.md"]
+    },
+    {
+      "id": "T2",
+      "title": "Answer requests to the Web Analytics host locally in every Playwright test",
+      "layer": "tests",
+      "deps": ["T1"],
+      "acs": ["AC-04"],
+      "dod": "One shared Playwright fixture answers every request to static.cloudflareinsights.com with an empty script through route, every spec file under tests/ uses it, and a new e2e test loads the home page and fails if a request leaves the machine; npm run test is green (spec D-03).",
+      "files_hint": ["tests/", "playwright.config.ts", "playwright.lane.config.ts"]
+    },
+    {
+      "id": "T3",
+      "title": "Add the Web Analytics script to every page and name it in the security policy",
+      "layer": "wiring",
+      "deps": ["T2"],
+      "acs": ["AC-01", "AC-02", "AC-03", "AC-05"],
+      "dod": "Unit: the BaseLayout test finds the script of spec D-01 once, as the last element of the body, on a normal and a noindex page, and a test on the built pages finds it once on every page with no other script from another origin; csp.build.test.ts asserts the policy line of spec D-02. e2e: headers.spec.ts asserts the exact script-src and connect-src on the home page, a not-found response and a CV PDF, its two refusals pass unchanged, and parity P-16 passes with the new pattern. The budget check passes unchanged. docs/stub-parity.md P-16, the \"Quality bar\" of CLAUDE.md (spec D-04) and the Web Analytics lines of README.md say what is built.",
+      "files_hint": [
+        "src/layouts/BaseLayout.astro",
+        "src/layouts/BaseLayout.test.ts",
+        "public/_headers",
+        "src/integrations/csp.build.test.ts",
+        "tests/e2e/headers.spec.ts",
+        "tests/e2e/parity.spec.ts",
+        "docs/stub-parity.md",
+        "CLAUDE.md",
+        "README.md"
+      ]
+    },
+    {
+      "id": "T4",
+      "title": "Block the address of the Web Analytics script in Lighthouse CI",
+      "layer": "infra",
+      "deps": ["T3"],
+      "acs": ["AC-06"],
+      "dod": "lighthouserc.cjs passes blockedUrlPatterns for the script's host with a comment that cites spec D-05, and the Lighthouse reports of npm run lhci list no request to that host.",
+      "files_hint": ["lighthouserc.cjs"]
+    },
+    {
+      "id": "T5",
+      "title": "Load the Shell scripts as one file",
+      "layer": "wiring",
+      "deps": ["T3"],
+      "acs": ["AC-05", "AC-06"],
+      "dod": "A unit test on the built pages finds one Shell script file on every page instead of five; the existing unit and e2e tests of the header, the menu, the theme switch, the Sticky action bar and the Toast pass unchanged; the budget check reports the Shell scripts within 5 KB gzip (spec D-06 a).",
+      "files_hint": [
+        "src/layouts/BaseLayout.astro",
+        "src/scripts/shell/",
+        "src/components/layout/Header.astro",
+        "src/components/layout/MobileBar.astro",
+        "src/components/layout/MobileMenu.astro",
+        "src/components/layout/ThemeToggle.astro",
+        "src/components/ui/Toast.astro"
+      ]
+    },
+    {
+      "id": "T6",
+      "title": "Generate the contour image in the spruce tone",
+      "layer": "infra",
+      "deps": ["T1"],
+      "acs": ["AC-06"],
+      "dod": "A script under tools/ writes public/img/contours-ridge-spruce.svg from the ridge contour data and the token --fjord-contour-line-spruce; a unit test fails when the colour in the file differs from the token or the paths differ from the contour data (spec D-10).",
+      "files_hint": ["tools/", "public/img/", "src/components/brand/"]
+    },
+    {
+      "id": "T7",
+      "title": "Show the contours of the closing band and the mobile menu from the lazy image",
+      "layer": "ui",
+      "deps": ["T5", "T6"],
+      "acs": ["AC-06"],
+      "dod": "Unit: the closing band and the mobile menu hold an img with loading=\"lazy\" and an empty alt inside the contour layer and no inline contour paths, and the hero keeps its inline contours. e2e: a load of the home page asks for no contour image, scrolling to the closing band does, opening the mobile menu does; axe reports zero violations. Visual: the full-page captures wait for the lazy image, and the closing band and the mobile menu match their baselines in Dag and Natt, or the Owner approved the difference (spec D-10).",
+      "files_hint": [
+        "src/components/brand/",
+        "src/components/layout/CtaBand.astro",
+        "src/components/layout/MobileMenu.astro",
+        "tests/e2e/",
+        "tests/visual/"
+      ]
+    },
+    {
+      "id": "T8",
+      "title": "Measure the built levers and record the numbers",
+      "layer": "tests",
+      "deps": ["T4", "T7"],
+      "acs": ["AC-06"],
+      "dod": "At least six local Lighthouse runs of the home page with the script's address blocked give a median LCP at or below 1850 ms; spec §1.5 holds the row \"(a) + (d) as built\" with the median and the lowest and highest value; npm run lhci is green; backlog B-38 and B-86 are closed with these numbers.",
+      "files_hint": ["docs/features/release-1/spec.md", "docs/backlog.md"]
+    },
+    {
+      "id": "T9",
+      "title": "Rewrite the three descriptions with the Owner's approval",
+      "layer": "ui",
+      "deps": ["T1"],
+      "acs": ["AC-07", "AC-08"],
+      "dod": "The Owner has approved the three final texts before the commit; unit tests assert the exact approved text of the home page, the English CV page and the Norwegian CV page, that none contains the name and that the preview description equals the page description; rows C-25 and C-27 of docs/features/cv/owner-inputs.md and a row of docs/features/home/owner-inputs.md carry the approved texts with the Owner's tick.",
+      "files_hint": [
+        "src/pages/index.astro",
+        "src/pages/_index.test.ts",
+        "src/data/cv/en.ts",
+        "src/data/cv/en.test.ts",
+        "src/data/cv/no.ts",
+        "src/data/cv/no.test.ts",
+        "docs/features/cv/owner-inputs.md",
+        "docs/features/home/owner-inputs.md"
+      ]
+    },
+    {
+      "id": "T10",
+      "title": "Set the shipped status in the five shipped specs",
+      "layer": "docs",
+      "deps": ["T1"],
+      "acs": [],
+      "dod": "Blocked by spec OQ-03 until the Owner names the value. Then: one docs commit sets it in the front matter of the fjord-foundation, base-components, home, cv and save-contact-hint specs, and npm run lint is green.",
+      "files_hint": [
+        "docs/features/fjord-foundation/spec.md",
+        "docs/features/base-components/spec.md",
+        "docs/features/home/spec.md",
+        "docs/features/cv/spec.md",
+        "docs/features/save-contact-hint/spec.md"
+      ]
+    },
+    {
+      "id": "T11",
+      "title": "Take the visual baselines, run the gate and open the pull request into v2",
+      "layer": "tests",
+      "deps": ["T8", "T9"],
+      "acs": ["AC-09"],
+      "dod": "npm run lint, npm run test:unit, npm run build, the budget check, npm run test and npm run lhci are green; tests/e2e/parity.spec.ts has no test.fixme; visual baselines changed only where the Owner approved; the pull request body names what changed, the screenshots, the test results and the numbers of spec §1.5, and the CI jobs check and visual are green.",
+      "files_hint": ["tests/visual/", "docs/features/release-1/pr-body.md"]
+    },
+    {
+      "id": "T12",
+      "title": "Merge v2 into main, switch the deploy command and protect main (Owner)",
+      "layer": "infra",
+      "deps": ["T11"],
+      "acs": ["AC-09", "AC-10"],
+      "dod": "v2 is merged into main; the production deploy command in Workers Builds is the one of spec D-08 and README.md describes it as the current one; the protection of spec D-09 is applied, and the read-back command of fjord-foundation T16 shows the checks check and visual with administrators included.",
+      "files_hint": ["README.md"]
+    },
+    {
+      "id": "T13",
+      "title": "Check the release on alpon.dev and record it (Owner)",
+      "layer": "docs",
+      "deps": ["T12"],
+      "acs": ["AC-09", "AC-11", "AC-12"],
+      "dod": "docs/features/release-1/changelog.md records, with the date: the home page, both CV pages, the Short CV address, the short links and the downloads answer on alpon.dev; an address that does not exist shows the Not-found page with the policy of AC-02; a visit from Norway is listed in the Web Analytics dashboard, or spec OQ-02 is answered. docs/roadmap.md marks step 6 shipped.",
+      "files_hint": ["docs/features/release-1/changelog.md", "docs/roadmap.md"]
+    }
+  ]
+}
