@@ -123,3 +123,4 @@ Lane rules (owner-confirmed):
 | 3 · Base components (on `v2`) | 2026-10-05 | [PR #2](https://github.com/Ponomaleks/alpon.dev/pull/2) · [changelog](features/base-components/changelog.md) |
 | 4 · Home (on `v2`; phase 4b with the merge of PR #5) | 2026-10-08 | [PR #3](https://github.com/Ponomaleks/alpon.dev/pull/3) · [PR #5](https://github.com/Ponomaleks/alpon.dev/pull/5) · [changelog](features/home/changelog.md) |
 | 5 · CV pages EN/NO (on `v2` with the merge of PR #8) | 2026-10-11 | [PR #8](https://github.com/Ponomaleks/alpon.dev/pull/8) · [changelog](features/cv/changelog.md) |
+| 4 · Home, follow-up [`save-contact-hint`](features/save-contact-hint/): "Add to contacts" with a hint for touch devices; not a step of its own (on `v2` with the merge of PR #10) | 2026-10-12 | [PR #10](https://github.com/Ponomaleks/alpon.dev/pull/10) · [changelog](features/save-contact-hint/changelog.md) |
