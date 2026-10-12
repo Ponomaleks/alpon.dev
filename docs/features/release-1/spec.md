@@ -42,7 +42,7 @@ This feature is small (XS): the test plan is in this file, and there is no `sad.
 
 ### 1.2 Changes to earlier documents
 
-- The front-matter `status` of the five shipped specs (fjord-foundation, base-components, home, cv, save-contact-hint) is `Draft`. One docs commit sets the shipped value in all five, once OQ-03 names it.
+- The front-matter `status` of the five shipped specs (fjord-foundation, base-components, home, cv, save-contact-hint) is `Draft`. One docs commit sets `Shipped` in all five (D-11).
 - Backlog B-61 is closed with no action, both halves: the two wordings of the role are intended (D-07), and "2 groups" in the key fact on the students is true and stays (Owner, 2026-10-12).
 - `CLAUDE.md`, "Content rules", a new rule: facts the Owner provided for the site are confirmed by default. A fact that appears on the site but not in the CV PDF is not a discrepancy and needs no backlog item; only a direct contradiction between two sources does.
 - Backlog B-38 and B-86 are closed by AC-06, with the numbers of §1.5 and of the measurement of the built levers.
@@ -70,6 +70,7 @@ This feature is small (XS): the test plan is in this file, and there is no `sad.
 | D-07 | The role wording is not unified. The home page says "Software Engineer" and "Full Stack Developer", the CV says frontend developer with backend experience. Each page keeps its own | "Software Engineer" is the broader frame on the home page, the CV narrows it and is tailored per vacancy (Owner decision 2026-10-12; closes B-61) |
 | D-08 | The production deploy command becomes `npm run build && npx wrangler deploy`, set by the Owner in the Workers Builds settings together with the merge | Roadmap step 6: v2 has a build step, the stub had none |
 | D-10 | The contours of the closing band and of the mobile menu are one image file, shown with `<img loading="lazy" alt="">` inside the same layer element as today. Both places use the spruce tone, whose colour is one value in Dag and in Natt (`--fjord-contour-line-spruce`; the band and the menu are spruce in both themes), so the file carries that colour and a theme switch changes nothing. The file is generated from the contour data and the token by a script under `tools/`, and a unit test fails if its colour differs from the token. The band's contours are mirrored with a transform, so one file serves both places. The hero contours stay inline: they follow the theme (`--fjord-color-contour-line`) and drift | The request must not happen before the first paint, or the model counts it and the gain shrinks. A lazy image far below the first screen is asked for only when the Visitor scrolls near it; the mobile menu is a closed dialog, which is not rendered, so its image is asked for when the menu opens. Known cost: on the first opening of the menu the contours appear a moment after the panel. The built levers are measured again before the task is done (AC-06). Owner decision 2026-10-12 |
+| D-11 | A shipped spec carries `status: Shipped` in its front matter | It is the word the roadmap uses for shipped steps, and a public repository should not show live features as drafts. Checked on 2026-10-12: nothing reads the status of a spec and expects `Draft`, neither the skills, agents and templates of the SDD plugin (2.2.1; its templates only write the first value) nor the scripts, tools, tests and workflows of this repository. Owner decision 2026-10-12 |
 | D-09 | `main` is protected right after the merge with the required checks `check` and `visual`, by the command of T16 option 2 | T16 (fjord-foundation); a protection set before the merge would block the merge itself |
 
 ### 1.4 Description drafts
@@ -81,6 +82,8 @@ Final texts are shown to the Owner before the commit (AC-08). The home draft lis
 | Home | "Alexander Ponomarenko, Software Engineer and Full Stack Developer based in Oslo, Norway." | "Full stack developer in the Oslo area, open to work. React, Angular, TypeScript and Python. Key facts, background, experience and contact details." |
 | English CV page (C-25) | "CV of Alexander Ponomarenko, frontend developer with backend experience: skills, work experience and education. Read it here or download the PDF." | "Frontend developer with backend experience: skills, work experience and education. Read it here or download the PDF." |
 | Norwegian CV page (C-27) | "CV for Alexander Ponomarenko, frontend-utvikler med backend-erfaring: kompetanse, arbeidserfaring og utdanning. Les den her eller last ned PDF-en." | "Frontend-utvikler med backend-erfaring: kompetanse, arbeidserfaring og utdanning. Les CV-en her eller last ned PDF-en." |
+
+The Owner picks between two endings of the home text when the final texts are shown: "Key facts, background, experience and contact details." (the draft above) or "Background, experience and how to reach me.".
 
 In the Norwegian draft "Les den her" became "Les CV-en her": without the opening "CV for …" the pronoun has nothing to point to.
 
@@ -223,7 +226,7 @@ What the numbers show:
 
 **Given** v2 live on alpon.dev and the site set as D-01 says
 **When** the Owner opens the site from Norway and then the Web Analytics dashboard
-**Then** the visit is listed with Norway as its country, and the result is recorded in the changelog (OQ-02 says what happens if it is not)
+**Then** the visit is listed with Norway as its country, and the result is recorded in the changelog (OQ-02 says what happens if it is not). The script is in every build, so visits to preview addresses and to a local server are counted under the same token: the Owner checks that the dashboard can show the numbers of the host alpon.dev only, and the changelog says that the numbers are read with that filter
 
 ## 6. Non-functional requirements
 
@@ -259,4 +262,3 @@ Not covered: the content of the script itself, which Cloudflare can change at an
 | # | Question | Owner | Due |
 |---|---|---|---|
 | OQ-02 | If a visit from Norway is not listed (AC-12), the exclusion of EU visitors applies to the script in the page too. What then: accept it, or ask Cloudflare, or choose another free cookieless counter in a later spec | Owner | at the smoke check, on launch day |
-| OQ-03 | Which `status` a shipped spec carries. The Owner asked for the value the SDD spec template defines for shipped features (2026-10-12). The template and the skills of the plugin (2.2.1) define one value for a spec, `Draft`; "shipped" exists only as a step status of the roadmap, and "Accepted" only for ADRs. So there is no defined value to set. Either the five specs keep `Draft` and nothing changes, or the Owner names a value | Owner | before the docs task of §1.2 is cut; it does not block the other tasks |
