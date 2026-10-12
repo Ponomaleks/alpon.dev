@@ -1,5 +1,5 @@
 ---
-status: Draft
+status: Shipped
 owner: "Alexander Ponomarenko"
 reviewers: ["Tech Lead"]
 updated_at: "2026-10-05"
