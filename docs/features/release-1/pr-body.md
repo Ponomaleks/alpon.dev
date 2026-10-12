@@ -53,6 +53,7 @@ Notes on the work:
 
 - The e2e test "a load of the home page makes no request that leaves the machine" passed on its first run in T2, before the script existed; from T3 it also asserts that the page asks for the script once and gets the empty answer.
 - The e2e tests of the contour image were first run after the image was built; their unit counterparts failed first.
+- The first run of the final gate stopped before the push: one Playwright test failed once, "[desktop] primary-count.spec.ts:88 home: bar scrolled away, the header action is primary, bar actions not focusable" (`Timeout 5000ms exceeded while waiting on the predicate`). It passed in the two full runs before and in 40 of 40 repeats after; it is recorded as a suspected flake in backlog B-93, and the whole gate was run again.
 - One unit run failed in two build tests while a second unit run of mine was running beside it; alone the suite passed (1360 of 1360 at that commit). Two builds at once share Astro's caches (the family of B-46 and B-68).
 
 ## Conflicts with the design
