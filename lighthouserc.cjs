@@ -33,6 +33,12 @@ module.exports = {
       numberOfRuns: 3,
       settings: {
         chromeFlags: '--headless=new --no-sandbox',
+        // The Web Analytics script is not loaded in an audit (release-1 spec D-05). On a local run
+        // its two third-party connections end before the first paint, so the simulated slow
+        // network adds 300 to 390 ms to the LCP, while the observed LCP is the same with and
+        // without it. The LCP gate must not depend on a third-party download; the real cost is
+        // read from real visits (backlog B-92). The script stays in every build and other test.
+        blockedUrlPatterns: ['https://static.cloudflareinsights.com/*'],
       },
     },
     assert: {
