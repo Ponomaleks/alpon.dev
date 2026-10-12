@@ -67,7 +67,7 @@
       "acs": [
         "AC-06"
       ],
-      "dod": "lighthouserc.cjs passes blockedUrlPatterns for the script's host with a comment that cites spec D-05, and the Lighthouse reports of npm run lhci list no request to that host.",
+      "dod": "lighthouserc.cjs passes blockedUrlPatterns for the script's host with a comment that cites spec D-05, and in the Lighthouse reports of npm run lhci the request for the script is blocked, with no bytes transferred.",
       "files_hint": [
         "lighthouserc.cjs"
       ]

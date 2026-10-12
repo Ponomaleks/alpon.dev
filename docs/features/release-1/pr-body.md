@@ -29,6 +29,8 @@ Lighthouse mobile against `wrangler dev` on the Owner's machine, the address of 
 | (a) + (d), upper bound | 6 | 1818 (1816 to 1821) |
 | (a) + (d) as built, at e4bf9fb | 10 | 1820.5 (1809 to 1835) |
 
+Every audited page, three runs each, before the levers (2a9bba0) and on the final state: `/` 2121 to 2136, now 1817 to 1821; `/404` 1690 to 1823, now 1661 to 1666; `/cv/en` 1970 to 1972, now 1662 to 1816; `/cv/no` 1968 to 1973, now 1665 to 1822. None is above 1900 ms; the level of about 1816 ms on the CV pages is the existing step of about 150 ms, not a regression.
+
 AC-06 asks for a median at or below 1850 ms. The LCP element is the portrait in the hero in every run. No run asked for the contour image. With the script loaded the built levers were not measured again.
 
 ## Screenshots
@@ -53,7 +55,7 @@ Notes on the work:
 
 - The e2e test "a load of the home page makes no request that leaves the machine" passed on its first run in T2, before the script existed; from T3 it also asserts that the page asks for the script once and gets the empty answer.
 - The e2e tests of the contour image were first run after the image was built; their unit counterparts failed first.
-- The first run of the final gate stopped before the push: one Playwright test failed once, "[desktop] primary-count.spec.ts:88 home: bar scrolled away, the header action is primary, bar actions not focusable" (`Timeout 5000ms exceeded while waiting on the predicate`). It passed in the two full runs before and in 40 of 40 repeats after; it is recorded as a suspected flake in backlog B-93, and the whole gate was run again.
+- The first run of the final gate stopped before the push: one Playwright test failed once, "[desktop] primary-count.spec.ts:88 home: bar scrolled away, the header action is primary, bar actions not focusable" (`Timeout 5000ms exceeded while waiting on the predicate`). It passed in the two full runs before and in 40 of 40 repeats after; it is recorded as a suspected flake in backlog B-93, and the whole gate was run again. The order of the Shell script and the page script (T5) was checked against what the test waits for, on the builds before and after T5: no link was found, and B-93 stays open with what was checked.
 - One unit run failed in two build tests while a second unit run of mine was running beside it; alone the suite passed (1360 of 1360 at that commit). Two builds at once share Astro's caches (the family of B-46 and B-68).
 
 ## Conflicts with the design

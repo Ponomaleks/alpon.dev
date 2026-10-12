@@ -114,6 +114,17 @@ What the numbers show:
 - As built (AC-06): ten runs of the home page through `lhci collect` with the configuration of `lighthouserc.cjs` gave 1809, 1816, 1817, 1820, 1820, 1821, 1824, 1834, 1834 and 1835 ms, a median of 1820.5 ms, under the 1850 ms of AC-06 and the same step as the upper bound of (a) + (d). No run asked for the contour image, and the request for the Web Analytics script is listed as blocked (no status, 0 bytes). The `npm run lhci` run that followed passed: `/` 1812, 1816 and 1817 ms; `/404` 1667 to 1668 ms; `/cv/en` 1665 to 1818 ms; `/cv/no` 1664 to 1671 ms. With the script loaded the built levers were not measured again; D-05 keeps the script out of every audit.
 - Not measured: CI. The one CI failure of B-86 (2000 ms) is on the same step as the local baseline with the script blocked.
 
+Every audited page, `npm run lhci` (three runs per page, the script's address blocked), LCP in ms. "Before the levers" is the run at 2a9bba0 (T4: the script in the page and blocked, the levers not built); "final" is the run before the push of 15d13b9.
+
+| Page | Before the levers | Final |
+|---|---|---|
+| `/` | 2121, 2122, 2136 | 1817, 1819, 1821 |
+| `/404` | 1690, 1821, 1823 | 1661, 1665, 1666 |
+| `/cv/en` | 1970, 1971, 1972 | 1662, 1668, 1816 |
+| `/cv/no` | 1968, 1970, 1973 | 1665, 1816, 1822 |
+
+Every page is faster than before the levers and none is above 1900 ms. The level of about 1816 ms on the CV pages is the existing step of about 150 ms (the first bullet above), not a regression: the same pages also give about 1665 ms in the same run.
+
 ## 2. Goals
 
 - The Owner can see, from launch day, how many Visitors open the site and its pages, without cookies.
