@@ -16,7 +16,7 @@ This feature is small (XS): like save-contact-hint it has no `sad.md` and no ADR
 | T5 | Load the Shell scripts as one file | wiring | T3 | done |
 | T6 | Generate the contour image in the spruce tone | infra | T1 | done |
 | T7 | Show the contours of the closing band and the mobile menu from the lazy image | ui | T5, T6 | done |
-| T8 | Measure the built levers and record the numbers | tests | T4, T7 | todo |
+| T8 | Measure the built levers and record the numbers | tests | T4, T7 | done |
 | T9 | Rewrite the three descriptions with the Owner's approval | ui | T1 | done |
 | T10 | Set the shipped status in the five shipped specs | docs | T1 | done |
 | T11 | Take the visual baselines, run the gate and open the pull request into `v2` | tests | T8, T9 | todo |

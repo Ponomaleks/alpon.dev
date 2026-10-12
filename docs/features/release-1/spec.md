@@ -104,12 +104,14 @@ Home page, Lighthouse mobile (`@lhci/cli` 0.15.1, Lighthouse 12.6.1) against `wr
 | (a) + (d) | 6 | 2210 (2148 to 2221) | 1818 (1816 to 1821) |
 | (a) + (b) + (d) | 6 | 2183 (2155 to 2228) | 1821 (1817 to 1823) |
 | The script added by the site's own code after the load event | 6 | 3014 (2930 to 3107) | 2321 (2316 to 2344) |
+| (a) + (d) as built (T5 and T7, at e4bf9fb, the same day) | 10 | not measured | 1820.5 (1809 to 1835) |
 
 What the numbers show:
 
 - The values move in steps of about 150 ms (1820, 1970, 2120, 2420). These are the two clusters of B-38 and the steps around them.
 - On a local run every request of the page ends within about 130 ms and Lighthouse's first paint comes at about 320 ms, so the simulated slow network counts all of them. The LCP in Lighthouse therefore follows the number of requests and of third-party origins before the first paint, not their order or priority.
 - (d) was measured as an upper bound: the two layers were removed, not replaced. D-10 is measured as built.
+- As built (AC-06): ten runs of the home page through `lhci collect` with the configuration of `lighthouserc.cjs` gave 1809, 1816, 1817, 1820, 1820, 1821, 1824, 1834, 1834 and 1835 ms, a median of 1820.5 ms, under the 1850 ms of AC-06 and the same step as the upper bound of (a) + (d). No run asked for the contour image, and the request for the Web Analytics script is listed as blocked (no status, 0 bytes). The `npm run lhci` run that followed passed: `/` 1812, 1816 and 1817 ms; `/404` 1667 to 1668 ms; `/cv/en` 1665 to 1818 ms; `/cv/no` 1664 to 1671 ms. With the script loaded the built levers were not measured again; D-05 keeps the script out of every audit.
 - Not measured: CI. The one CI failure of B-86 (2000 ms) is on the same step as the local baseline with the script blocked.
 
 ## 2. Goals
