@@ -28,6 +28,8 @@ const { cvLang = 'en', actions = defaultBandActions(cvLang), lang } = Astro.prop
           href={action.href}
           variant={action.variant ?? 'secondary'}
           download={action.download || false}
+          meta={action.meta}
+          metaName={action.metaName}
           arrow={action.variant === 'primary'}
         >
           {action.label}

@@ -92,7 +92,7 @@ for (const scheme of ['light', 'dark'] as const) {
       await open(page, 390);
       const bar = page.locator(BAR);
       await expect(bar.getByRole('link', { name: 'View CV' })).toBeVisible();
-      await expect(bar.getByRole('link', { name: 'Save contact (.vcf)' })).toBeVisible();
+      await expect(bar.getByRole('link', { name: 'Add to contacts (vCard file)' })).toBeVisible();
       await expect(page.locator('header').getByRole('link', { name: 'Get in touch' })).toHaveCount(
         1,
       );
@@ -385,14 +385,14 @@ test.describe('scripts off (AC-32)', () => {
     await expect(page.locator('main .key-facts .stat__final').first()).toBeVisible();
   });
 
-  test('the contact links work and Save contact downloads', async ({ page }) => {
+  test('the contact links work and Add to contacts downloads', async ({ page }) => {
     await page.goto('/');
     const contact = page.locator('main #contact');
     await expect(contact.locator('a[href^="mailto:"]').first()).toBeVisible();
     await expect(contact.locator('a[href^="tel:"]')).toBeVisible();
     await expect(contact.locator('a[href*="linkedin.com"]')).toBeVisible();
     await expect(contact.locator('a[href*="github.com"]')).toBeVisible();
-    const save = contact.getByRole('link', { name: /Save contact/ });
+    const save = contact.getByRole('link', { name: /Add to contacts/ });
     await expect(save).toBeVisible();
     await expect(save).toHaveAttribute('download', /.*/);
     const downloading = page.waitForEvent('download');
@@ -413,7 +413,10 @@ test.describe('scripts off (AC-32)', () => {
     await expect(page.locator('[data-motion-control]')).toBeHidden();
     await expect(page.getByRole('button', { name: /Copy/ })).toHaveCount(0);
     await expect(page.locator('[data-copy-email]')).toBeHidden();
-    await expect(page.locator('main [data-needs-script]')).toBeHidden();
+    await expect(page.locator('[data-copy-phone]')).toBeHidden();
+    const scriptOnly = page.locator('main [data-needs-script]');
+    expect(await scriptOnly.count()).toBeGreaterThan(0);
+    for (const part of await scriptOnly.all()) await expect(part).toBeHidden();
   });
 });
 

@@ -56,7 +56,7 @@ Traceability:
 | Experience list (four entries, first open) | new | |
 | Recommendations | new | rendered only with real quotes (AC-09, AC-10) |
 | Selected projects with project cards | new, Dormant section | Styleguide only until step 7 (AC-11) |
-| Contact block: contact list, copy-email action, "Save contact", QR tile | new | reads `src/data/contact.ts` |
+| Contact block: contact list, copy-email action, "Add to contacts", QR tile | new | reads `src/data/contact.ts` |
 | Head meta and structured Person data | new | P-24 |
 | Section reveal, hero parallax and contour drift, header over the hero | new | page-own scripts; the static variants shipped in base-components |
 | Home content data (facts, intro, quick facts, experience, recommendations) | new | typed data next to `contact.ts`; contact facts stay in `contact.ts` |
@@ -97,9 +97,9 @@ Decided by the Owner; they go to the PR's design-difference list as they are.
 | D-06 | Now line "[current project] · MSc Computer Science at Woolf University" | the project the Owner supplies; without one, only the MSc part | no bracketed placeholder on a page (AC-28) |
 | D-08 | The header over the hero is set by a script | reproduced exactly where scripts run (AC-33); with scripts off the header keeps its default look and a primary "Get in touch" | the state depends on scroll position; contrast holds in both |
 | D-09 | "On LinkedIn" and profile links open a new tab | every link to another site opens a new tab, as the design draws them: LinkedIn and GitHub in the Contact block and the footer, "On LinkedIn" on a Recommendation, "Live" and "Code" on a project card, and any later link that leaves the site. Each has `rel="noopener noreferrer"` and ends its name with "(opens in a new tab)" for assistive technology, in text hidden from sight; each shows the external-link icon, except the footer links, which keep the tight text links of the page design. Mail links, call links, the contact card and every link inside the site stay in the same tab | Owner decision changed on 2026-10-08: the portfolio should keep the Visitor's tab, so links to other sites open new tabs, announced. It replaces the same-tab rule of base-components D-16 (2026-10-05) |
-| D-10 | Sticky action bar: "View CV" and "Get in touch" on every page | the actions are set per page, all in the secondary style: home and Not-found "View CV" and "Save contact (.vcf)", also after step 7; CV (step 5) the language switch and "Download PDF"; project and case-study pages (step 7) "View CV" and "Next project" or "All projects" | Owner decision 2026-10-05: the header already carries "Get in touch" at 390 |
+| D-10 | Sticky action bar: "View CV" and "Get in touch" on every page | the actions are set per page, all in the secondary style: home and Not-found "View CV" and "Add to contacts", also after step 7; CV (step 5) the language switch and "Download PDF"; project and case-study pages (step 7) "View CV" and "Next project" or "All projects" | Owner decision 2026-10-05: the header already carries "Get in touch" at 390 |
 | D-11 | The Sticky action bar cannot be put away | a small arrow tab collapses it and brings it back; it works with scripts off, and a collapsed bar stays collapsed for the page visit (AC-39). The look of the tab was decided by the Owner on 2026-10-07: the tab is part of the panel (one outline, the same surface, rounded top corners, at the end side); collapsed, about 12 px of the panel stays visible under it. Earlier wording: the look of the tab is decided at the design stage within Fjord | Owner decision 2026-10-05 |
-| D-12 | Closing band on the home page: "Get in touch" and "Download CV" | "Save contact (.vcf)" and "Download CV", both secondary; other pages keep the design's pair | the band sits right under the contact section, so it repeats no contact action (AC-34, AC-40) |
+| D-12 | Closing band on the home page: "Get in touch" and "Download CV" | "Add to contacts" and "Download CV", both secondary; other pages keep the design's pair | the band sits right under the contact section, so it repeats no contact action (AC-34, AC-40) |
 | D-13 | The closing band's contours drift in a time loop | they shift with the Visitor's scrolling, on every page with the band, with scripts on or off; still without browser support or with reduced motion | motion that follows scrolling needs no pause control (WCAG 2.2.2), so the band behaves the same on pages without a Motion control (AC-41) |
 | D-14 | base-components D-06: below 768 the header "Get in touch" is secondary while the Sticky action bar is on screen | dropped; the header follows the page design: on the Not-found, CV, Projects and Thoughts pages it never changes style and "Get in touch" is always primary, only the bottom border appears after scroll; the home page is AC-33 | Owner decision 2026-10-05, measured on the prototype at 390, 834 and 1440; the bar no longer holds a primary button |
 | D-15 | Contact block row label "Based in" | "Region" for the row with "Oslo, Norge" (Owner, 2026-10-07): "Based in" stays for the Residence in the About quick facts and in the footer, so the two do not read as a contradiction | Owner decision 2026-10-07 |
@@ -209,7 +209,7 @@ Not a difference: the hero coordinates stay 59.91° N, 10.75° E. They belong to
 
 **Given** a Recruiter who opens the home page on a phone screen 390 wide and 844 high, the size of the page design, in Dag or Natt
 **When** the page has loaded and they have not scrolled
-**Then** they see what the page design shows on that first screen, without scrolling: the availability badge "Open to work" with "Oslo area"; the line "Hei." and "Oslo, Norge", both marked as Norwegian, with the Work region coordinates; the name "Alexander Ponomarenko" as the main heading of the page; the roles "Software Engineer" and "Full Stack Developer"; the lead "Good products are built together."; one primary action "View CV"; and the Now line. The header offers "Get in touch", and the Sticky action bar offers "View CV" and "Save contact (.vcf)"
+**Then** they see what the page design shows on that first screen, without scrolling: the availability badge "Open to work" with "Oslo area"; the line "Hei." and "Oslo, Norge", both marked as Norwegian, with the Work region coordinates; the name "Alexander Ponomarenko" as the main heading of the page; the roles "Software Engineer" and "Full Stack Developer"; the lead "Good products are built together."; one primary action "View CV"; and the Now line. The header offers "Get in touch", and the Sticky action bar offers "View CV" and "Add to contacts"
 
 ### AC-02 (US-01) — happy
 
@@ -298,14 +298,14 @@ Not a difference: the hero coordinates stay 59.91° N, 10.75° E. They belong to
 ### AC-16 (US-02) — happy
 
 **Given** a Recruiter in the Contact block
-**When** they activate "Save contact (.vcf)"
+**When** they activate "Add to contacts"
 **Then** the browser downloads the contact card, with the name, the title "Software Engineer", the phone, the email, the profiles and the Work region
 
 ### AC-17 (US-02) — happy
 
-**Given** a Recruiter on a screen at least 1024 wide
+**Given** a Recruiter on a screen of any width
 **When** they look below the Contact block
-**Then** they see the QR tile with the caption "Skann meg", marked as Norwegian, and the hint that pointing a phone camera at it opens the contact card; the tile matches the theme, has a text alternative, and scanning it offers the contact. Below 1024 the tile and the hint are not shown, because the Visitor is holding the phone
+**Then** they see the QR tile with the caption "Skann meg", marked as Norwegian, and the hint that pointing a phone camera at it opens the contact card; the tile matches the theme, has a text alternative, and scanning it offers the contact. The tile is shown at every width; below 768 it spans the column and the hint is not shown (Owner decision 2026-10-12, save-contact-hint AC-15; before that the tile and the hint were shown from 1024 only)
 
 ### AC-18 (US-02) — cross-context
 
@@ -353,7 +353,7 @@ Not a difference: the hero coordinates stay 59.91° N, 10.75° E. They belong to
 
 **Given** a Tech lead who opens the home page with scripts off, or a page in which an inline script, an inline style or a script the site's security policy does not name has appeared
 **When** the page is shown
-**Then** every section is visible and readable, every link of the Contact block works, "Save contact" works, no Ambient motion runs and no Motion control or "Copy" action is offered; and the browser refuses the script or style that the policy does not name. This feature does not change the policy
+**Then** every section is visible and readable, every link of the Contact block works, "Add to contacts" works, no Ambient motion runs and no Motion control or "Copy" action is offered; and the browser refuses the script or style that the policy does not name. This feature does not change the policy
 
 ### AC-33 (US-11) — happy
 
@@ -375,7 +375,7 @@ In every one of these states the header's text and actions are readable at the c
 
 **Given** the feature is complete
 **When** the parity suite runs
-**Then** the six items of this step pass as real tests: name and roles shown, contact data visible and linked, copy-email with "Copied" (D-18), "Save contact", head meta with structured data, and the Shell's contact links reaching the contact place
+**Then** the six items of this step pass as real tests: name and roles shown, contact data visible and linked, copy-email with "Copied" (D-18), "Add to contacts", head meta with structured data, and the Shell's contact links reaching the contact place
 
 ### AC-36 (US-10) — happy
 
@@ -387,7 +387,7 @@ In every one of these states the header's text and actions are readable at the c
 
 **Given** a Recruiter on a phone, on the home page or on the Not-found page
 **When** they look at the Sticky action bar
-**Then** it offers "View CV" and "Save contact (.vcf)", both in the secondary style; "Save contact" downloads the contact card. Each page sets the actions of its bar through a page option, and no page edits the bar itself
+**Then** it offers "View CV" and "Add to contacts", both in the secondary style; "Add to contacts" downloads the contact card. Each page sets the actions of its bar through a page option, and no page edits the bar itself
 
 ### AC-39 (US-14) — happy
 
@@ -399,7 +399,7 @@ In every one of these states the header's text and actions are readable at the c
 
 **Given** a Recruiter at the end of the home page
 **When** they read the closing band, which sits right under the contact section
-**Then** it offers "Save contact (.vcf)" and "Download CV", both in the secondary style, and no "Get in touch", because the contact section is already above it; on other pages the band keeps "Get in touch" and "Download CV". Each page sets the band's actions through a page option
+**Then** it offers "Add to contacts" and "Download CV", both in the secondary style, and no "Get in touch", because the contact section is already above it; on other pages the band keeps "Get in touch" and "Download CV". Each page sets the band's actions through a page option
 
 ### AC-42 (US-06) — happy
 

@@ -1,6 +1,8 @@
 ---
 // Contact QR (AC-17): the two static files, one shown per data-theme, with the caption and hint.
-// Not generated and not edited (CLAUDE.md). Shown from 1024 only; the phone Visitor taps instead.
+// Not generated and not edited (CLAUDE.md). Shown at every width (save-contact-hint AC-15). Below
+// 768 it spans the column and has no hint: on a phone it is there to be scanned by someone
+// else's phone, so it is drawn large. From 768 it has the design's size with the hint beside it.
 // Layout follows the page design (.fj-qr-figure, .x-qr): the caption under the tile, inside the
 // figure; the hint beside the figure, centred on it.
 const alt = "QR code that opens Alexander Ponomarenko's contact card";
@@ -57,20 +59,20 @@ const { sample } = Astro.props;
 
 <style>
   .qr {
-    display: none;
-    align-items: center;
+    display: flex;
+    flex-direction: column;
     gap: var(--fjord-space-5);
   }
   .qr__figure {
-    display: inline-flex;
+    display: flex;
     flex-direction: column;
     gap: var(--fjord-space-2);
     margin: 0;
   }
   .qr__plate {
     flex: none;
-    inline-size: calc(var(--fjord-space-32) + var(--fjord-space-1));
-    block-size: calc(var(--fjord-space-32) + var(--fjord-space-1));
+    inline-size: 100%;
+    aspect-ratio: 1;
   }
   .qr__img {
     display: block;
@@ -109,12 +111,36 @@ const { sample } = Astro.props;
     line-height: var(--fjord-leading-normal);
     color: var(--fjord-color-text-muted);
   }
-  .qr[data-sample] {
-    display: flex;
+  .qr__hint {
+    display: none;
   }
-  @media (min-width: 1024px) {
+  /* The design's tile: 132px, the hint beside the figure, centred on it. */
+  .qr[data-sample] {
+    flex-direction: row;
+    align-items: center;
+  }
+  .qr[data-sample] .qr__figure {
+    display: inline-flex;
+  }
+  .qr[data-sample] .qr__plate {
+    inline-size: calc(var(--fjord-space-32) + var(--fjord-space-1));
+  }
+  .qr[data-sample] .qr__hint {
+    display: block;
+  }
+  @media (min-width: 768px) {
     .qr {
-      display: flex;
+      flex-direction: row;
+      align-items: center;
+    }
+    .qr__figure {
+      display: inline-flex;
+    }
+    .qr__plate {
+      inline-size: calc(var(--fjord-space-32) + var(--fjord-space-1));
+    }
+    .qr__hint {
+      display: block;
     }
   }
 </style>

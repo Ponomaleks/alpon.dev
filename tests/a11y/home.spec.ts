@@ -63,3 +63,22 @@ for (const theme of ['dag', 'natt'] as const) {
     });
   });
 }
+
+// save-contact-hint AC-08: the open sheet of "Add to contacts", in both themes at 390 and 834.
+for (const theme of ['dag', 'natt'] as const) {
+  for (const width of [390, 834]) {
+    test(`home with the contact card sheet open has no axe violations in ${theme} at ${width}`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await page.addInitScript((t) => localStorage.setItem('fjord-theme', t), theme);
+      await page.goto('/');
+      await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
+      await page.evaluate(() =>
+        document.querySelector<HTMLDialogElement>('#save-contact-sheet')?.showModal(),
+      );
+      await expect(page.getByRole('dialog', { name: 'Add the contact card' })).toBeVisible();
+      expect((await scan(page)).violations).toEqual([]);
+    });
+  }
+}

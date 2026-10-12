@@ -358,13 +358,13 @@ describe('page option mobileBarActions (AC-38, ADR-0002)', () => {
     return [...bar.matchAll(/<a\b[^>]*>[\s\S]*?<\/a>/g)].map((m) => m[0]);
   };
 
-  it('the default gives "View CV" and "Save contact (.vcf)", both secondary', () => {
+  it('the default gives "View CV" and "Add to contacts", both secondary', () => {
     const [cv, save, ...rest] = barAnchors(html('fixture.html'));
     expect(rest).toEqual([]);
     expect(cv).toContain(`href="${contact.links.cv}"`);
     expect(cv).toContain('View CV');
     expect(save).toContain('href="/alexander-ponomarenko.vcf"');
-    expect(save).toContain('Save contact (.vcf)');
+    expect(save).toContain('Add to contacts');
     expect(save).toMatch(/\sdownload(?:=""|\s|>)/);
     for (const anchor of [cv, save]) {
       expect(anchor).toContain('fj-btn--secondary');
@@ -380,7 +380,7 @@ describe('page option mobileBarActions (AC-38, ADR-0002)', () => {
     expect(second).toContain('href="/brief.pdf"');
     expect(second).toContain('Get the brief');
     for (const anchor of [first, second]) expect(anchor).toContain('fj-btn--secondary');
-    expect(opt('bar-custom')).not.toContain('Save contact (.vcf)');
+    expect(opt('bar-custom')).not.toContain('Add to contacts');
   });
 });
 

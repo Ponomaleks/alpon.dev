@@ -242,7 +242,7 @@ test.describe('the email address stays on one line on a phone', () => {
 });
 
 // screens.md H-3: from 1024 the mail-link sentence stands beside the list, where the page design
-// draws the message form; below 1024 it follows "Save contact".
+// draws the message form; below 1024 it follows "Add to contacts".
 test.describe('the mail-link sentence beside the list (screens.md H-3)', () => {
   test('beside the list from 1024', async ({ page }) => {
     await openIn(page, 'dag', 1024);
@@ -252,10 +252,10 @@ test.describe('the mail-link sentence beside the list (screens.md H-3)', () => {
     expect(sentence.y).toBeLessThan(list.y + list.height);
   });
 
-  test('under "Save contact" below 1024', async ({ page }) => {
+  test('under "Add to contacts" below 1024', async ({ page }) => {
     await openIn(page, 'dag', 834);
     const save = await box(
-      page.locator(SECTION).getByRole('link', { name: 'Save contact (.vcf)' }),
+      page.locator(SECTION).getByRole('link', { name: 'Add to contacts (vCard file)' }),
     );
     const sentence = await box(page.locator(`${SECTION} .contact__sentence`));
     expect(sentence.y).toBeGreaterThanOrEqual(save.y + save.height);
@@ -360,16 +360,94 @@ test.describe('refused copy (AC-15)', () => {
   });
 });
 
-test.describe('Save contact (AC-16)', () => {
+// save-contact-hint AC-13, AC-14: the phone number is copied without spaces, by the Copy button
+// of its row and from a selection of the number.
+test.describe('copy the phone number (save-contact-hint AC-13, AC-14)', () => {
+  test.use({ permissions: ['clipboard-read', 'clipboard-write'] });
+  const NUMBER = '+4740594584';
+
+  test('Copy puts the number without spaces on the clipboard and a Toast confirms it', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    const row = page.locator(SECTION + ' .contact__row').nth(1);
+    await expect(row.getByRole('link')).toHaveText('+47 405 94 584');
+    const button = row.getByRole('button', { name: 'Copy' });
+    await button.click();
+    const toast = page.getByRole('status').locator('.toast');
+    await expect(toast).toContainText('Copied');
+    await expect(toast).toContainText(NUMBER);
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(NUMBER);
+    await expect(button).toHaveAttribute('data-done', 'true');
+    // The email row's button is untouched.
+    await expect(page.locator(SECTION + ' [data-copy-email]')).not.toHaveAttribute('data-done');
+  });
+
+  test('the two Copy buttons are 44 px targets and do not push the number onto a second line at 360', async ({
+    page,
+  }) => {
+    await openIn(page, 'dag', 360);
+    const row = page.locator(SECTION + ' .contact__row').nth(1);
+    const button = await box(row.getByRole('button', { name: 'Copy' }));
+    expect(button.height).toBeGreaterThanOrEqual(44);
+    const link = await box(row.getByRole('link'));
+    expect(link.height).toBeLessThanOrEqual(44);
+    expect(link.x + link.width).toBeLessThanOrEqual(button.x);
+    const emailCopy = await box(page.locator(SECTION + ' [data-copy-email]'));
+    expect(button.x).toBeCloseTo(emailCopy.x, 0);
+  });
+
+  test('a selection of the number is copied without spaces', async ({ page }) => {
+    await page.goto('/');
+    const link = page.locator(SECTION + ' a[href^="tel:"]');
+    await link.evaluate((el) => {
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      const selection = getSelection();
+      selection?.removeAllRanges();
+      selection?.addRange(range);
+    });
+    await page.keyboard.press('ControlOrMeta+C');
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(NUMBER);
+  });
+
+  test('a selection of other text is copied as it is', async ({ page }) => {
+    await page.goto('/');
+    const lead = page.locator(SECTION).getByText('Email is fastest. Phone and LinkedIn work too.');
+    await lead.evaluate((el) => {
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      const selection = getSelection();
+      selection?.removeAllRanges();
+      selection?.addRange(range);
+    });
+    await page.keyboard.press('ControlOrMeta+C');
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(
+      'Email is fastest. Phone and LinkedIn work too.',
+    );
+  });
+
+  test.describe('with scripts off', () => {
+    test.use({ javaScriptEnabled: false });
+    test('no Copy is offered in the phone row', async ({ page }) => {
+      await page.goto('/');
+      await expect(page.locator(SECTION + ' [data-copy-phone]')).toBeHidden();
+    });
+  });
+});
+
+test.describe('Add to contacts (AC-16)', () => {
   test('downloads the contact card with every field', async ({ page }) => {
     await page.goto('/');
-    const link = page.locator(SECTION).getByRole('link', { name: 'Save contact (.vcf)' });
+    const link = page.locator(SECTION).getByRole('link', { name: 'Add to contacts (vCard file)' });
     const [download] = await Promise.all([page.waitForEvent('download'), link.click()]);
     const path = await download.path();
     const card = await readFile(path, 'utf8');
     expect(card).toContain('FN:Alexander Ponomarenko');
     expect(card).toMatch(/^TITLE:Software Engineer\r?$/m);
-    expect(card).toContain('+47 405 94 584');
+    // save-contact-hint AC-12: no spaces in the card's number.
+    expect(card).toMatch(/^TEL[^:\r\n]*:\+4740594584\r?$/m);
+    expect(card).not.toContain('+47 405 94 584');
     expect(card).toContain(EMAIL);
     expect(card).toContain('https://www.linkedin.com/in/ponomalex/');
     expect(card).toContain('https://github.com/ponomaleks');
@@ -435,12 +513,85 @@ test.describe('QR tile (AC-17)', () => {
     });
   }
 
-  test('below 1024 neither the tile nor the hint is shown', async ({ page }) => {
-    await page.setViewportSize({ width: 1023, height: 900 });
-    await page.goto('/');
+  // save-contact-hint AC-15 (Owner, 2026-10-12): the tile is shown at every width. Below 768 it
+  // spans the column, so a phone held out to another phone shows a code that is easy to scan,
+  // and the hint is left out; from 768 it has the design's size with the hint beside it.
+  const placed = async (page: Page, width: number) => {
+    await openIn(page, 'dag', width);
     const tile = page.locator(`${SECTION} .qr`);
-    await expect(tile).toBeHidden();
-    await expect(page.getByText('camera')).toBeHidden();
-    await expect(page.getByText('Skann meg')).toBeHidden();
+    await tile.scrollIntoViewIfNeeded();
+    await expect(tile).toBeVisible();
+    await expect(tile.getByText('Skann meg')).toBeVisible();
+    const image = await box(tile.locator('img[data-theme="dag"]'));
+    // Under the action (and its note), above the mail-link sentence below 1024.
+    const save = await box(
+      page.locator(SECTION).getByRole('link', { name: 'Add to contacts (vCard file)' }),
+    );
+    const sentence = await box(page.locator(`${SECTION} .contact__sentence`));
+    expect(image.y).toBeGreaterThanOrEqual(save.y + save.height);
+    expect(sentence.y).toBeGreaterThanOrEqual(image.y + image.height);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(width);
+    return { tile, image };
+  };
+
+  for (const width of [360, 390, 767]) {
+    test(`at ${width} the tile spans the column, is square, and has no hint`, async ({ page }) => {
+      const { tile, image } = await placed(page, width);
+      const list = await box(page.locator(`${SECTION} .contact__list`));
+      expect(image.x).toBeCloseTo(list.x, 0);
+      expect(image.width).toBeCloseTo(list.width, 0);
+      expect(image.height).toBeCloseTo(image.width, 0);
+      await expect(tile.locator('.qr__hint')).toBeHidden();
+      const caption = await box(tile.locator('figcaption'));
+      expect(caption.y).toBeGreaterThanOrEqual(image.y + image.height);
+      expect(caption.x).toBeCloseTo(image.x, 0);
+    });
+  }
+
+  for (const width of [768, 834, 1023]) {
+    test(`at ${width} the tile has the design's size with the hint beside it`, async ({ page }) => {
+      const { tile, image } = await placed(page, width);
+      expect(image.width).toBeCloseTo(132, 0);
+      expect(image.height).toBeCloseTo(132, 0);
+      await expect(tile.locator('.qr__hint')).toBeVisible();
+      const hint = await box(tile.locator('.qr__hint'));
+      expect(hint.x).toBeGreaterThanOrEqual(image.x + image.width);
+      expect(hint.x + hint.width).toBeLessThanOrEqual(width);
+    });
+  }
+});
+
+// save-contact-hint AC-02: the inline note is for touch devices only and needs no script.
+test.describe('the inline note under "Add to contacts" (save-contact-hint AC-02)', () => {
+  const NOTE = 'Downloads a contact card. Open it from Downloads to add.';
+
+  test('is shown on a touch device and hidden elsewhere', async ({ page }, testInfo) => {
+    await page.goto('/');
+    const note = page.locator(SECTION).getByText(NOTE);
+    await expect(note).toHaveCount(1);
+    const touch = await page.evaluate(
+      () => matchMedia('(hover: none) and (pointer: coarse)').matches,
+    );
+    expect(touch).toBe(testInfo.project.name === 'mobile');
+    if (touch) {
+      await expect(note).toBeVisible();
+      const save = await box(
+        page.locator(SECTION).getByRole('link', { name: 'Add to contacts (vCard file)' }),
+      );
+      const rect = await box(note);
+      expect(rect.y).toBeGreaterThanOrEqual(save.y + save.height);
+      expect(rect.x).toBeCloseTo(save.x, 0);
+    } else {
+      await expect(note).toBeHidden();
+    }
+  });
+
+  test.describe('with scripts off', () => {
+    test.use({ javaScriptEnabled: false });
+    test('the note is still there on a touch device', async ({ page }, testInfo) => {
+      test.skip(testInfo.project.name !== 'mobile', 'touch devices only');
+      await page.goto('/');
+      await expect(page.locator(SECTION).getByText(NOTE)).toBeVisible();
+    });
   });
 });

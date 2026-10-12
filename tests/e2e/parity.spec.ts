@@ -148,9 +148,11 @@ test.describe('home page', () => {
     expect(await page.evaluate(() => navigator.clipboard.readText())).toBe('ponomaleks@gmail.com');
   });
 
-  test('P-23 "Save contact" downloads the vCard', async ({ page }) => {
+  test('P-23 "Add to contacts" downloads the vCard', async ({ page }) => {
     await page.goto('/');
-    const link = page.locator('#contact').getByRole('link', { name: 'Save contact (.vcf)' });
+    const link = page
+      .locator('#contact')
+      .getByRole('link', { name: 'Add to contacts (vCard file)' });
     await expect(link).toHaveAttribute('href', '/alexander-ponomarenko.vcf');
     await expect(link).toHaveAttribute('download', /.*/);
     const [download] = await Promise.all([page.waitForEvent('download'), link.click()]);

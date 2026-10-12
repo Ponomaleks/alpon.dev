@@ -1,12 +1,13 @@
 // The home page's one script entry (AC-32): wires every home module.
 import { initCarousel } from './carousel';
-import { initCopyEmail } from '../shared/copy-email';
+import { initCopyEmail, initCopyPhone, initPlainCopy } from '../shared/copy-email';
 import { initCountUp } from './count-up';
 import { initHeroHeader } from './hero-header';
 import { initMotion } from './motion';
 import { initParallax } from './parallax';
 import { initQuoteToggle } from './quote-toggle';
 import { initReveal } from './reveal';
+import { initSaveContact } from './save-contact';
 import { legacyCvTarget } from './legacy-cv';
 
 const matches = (query: string) => matchMedia(query);
@@ -50,6 +51,18 @@ const copied = getComputedStyle(document.documentElement).getPropertyValue(
 );
 const copiedMs = parseFloat(copied) * (copied.trim().endsWith('ms') ? 1 : 1000);
 initCopyEmail({ document, navigator, duration: copiedMs });
+initCopyPhone({ document, navigator, duration: copiedMs });
+initPlainCopy({ document });
+
+// The sheet of "Add to contacts": every contact card action of the page opens it on touch devices.
+const saveSheet = document.querySelector<HTMLDialogElement>('dialog#save-contact-sheet');
+if (saveSheet) {
+  initSaveContact({
+    dialog: saveSheet,
+    links: document.querySelectorAll<HTMLAnchorElement>('a[href$=".vcf"]'),
+    touch: matchMedia('(hover: none) and (pointer: coarse)'),
+  });
+}
 
 // Quotes first: the carousel copies the cards in the state the toggle leaves them in.
 initQuoteToggle(document);

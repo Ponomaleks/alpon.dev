@@ -100,7 +100,7 @@ describe('ContactBlock', () => {
     expect(copy).toContain('type="button"');
   });
 
-  it('draws "Save contact (.vcf)" with the add-to-contacts icon (design: user-plus)', async () => {
+  it('draws "Add to contacts" with the add-to-contacts icon (design: user-plus)', async () => {
     const html = await renderBlock();
     const save = html.match(/<a\b[^>]*href="\/alexander-ponomarenko\.vcf"[^>]*>[\s\S]*?<\/a>/)?.[0];
     const icon = readFileSync('src/components/ui/Icon.astro', 'utf8');
@@ -173,6 +173,29 @@ describe('ContactBlock', () => {
     expect(html.indexOf(contact.email)).toBeLessThan(html.indexOf('data-copy-email'));
   });
 
+  // save-contact-hint AC-13, AC-14: Copy on the phone row too, with the number without spaces.
+  it('offers Copy at the end of the phone row, behind data-needs-script', async () => {
+    const html = await renderBlock();
+    const compact = contact.phone.replace(/[^\d+]/g, '');
+    const buttons = [...html.matchAll(/<button\b([^>]*)>([\s\S]*?)<\/button>/g)];
+    const copy = buttons.find((m) => /data-copy-phone/.test(m[1] ?? ''));
+    expect(copy).toBeDefined();
+    expect(text(copy?.[2] ?? '')).toContain('Copy');
+    expect(copy?.[1]).toContain('data-copy-phone="' + compact + '"');
+    const before = html.slice(0, copy?.index ?? 0);
+    expect(before).toMatch(/data-needs-script[^>]*>\s*$/);
+    expect(html.indexOf(contact.phone)).toBeLessThan(html.indexOf('data-copy-phone'));
+    expect(html.indexOf('data-copy-phone')).toBeLessThan(html.indexOf('linkedin.com'));
+    expect(buttons).toHaveLength(2);
+  });
+
+  it('marks the phone value so that a selection is copied without spaces', async () => {
+    const html = await renderBlock();
+    const tel = html.match(/<a\b[^>]*href="tel:[^"]*"[^>]*>/)?.[0] ?? '';
+    expect(tel).toMatch(/\sdata-copy-plain\b/);
+    expect(html.match(/data-copy-plain/g)).toHaveLength(1);
+  });
+
   // Owner's design review (reverses D-18): the Copy control has the design's own done state.
   // Both faces come from the server; the script only sets `data-done`. The name stays "Copy":
   // the done face is hidden from assistive technology, so only the Toast announces the copy.
@@ -201,12 +224,30 @@ describe('ContactBlock', () => {
     expect(links.some((a) => href(a.attrs) === `mailto:${contact.email}`)).toBe(true);
   });
 
-  it('offers "Save contact (.vcf)" as a download of the contact card (AC-16)', async () => {
+  it('offers "Add to contacts" as a download of the contact card (AC-16)', async () => {
     const links = anchors(await renderBlock());
-    const save = links.find((a) => a.label.includes('Save contact (.vcf)'));
+    const save = links.find((a) => a.label.includes('Add to contacts'));
     expect(save).toBeDefined();
+    // save-contact-hint AC-01: the file type is meta text; assistive technology gets the long form.
+    expect(save?.label).toBe('Add to contacts .vcf (vCard file)');
+    expect(await renderBlock()).toMatch(
+      // Label and meta share one line box, so the two sizes sit on one baseline.
+      /<span class="fj-btn__label"[^>]*>\s*Add to contacts\s*<span class="fj-btn__meta" aria-hidden="true"[^>]*>\.vcf<\/span>\s*<\/span>\s*<span class="fj-btn__sr"[^>]*>\s*\(vCard file\)<\/span>/,
+    );
     expect(href(save?.attrs ?? '')).toBe('/alexander-ponomarenko.vcf');
     expect(save?.attrs).toMatch(/\bdownload\b/);
+  });
+
+  it('puts the inline note with the download icon right after the action (save-contact-hint AC-02)', async () => {
+    const html = await renderBlock();
+    const icon = readFileSync('src/components/ui/Icon.astro', 'utf8');
+    const d = icon.match(/download:\s*'([^']+)'/)?.[1] ?? 'no download icon';
+    const note = html.match(/<p\b[^>]*class="save-note"[^>]*>[\s\S]*?<\/p>/)?.[0] ?? '';
+    expect(text(note)).toBe('Downloads a contact card. Open it from Downloads to add.');
+    expect(note).toContain('d="' + d + '"');
+    expect(note).toMatch(/<svg\b[^>]*aria-hidden="true"/);
+    expect(html.indexOf('save-note')).toBeGreaterThan(html.indexOf('Add to contacts'));
+    expect(html.indexOf('save-note')).toBeLessThan(html.indexOf('Skann meg'));
   });
 
   it('has no primary button (D-09)', async () => {
@@ -232,6 +273,14 @@ describe('QrTile', () => {
       expect(() => readFileSync(`public/qr/qr-vcard-${theme}.svg`)).not.toThrow();
     }
     expect(html).toMatch(/data-theme/);
+  });
+
+  // save-contact-hint AC-15: shown at every width, so no rule hides the tile by screen width.
+  it('is not hidden below any width', () => {
+    const css = readFileSync('src/components/brand/QrTile.astro', 'utf8');
+    const rule = css.match(/\n {2}\.qr \{([^}]*)\}/)?.[1] ?? '';
+    expect(rule).toMatch(/display:\s*flex/);
+    expect(css).not.toContain('min-width: 1024px');
   });
 
   it('gives the images a text alternative (AC-17)', async () => {

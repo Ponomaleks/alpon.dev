@@ -186,8 +186,8 @@ tests/
 | Option | Values | Default | Effect |
 |---|---|---|---|
 | `headerOverHero` | boolean | `false` | Renders `data-over-hero` on the header; the page's script keeps it in step with its hero (ADR-0001). Home sets `true` |
-| `mobileBarActions` | pair of `BarAction` | the bar's default pair ("View CV", "Save contact (.vcf)") | The two actions of the Sticky action bar, always secondary (ADR-0002) |
-| `ctaBandActions` | pair of `BandAction` | the band's default pair ("Get in touch" primary, "Download CV") | The two actions of the closing band; home passes "Save contact (.vcf)" and "Download CV", both secondary (ADR-0002) |
+| `mobileBarActions` | pair of `BarAction` | the bar's default pair ("View CV", "Add to contacts") | The two actions of the Sticky action bar, always secondary (ADR-0002) |
+| `ctaBandActions` | pair of `BandAction` | the band's default pair ("Get in touch" primary, "Download CV") | The two actions of the closing band; home passes "Add to contacts" and "Download CV", both secondary (ADR-0002) |
 | `structuredData` | object | none | Rendered as one `application/ld+json` data block in the head; home passes the Person object |
 | `headerCta` | `'auto'` \| `'secondary'` | `'auto'` | Changed: `auto` is now always primary outside the over-hero state; the "secondary while the bar is on screen" rule is removed (spec §1.3 D-14) |
 | `noindex` | boolean | `false` | Extended: also decides the head meta rule of §8 (no canonical, preview card or `og:url` on a noindex page) |
@@ -329,7 +329,7 @@ sequenceDiagram
     UI-->>U: hero with the badge, Hei and Oslo, Norge with the Work region coordinates, the name as the main heading, both roles, the lead, one primary View CV and the Now line
     Note over U,UI: View CV stands alone and See projects is not offered. The Now line shows the project first when one was supplied, otherwise only the MSc part, never text in square brackets
     alt screen below 768
-        UI-->>U: all of it lies inside the first screen at 390 by 844, the header offers Get in touch, the Sticky action bar offers View CV and Save contact (.vcf)
+        UI-->>U: all of it lies inside the first screen at 390 by 844, the header offers Get in touch, the Sticky action bar offers View CV and Add to contacts
     else screen 768 to 1023
         UI-->>U: the same hero without the Sticky action bar, the portrait under the text
     else screen 1024 or wider
@@ -385,14 +385,10 @@ sequenceDiagram
     Note over U,UI: Focus comes from the browser's own navigation to a place on a page. Where a browser does not move focus, the smallest script that does is added (§8 Contact place)
     UI-->>U: Contact block with Get in touch, the lead, rows for email, phone, LinkedIn, GitHub and Based in with Oslo, Norge, and one sentence with the email address as a mail link (interim IS-03)
     Note over U,UI: Over the contact section the page content holds no primary button
-    alt screen 1024 or wider
-        UI-->>U: QR tile for the current theme with Skann meg and the camera hint
-        opt scans the tile
-            U->>X: points a phone camera at the tile
-            X-->>U: the phone offers to add the contact
-        end
-    else screen below 1024
-        UI-->>U: no QR tile and no hint
+    UI-->>U: QR tile for the current theme with Skann meg and the camera hint, at every width
+    opt scans the tile
+        U->>X: points a phone camera at the tile
+        X-->>U: the phone offers to add the contact
     end
     alt email address or the mail-link sentence
         U->>X: follows the mail link, the mail app opens a message to Alexander
@@ -400,8 +396,8 @@ sequenceDiagram
         U->>X: follows the call link, the phone app opens the number
     else LinkedIn or GitHub
         U->>X: follows the profile link, the profile opens in a new tab
-    else Save contact (.vcf)
-        U->>UI: activates Save contact
+    else Add to contacts
+        U->>UI: activates Add to contacts
         UI->>S: requests the contact card
         S-->>UI: contact card file
         UI-->>U: the browser downloads the card with the name, the title, the phone, the email, the profiles and the Work region
@@ -482,13 +478,13 @@ sequenceDiagram
     end
     Note over U,UI: No Selected projects section and no All projects link on any path
     U->>UI: scrolls past the contact section to the closing band
-    UI-->>U: closing band with Save contact (.vcf) and Download CV, both secondary, and no Get in touch
+    UI-->>U: closing band with Add to contacts and Download CV, both secondary, and no Get in touch
     alt motion tied to scrolling supported and motion allowed, with scripts on or off
         UI-->>U: the band contours shift while the Visitor scrolls and stand still when the Visitor stops
     else no browser support or reduced motion
         UI-->>U: the band is still
     end
-    opt Save contact or Download CV in the band
+    opt Add to contacts or Download CV in the band
         U->>UI: activates the action
         UI->>S: requests the contact card or the English CV PDF
         S-->>UI: the file
@@ -511,13 +507,13 @@ sequenceDiagram
     Note over U,S: Precondition: screen below 768, the home page or the Not-found page. The page gave the bar its pair of actions through a page option
     U->>S: opens the page
     S-->>UI: page with the bar open and the two actions of this page
-    UI-->>U: Sticky action bar with View CV and Save contact (.vcf), both secondary, and the arrow tab at its edge
+    UI-->>U: Sticky action bar with View CV and Add to contacts, both secondary, and the arrow tab at its edge
     alt View CV
         U->>UI: activates View CV
         UI->>S: requests the CV address
         S-->>UI: the English CV PDF (interim IS-01)
-    else Save contact (.vcf)
-        U->>UI: activates Save contact
+    else Add to contacts
+        U->>UI: activates Add to contacts
         UI->>S: requests the contact card
         S-->>UI: contact card file
         UI-->>U: the browser downloads the card
@@ -580,7 +576,7 @@ sequenceDiagram
 | AC-13 | Reach the contact place, step `Contact block with Get in touch` and the email, phone and profile branches |
 | AC-14 | Copy the email address, branch `the browser allows it` |
 | AC-15 | Copy the email address, branches `scripts disabled or the page script did not load` and `the browser refuses or has no clipboard access` |
-| AC-16 | Reach the contact place, branch `Save contact (.vcf)`; also the bar and the closing band |
+| AC-16 | Reach the contact place, branch `Add to contacts`; also the bar and the closing band |
 | AC-17 | Reach the contact place, branch `screen 1024 or wider` and its `else` |
 | AC-18 | Reach the contact place, the first `alt` with its three branches |
 | AC-30 | Critical flow 2 |
@@ -589,9 +585,9 @@ sequenceDiagram
 | AC-33 | Critical flow 1 |
 | AC-34 | Critical flow 1, the header action in every state; the secondary actions of the bar and of the closing band in their flows; Reach the contact place, note on the contact section. The count itself is not runtime: an e2e check |
 | AC-36 | Sections below the hero, first `alt` and its note |
-| AC-38 | Sticky action bar flow, the first three steps and the `View CV` and `Save contact (.vcf)` branches |
+| AC-38 | Sticky action bar flow, the first three steps and the `View CV` and `Add to contacts` branches |
 | AC-39 | Sticky action bar flow, branch `the arrow tab, by touch or keyboard, with scripts on or off` |
-| AC-40 | Sections below the hero, step `closing band with Save contact (.vcf) and Download CV` |
+| AC-40 | Sections below the hero, step `closing band with Add to contacts and Download CV` |
 | AC-41 | Sections below the hero, branch `motion tied to scrolling supported and motion allowed` and its `else` |
 | AC-10, AC-11, AC-12, AC-26, AC-27, AC-28, AC-35 | Not runtime: build-time checks, see §8 (Home content, Dormant Selected projects, Head meta, Structured data, Contact data, Placeholders) and the parity suite. The visible result of AC-10 and AC-11 is in Sections below the hero |
 | AC-29 | Not runtime: the Claims list is a step of the pull request, not of the system |
@@ -704,7 +700,7 @@ Each top-3 goal from §1 expanded into scenarios. Numbers are quoted from spec �
 |---|---|
 | Ambient motion | Movement that starts by itself and keeps looping: the contour drift behind the home hero and the float of the portrait. Not count-up, reveal, parallax or the closing band's contours |
 | Motion control | The single play and pause button in the home hero that stops and resumes all Ambient motion on the home page |
-| Contact block | The list in the home page's contact section with email, phone, LinkedIn, GitHub and the Work region, plus the copy-email action, "Save contact" and the QR tile |
+| Contact block | The list in the home page's contact section with email, phone, LinkedIn, GitHub and the Work region, plus the copy-email action, "Add to contacts" and the QR tile |
 | Now line | The hero line that starts with "Nå:" and says what Alexander is working on at present |
 | Recommendation | A quote from a person who worked with Alexander, word for word, shown with their name and role and with their agreement |
 | Claims list | The table in the pull request that names every number and status on the page with its source, each ticked by the Owner |

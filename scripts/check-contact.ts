@@ -77,7 +77,8 @@ export function checkContact(c: Fields, vcfText: string, today: Date): string[] 
       );
   };
   expect('email', c.email, vcfValues(vcfText, /^EMAIL[;:]/i));
-  expect('phone', c.phone, vcfValues(vcfText, /^TEL[;:]/i));
+  // The card holds the number without spaces (save-contact-hint AC-12); the page shows it spaced.
+  expect('phone', c.phone.replace(/[^\d+]/g, ''), vcfValues(vcfText, /^TEL[;:]/i));
   expect('linkedin', c.linkedin, vcfValues(vcfText, /^item\d+\.URL:/i));
   expect('github', c.github, vcfValues(vcfText, /^item\d+\.URL:/i));
   problems.push(...checkWorkRegion(c.workRegion, vcfText));

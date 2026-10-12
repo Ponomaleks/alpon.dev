@@ -196,7 +196,7 @@ describe('Shell samples (AC-21, SCR-04)', () => {
       expect(b).not.toContain('data-shell-bar');
       expect(b).not.toContain('fj-btn--primary');
       expect(b).toContain('View CV');
-      expect(b).toContain('Save contact (.vcf)');
+      expect(b).toContain('Add to contacts');
     }
   });
 
@@ -213,12 +213,12 @@ describe('Shell samples (AC-21, SCR-04)', () => {
       .slice(1)
       .filter((b) => b.includes('fj-band'));
     const dflt = bands.filter((b) => b.includes('Get in touch'));
-    const home = bands.filter((b) => b.includes('Save contact (.vcf)'));
+    const home = bands.filter((b) => b.includes('Add to contacts'));
     expect(dflt.length).toBeGreaterThanOrEqual(1);
     expect(home.length).toBeGreaterThanOrEqual(1);
     for (const b of dflt) {
       expect(b).toContain('Download CV');
-      expect(b).not.toContain('Save contact');
+      expect(b).not.toContain('Add to contacts');
       expect(b.match(/fj-btn--primary/g)).toHaveLength(1);
     }
     for (const b of home) {
@@ -297,6 +297,7 @@ const HOME_SECTIONS = [
   'Quick facts',
   'Experience list',
   'Contact list',
+  'Save contact sheet',
   'QR tile',
   'Mail-link sentence',
 ];
@@ -355,15 +356,18 @@ describe('home component sections (T16, SCR-04)', () => {
     expect(s).toMatch(/<summary\b[^>]*data-demo-state="focus"/);
   });
 
-  it('shows the Contact list: five rows, Copy in three states, Save contact', () => {
+  it('shows the Contact list: five rows, Copy in three states, Add to contacts', () => {
     const s = homeContactList();
     expect(s.match(/<dt\b/g)).toHaveLength(5);
     expect(s).toContain('Copy');
     for (const st of ['default', 'hover', 'focus'])
       expect(s).toMatch(new RegExp(String.raw`data-copy-state="${st}"|data-demo-state="${st}"`));
-    expect(s).toContain('Save contact (.vcf)');
+    expect(s).toContain('Add to contacts');
     expect(s).toContain('href="/alexander-ponomarenko.vcf"');
     expect(s).toMatch(/<span\b[^>]*lang="no"[^>]*>\s*Oslo, Norge/);
+    // save-contact-hint AC-10: the inline note, drawn on every device here.
+    expect(s).toMatch(/<p\b[^>]*class="save-note save-note--sample"/);
+    expect(s).toContain('Downloads a contact card. Open it from Downloads to add.');
   });
 
   // Design fixes (T14): the row label, the design's copy control and the add-to-contacts icon.
@@ -460,7 +464,7 @@ describe('changed base samples (T17, SCR-04)', () => {
       expect(s).toMatch(new RegExp(String.raw`<code\b[^>]*>${n}</code>`));
   });
 
-  it('lists the user-plus icon of "Save contact (.vcf)"', () => {
+  it('lists the user-plus icon of "Add to contacts"', () => {
     expect(section('Icon')).toMatch(/<code\b[^>]*>user-plus<\/code>/);
   });
 
@@ -717,11 +721,11 @@ describe('CV component sections (T24, SCR-04)', () => {
     expect(cv[0]).toContain('data-sample');
   });
 
-  it('shows the Contact list CV form in English and in Norwegian, with no Save contact', () => {
+  it('shows the Contact list CV form in English and in Norwegian, with no Add to contacts', () => {
     const forms = section('Contact list')
       .split(/(?=<div\b[^>]*\sdata-sample[\s>])/)
       .filter((b) => b.includes('Bosted') || b.includes('Telefon') || b.includes('Based in'));
-    const text = forms.filter((b) => !b.includes('Save contact')).join('\n');
+    const text = forms.filter((b) => !b.includes('Add to contacts')).join('\n');
     for (const w of ['Based in', 'Bosted', 'E-post', 'Telefon', 'Kopier'])
       expect(text).toContain(w);
     expect(text).toMatch(/lang="no"/);

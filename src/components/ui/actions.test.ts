@@ -26,7 +26,7 @@ const ICONS = [
   'chevron-up',
   'copy',
   'download',
-  // Design fix (T14): "Save contact (.vcf)" uses the design's add-to-contacts glyph.
+  // Design fix (T14): "Add to contacts" uses the design's add-to-contacts glyph.
   'user-plus',
   'mail',
   'phone',

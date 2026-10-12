@@ -47,7 +47,7 @@ for (const { name, path } of pages) {
       const bar = page.locator(BAR);
       await expect(bar).toBeVisible();
       await expect(bar.getByRole('link', { name: 'View CV' })).toBeVisible();
-      await expect(bar.getByRole('link', { name: 'Save contact (.vcf)' })).toBeVisible();
+      await expect(bar.getByRole('link', { name: 'Add to contacts (vCard file)' })).toBeVisible();
       await expect(bar.getByRole('link', { name: 'Get in touch' })).toHaveCount(0);
       const box = await barBox(page);
       expect(Math.round(box.y + box.height)).toBe(844);
@@ -91,12 +91,14 @@ test.describe('the bar actions are secondary, with a contact card download (AC-3
   test.use({ reducedMotion: 'reduce' });
 
   for (const { name, path } of pages) {
-    test(`${name}: "View CV" and "Save contact (.vcf)", both secondary`, async ({ page }) => {
+    test(`${name}: "View CV" and "Add to contacts (vCard file)", both secondary`, async ({
+      page,
+    }) => {
       await open(page, path);
       const bar = page.locator(BAR);
       await expect(bar.getByRole('link')).toHaveCount(2);
       const cv = bar.getByRole('link', { name: 'View CV' });
-      const save = bar.getByRole('link', { name: 'Save contact (.vcf)' });
+      const save = bar.getByRole('link', { name: 'Add to contacts (vCard file)' });
       await expect(cv).toHaveAttribute('href', '/cv/en');
       await expect(save).toHaveAttribute('href', '/alexander-ponomarenko.vcf');
       await expect(save).toHaveAttribute('download', /.*/);
@@ -106,10 +108,10 @@ test.describe('the bar actions are secondary, with a contact card download (AC-3
       }
     });
 
-    test(`${name}: "Save contact (.vcf)" downloads the contact card`, async ({ page }) => {
+    test(`${name}: "Add to contacts (vCard file)" downloads the contact card`, async ({ page }) => {
       await open(page, path);
       const downloading = page.waitForEvent('download');
-      await page.locator(BAR).getByRole('link', { name: 'Save contact (.vcf)' }).click();
+      await page.locator(BAR).getByRole('link', { name: 'Add to contacts (vCard file)' }).click();
       const download = await downloading;
       expect(download.suggestedFilename()).toMatch(/\.vcf$/);
     });
@@ -248,7 +250,7 @@ async function expectExpanded(page: Page, expanded: boolean) {
   if (expanded) await expect(bar).toHaveAttribute('open', '');
   else await expect(bar).not.toHaveAttribute('open', /.*/);
   await expect(bar.getByRole('link', { name: 'View CV' })).toBeVisible({ visible: expanded });
-  await expect(bar.getByRole('link', { name: 'Save contact (.vcf)' })).toBeVisible({
+  await expect(bar.getByRole('link', { name: 'Add to contacts (vCard file)' })).toBeVisible({
     visible: expanded,
   });
   await expect(page.locator(TAB)).toBeVisible();

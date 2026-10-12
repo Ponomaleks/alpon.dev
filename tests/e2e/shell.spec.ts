@@ -144,9 +144,9 @@ for (const { name, path, band } of pages) {
       await expect(heading).toBeVisible();
       const section = page.locator('section.fj-band');
       await expect(section.getByText(/hiring in the Oslo area/)).toBeVisible();
-      // The home page gives the band its own pair (home spec AC-11): Save contact, Download CV.
+      // The home page gives the band its own pair (home spec AC-11): Add to contacts, Download CV.
       if (path === '/') {
-        await expect(section.getByRole('link', { name: 'Save contact' })).toHaveAttribute(
+        await expect(section.getByRole('link', { name: 'Add to contacts' })).toHaveAttribute(
           'href',
           '/alexander-ponomarenko.vcf',
         );
@@ -252,14 +252,14 @@ test.describe('scripts off at 390 (AC-06)', () => {
   test.use({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
 
   for (const { name, path } of pages) {
-    test(`${name}: the bar offers "View CV" and "Save contact (.vcf)"; script-only controls leave no gap`, async ({
+    test(`${name}: the bar offers "View CV" and "Add to contacts (vCard file)"; script-only controls leave no gap`, async ({
       page,
     }) => {
       await page.goto(path);
       const bar = page.locator('[data-shell-bar]');
       await expect(bar).toBeInViewport();
       await expect(bar.getByRole('link', { name: 'View CV' })).toHaveAttribute('href', '/cv/en');
-      await expect(bar.getByRole('link', { name: 'Save contact (.vcf)' })).toHaveAttribute(
+      await expect(bar.getByRole('link', { name: 'Add to contacts (vCard file)' })).toHaveAttribute(
         'href',
         '/alexander-ponomarenko.vcf',
       );

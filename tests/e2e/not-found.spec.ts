@@ -93,7 +93,7 @@ test.describe('layout and the bar (AC-17)', () => {
       }
     });
 
-    test(`at ${width}px the sticky bar holds "View CV" and "Save contact (.vcf)", both secondary (AC-38)`, async ({
+    test(`at ${width}px the sticky bar holds "View CV" and "Add to contacts (vCard file)", both secondary (AC-38)`, async ({
       page,
     }) => {
       await page.setViewportSize({ width, height: 900 });
@@ -105,7 +105,7 @@ test.describe('layout and the bar (AC-17)', () => {
       }
       await expect(links).toHaveCount(2);
       await expect(links.nth(0)).toHaveAccessibleName('View CV');
-      await expect(links.nth(1)).toHaveAccessibleName('Save contact (.vcf)');
+      await expect(links.nth(1)).toHaveAccessibleName('Add to contacts (vCard file)');
       await expect(links.nth(1)).toHaveAttribute('href', '/alexander-ponomarenko.vcf');
       await expect(links.nth(1)).toHaveAttribute('download', /.*/);
       await expect(page.locator('.mobile-bar .fj-btn--primary')).toHaveCount(0);
