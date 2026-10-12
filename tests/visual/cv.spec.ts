@@ -1,5 +1,5 @@
 import { existsSync } from 'node:fs';
-import { expect, test } from '@playwright/test';
+import { expect, test } from '../fixtures';
 
 // SCR-05 / SCR-06 visual regression (cv AC-24, AC-29; spec §6): the content of each CV page at
 // 390 / 834 / 1440 × Dag / Natt, with the Original PDF preview closed and open, motion off,

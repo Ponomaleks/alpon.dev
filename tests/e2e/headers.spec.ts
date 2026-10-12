@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { readdirSync, readFileSync } from 'node:fs';
-import { expect, test } from '@playwright/test';
+import { expect, test } from '../fixtures';
 
 // The delivered security policy (AC-09, AC-12; ADR-0002): one CSP header with the current
 // bootstrap hash on every response, and the browser refuses anything else.

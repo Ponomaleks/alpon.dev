@@ -1,4 +1,4 @@
-import { expect, test, type BrowserContext, type Page } from '@playwright/test';
+import { expect, test, type BrowserContext, type Page } from '../fixtures';
 import { platformFonts } from './platform-fonts.ts';
 
 // Theme from the first frame (AC-01..AC-04, sad QG-1): stored Theme choice × device preference,

@@ -1,5 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page } from '../fixtures';
 
 // Zero axe violations on / in Dag and Natt, with scripts on, with scripts off, and with a second
 // experience entry open (AC-32, spec §6 Accessibility). The page is scanned as built, with the

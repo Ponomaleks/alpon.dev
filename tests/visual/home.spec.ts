@@ -1,5 +1,5 @@
 import { existsSync } from 'node:fs';
-import { expect, test } from '@playwright/test';
+import { expect, test } from '../fixtures';
 
 // SCR-01 home visual regression (AC-38, spec §6, sad §10): one capture per section at
 // 390 / 834 / 1440 × Dag / Natt with motion off, ≤ 0.1 % differing pixels against approved Linux

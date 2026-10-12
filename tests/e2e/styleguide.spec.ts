@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from '../fixtures';
 
 // SCR-04 reachability (AC-22): the Styleguide exists but nothing leads to it.
 

@@ -1,5 +1,5 @@
 import { existsSync } from 'node:fs';
-import { expect, test } from '@playwright/test';
+import { expect, test } from '../fixtures';
 import { SECTIONS } from './styleguide-sections.ts';
 
 // /styleguide visual regression (AC-17, spec §6, sad §10): one capture per data-section at

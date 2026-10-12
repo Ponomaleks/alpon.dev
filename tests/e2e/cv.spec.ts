@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page } from '../fixtures';
 
 // The two CV pages end to end (AC-01 to AC-05, AC-16, AC-23, AC-24; screens SCR-05 / SCR-06): the
 // order and labels of the content, the side column from 1024, the downloads, the Shell's CV links

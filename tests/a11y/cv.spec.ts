@@ -1,5 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page } from '../fixtures';
 
 // Zero axe violations on /cv/en and /cv/no (AC-24, spec §6 Accessibility): Dag and Natt, scripts
 // on and off, Original PDF preview closed and open, at 390 and 1440 (16 combinations per page).

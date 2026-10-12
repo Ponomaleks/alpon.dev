@@ -1,4 +1,4 @@
-import { expect, test, type Browser, type Page } from '@playwright/test';
+import { expect, test, type Browser, type Page } from '../fixtures';
 import { platformFonts } from './platform-fonts.ts';
 
 // Brand fonts (AC-05, AC-06, AC-15; sad QG-2): two preloaded variable files (home sad §1 Decision

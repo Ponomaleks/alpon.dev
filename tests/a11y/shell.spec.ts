@@ -1,5 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page } from '../fixtures';
 
 // Zero axe violations on /, the Not-found page and /styleguide in Dag and Natt, and on / with
 // the mobile menu panel open (AC-21, AC-04, AC-17; spec §6 Accessibility).

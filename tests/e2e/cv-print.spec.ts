@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page } from '../fixtures';
 
 // The printed CV (AC-11, AC-12, AC-27, AC-06; screens SCR-05 / SCR-06 `print offered`, `print not
 // offered`, `print (document)`, `contact line on screen`; sad §8 Print; ADR-0002). Print media is

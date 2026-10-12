@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page } from '../fixtures';
 
 // SCR-02 end to end (AC-17, AC-18, AC-19) and reduced motion on both pages (AC-14).
 

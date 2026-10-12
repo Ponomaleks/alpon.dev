@@ -1,5 +1,5 @@
 import { existsSync } from 'node:fs';
-import { expect, test } from '@playwright/test';
+import { expect, test } from '../fixtures';
 
 // SCR-02 visual regression (spec §6, sad §10): 390 / 834 / 1440 × Dag / Natt, ≤ 0.1 % differing
 // pixels against approved Linux baselines. Baselines and comparisons both run in the official

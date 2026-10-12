@@ -1,4 +1,4 @@
-import { expect, test, type Locator, type Page } from '@playwright/test';
+import { expect, test, type Locator, type Page } from '../fixtures';
 
 // The Shell's contact links end at the contact place (home T23): AC-18. From the home page and from
 // the Not-found page, "Contact" and "Get in touch" in the header and in the mobile menu arrive at the

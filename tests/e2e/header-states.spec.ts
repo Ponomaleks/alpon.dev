@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page } from '../fixtures';
 
 // The 18 header states of the home page (AC-33, spec section 6 "Header states", ADR-0001):
 // 3 widths x 2 themes x 3 positions, asserted by computed style at fixed scroll positions, never

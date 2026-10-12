@@ -1,4 +1,4 @@
-import { expect, test, type Locator, type Page } from '@playwright/test';
+import { expect, test, type Locator, type Page } from '../fixtures';
 
 // Sizes of the Shell that CSS fixes, taken from the page design (design system Header, .fj-btn--sm, .fj-seg,
 // .fj-footer, .fj-band and site.css). Where the design draws a control lower than 44 px, the

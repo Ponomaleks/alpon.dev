@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page } from '../fixtures';
 
 // BackToTop end to end (cv T31): AC-21, AC-22; SCR-01 states back-to-top absent / hidden at the
 // top / shown / always shown / activated / clearance; wireframe W-6. Below 768 the corner belongs

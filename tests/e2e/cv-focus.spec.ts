@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from '../fixtures';
 
 // Visible focus on the content of the CV pages (cv AC-24; review R1-6). axe does not check focus
 // rings, so the page is walked with Tab, with the Original PDF preview open, and the computed

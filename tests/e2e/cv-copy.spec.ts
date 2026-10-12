@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from '../fixtures';
 
 // The copy-email action on the CV pages (AC-04, AC-23; screens SCR-05 / SCR-06 `copy offered /
 // success`; home spec D-18): "Copied" on the English page, "Kopiert" with the Toast message marked

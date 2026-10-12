@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page } from '../fixtures';
 
 // The sheet of "Add to contacts" end to end (save-contact-hint T5): AC-03 opening with the
 // download, AC-04 closing and focus, AC-05 where it must not open. The mobile project is the

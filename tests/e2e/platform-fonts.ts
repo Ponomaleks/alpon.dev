@@ -1,4 +1,4 @@
-import type { Page } from '@playwright/test';
+import type { Page } from '../fixtures';
 
 /** The platform fonts Chromium actually draws a node's text with (CDP), not the declared stack. */
 export async function platformFonts(page: Page, selector: string) {

@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from '../fixtures';
 
 // AC-32, AC-28: what the browser computes from the shipped rules, checked without waiting for a
 // transition to happen. Whether Chromium carries a cross-document view transition on a given

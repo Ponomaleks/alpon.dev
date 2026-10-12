@@ -1,4 +1,4 @@
-import { expect, test, type Locator, type Page } from '@playwright/test';
+import { expect, test, type Locator, type Page } from '../fixtures';
 
 // Rendered checks of two components on the Styleguide (AC-21): the Stat row never lets a value
 // leave its column, and the theme switch has the look of the page design's segmented control.

@@ -33,6 +33,25 @@ export default defineConfig(
     rules: { 'no-empty': 'off', '@typescript-eslint/no-unused-vars': 'off' },
   },
   {
+    // Every Playwright file takes `test` from the shared fixture, which answers requests to the
+    // Web Analytics host locally (release-1 D-03). The fixture re-exports the rest of the package.
+    files: ['tests/**/*.ts'],
+    ignores: ['tests/fixtures.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: '@playwright/test',
+              message: "Import from 'tests/fixtures' instead (release-1 D-03).",
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
     // CommonJS config files (lighthouserc.cjs): LHCI loads them with require().
     files: ['**/*.cjs'],
     languageOptions: { sourceType: 'commonjs' },

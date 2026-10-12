@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs';
-import { expect, test } from '@playwright/test';
+import { expect, test } from '../fixtures';
 
 // One test per item in docs/stub-parity.md. `active` items must pass from scaffold on.
 // `fixme` items wait for the feature spec that builds them; that spec flips them to `test`.

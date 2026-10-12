@@ -1,5 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test, type Locator, type Page } from '@playwright/test';
+import { expect, test, type Locator, type Page } from '../fixtures';
 
 // Recommendations on the home page (home T31): "Show more" / "Show less" on a long quote (AC-09,
 // D-19) and the carousel that goes round (AC-42, D-20). The page holds two Recommendations, so the
