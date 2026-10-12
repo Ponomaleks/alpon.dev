@@ -63,17 +63,6 @@ const Root = sample ? 'div' : 'dialog';
   </div>
 </Root>
 
-<script>
-  import { initMenu } from '../../scripts/shell/menu';
-
-  const dialog = document.querySelector<HTMLDialogElement>('dialog#mobile-menu');
-  const button = document.querySelector<HTMLButtonElement>('[aria-controls="mobile-menu"]');
-  if (dialog && button) {
-    initMenu(dialog, button, window.matchMedia('(min-width: 768px)'));
-    dialog.querySelector('.fj-iconbtn')?.addEventListener('click', () => dialog.close());
-  }
-</script>
-
 <style is:global>
   .menu {
     position: relative;

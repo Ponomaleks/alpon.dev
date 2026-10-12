@@ -95,14 +95,6 @@ const links = [
   </div>
 </header>
 
-<script>
-  import { observeHeader } from '../../scripts/shell/header';
-
-  const header = document.querySelector('[data-header]');
-  const sentinel = document.querySelector('[data-header-sentinel]');
-  if (header && sentinel && 'IntersectionObserver' in window) observeHeader(header, sentinel);
-</script>
-
 <style>
   .header-sentinel {
     position: absolute;

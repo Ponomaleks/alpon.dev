@@ -13,7 +13,7 @@ This feature is small (XS): like save-contact-hint it has no `sad.md` and no ADR
 | T2 | Answer requests to the Web Analytics host locally in every Playwright test | tests | T1 | done |
 | T3 | Add the Web Analytics script to every page and name it in the security policy | wiring | T2 | done |
 | T4 | Block the address of the Web Analytics script in Lighthouse CI | infra | T3 | done |
-| T5 | Load the Shell scripts as one file | wiring | T3 | todo |
+| T5 | Load the Shell scripts as one file | wiring | T3 | done |
 | T6 | Generate the contour image in the spruce tone | infra | T1 | todo |
 | T7 | Show the contours of the closing band and the mobile menu from the lazy image | ui | T5, T6 | todo |
 | T8 | Measure the built levers and record the numbers | tests | T4, T7 | todo |

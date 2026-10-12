@@ -65,46 +65,6 @@ const { actions, sample = false, collapsed = false, lang } = Astro.props;
   )}
 </details>
 
-<script>
-  import { applyBarAction, decideBar } from '../../scripts/shell/action-bar';
-
-  const bar = document.querySelector<HTMLElement>('[data-shell-bar]');
-  if (bar) {
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
-    let prev = window.scrollY;
-    let queued = false;
-
-    const update = () => {
-      queued = false;
-      const next = window.scrollY;
-      applyBarAction(
-        bar,
-        decideBar({
-          prev,
-          next,
-          // Keyboard focus only (G-4): a pointer tap on the tab leaves focus there but is not keyboard use.
-          focusInside:
-            bar.contains(document.activeElement) &&
-            (document.activeElement?.matches(':focus-visible') ?? false),
-          reducedMotion: reduced.matches,
-        }),
-      );
-      // Keep the reference only after a decision that acted on it, so small steps add up.
-      if (Math.abs(next - prev) >= 8 || next < 40) prev = next;
-    };
-
-    window.addEventListener(
-      'scroll',
-      () => {
-        if (queued) return;
-        queued = true;
-        requestAnimationFrame(update);
-      },
-      { passive: true },
-    );
-  }
-</script>
-
 <style>
   .mobile-bar {
     position: fixed;

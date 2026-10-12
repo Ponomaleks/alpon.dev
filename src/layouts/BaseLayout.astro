@@ -146,6 +146,10 @@ const structuredDataJson = structuredData
     {backToTop && <BackToTop lang={shellLang} />}
     {mobileBar && <MobileBar actions={mobileBarActions} lang={shellLang} />}
     <Toast lang={shellLang} />
+    {/* The Shell's one script file (release-1 D-06 a): header, menu, theme switch, action bar, Toast. */}
+    <script>
+      import '../scripts/shell/start';
+    </script>
     {/* Cloudflare Web Analytics, as the dashboard issues it for alpon.dev, the last element of
          the body (release-1 D-01). The token is public. public/_headers names the file (D-02). */}
     <script
