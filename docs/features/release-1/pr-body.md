@@ -43,13 +43,13 @@ The `visual` job compares with the committed Linux baselines. If it reports a di
 
 ## Tests
 
-On the final state, in one chain before the push:
+On the final state (with the fix of the Styleguide script, 2026-10-13), in one chain before the push:
 
 - Lint (`npm run lint`): exit 0.
 - Unit (`npm run test:unit`): 1370 passed, 73 files.
 - Build, `check:budgets`: within limits. Initial JS of `/` 5.5 KB gzip, Shell scripts 1.7 KB gzip on every page.
 - Playwright, full local run with `--workers=4`: 1991 passed, 195 skipped, 0 failed. `tests/e2e/parity.spec.ts` has no `test.fixme`.
-- Lighthouse CI (`npm run lhci`, `/`, `/404`, `/cv/en`, `/cv/no`, 3 runs each): all assertions passed; `/` 1817, 1819 and 1821 ms (the "final" run of spec §1.5; the run at e4bf9fb, after the T8 measurement, gave 1812, 1816 and 1817 ms).
+- Lighthouse CI (`npm run lhci`, `/`, `/404`, `/cv/en`, `/cv/no`, 3 runs each): all assertions passed; `/` 1815, 1815 and 1829 ms, `/404` 1660 to 1664 ms, `/cv/en` 1815 to 1816 ms, `/cv/no` 1664 to 1667 ms. Earlier runs: `/` 1817, 1819 and 1821 ms (the "final" run of spec §1.5) and 1812, 1816 and 1817 ms (at e4bf9fb, after the T8 measurement).
 
 Notes on the work:
 
@@ -57,6 +57,19 @@ Notes on the work:
 - The e2e tests of the contour image were first run after the image was built; their unit counterparts failed first.
 - The first run of the final gate stopped before the push: one Playwright test failed once, "[desktop] primary-count.spec.ts:88 home: bar scrolled away, the header action is primary, bar actions not focusable" (`Timeout 5000ms exceeded while waiting on the predicate`). It passed in the two full runs before and in 40 of 40 repeats after; it is recorded as a suspected flake in backlog B-93, and the whole gate was run again. The order of the Shell script and the page script (T5) was checked against what the test waits for, on the builds before and after T5: no link was found, and B-93 stays open with what was checked.
 - One unit run failed in two build tests while a second unit run of mine was running beside it; alone the suite passed (1360 of 1360 at that commit). Two builds at once share Astro's caches (the family of B-46 and B-68).
+
+## Check on the running site (ship, 2026-10-13)
+
+After the review (round 1, `docs/features/release-1/_review/review-2026-10-12.md`, PASS) the built site was served by `wrangler dev` and read with `curl` and in a browser at 1024:
+
+- AC-01: `/`, `/cv/en`, `/cv/no` and an address that does not exist hold the script once, as the last element of the body, and no other script from another origin. On `/styleguide` the script was there once but **not last**: the page's own script, declared after the layout, followed it. Fixed in this pull request (Owner, 2026-10-13, "Fix now"): the script of the Styleguide is inside the layout, and the test on the built pages now asserts the last element of the body on every page (it failed on `styleguide.html` first).
+- AC-02: all five responses, the 404 included, carry one `Content-Security-Policy` header with `script-src 'self' 'sha256-…' https://static.cloudflareinsights.com/beacon.min.js` and `connect-src 'self' https://cloudflareinsights.com`.
+- AC-03: an inline script and a script from `https://example.com` added to the home page were both refused (`securitypolicyviolation`, `script-src-elem`); the inline one did not run.
+- AC-06: after the load of the home page no request for `contours-ridge-spruce.svg` was made; after scrolling to the closing band there was one. Opening the mobile menu was not repeated by hand; `tests/e2e/contour-image.spec.ts` covers it.
+- AC-07: the three pages carry the approved texts, and `og:description` equals the description on each.
+- The browser loaded the real script, and it posted to `https://cloudflareinsights.com/cdn-cgi/rum` with no policy violation. These few local loads are counted under the token (AC-12: the numbers are read with the host filter).
+
+Not checked here: AC-09 (the merge part) to AC-12, which need alpon.dev (T12, T13).
 
 ## Conflicts with the design
 
