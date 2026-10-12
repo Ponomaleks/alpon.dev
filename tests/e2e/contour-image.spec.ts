@@ -81,8 +81,9 @@ test.describe('the contour image is asked for only when it is needed (AC-06)', (
     expect(response.headers()['cache-control']).toBe('public, max-age=604800');
   });
 
+  // The colour of the rings is held by tools/contour-image.test.ts and the visual baselines.
   for (const theme of ['dag', 'natt'] as const) {
-    test(`the rings keep the spruce tone in ${theme}: the image does not follow the theme`, async ({
+    test(`the lazy image has no filter, opacity or blend mode in ${theme}: it does not follow the theme`, async ({
       page,
     }) => {
       await page.addInitScript((t) => localStorage.setItem('fjord-theme', t), theme);

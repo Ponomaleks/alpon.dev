@@ -49,7 +49,7 @@ On the final state, in one chain before the push:
 - Unit (`npm run test:unit`): 1370 passed, 73 files.
 - Build, `check:budgets`: within limits. Initial JS of `/` 5.5 KB gzip, Shell scripts 1.7 KB gzip on every page.
 - Playwright, full local run with `--workers=4`: 1991 passed, 195 skipped, 0 failed. `tests/e2e/parity.spec.ts` has no `test.fixme`.
-- Lighthouse CI (`npm run lhci`, `/`, `/404`, `/cv/en`, `/cv/no`, 3 runs each): all assertions passed; `/` 1812, 1816 and 1817 ms.
+- Lighthouse CI (`npm run lhci`, `/`, `/404`, `/cv/en`, `/cv/no`, 3 runs each): all assertions passed; `/` 1817, 1819 and 1821 ms (the "final" run of spec §1.5; the run at e4bf9fb, after the T8 measurement, gave 1812, 1816 and 1817 ms).
 
 Notes on the work:
 
