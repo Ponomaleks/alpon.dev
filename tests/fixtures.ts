@@ -1,4 +1,4 @@
-import { test as base, type Browser } from '@playwright/test';
+import { test as base, type Browser, type Page } from '@playwright/test';
 
 export * from '@playwright/test';
 
@@ -30,3 +30,20 @@ export const test = base.extend<object, { browser: Browser }>({
     { scope: 'worker' },
   ],
 });
+
+/**
+ * Loads the contour image of the closing band and of the mobile menu now, without scrolling, and
+ * waits until it can be painted (release-1 D-10). The image is lazy: a capture taken before it
+ * arrives would show a band without its rings. The visual tests call this before a capture.
+ */
+export async function contourImagesShown(page: Page): Promise<void> {
+  await page.evaluate(async () => {
+    const images = [...document.querySelectorAll<HTMLImageElement>('img.contours__image')];
+    await Promise.all(
+      images.map((img) => {
+        img.loading = 'eager';
+        return img.decode();
+      }),
+    );
+  });
+}

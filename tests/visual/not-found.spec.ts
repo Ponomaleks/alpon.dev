@@ -1,5 +1,5 @@
 import { existsSync } from 'node:fs';
-import { expect, test } from '../fixtures';
+import { contourImagesShown, expect, test } from '../fixtures';
 
 // SCR-02 visual regression (spec §6, sad §10): 390 / 834 / 1440 × Dag / Natt, ≤ 0.1 % differing
 // pixels against approved Linux baselines. Baselines and comparisons both run in the official
@@ -38,6 +38,7 @@ test.describe('Not-found page visual baselines', () => {
           await page.addInitScript((t) => localStorage.setItem('fjord-theme', t), theme);
           await page.goto('/does-not-exist');
           await page.evaluate(() => document.fonts.ready);
+          await contourImagesShown(page);
           await expect(page).toHaveScreenshot(name, {
             fullPage: true,
             maxDiffPixelRatio: 0.001,

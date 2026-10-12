@@ -1,5 +1,5 @@
 import { existsSync } from 'node:fs';
-import { expect, test } from '../fixtures';
+import { contourImagesShown, expect, test } from '../fixtures';
 import { SECTIONS } from './styleguide-sections.ts';
 
 // /styleguide visual regression (AC-17, spec §6, sad §10): one capture per data-section at
@@ -33,6 +33,7 @@ test.describe('Styleguide visual baselines', () => {
           await page.addInitScript((t) => localStorage.setItem('fjord-theme', t), theme);
           await page.goto('/styleguide');
           await page.evaluate(() => document.fonts.ready);
+          await contourImagesShown(page);
           await expect(page.locator('[data-section]')).toHaveCount(SECTIONS.length);
           for (const section of SECTIONS) {
             const name = `styleguide-${slug(section)}-${theme}-${width}.png`;

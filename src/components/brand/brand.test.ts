@@ -65,6 +65,45 @@ describe.each(['ridge', 'corner'])('Contours variant "%s"', (variant) => {
   });
 });
 
+// release-1 AC-06, D-10: the ridge in the spruce tone can come from the generated image file.
+describe('Contours from the image file (release-1 D-10)', () => {
+  const props = { variant: 'ridge', tone: 'spruce', image: true };
+
+  it('renders a lazy, decorative <img> inside the layer and no inline SVG', async () => {
+    const html = markup(await render('Contours', props));
+    expect(html).toMatch(/<div\b[^>]*class="[^"]*\bcontours\b[^"]*"[^>]*aria-hidden="true"/);
+    const img = html.match(/class="[^"]*contours__layer[^"]*"[^>]*>\s*(<img\b[^>]*>)/)?.[1] ?? '';
+    expect(img).toMatch(/\ssrc="\/img\/contours-ridge-spruce\.svg"/);
+    expect(img).toMatch(/\sloading="lazy"/);
+    expect(img).toMatch(/\salt=""/);
+    expect(img).not.toMatch(/\sstyle=/);
+    expect(html).not.toContain('<svg');
+    expect(html).not.toContain('<path');
+  });
+
+  it.each([
+    ['bottom-left', []],
+    ['bottom-right', ['contours__image--flip-x']],
+    ['top-left', ['contours__image--flip-y']],
+    ['top-right', ['contours__image--flip-x', 'contours__image--flip-y']],
+  ])('mirrors the image for the anchor %s', async (anchor, flips) => {
+    const html = markup(await render('Contours', { ...props, anchor }));
+    const classes = (html.match(/<img\b[^>]*class="([^"]*)"/)?.[1] ?? '').split(/\s+/);
+    expect(classes.filter((c) => c.startsWith('contours__image--')).sort()).toEqual(flips);
+  });
+
+  it('is refused for another shape or tone: the file holds the ridge in the spruce tone only', async () => {
+    await expect(render('Contours', { ...props, variant: 'corner' })).rejects.toThrow(/image/);
+    await expect(render('Contours', { ...props, tone: 'auto' })).rejects.toThrow(/image/);
+  });
+
+  it('stays inline without the option', async () => {
+    const html = markup(await render('Contours', { variant: 'ridge', tone: 'spruce' }));
+    expect(html).toContain('<svg');
+    expect(html).not.toContain('<img');
+  });
+});
+
 describe('TerrainMap panel', () => {
   it('is hidden from assistive technology as a whole, inline SVG, class-based colours', async () => {
     const html = await render('TerrainMap');

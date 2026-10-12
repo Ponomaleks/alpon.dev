@@ -147,6 +147,25 @@ describe('built index.html, page options (AC-11, AC-40)', () => {
     expect(html()).toContain('<title>Alexander Ponomarenko · Software Engineer</title>');
   });
 
+  // release-1 AC-06, D-10: only the contours below the first screen leave the HTML.
+  it('keeps the hero contours inline and takes the other two from the lazy image', () => {
+    const hero = html().match(/<section\b[^>]*class="[^"]*\bhero\b[\s\S]*?<\/section>/)?.[0] ?? '';
+    expect(hero).toMatch(/data-contours-parallax/);
+    expect(hero.match(/contours__group/g)).toHaveLength(1);
+    expect(hero.match(/<path\b[^>]*vector-effect="non-scaling-stroke"/g)?.length).toBeGreaterThan(
+      3,
+    );
+    expect(hero).not.toContain('contours-ridge-spruce.svg');
+    // The whole page: the hero's group is the only inline one; the menu and the band hold the image.
+    expect(html().match(/contours__group/g)).toHaveLength(1);
+    const images = html().match(/<img\b[^>]*contours-ridge-spruce\.svg[^>]*>/g) ?? [];
+    expect(images).toHaveLength(2);
+    for (const img of images) {
+      expect(img).toMatch(/\sloading="lazy"/);
+      expect(img).toMatch(/\salt=""/);
+    }
+  });
+
   it('carries one ld+json Person block', () => {
     const blocks = [
       ...html().matchAll(/<script\b[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g),

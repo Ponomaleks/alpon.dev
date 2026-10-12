@@ -1,5 +1,5 @@
 import { existsSync } from 'node:fs';
-import { expect, test } from '../fixtures';
+import { contourImagesShown, expect, test } from '../fixtures';
 
 // SCR-01 home visual regression (AC-38, spec §6, sad §10): one capture per section at
 // 390 / 834 / 1440 × Dag / Natt with motion off, ≤ 0.1 % differing pixels against approved Linux
@@ -47,6 +47,7 @@ test.describe('Home visual baselines', () => {
             await page.addInitScript((t) => localStorage.setItem('fjord-theme', t), theme);
             await page.goto('/');
             await page.evaluate(() => document.fonts.ready);
+            await contourImagesShown(page);
             const target = page.locator(selector);
             await target.scrollIntoViewIfNeeded();
             await expect(target).toHaveScreenshot(name, {
@@ -90,6 +91,7 @@ test.describe('Contact card sheet visual baselines', () => {
           await page.addInitScript((t) => localStorage.setItem('fjord-theme', t), theme);
           await page.goto('/');
           await page.evaluate(() => document.fonts.ready);
+          await contourImagesShown(page);
           const sheet = page.locator('#save-contact-sheet');
           await sheet.evaluate((el) => (el as HTMLDialogElement).showModal());
           // The button takes focus on opening; a baseline without the focus ring is steadier.
