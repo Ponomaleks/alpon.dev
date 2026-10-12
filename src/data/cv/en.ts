@@ -7,7 +7,7 @@ export const cvEn: Cv = {
   lang: 'en',
   title: 'CV · Alexander Ponomarenko',
   description:
-    'CV of Alexander Ponomarenko, frontend developer with backend experience: skills, work experience and education. Read it here or download the PDF.',
+    'Frontend developer with backend experience: skills, work experience and education. Read it here or download the PDF.',
   location: '1482 Nittedal, Norway',
   permit: 'Norwegian work permit',
   labels: {

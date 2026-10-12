@@ -133,6 +133,20 @@ describe('built index.html, page options (AC-11, AC-40)', () => {
     expect(band).not.toContain('Get in touch');
   });
 
+  // release-1 AC-07, AC-08: the text the Owner approved on 2026-10-12. It says what the page
+  // holds and does not repeat the name; the title is as before.
+  it('has the approved description, without the name, and the same one for the link preview', () => {
+    const DESCRIPTION =
+      'Full stack developer in the Oslo area, open to work. React, Angular, TypeScript and Python. Key facts, background, experience and contact details.';
+    const content = (key: string, value: string) =>
+      html().match(new RegExp(`<meta\\b[^>]*${key}="${value}"[^>]*content="([^"]*)"`))?.[1];
+    expect(content('name', 'description')).toBe(DESCRIPTION);
+    expect(content('property', 'og:description')).toBe(DESCRIPTION);
+    expect(DESCRIPTION).not.toMatch(/Alexander|Ponomarenko/);
+    expect(DESCRIPTION.length).toBeLessThanOrEqual(160);
+    expect(html()).toContain('<title>Alexander Ponomarenko · Software Engineer</title>');
+  });
+
   it('carries one ld+json Person block', () => {
     const blocks = [
       ...html().matchAll(/<script\b[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g),
