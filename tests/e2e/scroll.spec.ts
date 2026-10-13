@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from '../fixtures';
 
 // Moves inside a page scroll smoothly, as in the page design (`behavior: 'smooth'` in ext.jsx),
 // and at once under reduced motion (Owner, 2026-10-10). One CSS rule on the root, no script: the

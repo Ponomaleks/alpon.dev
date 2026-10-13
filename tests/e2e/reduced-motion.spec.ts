@@ -1,4 +1,4 @@
-import { devices, expect, test, type Locator, type Page } from '@playwright/test';
+import { devices, expect, test, type Locator, type Page } from '../fixtures';
 
 // Reduced motion on the Shell parts (base-components T20): AC-28, AC-30. Nothing slides, grows or
 // loops: no transform change and no running animation on a transform-like property.

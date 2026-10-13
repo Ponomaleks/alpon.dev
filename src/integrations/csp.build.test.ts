@@ -4,6 +4,7 @@ import {
   cpSync,
   existsSync,
   mkdtempSync,
+  readdirSync,
   readFileSync,
   rmSync,
   symlinkSync,
@@ -91,6 +92,43 @@ describe('the real build', () => {
     );
     expect(delivered).toEqual(expected);
     expect(csp).not.toMatch(/unsafe-inline|unsafe-eval|\*/);
+  });
+
+  it('every page loads the Web Analytics script once, as the last element of the body, and no other script from another origin (release-1 AC-01)', () => {
+    const pages = readdirSync(out, { recursive: true, encoding: 'utf8' }).filter((file) =>
+      file.endsWith('.html'),
+    );
+    expect(pages.length).toBeGreaterThanOrEqual(6);
+    for (const page of pages) {
+      const sources: string[] = [];
+      // The parser moves anything after </body> into the body, as a browser does, so a script a
+      // page declares outside the layout would show up here after the Web Analytics script.
+      let last: string | undefined;
+      const walk = (node: unknown) => {
+        const n = node as {
+          tagName?: string;
+          attrs?: { name: string; value: string }[];
+          childNodes?: unknown[];
+          content?: { childNodes: unknown[] };
+        };
+        if (n.tagName === 'body') {
+          const lastElement = (n.childNodes as (typeof n)[]).findLast((child) => child.tagName);
+          last = lastElement?.attrs?.find((a) => a.name === 'src')?.value;
+        }
+        if (n.tagName === 'script')
+          for (const a of n.attrs ?? [])
+            if (
+              (a.name === 'src' || a.name === 'href') &&
+              /^(?:[a-z][a-z0-9+.-]*:)?\/\//i.test(a.value)
+            )
+              sources.push(a.value);
+        n.content?.childNodes.forEach(walk);
+        n.childNodes?.forEach(walk);
+      };
+      walk(parse(readFileSync(join(out, page), 'utf8')));
+      expect(sources, page).toEqual(['https://static.cloudflareinsights.com/beacon.min.js']);
+      expect(last, page).toBe('https://static.cloudflareinsights.com/beacon.min.js');
+    }
   });
 
   it('leaves the / rule with Cache-Control only', () => {

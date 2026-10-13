@@ -1,5 +1,5 @@
 import { readFile } from 'node:fs/promises';
-import { expect, test, type Locator, type Page } from '@playwright/test';
+import { expect, test, type Locator, type Page } from '../fixtures';
 
 // The Contact block end to end (home T21): AC-13 rows and links, AC-14 copy, AC-15 refused copy,
 // AC-16 the contact card download, AC-17 the QR tile. Reduced motion is emulated so nothing moves.

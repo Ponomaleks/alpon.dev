@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page } from '../fixtures';
 
 // The theme switch end to end (base-components T19): AC-10, AC-11, AC-12, AC-29.
 // Reduced motion is emulated by default; the cross-fade test turns it off.

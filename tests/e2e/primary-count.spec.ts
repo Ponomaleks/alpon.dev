@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page } from '../fixtures';
 
 // One primary rule (base-components T20): AC-23, spec section 6 "Primary buttons". Counted by the
 // primary style hook of Button (.fj-btn--primary) whose painted style is the filled one. The

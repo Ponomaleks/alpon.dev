@@ -42,6 +42,7 @@ The site itself is a portfolio piece: code quality, accessibility and performanc
 - Dashes are allowed in user-facing text: the long dash (U+2014) and the en dash (U+2013) as used in the design copy (e.g. date ranges `Nov 2022 – Jan 2026`).
 - Never name the EPAM client or its events directly (NDA). Indirect descriptions are allowed and the design copy is the reference (e.g. "a global B2B software leader (Fortune Global 500)", "an international conference series", "28,000+ attendees").
 - Numbers on the site must be real and verified by Alexander. Unverified values stay as `[placeholder]`.
+- Facts the Owner provided for the site are confirmed by default. A fact that appears on the site but not in the CV PDF is not a discrepancy and needs no backlog item; only a direct contradiction between two sources does.
 - Language levels are self-assessed: show plain labels, no CEFR codes. EN: English "Upper-intermediate", Norwegian "Intermediate", Ukrainian "Native". NO: Engelsk "Øvre mellomnivå", Norsk "Mellomnivå", Ukrainsk "Morsmål".
 - Contacts live in one place: `src/data/contact.ts` (used by the contact block and footer). The vCard file (`public/alexander-ponomarenko.vcf`) is static and must match it; its phone number is written without spaces (`+4740594584`), while the page shows it with spaces. The QR SVGs are static too and intentionally encode a shortened subset of the vCard; do not regenerate them when the `.vcf` changes.
 - Location has two meanings, keep them apart: "Oslo, Norge" / Oslo area is the region of work (hero, contacts, vCard `ADR: Oslo, Norway`); "Nittedal" is the place of residence and appears in the CV (`1482 Nittedal, Norway`) in the home quick facts ("Based in: Nittedal, Oslo area") and in the footer "Based in" column ("Nittedal, Norge", with the municipality coordinates 60.07° N, 10.87° E). `src/data/contact.ts` keeps the two as separate fields.
@@ -52,7 +53,7 @@ The site itself is a portfolio piece: code quality, accessibility and performanc
 ## Quality bar
 
 - WCAG 2.2 AA: semantic HTML, logical headings, skip link, visible `:focus-visible`, 44px touch targets, no hover-only information, alt text. Exception: footer text links keep the tight spacing of the page design and meet WCAG 2.2 AA target size (2.5.8: at least 24px, or at least 24px between target centres) instead of the 44px rule.
-- Performance budget per page (Lighthouse mobile): Performance, Accessibility, Best Practices, SEO >= 95; LCP <= 2.0 s; CLS <= 0.02; TBT <= 100 ms; initial JS <= 50 KB gzip (islands loaded on interaction do not count).
+- Performance budget per page (Lighthouse mobile): Performance, Accessibility, Best Practices, SEO >= 95; LCP <= 2.0 s; CLS <= 0.02; TBT <= 100 ms; initial JS <= 50 KB gzip (islands loaded on interaction do not count). The budget is for the site's own code: the Cloudflare Web Analytics script, a third-party module script that every page loads last, is not counted (release-1 spec D-04), and Lighthouse CI blocks its address (D-05).
 - No layout shift from fonts (preload the 2 critical files, `font-display: swap`, metric-matched fallbacks).
 - Security headers in `public/_headers` (CSP without `unsafe-inline` scripts where possible, HSTS, Referrer-Policy, Permissions-Policy).
 

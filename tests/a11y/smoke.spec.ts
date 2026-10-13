@@ -1,5 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page } from '../fixtures';
 
 // Zero axe violations on SCR-01 and SCR-02 in Dag and Natt (spec §6 Accessibility), and with
 // the scripts-off state in both device preferences (AC-04: readable contrast via the no-JS block).

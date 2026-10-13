@@ -1,4 +1,4 @@
-import { expect, test, type Locator, type Page } from '@playwright/test';
+import { expect, test, type Locator, type Page } from '../fixtures';
 
 // The home page end to end (home T20): AC-01 first phone screen, AC-02 portrait, AC-03 Now line,
 // AC-04 and AC-11 no projects entry points, AC-05 key facts, AC-07 About, AC-08 experience,

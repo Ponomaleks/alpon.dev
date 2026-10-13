@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from '../fixtures';
 
 // The Legacy CV addresses hand over to the CV pages (cv T21): AC-13, AC-14. The hand-off replaces
 // the history entry, so one Back returns to the page before the home page. With scripts off, or for

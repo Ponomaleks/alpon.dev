@@ -142,6 +142,28 @@ describe('CtaBand (AC-20)', () => {
     );
   });
 
+  // release-1 AC-06, D-10: the rings are an image file, asked for when the band comes near.
+  it('shows the contours from the lazy image, mirrored, with no contour paths in the HTML', () => {
+    const html = made('band-en');
+    const wrap = html.match(/<div\b[^>]*class="[^"]*\bcontours\b[^"]*"[^>]*>/)?.[0] ?? '';
+    expect(wrap).toMatch(/data-variant="ridge"/);
+    expect(wrap).toMatch(/contours--spruce/);
+    expect(wrap).toMatch(/contours--bottom-right/);
+    expect(wrap).toMatch(/aria-hidden="true"/);
+    const layer = html.match(/<div\b[^>]*class="[^"]*\bcontours__layer\b[^"]*"[^>]*>\s*(<[^>]+>)/);
+    const img = layer?.[1] ?? '';
+    expect(img).toMatch(/^<img\b/);
+    expect(img).toMatch(/\ssrc="\/img\/contours-ridge-spruce\.svg"/);
+    expect(img).toMatch(/\sloading="lazy"/);
+    expect(img).toMatch(/\salt=""/);
+    // One file serves both places: the band mirrors it to its bottom right corner.
+    expect(classesOf(img)).toContain('contours__image--flip-x');
+    expect(classesOf(img)).not.toContain('contours__image--flip-y');
+    expect(html.match(/contours-ridge-spruce\.svg/g)).toHaveLength(1);
+    expect(html).not.toContain('contours__group');
+    expect(html).not.toMatch(/<svg\b[^>]*viewBox="0 0 85 55"/);
+  });
+
   it('has exactly one primary button: "Get in touch" to the contact target', () => {
     const html = made('band-en');
     const primaries = anchors(html).filter((a) => classesOf(a).includes('fj-btn--primary'));

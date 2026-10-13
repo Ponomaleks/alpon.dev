@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from '../fixtures';
 
 test('home responds 200 with a document language', async ({ page }) => {
   const response = await page.goto('/');

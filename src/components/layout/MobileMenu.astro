@@ -35,7 +35,7 @@ const Root = sample ? 'div' : 'dialog';
   lang={lang}
   data-sample={sample ? '' : undefined}
 >
-  <Contours variant="ridge" anchor="bottom-left" tone="spruce" />
+  <Contours variant="ridge" anchor="bottom-left" tone="spruce" image />
   <div class="menu__top">
     <Wordmark onSpruce />
     <IconButton icon="x" label="Close menu" />
@@ -62,17 +62,6 @@ const Root = sample ? 'div' : 'dialog';
     </Button>
   </div>
 </Root>
-
-<script>
-  import { initMenu } from '../../scripts/shell/menu';
-
-  const dialog = document.querySelector<HTMLDialogElement>('dialog#mobile-menu');
-  const button = document.querySelector<HTMLButtonElement>('[aria-controls="mobile-menu"]');
-  if (dialog && button) {
-    initMenu(dialog, button, window.matchMedia('(min-width: 768px)'));
-    dialog.querySelector('.fj-iconbtn')?.addEventListener('click', () => dialog.close());
-  }
-</script>
 
 <style is:global>
   .menu {

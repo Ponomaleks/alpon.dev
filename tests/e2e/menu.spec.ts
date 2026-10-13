@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page } from '../fixtures';
 
 // The mobile menu end to end (base-components T19): AC-04, AC-05 and the SCR-03 states
 // "open", "closed by Escape or the close button", "closed by a link", "closed by width",

@@ -149,7 +149,8 @@ Kept for reference, in case the Worker has to be created again.
 1. dash.cloudflare.com → **Workers & Pages** → **Create application** → **Import a repository**; give access to this repository only. Project name `alpon-dev`, root directory `/`, commands as above.
 2. Domain: the first deploy creates the DNS record and the certificate for `alpon.dev` from `wrangler.jsonc`. Check it in the Worker → **Settings** → **Domains & Routes**. If the deploy reports a DNS conflict, delete the old `A` / `AAAA` / `CNAME` records of `alpon.dev` in **DNS → Records** and retry the deployment.
 3. `www.alpon.dev` → `alpon.dev`: a proxied DNS record (`AAAA`, name `www`, `100::`) and the Redirect Rule template **Redirect from WWW to Root**.
-4. Optional: cookieless **Web Analytics** for `alpon.dev`, and **Email Routing** for an address on the domain.
+4. Cookieless **Web Analytics** for `alpon.dev`: the site is set to **Enable with JS Snippet installation**, and the script the dashboard issues is in the site's own code, the last element of the body in `src/layouts/BaseLayout.astro`. Its token is public. The policy line in `public/_headers` names the script file in `script-src` and its endpoint in `connect-src`. The script is in every build, so preview addresses and local servers count under the same token: read the numbers with the host filter `alpon.dev`. Playwright answers the script's host locally, and Lighthouse CI blocks its address.
+5. Optional: **Email Routing** for an address on the domain.
 
 Checks after a production deploy:
 

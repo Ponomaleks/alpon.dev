@@ -96,7 +96,6 @@ function made(name: string): string {
   if (!m) throw new Error(`fixture case ${name} is missing from the built page`);
   return m[1] ?? '';
 }
-const SVG_TAG = /<svg\b[^>]*>/;
 const anchors = (html: string) => [...html.matchAll(/<a\b[^>]*>[\s\S]*?<\/a>/g)].map((m) => m[0]);
 const text = (html: string) => html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
 const classesOf = (tag: string) => (tag.match(/\bclass="([^"]*)"/)?.[1] ?? '').split(/\s+/);
@@ -139,9 +138,22 @@ describe('MobileMenu: SCR-03 open content (AC-04)', () => {
     expect(wrap).toMatch(/data-variant="ridge"/);
     expect(wrap).toMatch(/contours--bottom-left/);
     expect(wrap).toMatch(/aria-hidden="true"/);
-    const svg = html.match(SVG_TAG)?.[0] ?? '';
-    expect(svg).toMatch(/viewBox="0 0 85 55"/);
-    expect(svg).toMatch(/aria-hidden="true"/);
+  });
+
+  // release-1 AC-06, D-10: the rings are an image file, asked for when the menu opens.
+  it('shows the contours from the lazy image, with no contour paths in the HTML', () => {
+    const html = made('plain');
+    const layer = html.match(/<div\b[^>]*class="[^"]*\bcontours__layer\b[^"]*"[^>]*>\s*(<[^>]+>)/);
+    const img = layer?.[1] ?? '';
+    expect(img).toMatch(/^<img\b/);
+    expect(img).toMatch(/\ssrc="\/img\/contours-ridge-spruce\.svg"/);
+    expect(img).toMatch(/\sloading="lazy"/);
+    expect(img).toMatch(/\salt=""/);
+    expect(html.match(/contours-ridge-spruce\.svg/g)).toHaveLength(1);
+    expect(html).not.toContain('contours__group');
+    expect(html).not.toMatch(/vector-effect=/);
+    // The menu's corner is the natural one of the ridge: the image is not mirrored.
+    expect(img).not.toMatch(/contours__image--flip/);
   });
 
   it('has email and phone as links with the contact.ts values, after the numbered links', () => {

@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page } from '../fixtures';
 
 // Ambient motion end to end (home T24): AC-06 count-up, AC-30 Motion control, AC-36 reveal,
 // AC-31 pointer parallax, AC-41 the band's contours. Motion is allowed here; the reduced-motion

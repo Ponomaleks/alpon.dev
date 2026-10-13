@@ -1,8 +1,9 @@
 import { spawnSync } from 'node:child_process';
 import { mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { parse, type DefaultTreeAdapterMap } from 'parse5';
 import { contact } from '../data/contact';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
@@ -142,6 +143,77 @@ describe.each([
     expect([tokens, fonts, base].every((i) => i >= 0)).toBe(true);
     expect(tokens).toBeLessThan(fonts);
     expect(fonts).toBeLessThan(base);
+  });
+});
+
+// release-1 AC-01, D-01: the script of the Cloudflare dashboard, as issued, ends the body.
+describe.each(['fixture.html', '404.html'])('the Web Analytics script on %s (AC-01)', (page) => {
+  type Element = DefaultTreeAdapterMap['element'];
+  const SRC = 'https://static.cloudflareinsights.com/beacon.min.js';
+  const elementsOf = (node: DefaultTreeAdapterMap['node']): Element[] =>
+    'childNodes' in node
+      ? node.childNodes.flatMap((child) => ('tagName' in child ? [child] : []))
+      : [];
+  const all = (node: Element): Element[] => [node, ...elementsOf(node).flatMap(all)];
+  const root = () => elementsOf(parse(html(page))).find((el) => el.tagName === 'html') as Element;
+
+  it('is the last element of the body, with the attributes of spec D-01 and no body', () => {
+    const body = elementsOf(root()).find((el) => el.tagName === 'body') as Element;
+    const last = elementsOf(body).at(-1);
+    expect(last?.tagName).toBe('script');
+    expect(Object.fromEntries((last?.attrs ?? []).map((a) => [a.name, a.value]))).toEqual({
+      type: 'module',
+      src: SRC,
+      'data-cf-beacon': '{"token": "145a994b908a49539c57bf82ca84fb4f"}',
+    });
+    expect(last?.childNodes).toEqual([]);
+  });
+
+  it('is on the page once', () => {
+    const scripts = all(root()).filter(
+      (el) => el.tagName === 'script' && el.attrs.some((a) => a.name === 'src' && a.value === SRC),
+    );
+    expect(scripts).toHaveLength(1);
+  });
+});
+
+// release-1 AC-06, D-06 (a): the Shell's behaviour is one file, one request, on every page.
+describe('the Shell scripts (release-1 AC-06)', () => {
+  const ownScripts = (page: string) =>
+    [...html(page).matchAll(/<script\b[^>]*\ssrc="(\/[^"]+)"/g)].map((m) => m[1] ?? '');
+  const pages = () =>
+    readdirSync(join(out, 'dist'), { recursive: true, encoding: 'utf8' })
+      .filter((file) => file.endsWith('.html'))
+      .map((file) => file.split(sep).join('/'));
+
+  it('a page with no script of its own loads exactly one script file of the site', () => {
+    expect(ownScripts('fixture.html')).toHaveLength(1);
+  });
+
+  it('every page loads that one file, once, and at most one more of its own', () => {
+    const [shell] = ownScripts('fixture.html');
+    expect(pages().length).toBeGreaterThanOrEqual(5);
+    for (const page of pages()) {
+      const scripts = ownScripts(page);
+      expect(
+        scripts.filter((src) => src === shell),
+        page,
+      ).toHaveLength(1);
+      expect(scripts.length, page).toBeLessThanOrEqual(2);
+    }
+  });
+
+  it('the one file wires the header, the menu, the theme switch, the action bar and the Toast', () => {
+    const [shell = ''] = ownScripts('fixture.html');
+    const code = readFileSync(join(out, 'dist', shell), 'utf8');
+    for (const hook of [
+      'data-header-sentinel',
+      'mobile-menu',
+      'data-theme-button',
+      'data-shell-bar',
+      '--fjord-duration-toast',
+    ])
+      expect(code, hook).toContain(hook);
   });
 });
 

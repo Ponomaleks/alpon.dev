@@ -100,9 +100,9 @@ Every number and date the CV pages show, with the CV PDF page as its source. "Bo
 | C-22 | Page count of the meta line: "PDF · 2 pages · A4" / "PDF · 2 sider · A4"                                       | both files have two A4 pages                     | [x]   |
 | C-23 | CV date: 2026-09-30, shown as "Last updated 2026-09-30" / "Sist oppdatert 2026-09-30"                          | Owner (spec §1: the date of the two files)       | [x]   |
 | C-24 | English page title: "CV · Alexander Ponomarenko"                                                               | proposed here                                    | [x]   |
-| C-25 | English page description: "CV of Alexander Ponomarenko, frontend developer with backend experience: skills, work experience and education. Read it here or download the PDF." | proposed here | [x]   |
+| C-25 | English page description: "Frontend developer with backend experience: skills, work experience and education. Read it here or download the PDF."                              | approved by the Owner on 2026-10-12 (release-1 AC-08) | [x]   |
 | C-26 | Norwegian page title: "CV (norsk) · Alexander Ponomarenko"                                                     | proposed here                                    | [x]   |
-| C-27 | Norwegian page description: "CV for Alexander Ponomarenko, frontend-utvikler med backend-erfaring: kompetanse, arbeidserfaring og utdanning. Les den her eller last ned PDF-en." | proposed here | [x]   |
+| C-27 | Norwegian page description: "Frontend-utvikler med backend-erfaring: kompetanse, arbeidserfaring og utdanning. Les CV-en her eller last ned PDF-en."                             | approved by the Owner on 2026-10-12 (release-1 AC-08) | [x]   |
 | C-28 | Norwegian contact list labels: "E-post", "Telefon", "LinkedIn", "GitHub", "Bosted"                             | screens C-3                                      | [x]   |
 | C-29 | Norwegian page image names: "CV, side 1 av 2, norsk, PDF, åpnes i ny fane", "CV, side 2 av 2, norsk, PDF, åpnes i ny fane" | screens C-3                          | [x]   |
 | C-30 | Norwegian refusal Toast: "Kunne ikke kopiere. Marker adressen for å kopiere den."                              | screens C-3                                      | [x]   |

@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from '../fixtures';
 import { contact } from '../../src/data/contact';
 import { recommendations } from '../../src/data/home';
 

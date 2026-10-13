@@ -41,7 +41,7 @@ Note: the cv feature serves `/cv`, `/cv/en` and `/cv/no` as pages (P-01..P-03); 
 | P-13 | `/favicon.svg`, `/apple-touch-icon.png`, `/robots.txt`, `/sitemap.xml` are served | active |
 | P-14 | Every response carries `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, `Strict-Transport-Security` | active |
 | P-15 | `/fonts/*` cached `immutable`; `/cv/*` cached 1 h `must-revalidate`; the three CV page addresses and the four page images are served | active |
-| P-16 | Home has a CSP with `script-src 'self'` and no `'unsafe-inline'`. On v2, the inline theme script is allowed through a **hash**, never `'unsafe-inline'` (review `_headers` when the Astro pages land) | active |
+| P-16 | Home has a CSP with `script-src 'self'` and no `'unsafe-inline'`. On v2, the inline theme script is allowed through a **hash**, never `'unsafe-inline'`, and `script-src` names three sources: the site itself, that hash and the one file of the Web Analytics script, `https://static.cloudflareinsights.com/beacon.min.js` ([release-1](features/release-1/spec.md) D-02) | active |
 
 ## Home page (`/`)
 

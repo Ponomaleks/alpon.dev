@@ -7,6 +7,14 @@
 - Current project: the alpon.dev portfolio, shown as `alpon.dev`.
 - The line reads: "Nå: alpon.dev · MSc Computer Science at Woolf University".
 
+## Page description (release-1 T9)
+
+The description of the home page is a claim: it states the status "open to work". The Owner saw the final text with both endings of the release-1 [spec](../release-1/spec.md) §1.4 and approved this one on 2026-10-12 (release-1 AC-08). The title and the preview image are unchanged.
+
+| Claim | Text | Owner |
+| --- | --- | :---: |
+| Page description, also the description of the link preview | "Full stack developer in the Oslo area, open to work. React, Angular, TypeScript and Python. Key facts, background, experience and contact details." | [x] |
+
 ## Recommendations (T27)
 
 The Owner confirms that both people agreed to publication: `consent: true` for both.

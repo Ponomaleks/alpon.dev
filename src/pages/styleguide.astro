@@ -784,17 +784,18 @@ const stateLabel = { hover: 'Hover', focus: 'Focus', active: 'Pressed' } as cons
       </div>
     </section>
   </div>
+  {/* Inside the layout: a script after it would follow the Web Analytics script, which has to
+       be the last element of the body (release-1 AC-01). */}
+  <script>
+    document.getElementById('sg-show-toast')?.addEventListener('click', () => {
+      document.dispatchEvent(
+        new CustomEvent('fjord:toast', {
+          detail: { message: 'Copied', meta: 'Sample' },
+        }),
+      );
+    });
+  </script>
 </BaseLayout>
-
-<script>
-  document.getElementById('sg-show-toast')?.addEventListener('click', () => {
-    document.dispatchEvent(
-      new CustomEvent('fjord:toast', {
-        detail: { message: 'Copied', meta: 'Sample' },
-      }),
-    );
-  });
-</script>
 
 <style>
   /* The line is hidden on screen; the frame shows it as it prints, on the print colours. */

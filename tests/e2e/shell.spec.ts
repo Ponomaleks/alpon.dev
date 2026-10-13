@@ -1,6 +1,6 @@
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page } from '../fixtures';
 
 // The Shell end to end on the home placeholder and the Not-found page (base-components T18):
 // AC-01, AC-02, AC-03, AC-06, AC-13, AC-14, AC-20, AC-24, AC-25, AC-31. Reduced motion is emulated

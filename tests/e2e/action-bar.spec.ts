@@ -1,4 +1,4 @@
-import { expect, test, type Locator, type Page } from '@playwright/test';
+import { expect, test, type Locator, type Page } from '../fixtures';
 
 // The Sticky action bar end to end (base-components T20): AC-07, AC-08, AC-09; SCR-01 states
 // bar-shown, bar-away, bar-returned, bar-static; G-4, G-5. Scripts-off and reduced-motion contexts

@@ -128,9 +128,11 @@ describe('cvNo text rules (AC-26)', () => {
 
   it('has a title and a description that differ from the English ones (C-26, C-27)', () => {
     expect(cvNo.title).toBe('CV (norsk) · Alexander Ponomarenko');
+    // The text the Owner approved on 2026-10-12 (release-1 AC-07, AC-08), without the name.
     expect(cvNo.description).toBe(
-      'CV for Alexander Ponomarenko, frontend-utvikler med backend-erfaring: kompetanse, arbeidserfaring og utdanning. Les den her eller last ned PDF-en.',
+      'Frontend-utvikler med backend-erfaring: kompetanse, arbeidserfaring og utdanning. Les CV-en her eller last ned PDF-en.',
     );
+    expect(cvNo.description).not.toMatch(/Alexander|Ponomarenko/);
     expect(cvNo.title).not.toBe(cvEn.title);
     expect(cvNo.description).not.toBe(cvEn.description);
   });

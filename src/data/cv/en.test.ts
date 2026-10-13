@@ -48,10 +48,12 @@ describe('cvEn text rules (AC-26)', () => {
 
   it('has a title and a description (C-24, C-25)', () => {
     expect(cvEn.title).toBe('CV · Alexander Ponomarenko');
-    expect(cvEn.description).toMatch(
-      /^CV of Alexander Ponomarenko, frontend developer with backend experience/,
+    // The text the Owner approved on 2026-10-12 (release-1 AC-07, AC-08): it does not repeat the
+    // name, which the title and the preview image already show.
+    expect(cvEn.description).toBe(
+      'Frontend developer with backend experience: skills, work experience and education. Read it here or download the PDF.',
     );
-    expect(cvEn.description).toMatch(/download the PDF\.$/);
+    expect(cvEn.description).not.toMatch(/Alexander|Ponomarenko/);
   });
 
   it('names the town of the Residence in the location line', () => {

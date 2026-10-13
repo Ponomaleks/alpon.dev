@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page } from '../fixtures';
 
 // The Original PDF preview (AC-09, AC-10; screens SCR-05 / SCR-06, C-3, C-8): no page image
 // requested before it opens, two named links, the open state, a blocked image that keeps the link,

@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page } from '../fixtures';
 
 // The CV language switch (AC-08, AC-19, AC-23; ADR-0001; screens SCR-05 / SCR-06 `language
 // switch ...`). Switching the language must not move the page.
