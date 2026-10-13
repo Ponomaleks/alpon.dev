@@ -1,8 +1,8 @@
 ---
-status: Draft
+status: Shipped
 owner: "Alexander Ponomarenko"
 reviewers: ["Tech Lead"]
-updated_at: "2026-10-12"
+updated_at: "2026-10-13"
 feature_size: "XS"
 ---
 
@@ -274,4 +274,4 @@ Not covered: the content of the script itself, which Cloudflare can change at an
 
 | # | Question | Owner | Due |
 |---|---|---|---|
-| OQ-02 | If a visit from Norway is not listed (AC-12), the exclusion of EU visitors applies to the script in the page too. What then: accept it, or ask Cloudflare, or choose another free cookieless counter in a later spec | Owner | at the smoke check, on launch day |
+| OQ-02 | If a visit from Norway is not listed (AC-12), the exclusion of EU visitors applies to the script in the page too. What then: accept it, or ask Cloudflare, or choose another free cookieless counter in a later spec. Closed on 2026-10-13 with no answer needed: the visit was listed ([changelog](./changelog.md), "Release check") | Owner | at the smoke check, on launch day |

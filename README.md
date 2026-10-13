@@ -132,15 +132,13 @@ The site is built spec first. Each feature has its own folder in `docs/features/
 
 Hosting is Cloudflare Workers with static assets; the Worker is `alpon-dev` (the name must match `name` in `wrangler.jsonc`) and `alpon.dev` is its Custom Domain. Workers Builds deploys from GitHub. It does not read a custom build from `wrangler.jsonc`, and the build settings are shared by all branches, so:
 
-- **Build command:** empty (`main` has no `package.json`; on `v2` Workers Builds installs the dependencies itself).
-- **Deploy command** (production, `main`): `npx wrangler deploy`, which serves the stub's `public/`.
-- **Non-production branch deploy command** (`v2` and other branches): `npm run build && npx wrangler preview`.
+- **Build command:** empty (Workers Builds installs the dependencies itself).
+- **Deploy command** (production, `main`): `npm run build && npx wrangler deploy` (since Release 1, 2026-10-13; the stub used `npx wrangler deploy`).
+- **Non-production branch deploy command** (every other branch): `npm run build && npx wrangler preview`.
 
 The preview URL of a branch is in the Worker `alpon-dev` → **Deployments**, and in the commit status on GitHub.
 
 Workers Builds reads the Node version from `.nvmrc`. If a build log ever shows another version, add the build variable `NODE_VERSION=24` for non-production branches.
-
-When `v2` is merged into `main`, change the production deploy command to `npm run build && npx wrangler deploy`.
 
 ### One-time Cloudflare setup (done)
 

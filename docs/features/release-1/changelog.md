@@ -8,7 +8,7 @@
 - The home page has room under the 2.0 s LCP limit: about 1820 ms in Lighthouse on the Owner's machine, where it was about 2120 ms. The Shell loads one script file instead of five, and the contours of the closing band and of the mobile menu are one image the browser asks for only when the Visitor scrolls near the band or opens the menu. Both look as before.
 - The description under a link to the home page, the English CV page and the Norwegian CV page says what the page holds and no longer repeats the name.
 
-The release itself is two Owner steps after that pull request and is **not done yet**: T12 (merge `v2` into `main`, switch the deploy command, protect `main`) and T13 (the check on alpon.dev). Their results go into "Release check" below.
+The release itself was two steps after that pull request, done on 2026-10-13: T12 (`v2` merged into `main` with a merge commit, [Ponomaleks/alpon.dev#12](https://github.com/Ponomaleks/alpon.dev/pull/12); the deploy command switched; `main` protected) and T13 (the check on alpon.dev). alpon.dev serves v2. The results are in "Release check" below.
 
 **Why:** `main` still serves the stub while the job search is running ([spec](./spec.md) §1). Three things had to be true on launch day: visits are measured, the LCP gate of the home page does not block merges once the checks are required on `main` (backlog B-38 and B-86), and a Recruiter reads a useful description in a search result or a link preview. Key decisions, all in the spec §1.3 (the feature is size XS and has no ADR of its own; the policy follows fjord-foundation [ADR-0002](../fjord-foundation/adr/0002-generate-the-bootstrap-hash-into-a-single-csp-rule-at-build.md)):
 
@@ -38,26 +38,25 @@ The release itself is two Owner steps after that pull request and is **not done 
 - No new npm dependency. No paid service.
 - Visual baselines: none changed.
 - Deploy of the pull request: merges into `v2` only; production (`main`, the stub) is not affected by it.
-- Release (T12, the Owner, in this order): merge `v2` into `main`; set the production deploy command in Workers Builds to `npm run build && npx wrangler deploy`; apply the protection of `main` with the checks `check` and `visual` (fjord-foundation [T16](../fjord-foundation/tasks/t16-ci-lighthouse-protection.md), option 2) and read it back. The protection comes after the merge, because before it would block the merge itself.
-- Rollback: of the pull request, revert its merge commit on `v2`. Of the release, revert the merge of `v2` on `main` and set the deploy command back to the stub's; the Web Analytics site in the dashboard can stay.
+- Release (T12, done on 2026-10-13, in this order): merge `v2` into `main`; set the production deploy command in Workers Builds to `npm run build && npx wrangler deploy`; apply the protection of `main` with the checks `check` and `visual` (fjord-foundation [T16](../fjord-foundation/tasks/t16-ci-lighthouse-protection.md), option 2) and read it back. The protection comes after the merge, because before it would block the merge itself.
+- Rollback: of the pull request, revert its merge commit on `v2`. Of the release, revert the merge of `v2` on `main` (through a pull request, because `main` is protected) and set the deploy command back to the stub's, `npx wrangler deploy`; the Web Analytics site in the dashboard can stay.
 
-**Release check (T13, the Owner):** not done yet. Each row gets its date and result when it is checked on alpon.dev.
+**Release check (T13, the Owner, 2026-10-13):** done on alpon.dev after the production deploy of the merge commit 543bd67.
 
 | Check | AC | Result |
 |---|---|---|
-| The home page, both CV pages, the Short CV address, the short links and the downloads answer as the parity list says | AC-09 | — |
-| `main` cannot be merged into without green `check` and `visual`, administrators included; the read-back shows both | AC-10 | — |
-| An address that does not exist shows the Not-found page of the site, and its response carries the policy of AC-02 | AC-11 | — |
-| A visit from Norway is listed in the Web Analytics dashboard with Norway as its country, or spec OQ-02 is answered | AC-12 | — |
-| The dashboard can show the numbers of the host alpon.dev alone | AC-12 | — |
+| The home page, both CV pages, the Short CV address, the short links and the downloads answer as the parity list says | AC-09 | OK (Owner, 2026-10-13). The Legacy CV address `/#cv-no` hands over to `/cv/no` when the address is loaded; it did not when the Owner added the fragment to a page that was already open, and a load of `https://alpon.dev/#cv-no` in a browser the same day ended on `/cv/no` |
+| `main` cannot be merged into without green `check` and `visual`, administrators included; the read-back shows both | AC-10 | OK (2026-10-13). Read-back: checks `check` and `visual` (`app_id` 15368), `enforce_admins: true`, `strict: true`, 0 required approvals |
+| An address that does not exist shows the Not-found page of the site, and its response carries the policy of AC-02 | AC-11 | OK (Owner, 2026-10-13) |
+| A visit from Norway is listed in the Web Analytics dashboard with Norway as its country, or spec OQ-02 is answered | AC-12 | OK (Owner, 2026-10-13): the visit is listed, so OQ-02 needs no answer |
+| The dashboard can show the numbers of the host alpon.dev alone | AC-12 | OK (Owner, 2026-10-13). The Web Analytics numbers are read with the host filter `alpon.dev` |
 
 **Open items carried forward:**
 
-- OQ-02 (spec §8): what happens if a visit from Norway is not listed. Due at the release check.
 - B-92: the real-user LCP of the home page, after one to two weeks of traffic.
 - B-91: a separate preview image for the CV pages.
 - B-93: a suspected flake of `primary-count.spec.ts`, seen once; open until it is seen again.
 - Known cost of D-10: on the first opening of the mobile menu the contours appear a moment after the panel.
 - Not covered (spec §7): the content of the script itself, which Cloudflare can change at any time, and visits lost to content blockers.
 
-**Acceptance criteria delivered:** by the pull request, AC-01 to AC-08: the script once, last in the body, on every page (AC-01); one policy with the one script file and the one endpoint (AC-02); other scripts refused as before (AC-03); tests that do not reach the script's host (AC-04); the site's own script budgets unchanged (AC-05); the LCP of the home page with a median at or below 1850 ms and the contour image asked for only when needed (AC-06); the three descriptions (AC-07) with the Owner's approval (AC-08). AC-09 has its in-repository part (no `test.fixme` in the parity tests). The rest of AC-09 and AC-10 to AC-12 are the release steps above.
+**Acceptance criteria delivered:** by the pull request, AC-01 to AC-08: the script once, last in the body, on every page (AC-01); one policy with the one script file and the one endpoint (AC-02); other scripts refused as before (AC-03); tests that do not reach the script's host (AC-04); the site's own script budgets unchanged (AC-05); the LCP of the home page with a median at or below 1850 ms and the contour image asked for only when needed (AC-06); the three descriptions (AC-07) with the Owner's approval (AC-08). By the release steps, AC-09 to AC-12: alpon.dev serves v2 as the parity list says (AC-09), `main` takes no change without the checks (AC-10), an unknown address shows the Not-found page with the policy (AC-11), and a visit from Norway is counted (AC-12).

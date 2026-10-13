@@ -20,8 +20,8 @@ This feature is small (XS): like save-contact-hint it has no `sad.md` and no ADR
 | T9 | Rewrite the three descriptions with the Owner's approval | ui | T1 | done |
 | T10 | Set the shipped status in the five shipped specs | docs | T1 | done |
 | T11 | Take the visual baselines, run the gate and open the pull request into `v2` | tests | T8, T9 | done |
-| T12 | Merge `v2` into `main`, switch the deploy command and protect `main` (Owner) | infra | T11 | todo |
-| T13 | Check the release on alpon.dev and record it (Owner) | docs | T12 | todo |
+| T12 | Merge `v2` into `main`, switch the deploy command and protect `main` (Owner) | infra | T11 | done |
+| T13 | Check the release on alpon.dev and record it (Owner) | docs | T12 | done |
 
 Order of work: T2, T6 and T9 can start together after T1. T3 and T5 both change `BaseLayout.astro` and run one after the other.
 
