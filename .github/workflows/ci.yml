@@ -3,7 +3,7 @@ name: CI
 on:
   pull_request:
   push:
-    branches: [main, v2]
+    branches: [main]
 
 permissions:
   contents: read
@@ -12,10 +12,10 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
-# Branch protection on v2 and main (applied by the Owner) requires the checks `check` and `visual`: the job ids below
+# Branch protection on main (applied by the Owner) requires the checks `check` and `visual`: the job ids below
 # (commands in docs/features/fjord-foundation/tasks/t16-ci-lighthouse-protection.md). Keep both
 # jobs free of path filters (`paths` / `paths-ignore` under `on:`) and of job-level `if:`
-# conditions that can skip them on PRs into v2/main: a required check that never reports blocks
+# conditions that can skip them on PRs into main: a required check that never reports blocks
 # the merge forever, and a skipped one counts as passed.
 # Renaming a job id or giving a job a `name:` changes its check name; update the protection with it.
 #

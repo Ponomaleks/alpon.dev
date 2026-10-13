@@ -48,7 +48,7 @@ The release itself was two steps after that pull request, done on 2026-10-13: T1
 | The home page, both CV pages, the Short CV address, the short links and the downloads answer as the parity list says | AC-09 | OK (Owner, 2026-10-13). The Legacy CV address `/#cv-no` hands over to `/cv/no` when the address is loaded; it did not when the Owner added the fragment to a page that was already open, and a load of `https://alpon.dev/#cv-no` in a browser the same day ended on `/cv/no` |
 | `main` cannot be merged into without green `check` and `visual`, administrators included; the read-back shows both | AC-10 | OK (2026-10-13). Read-back: checks `check` and `visual` (`app_id` 15368), `enforce_admins: true`, `strict: true`, 0 required approvals |
 | An address that does not exist shows the Not-found page of the site, and its response carries the policy of AC-02 | AC-11 | OK (Owner, 2026-10-13) |
-| A visit from Norway is listed in the Web Analytics dashboard with Norway as its country, or spec OQ-02 is answered | AC-12 | OK (Owner, 2026-10-13): the visit is listed, so OQ-02 needs no answer |
+| A visit from Norway is listed in the Web Analytics dashboard with Norway as its country, or spec OQ-02 is answered | AC-12 | OK (Owner): the smoke check of 2026-10-13 lists visits from Norway in Web Analytics, so the EU exclusion does not apply to the snippet in the page. OQ-02 is closed |
 | The dashboard can show the numbers of the host alpon.dev alone | AC-12 | OK (Owner, 2026-10-13). The Web Analytics numbers are read with the host filter `alpon.dev` |
 
 **Open items carried forward:**
