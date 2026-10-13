@@ -111,7 +111,7 @@ Lane rules (owner-confirmed):
 
 - **Shared files belong to the shell (steps 2–3):** Header/Footer, `src/data/contact.ts`, `public/_headers`, `public/_redirects`, `tests/e2e/parity.spec.ts`, `docs/stub-parity.md`. In wave 3, a change to any of them goes first as a small separate PR to `v2`; the other worktree rebases on it.
 - **A parity id flips in the step that builds the behaviour**, so no test sits as `fixme` while the behaviour already exists: Fjord foundation — P-16, P-26, P-41; Base components — P-25; Home — P-20..P-24, P-50; CV — P-01..P-03, P-30..P-34, P-51.
-- **Projects (step 7) runs on its own branch off `v2` and merges into `v2` only after Release 1 is on `main`**, so the release never carries a half-built Projects section.
+- **Projects (step 7) runs on its own branch off `main` and merges into `main` through a pull request.** Release 1 is on `main` since 2026-10-13; until then this rule kept step 7 off `v2`, so that the release did not carry a half-built Projects section. Since the release, work starts from `main`, and `v2` is kept as history.
 - Fog steps 9–11 enter a wave only after their recon pass gives them a size.
 
 ## Shipped
