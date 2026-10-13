@@ -1,0 +1,306 @@
+import { expect, test, type Page } from '../fixtures';
+
+// BackToTop end to end (cv T31): AC-21, AC-22; SCR-01 states back-to-top absent / hidden at the
+// top / shown / always shown / activated / clearance; wireframe W-6. Below 768 the corner belongs
+// to the Sticky action bar, so there is no control; from 768 it is a fixed link to #top.
+
+const LINK = 'a[href="#top"]';
+const pages = [
+  { name: 'home', path: '/' },
+  { name: 'Not-found', path: '/does-not-exist' },
+  { name: 'CV en', path: '/cv/en' },
+  { name: 'CV no', path: '/cv/no' },
+] as const;
+const wide = [768, 834, 1024, 1440] as const;
+
+// Inline style sheets are blocked by the CSP; the CSSOM is not.
+const tall = (page: Page) =>
+  page.evaluate(() => {
+    const main = document.querySelector('main');
+    if (main) main.style.minHeight = '2400px';
+  });
+
+async function open(page: Page, path: string, width: number) {
+  await page.setViewportSize({ width, height: 844 });
+  await page.goto(path);
+  // Home and Not-found are short: make them scrollable so scrolling is possible.
+  await tall(page);
+}
+
+const frames = (page: Page) =>
+  page.evaluate(
+    () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))),
+  );
+
+async function scrollTo(page: Page, y: number | 'end') {
+  await page.evaluate(
+    (top) => window.scrollTo(0, top === 'end' ? document.documentElement.scrollHeight : top),
+    y,
+  );
+  await frames(page);
+}
+
+const supportsTimeline = (page: Page) =>
+  page.evaluate(() => CSS.supports('animation-timeline: scroll()'));
+
+// Review R1-5: Chromium ties animation to scrolling, so the branch for a browser that cannot is
+// forced here. The @supports blocks that do the tying are removed through the CSSOM, which leaves
+// the styles such a browser applies: the link shown all the time and the reserve of base.css.
+async function untie(page: Page) {
+  const removed = await page.evaluate(() => {
+    let count = 0;
+    const strip = (owner: CSSStyleSheet | CSSGroupingRule) => {
+      for (let i = owner.cssRules.length - 1; i >= 0; i -= 1) {
+        const rule = owner.cssRules[i];
+        if (rule instanceof CSSSupportsRule && rule.conditionText.includes('animation-timeline')) {
+          owner.deleteRule(i);
+          count += 1;
+        } else if (rule instanceof CSSGroupingRule) strip(rule);
+      }
+    };
+    for (const sheet of document.styleSheets) strip(sheet);
+    return count;
+  });
+  expect(removed).toBeGreaterThan(0);
+  await frames(page);
+}
+
+type Box = { x: number; y: number; width: number; height: number };
+const overlap = (a: Box, b: Box) => {
+  const w = Math.min(a.x + a.width, b.x + b.width) - Math.max(a.x, b.x);
+  const h = Math.min(a.y + a.height, b.y + b.height) - Math.max(a.y, b.y);
+  return Math.max(0, w) * Math.max(0, h);
+};
+
+/** At the end of the page, with the link shown: it covers 0 px of the last line and of the focused last footer link. */
+async function expectEndClear(page: Page) {
+  const link = page.getByRole('link', { name: 'Back to top' });
+  await expect(link).toBeVisible();
+  const linkBox = await link.boundingBox();
+  const focusedBox = await page.locator('footer a').last().boundingBox();
+  const lastLine = await page.evaluate(() => {
+    // The box of the last text in the document: the page's last line.
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    let last: Range | null = null;
+    for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+      const parent = n.parentElement;
+      if (!n.textContent?.trim() || !parent) continue;
+      if (parent.closest('script, style, template')) continue;
+      if (parent.closest('a[href="#top"]')) continue;
+      if (getComputedStyle(parent).display === 'none') continue;
+      const range = document.createRange();
+      range.selectNodeContents(n);
+      if (range.getBoundingClientRect().height > 0) last = range;
+    }
+    const r = last?.getBoundingClientRect();
+    return r ? { x: r.x, y: r.y, width: r.width, height: r.height } : null;
+  });
+  expect(linkBox).not.toBeNull();
+  expect(focusedBox).not.toBeNull();
+  expect(lastLine).not.toBeNull();
+  expect(overlap(linkBox as Box, focusedBox as Box)).toBe(0);
+  expect(overlap(linkBox as Box, lastLine as Box)).toBe(0);
+}
+
+for (const { name, path } of pages) {
+  test.describe(`${name}: below 768 there is no BackToTop (AC-22)`, () => {
+    for (const width of [390, 767]) {
+      test(`not displayed at ${width}, also after scrolling`, async ({ page }) => {
+        await open(page, path, width);
+        await scrollTo(page, 1500);
+        await expect(page.locator(LINK)).toHaveCount(1);
+        await expect(page.locator(LINK)).toBeHidden();
+        expect(await page.locator(LINK).evaluate((el) => getComputedStyle(el).display)).toBe(
+          'none',
+        );
+      });
+    }
+  });
+
+  for (const width of wide) {
+    test.describe(`${name} at ${width}`, () => {
+      test('hidden at the top where scroll-driven animation is supported, always shown otherwise (AC-21)', async ({
+        page,
+      }) => {
+        await open(page, path, width);
+        await scrollTo(page, 0);
+        if (await supportsTimeline(page)) {
+          await expect(page.locator(LINK)).toBeHidden();
+          expect(await page.locator(LINK).evaluate((el) => getComputedStyle(el).visibility)).toBe(
+            'hidden',
+          );
+          // Not focusable: Tab through the page and never land on it.
+          for (let i = 0; i < 12; i += 1) {
+            await page.keyboard.press('Tab');
+            expect(
+              await page.evaluate(() => document.activeElement?.matches('a[href="#top"]')),
+            ).toBe(false);
+          }
+        } else {
+          await expect(page.locator(LINK)).toBeVisible();
+        }
+      });
+
+      test('is a named link of at least 44 x 44 once scrolled (AC-21)', async ({ page }) => {
+        await open(page, path, width);
+        await scrollTo(page, 1500);
+        const link = page.getByRole('link', { name: 'Back to top' });
+        await expect(link).toBeVisible();
+        await expect(link).toHaveAttribute('href', '#top');
+        const box = await link.boundingBox();
+        expect(box?.width ?? 0).toBeGreaterThanOrEqual(44);
+        expect(box?.height ?? 0).toBeGreaterThanOrEqual(44);
+        const viewport = page.viewportSize();
+        expect((box?.x ?? 0) + (box?.width ?? 0)).toBeLessThanOrEqual(viewport?.width ?? 0);
+        expect((box?.y ?? 0) + (box?.height ?? 0)).toBeLessThanOrEqual(viewport?.height ?? 0);
+      });
+
+      test('activating it puts the page at its top and the next Tab reaches the skip link (AC-21)', async ({
+        page,
+      }) => {
+        await open(page, path, width);
+        await scrollTo(page, 1500);
+        const link = page.getByRole('link', { name: 'Back to top' });
+        await expect(link).toBeVisible();
+        await link.focus();
+        await page.keyboard.press('Enter');
+        await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
+        await page.keyboard.press('Tab');
+        await expect(page.locator('.skip-link')).toBeFocused();
+      });
+
+      test('a click does the same (AC-21)', async ({ page }) => {
+        await open(page, path, width);
+        await scrollTo(page, 1500);
+        await page.getByRole('link', { name: 'Back to top' }).click();
+        await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
+        await page.keyboard.press('Tab');
+        await expect(page.locator('.skip-link')).toBeFocused();
+      });
+
+      test('at the end of the page it covers neither the last line nor the focused last footer link (AC-22)', async ({
+        page,
+      }) => {
+        await open(page, path, width);
+        const lastLink = page.locator('footer a').last();
+        await lastLink.focus();
+        await scrollTo(page, 'end');
+        const link = page.getByRole('link', { name: 'Back to top' });
+        await expect(lastLink).toBeFocused();
+        // Where the browser ties the link to scrolling it is gone at the end of the page, so it
+        // covers nothing and the page ends with the footer, as in the page design: no reserve
+        // (Owner, 2026-10-10). Elsewhere it is always shown and the reserve keeps the end clear.
+        const tied = await page.evaluate(() => CSS.supports('animation-timeline: scroll()'));
+        if (tied) {
+          await expect(link).toBeHidden();
+          const end = await page.evaluate(() => {
+            const footer = document.querySelector('footer');
+            if (!footer) throw new Error('no footer');
+            return {
+              page: document.documentElement.scrollHeight,
+              footer: Math.round(footer.getBoundingClientRect().bottom + scrollY),
+            };
+          });
+          expect(end.page - end.footer).toBeLessThanOrEqual(1);
+          return;
+        }
+        await expectEndClear(page);
+      });
+
+      test('without scroll-driven animation it is shown all the time, the top included (AC-21)', async ({
+        page,
+      }) => {
+        await open(page, path, width);
+        await untie(page);
+        const link = page.getByRole('link', { name: 'Back to top' });
+        for (const y of [0, 1500, 'end'] as const) {
+          await scrollTo(page, y);
+          await expect(link).toBeVisible();
+          await expect(link).toHaveCSS('opacity', '1');
+        }
+      });
+
+      test('without scroll-driven animation the reserve keeps the end of the page clear (AC-22)', async ({
+        page,
+      }) => {
+        await open(page, path, width);
+        await untie(page);
+        const lastLink = page.locator('footer a').last();
+        await lastLink.focus();
+        await scrollTo(page, 'end');
+        await expect(lastLink).toBeFocused();
+        await expectEndClear(page);
+      });
+
+      test('has a visible focus ring (AC-21)', async ({ page }) => {
+        await open(page, path, width);
+        await scrollTo(page, 1500);
+        const link = page.getByRole('link', { name: 'Back to top' });
+        await expect(link).toBeVisible();
+        await page.keyboard.press('Shift');
+        await link.focus();
+        const ring = await link.evaluate((el) => {
+          const s = getComputedStyle(el);
+          return { style: s.outlineStyle, width: parseFloat(s.outlineWidth) };
+        });
+        expect(ring.style !== 'none' && ring.width > 0).toBe(true);
+      });
+    });
+  }
+
+  test.describe(`${name}: with JavaScript disabled`, () => {
+    test.use({ javaScriptEnabled: false });
+
+    test('the link still takes the page to the top and the next Tab reaches the skip link (AC-21)', async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width: 1024, height: 844 });
+      await page.goto(path);
+      await tall(page);
+      await page.evaluate(() => window.scrollTo(0, 1500));
+      const link = page.getByRole('link', { name: 'Back to top' });
+      await expect(link).toBeVisible();
+      await link.click();
+      await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
+      await page.keyboard.press('Tab');
+      await expect(page.locator('.skip-link')).toBeFocused();
+    });
+  });
+
+  test.describe(`${name}: reduced motion`, () => {
+    test.use({ reducedMotion: 'reduce' });
+
+    test('is not shown at the top and appears after scrolling (AC-21)', async ({ page }) => {
+      await open(page, path, 1024);
+      const link = page.getByRole('link', { name: 'Back to top' });
+      const tied = await page.evaluate(() => CSS.supports('animation-timeline: scroll()'));
+      test.skip(!tied, 'this browser cannot tie the appearance to scrolling: always shown');
+      await expect(link).toBeHidden();
+      await scrollTo(page, 1500);
+      await expect(link).toBeVisible();
+      await expect(link).toHaveCSS('opacity', '1');
+      await scrollTo(page, 0);
+      await expect(link).toBeHidden();
+    });
+
+    test('appears without movement: no transform is animated (AC-21)', async ({ page }) => {
+      await open(page, path, 1024);
+      await scrollTo(page, 1500);
+      const link = page.getByRole('link', { name: 'Back to top' });
+      await expect(link).toBeVisible();
+      const moved = await link.evaluate((el) => {
+        const animated = document
+          .getAnimations()
+          .filter((a) => (a.effect as KeyframeEffect | null)?.target === el)
+          .flatMap((a) => (a.effect as KeyframeEffect).getKeyframes())
+          .flatMap((k) => Object.keys(k))
+          .filter((key) => ['transform', 'translate', 'scale', 'rotate'].includes(key));
+        const s = getComputedStyle(el);
+        return { animated, transform: s.transform, translate: s.translate };
+      });
+      expect(moved.animated).toEqual([]);
+      expect(moved.transform).toBe('none');
+      expect(['none', '0px', '0px 0px']).toContain(moved.translate);
+    });
+  });
+}

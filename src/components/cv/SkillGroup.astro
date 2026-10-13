@@ -1,0 +1,37 @@
+---
+// One skill group: a label and its skills as a line of text. No logos, bars or percentages.
+interface Props {
+  group: { label: string; items: string[] };
+}
+
+const { group } = Astro.props;
+---
+
+<div class="fj-skills">
+  <h3>{group.label}</h3>
+  <p>{group.items.join(', ')}</p>
+</div>
+
+<style>
+  .fj-skills {
+    display: flex;
+    flex-direction: column;
+    gap: var(--fjord-space-2);
+    padding-top: var(--fjord-space-4);
+    border-top: var(--fjord-border-width) solid var(--fjord-color-border);
+  }
+  .fj-skills h3 {
+    margin: 0;
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-mono-label);
+    font-weight: var(--fjord-weight-medium);
+    line-height: var(--fjord-leading-none);
+    letter-spacing: var(--fjord-tracking-label);
+    color: var(--fjord-color-text-muted);
+  }
+  .fj-skills p {
+    margin: 0;
+    font-size: var(--fjord-text-ui-lg);
+    line-height: var(--fjord-leading-body);
+  }
+</style>

@@ -1,0 +1,102 @@
+---
+// SCR-02 Not-found page, built from the design's NotFound (.fj-404): a code line, the headline,
+// one primary action and the map panel. The requested address is never shown back (AC-07);
+// "See projects" waits for a Published project (AC-08).
+import BaseLayout from '../layouts/BaseLayout.astro';
+import TerrainMap from '../components/brand/TerrainMap.astro';
+import Button from '../components/ui/Button.astro';
+---
+
+<BaseLayout title="Ikke funnet · alpon.dev" description="Page not found." noindex ctaBand={false}>
+  <div class="wrap">
+    <section class="not-found" aria-labelledby="not-found-title">
+      <div class="text">
+        <p class="code">
+          <b>404</b> / <span lang="no">Ikke funnet</span>
+        </p>
+        <h1 class="title" id="not-found-title">
+          This page is off the map.
+        </h1>
+        <p class="body">The link may be old, or the page has moved.</p>
+        <div class="actions">
+          <Button href="/" arrow>
+            Back to home
+          </Button>
+        </div>
+      </div>
+      <TerrainMap />
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  .wrap {
+    width: 100%;
+    max-width: calc(var(--fjord-content-max) + 2 * var(--fjord-grid-margin));
+    margin: 0 auto;
+    padding: 0 var(--fjord-grid-margin);
+  }
+
+  /* .fj-404: one column below 1024, 5 / 7 columns from 1024 with the text centred vertically. */
+  .not-found {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: center;
+    gap: var(--fjord-space-12);
+    padding: var(--fjord-space-404) 0 var(--fjord-space-section);
+  }
+
+  @media (min-width: 1024px) {
+    .not-found {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      gap: var(--fjord-space-16);
+    }
+  }
+
+  .text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--fjord-space-5);
+  }
+
+  .code {
+    margin: 0;
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-mono-label);
+    font-weight: var(--fjord-weight-medium);
+    line-height: var(--fjord-leading-none);
+    letter-spacing: var(--fjord-tracking-label);
+    font-variant-numeric: tabular-nums;
+    color: var(--fjord-color-text-muted);
+  }
+
+  .code b {
+    font-weight: var(--fjord-weight-medium);
+    color: var(--fjord-color-link);
+  }
+
+  .title {
+    margin: 0;
+    font-size: var(--fjord-text-h1);
+    font-weight: var(--fjord-weight-semibold);
+    letter-spacing: var(--fjord-tracking-heading);
+    line-height: var(--fjord-leading-heading);
+    text-wrap: balance;
+  }
+
+  .body {
+    margin: 0;
+    max-width: var(--fjord-measure-narrow);
+    color: var(--fjord-color-text-muted);
+    font-size: var(--fjord-text-lead);
+    line-height: var(--fjord-leading-normal);
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--fjord-space-3);
+    margin-top: var(--fjord-space-1);
+  }
+</style>

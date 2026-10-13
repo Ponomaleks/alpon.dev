@@ -1,0 +1,27 @@
+{
+  "name": "alpon.dev Fjord",
+  "version": "1.1.0",
+  "color": {
+    "stone":   { "hex": "#F3F4F0", "cmyk": [3, 1, 5, 2],     "use": "light ground, card front" },
+    "spruce":  { "hex": "#24493D", "cmyk": [82, 45, 70, 45], "use": "deep ground, card back" },
+    "accent":  { "hex": "#2E5E4E", "cmyk": [80, 40, 65, 28], "use": "accent text, links" },
+    "ink":     { "hex": "#1B2421", "cmyk": [0, 0, 0, 100],   "use": "primary text, QR (print: K only)" },
+    "muted":   { "hex": "#5E6B65", "cmyk": [40, 20, 35, 50], "use": "secondary text" },
+    "snow":    { "hex": "#EEF2EE", "cmyk": [3, 0, 4, 0],     "use": "text on spruce" },
+    "lichen":  { "hex": "#BFD3C9", "cmyk": [25, 5, 20, 0],   "use": "secondary text on spruce" },
+    "contour": { "hex": "#9CC3B2", "opacity": 0.28, "flattened_on_spruce": "#4F7466", "cmyk_flattened": [72, 38, 60, 22] }
+  },
+  "font": {
+    "sans": { "family": "Schibsted Grotesk", "weights": [400, 500, 600, 700], "license": "OFL" },
+    "mono": { "family": "JetBrains Mono", "weights": [400, 500, 700], "license": "OFL" }
+  },
+  "card": {
+    "trim_mm": [85, 55], "bleed_mm": 3, "safe_mm": 6,
+    "name": { "font": "sans", "weight": 600, "size_pt": 13 },
+    "role": { "font": "sans", "weight": 500, "size_pt": 7.5, "color": "accent" },
+    "role2": { "font": "sans", "weight": 400, "size_pt": 7.5, "color": "muted" },
+    "contacts": { "font": "mono", "weight": 400, "size_pt": 6.3 },
+    "cta": { "font": "sans", "weight": 700, "size_pt": 15, "color": "snow" },
+    "qr": { "size_mm": 25, "tile_mm": 31, "tile_radius_mm": 1.8, "ecc": "Q", "version": 2, "dot_ratio": 0.62, "data": "https://alpon.dev" }
+  }
+}

@@ -1,0 +1,63 @@
+---
+// Quick facts (AC-07): a mono description list with a fixed key column and hairline rows.
+// A fact with several values (the languages) shows one per line, each its own description.
+import type { QuickFact } from '../../data/home';
+
+interface Props {
+  items: QuickFact[];
+}
+
+const { items } = Astro.props;
+---
+
+<dl class="quick">
+  {items.map((item) => (
+    <div class="quick__row">
+      <dt>{item.k}</dt>
+      {[item.v].flat().map((line) => (
+        <dd>{line}</dd>
+      ))}
+    </div>
+  ))}
+</dl>
+
+<style>
+  .quick {
+    display: flex;
+    flex-direction: column;
+    align-self: start;
+    margin: 0;
+  }
+  .quick__row {
+    display: grid;
+    grid-template-columns: calc(var(--fjord-space-24)) minmax(0, 1fr);
+    column-gap: var(--fjord-space-3);
+    padding: var(--fjord-space-4) 0;
+    border-top: var(--fjord-border-width) solid var(--fjord-color-border);
+  }
+  .quick__row:last-child {
+    border-bottom: var(--fjord-border-width) solid var(--fjord-color-border);
+  }
+  dt {
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-mono-sm);
+    font-weight: var(--fjord-weight-medium);
+    line-height: var(--fjord-leading-normal);
+    letter-spacing: var(--fjord-tracking-label);
+    color: var(--fjord-color-text-muted);
+  }
+  dd {
+    grid-column: 2;
+    margin: 0;
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-ui-sm);
+    font-weight: var(--fjord-weight-regular);
+    line-height: var(--fjord-leading-body);
+    color: var(--fjord-color-text);
+  }
+  @media (min-width: 1024px) {
+    .quick {
+      margin-top: var(--fjord-space-10);
+    }
+  }
+</style>

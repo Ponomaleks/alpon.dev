@@ -1,0 +1,1097 @@
+---
+// SCR-04 Styleguide (base-components screens.md): an Owner page, noindex, linked from nowhere and
+// not in the sitemap (AC-22). The real Header and Footer come from BaseLayout; everything else is a
+// static sample inside one section, with forced states (data-demo-state) and `disabled` (AC-21).
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Button from '../components/ui/Button.astro';
+import Link from '../components/ui/Link.astro';
+import CopyButton from '../components/ui/CopyButton.astro';
+import IconButton from '../components/ui/IconButton.astro';
+import Icon, { type IconName } from '../components/ui/Icon.astro';
+import Badge from '../components/ui/Badge.astro';
+import Tag from '../components/ui/Tag.astro';
+import Stat from '../components/ui/Stat.astro';
+import SectionHeader from '../components/ui/SectionHeader.astro';
+import Toast from '../components/ui/Toast.astro';
+import SkipLink from '../components/layout/SkipLink.astro';
+import ThemeToggle from '../components/layout/ThemeToggle.astro';
+import Header from '../components/layout/Header.astro';
+import MobileMenu from '../components/layout/MobileMenu.astro';
+import MobileBar from '../components/layout/MobileBar.astro';
+import BackToTop from '../components/layout/BackToTop.astro';
+import PrintContactLine from '../components/cv/PrintContactLine.astro';
+import CtaBand from '../components/layout/CtaBand.astro';
+import { defaultBarActions, homeBandActions, type BarSlot } from '../data/shell-actions';
+import Contours from '../components/brand/Contours.astro';
+import TerrainMap from '../components/brand/TerrainMap.astro';
+import Wordmark from '../components/brand/Wordmark.astro';
+import QrTile from '../components/brand/QrTile.astro';
+import Portrait from '../components/home/Portrait.astro';
+import SaveContactNote from '../components/home/SaveContactNote.astro';
+import SaveContactSheet from '../components/home/SaveContactSheet.astro';
+import MotionControl from '../components/home/MotionControl.astro';
+import QuickFacts from '../components/home/QuickFacts.astro';
+import ExperienceList from '../components/home/ExperienceList.astro';
+import Recommendations from '../components/home/Recommendations.astro';
+import SelectedProjects from '../components/home/SelectedProjects.astro';
+import Breadcrumbs from '../components/ui/Breadcrumbs.astro';
+import LangSwitch from '../components/ui/LangSwitch.astro';
+import SkillGroup from '../components/cv/SkillGroup.astro';
+import LanguageList from '../components/cv/LanguageList.astro';
+import CvJob from '../components/cv/CvJob.astro';
+import DatedRows from '../components/cv/DatedRows.astro';
+import OriginalPdfPreview from '../components/cv/OriginalPdfPreview.astro';
+import { contact } from '../data/contact';
+import { cvPdf } from '../data/cv/index';
+import type { ExperienceEntry } from '../data/home';
+import {
+  sampleCvContents,
+  sampleCvJobs,
+  sampleCvLanguages,
+  sampleCvRows,
+  sampleCvSkillGroups,
+  sampleLongRecommendation,
+  sampleProjects,
+  sampleRecommendations,
+} from '../data/samples';
+
+const iconNames: IconName[] = [
+  'arrow-right',
+  'arrow-left',
+  'arrow-up-right',
+  'menu',
+  'x',
+  'file-text',
+  'map-pin',
+  'play',
+  'pause',
+  'check',
+  'chevron-down',
+  'chevron-up',
+  'copy',
+  'download',
+  'file-down',
+  'eye',
+  'arrow-up',
+  'user-plus',
+  'mail',
+  'phone',
+  'linkedin',
+  'github',
+];
+const states = ['hover', 'focus', 'active'] as const;
+// Sample copy for the home components; none of it is a fact about anyone. Key facts and the contact
+// list are built from their base parts here: their own components load the home scripts (sad.md §11).
+const keyFactSamples = [
+  {
+    value: 3,
+    suffix: '+',
+    unit: 'yrs',
+    label: 'Sample with a suffix and a unit',
+    context: 'Context line',
+  },
+  { value: 40, prefix: '~', label: 'Sample with a prefix', context: 'Context line' },
+  { value: 2000, prefix: '~', label: 'Sample with four digits', context: 'Context line' },
+  { value: 100, suffix: '+', label: 'Sample with a suffix', context: 'Context line' },
+];
+const quickFactSamples = [
+  { k: 'Based in', v: 'Sample place · sample note' },
+  { k: 'Focus', v: 'Sample focus' },
+  { k: 'Stack', v: 'Sample · Stack · Names' },
+  { k: 'Languages', v: ['Sample language, sample level', 'Another language, sample level'] },
+];
+const entrySample: ExperienceEntry = {
+  role: 'Sample role',
+  org: 'Sample organisation',
+  period: 'Jan 2022 – Jan 2024',
+  location: 'Sample place',
+  summary: 'A sample summary of the entry, two lines at most.',
+  points: ['A sample point.', 'Another sample point.'],
+  stack: ['Sample', 'Tags'],
+};
+const experienceSamples: (ExperienceEntry & { demo?: 'hover' | 'focus' })[] = [
+  {
+    ...entrySample,
+    role: 'Sample role, open and current',
+    open: true,
+    current: true,
+    demo: 'hover',
+  },
+  { ...entrySample, role: 'Sample role, closed', demo: 'focus' },
+  { ...entrySample, role: 'Sample role, no points and no tags', points: [], stack: [] },
+];
+// The profile rows leave the site: external links, as in the Contact block (home D-09).
+const contactRows = [
+  ['Phone', 'sample phone', undefined],
+  ['LinkedIn', 'linkedin.com/in/sample', 'https://www.linkedin.com/'],
+  ['GitHub', 'github.com/sample', 'https://github.com/'],
+] as const;
+const sentenceStates = [undefined, 'hover', 'focus'] as const;
+// The CV components (cv AC-29). Breadcrumbs and the Language switch take no forced state, so a
+// wrapper carries data-demo-state and the styles below draw the state on the link inside.
+const twoCrumbs = [{ label: 'Sample site', href: '/' }, { label: 'Sample page' }];
+const threeCrumbs = [
+  { label: 'Sample site', href: '/' },
+  { label: 'Sample part', href: '/' },
+  { label: 'Sample page' },
+];
+const cvPages = { enHref: contact.links.cvPages.en, noHref: contact.links.cvPages.no };
+const switchSamples = [
+  { size: 'large', current: 'en', demo: undefined },
+  { size: 'large', current: 'no', demo: undefined },
+  { size: 'default', current: 'en', demo: 'hover' },
+  { size: 'default', current: 'no', demo: 'focus' },
+] as const;
+const cvBarSample: readonly [BarSlot, BarSlot] = [
+  { kind: 'lang-switch', current: 'en', group: 'CV language', ...cvPages },
+  {
+    label: 'Download PDF',
+    href: cvPdf.en.href,
+    icon: 'file-down',
+    download: cvPdf.en.downloadName,
+  },
+];
+// The CV form of the contact list: "Based in" with the Residence and no "Add to contacts"; the
+// Norwegian form has its own labels and copy action (cv screens C-3, C-4).
+const cvContactSamples = [
+  {
+    lang: undefined,
+    email: 'Email',
+    phone: 'Phone',
+    based: 'Based in',
+    copy: 'Copy',
+    done: 'Copied',
+  },
+  {
+    lang: 'no',
+    email: 'E-post',
+    phone: 'Telefon',
+    based: 'Bosted',
+    copy: 'Kopier',
+    done: 'Kopiert',
+  },
+];
+const stateLabel = { hover: 'Hover', focus: 'Focus', active: 'Pressed' } as const;
+---
+
+<BaseLayout
+  title="Styleguide · alpon.dev"
+  description="Base components of alpon.dev in every state."
+  noindex
+  mobileBar={false}
+  ctaBand={false}
+  backToTop={false}
+>
+  <div class="sg">
+    <h1>Styleguide</h1>
+
+    <section data-section="Button" class="sg__section">
+      <h2>Button</h2>
+      <div class="sg__row">
+        <Button arrow>Primary</Button>
+        {states.map((s) => (
+          <Button arrow data-demo-state={s}>
+            {stateLabel[s]}
+          </Button>
+        ))}
+        <Button arrow disabled>
+          Disabled
+        </Button>
+      </div>
+      <div class="sg__row">
+        <Button variant="secondary">Secondary</Button>
+        {states.map((s) => (
+          <Button variant="secondary" data-demo-state={s}>
+            {stateLabel[s]}
+          </Button>
+        ))}
+        <Button variant="secondary" disabled>
+          Disabled
+        </Button>
+      </div>
+      <div class="sg__row">
+        <Button size="lg" arrow>
+          Large
+        </Button>
+        <Button icon="file-text" variant="secondary">
+          With icon
+        </Button>
+        <Button href="/" variant="secondary">
+          As link
+        </Button>
+      </div>
+      <div class="sg__row">
+        <Button variant="ghost">Ghost</Button>
+        {states.map((s) => (
+          <Button variant="ghost" data-demo-state={s}>
+            {stateLabel[s]}
+          </Button>
+        ))}
+        <Button variant="ghost" size="sm">
+          Small
+        </Button>
+        <Button variant="ghost" icon="eye">
+          With icon
+        </Button>
+        <Button variant="ghost" size="sm" icon="eye">
+          Small with icon
+        </Button>
+      </div>
+      <div class="sg__block">
+        <Button block size="lg" arrow>
+          Block
+        </Button>
+      </div>
+    </section>
+
+    <section data-section="Link" class="sg__section">
+      <h2>Link</h2>
+      <div class="sg__row">
+        <Link href="/">Default</Link>
+        {states.map((s) => (
+          <Link href="/" data-demo-state={s}>
+            {stateLabel[s]}
+          </Link>
+        ))}
+        <Link href="/" standalone>
+          Standalone
+        </Link>
+        <Link href="/" standalone data-demo-state="hover">
+          Standalone, hover
+        </Link>
+        <Link href="https://github.com/" external>
+          GitHub
+        </Link>
+      </div>
+    </section>
+
+    <section data-section="IconButton" class="sg__section">
+      <h2>IconButton</h2>
+      <div class="sg__row">
+        <IconButton icon="menu" label="Menu" />
+        {states.map((s) => (
+          <IconButton icon="menu" label={`Menu, ${stateLabel[s]}`} data-demo-state={s} />
+        ))}
+        <IconButton icon="menu" label="Menu, disabled" disabled />
+      </div>
+    </section>
+
+    <section data-section="Icon" class="sg__section">
+      <h2>Icon</h2>
+      <ul class="sg__row sg__icons">
+        {iconNames.map((name) => (
+          <li>
+            <Icon name={name} />
+            <code>{name}</code>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <section data-section="Badge" class="sg__section">
+      <h2>Badge</h2>
+      <div class="sg__row">
+        <Badge status="open" label="Open to work" detail="Oslo area" />
+        <Badge status="talking" label="In talks" />
+        <Badge status="employed" label="Employed" />
+      </div>
+      <div class="sg__row">
+        <Badge kind="status" status="live" label="Live" />
+        <Badge kind="status" status="progress" label="In progress" />
+        <Badge kind="status" status="archived" label="Archived" />
+      </div>
+    </section>
+
+    <section data-section="Tag" class="sg__section">
+      <h2>Tag</h2>
+      <div class="sg__row">
+        <Tag>TypeScript</Tag>
+      </div>
+      <Tag items={['Astro', 'TypeScript', 'Node.js', 'PostgreSQL', 'Playwright', 'Cloudflare']} />
+      <Tag plain items={['Astro', 'TypeScript', 'Node.js']} />
+    </section>
+
+    <section data-section="Stat" class="sg__section">
+      <h2>Stat</h2>
+      <p class="sg__note">
+        The numbers count up when they scroll into view (countUp). Without scripts, or with reduced
+        motion, they show the final number at once.
+      </p>
+      {/* Sample values in the forms the page design uses; they are not facts about anyone. */}
+      <Stat
+        rowLabel="Sample numbers"
+        items={[
+          {
+            value: 3,
+            suffix: '+',
+            unit: 'yrs',
+            label: 'Sample with a suffix and a unit',
+            context: 'Context line · 2022 – 2026',
+          },
+          { value: 40, prefix: '~', label: 'Sample with a prefix', context: 'Context line' },
+          { value: 2000, prefix: '~', label: 'Sample with four digits' },
+          { value: 100, suffix: '+', label: 'Sample with a suffix' },
+        ]}
+      />
+      <div class="sg__gap" data-long-value>
+        <Stat
+          items={[
+            { value: '1234567890123', label: 'Sample with a value too long for its column' },
+            { value: 12, label: 'Sample neighbour' },
+          ]}
+        />
+      </div>
+    </section>
+
+    <section data-section="SectionHeader" class="sg__section">
+      <h2>SectionHeader</h2>
+      <SectionHeader
+        as="h3"
+        size="lg"
+        index="01"
+        eyebrow="Work"
+        title="Large with eyebrow and lead"
+        lead="A short lead under the heading."
+      />
+      <SectionHeader as="h3" size="md" title="Medium, no eyebrow" />
+      <SectionHeader as="h3" size="sm" index="02" eyebrow="About" title="Small with eyebrow" />
+    </section>
+
+    <section data-section="Toast" class="sg__section">
+      <h2>Toast</h2>
+      <div class="sg__row">
+        <Toast sample icon="check" message="Copied" meta="alpon@example.com" />
+        <Toast sample message="Couldn't copy. Select the address to copy it." lang="en" />
+        <Toast sample icon="check" message="Kopiert" meta="sample@example.com" lang="no" />
+        <span data-needs-script id="sg-show-toast">
+          <Button variant="secondary">Show toast</Button>
+        </span>
+      </div>
+    </section>
+
+    <section data-section="Contours" class="sg__section">
+      <h2>Contours</h2>
+      <div class="sg__row">
+        <div class="sg__frame">
+          <Contours variant="ridge" />
+        </div>
+        <div class="sg__frame">
+          <Contours variant="corner" />
+        </div>
+      </div>
+    </section>
+
+    <section data-section="Terrain map" class="sg__section">
+      <h2>Terrain map</h2>
+      <div class="sg__map">
+        <TerrainMap />
+      </div>
+    </section>
+
+    <section data-section="Wordmark" class="sg__section">
+      <h2>Wordmark</h2>
+      <div class="sg__row">
+        <Wordmark />
+        <div class="sg__spruce fjord-on-spruce">
+          <Wordmark onSpruce />
+        </div>
+      </div>
+    </section>
+
+    <section data-section="Skip link" class="sg__section">
+      <h2>Skip link</h2>
+      <p>Shown in the flow; the real one is off-screen until focused.</p>
+      <div class="sg__row">
+        <SkipLink sample />
+      </div>
+    </section>
+
+    <section data-section="Theme switch" class="sg__section">
+      <h2>Theme switch</h2>
+      <div class="sg__row">
+        <ThemeToggle sample="dag" demoState="hover" />
+        <ThemeToggle sample="natt" demoState="focus" />
+      </div>
+    </section>
+
+    <section data-section="Header variants" class="sg__section">
+      <h2>Header variants</h2>
+      <div class="sg__stack">
+        <Header sample linkState="hover" />
+        <Header sample scrolled linkState="focus" />
+        <Header sample variant="on-spruce" />
+        <Header sample current="cv" />
+        <Header sample overHero sampleTheme="dag" />
+        <Header sample overHero cta="secondary" sampleTheme="dag" />
+        <Header sample overHero cta="secondary" sampleTheme="natt" />
+      </div>
+    </section>
+
+    <section data-section="Mobile menu panel" class="sg__section">
+      <h2>Mobile menu panel</h2>
+      <div class="sg__phone">
+        <MobileMenu sample current="cv" />
+      </div>
+    </section>
+
+    <section data-section="Sticky action bar" class="sg__section">
+      <h2>Sticky action bar</h2>
+      <div class="sg__phone sg__phone--bar">
+        <MobileBar sample actions={defaultBarActions} />
+      </div>
+      <div class="sg__phone sg__phone--bar">
+        <MobileBar sample collapsed actions={defaultBarActions} />
+      </div>
+      <div class="sg__phone sg__phone--bar">
+        <MobileBar sample actions={cvBarSample} />
+      </div>
+    </section>
+
+    <section data-section="Closing band" class="sg__section">
+      <h2>Closing band</h2>
+      <div class="sg__stack">
+        <div data-sample>
+          <CtaBand />
+        </div>
+        <div data-sample>
+          <CtaBand cvLang="no" />
+        </div>
+        <div data-sample>
+          <CtaBand actions={homeBandActions()} />
+        </div>
+        <div data-sample>
+          <CtaBand cvLang="no" actions={homeBandActions('no')} />
+        </div>
+      </div>
+    </section>
+
+    <section data-section="Portrait" class="sg__section">
+      <h2>Portrait</h2>
+      <div class="sg__row sg__row--top">
+        <div data-sample-size="200">
+          <Portrait />
+        </div>
+        <div data-sample-size="340">
+          <Portrait />
+        </div>
+      </div>
+    </section>
+
+    <section data-section="Motion control" class="sg__section">
+      <h2>Motion control</h2>
+      <div class="sg__row">
+        <MotionControl sample="pause" />
+        <MotionControl sample="pause" data-demo-state="hover" />
+        <MotionControl sample="pause" data-demo-state="focus" />
+        <MotionControl sample="play" data-demo-state="active" />
+        <MotionControl sample="play" />
+      </div>
+    </section>
+
+    <section data-section="Key facts" class="sg__section">
+      <h2>Key facts</h2>
+      <div class="sg__panel">
+        <Stat items={keyFactSamples} />
+      </div>
+    </section>
+
+    <section data-section="Quick facts" class="sg__section">
+      <h2>Quick facts</h2>
+      <QuickFacts items={quickFactSamples} />
+    </section>
+
+    <section data-section="Experience list" class="sg__section">
+      <h2>Experience list</h2>
+      <ExperienceList sample items={experienceSamples} />
+    </section>
+
+    <section data-section="Contact list" class="sg__section">
+      <h2>Contact list</h2>
+      <dl class="sg__contact">
+        <div class="sg__contact-row">
+          <dt>Email</dt>
+          <dd>
+            <a class="sg__contact-value" href="mailto:sample@example.com">
+              sample@example.com
+            </a>
+            <span class="sg__contact-copy" data-copy-state="default">
+              <CopyButton />
+              <CopyButton data-demo-state="hover" />
+              <CopyButton data-demo-state="focus" />
+              <CopyButton data-done="true" />
+            </span>
+          </dd>
+        </div>
+        {contactRows.map(([k, v, outside]) => (
+          <div class="sg__contact-row">
+            <dt>{k}</dt>
+            <dd>
+              {outside ? (
+                <span class="sg__contact-value">
+                  <Link href={outside} external quiet>
+                    {v}
+                  </Link>
+                </span>
+              ) : (
+                <a class="sg__contact-value" href="/">
+                  {v}
+                </a>
+              )}
+            </dd>
+          </div>
+        ))}
+        <div class="sg__contact-row">
+          <dt>Region</dt>
+          <dd>
+            <span class="sg__contact-value" lang="no">
+              Oslo, Norge
+            </span>
+          </dd>
+        </div>
+      </dl>
+      <Button
+        variant="secondary"
+        href="/alexander-ponomarenko.vcf"
+        icon="user-plus"
+        download
+        meta=".vcf"
+        metaName="(vCard file)"
+      >
+        Add to contacts
+      </Button>
+      <div class="sg__gap">
+        <SaveContactNote sample />
+      </div>
+      {cvContactSamples.map((form) => (
+        <div class="sg__aside sg__gap" data-sample>
+          <p class="sg__sample-label">Sample data</p>
+          <dl class="sg__contact" lang={form.lang}>
+            <div class="sg__contact-row">
+              <dt>{form.email}</dt>
+              <dd>
+                <a class="sg__contact-value" href="mailto:sample@example.com">
+                  sample@example.com
+                </a>
+                <span class="sg__contact-copy">
+                  <CopyButton label={form.copy} done={form.done} />
+                </span>
+              </dd>
+            </div>
+            {contactRows.map(([k, v, outside]) => (
+              <div class="sg__contact-row">
+                <dt>{k === 'Phone' ? form.phone : k}</dt>
+                <dd>
+                  {outside ? (
+                    <span class="sg__contact-value">
+                      <Link href={outside} external quiet>
+                        {v}
+                      </Link>
+                    </span>
+                  ) : (
+                    <a class="sg__contact-value" href="/">
+                      {v}
+                    </a>
+                  )}
+                </dd>
+              </div>
+            ))}
+            <div class="sg__contact-row">
+              <dt>{form.based}</dt>
+              <dd>
+                <span class="sg__contact-value">Sample place</span>
+              </dd>
+            </div>
+          </dl>
+        </div>
+      ))}
+    </section>
+
+    <section data-section="Save contact sheet" class="sg__section">
+      <h2>Save contact sheet</h2>
+      <p class="sg__note">
+        Opens after "Add to contacts" on touch devices. Static sample: the live sheet is a modal
+        dialog at the bottom of the screen.
+      </p>
+      <SaveContactSheet sample />
+    </section>
+
+    <section data-section="QR tile" class="sg__section">
+      <h2>QR tile</h2>
+      <div class="sg__row">
+        <QrTile sample="dag" />
+        <QrTile sample="natt" />
+      </div>
+    </section>
+
+    <section data-section="Mail-link sentence" class="sg__section">
+      <h2>Mail-link sentence</h2>
+      {sentenceStates.map((s) => (
+        <p class="sg__sentence">
+          Hiring?{' '}
+          <Link href="mailto:sample@example.com" data-demo-state={s}>
+            A short email
+          </Link>{' '}
+          about the role is the quickest way to reach me.
+        </p>
+      ))}
+    </section>
+
+    <section data-section="Testimonial" class="sg__section">
+      <h2>Testimonial</h2>
+      <div data-sample>
+        <p class="sg__sample-label">Sample data</p>
+        <Recommendations
+          sample
+          items={[...sampleRecommendations, { ...sampleLongRecommendation, demo: 'collapsed' }]}
+        />
+      </div>
+    </section>
+
+    <section data-section="Selected projects" class="sg__section">
+      <h2>Selected projects</h2>
+      <p class="sg__note">
+        Dormant section: built, and shown only here until the Projects pages exist. The home page
+        does not render it.
+      </p>
+      <div class="sg__dormant" data-sample>
+        <p class="sg__sample-label">Sample data</p>
+        <SelectedProjects items={sampleProjects} as="h3" />
+      </div>
+    </section>
+
+    <section data-section="Breadcrumbs" class="sg__section">
+      <h2>Breadcrumbs</h2>
+      <div data-sample>
+        <p class="sg__sample-label">Sample data</p>
+        <div class="sg__stack">
+          <Breadcrumbs label="Breadcrumb, two items" items={twoCrumbs} />
+          <Breadcrumbs label="Breadcrumb, three items" items={threeCrumbs} />
+          <div data-demo-state="hover">
+            <Breadcrumbs label="Breadcrumb, hover" items={twoCrumbs} />
+          </div>
+          <div data-demo-state="focus">
+            <Breadcrumbs label="Breadcrumb, focus" items={twoCrumbs} />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section data-section="Language switch" class="sg__section">
+      <h2>Language switch</h2>
+      <div data-sample>
+        <p class="sg__sample-label">Sample data</p>
+        <div class="sg__row">
+          {switchSamples.map(({ size, current, demo }) => (
+            <div data-demo-state={demo}>
+              <LangSwitch current={current} size={size} group="CV language" {...cvPages} />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section data-section="Skill group" class="sg__section">
+      <h2>Skill group</h2>
+      <div data-sample>
+        <p class="sg__sample-label">Sample data</p>
+        <div class="sg__pair">
+          {sampleCvSkillGroups.map((group) => (
+            <SkillGroup group={group} />
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section data-section="Language list" class="sg__section">
+      <h2>Language list</h2>
+      <div class="sg__aside" data-sample>
+        <p class="sg__sample-label">Sample data</p>
+        <LanguageList languages={sampleCvLanguages} />
+      </div>
+    </section>
+
+    <section data-section="CV job" class="sg__section">
+      <h2>CV job</h2>
+      <div data-sample>
+        <p class="sg__sample-label">Sample data</p>
+        <div class="sg__stack">
+          {sampleCvJobs.map((job, i) => (
+            <CvJob
+              first={i === 0}
+              job={{
+                ...job,
+                appliedLabel: 'Applied technologies',
+                internalLabel: 'Internal projects',
+              }}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section data-section="Dated rows" class="sg__section">
+      <h2>Dated rows</h2>
+      <div data-sample>
+        <p class="sg__sample-label">Sample data</p>
+        <DatedRows rows={sampleCvRows} />
+      </div>
+    </section>
+
+    <section data-section="Contents list" class="sg__section">
+      <h2>Contents list</h2>
+      <div class="sg__aside" data-sample>
+        <p class="sg__sample-label">Sample data</p>
+        <ol class="sg__toc">
+          {sampleCvContents.map((heading, i) => (
+            <li>
+              <a href={`#sample-section-${i + 1}`} data-demo-state={sentenceStates[i]}>
+                <span>{String(i + 1).padStart(2, '0')}</span>
+                {heading}
+              </a>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+
+    <section data-section="Original PDF preview" class="sg__section">
+      <h2>Original PDF preview</h2>
+      <div data-sample>
+        <p class="sg__sample-label">Sample data</p>
+        <div class="sg__stack">
+          <OriginalPdfPreview lang="en" />
+          <OriginalPdfPreview lang="en" open />
+        </div>
+      </div>
+    </section>
+
+    <section data-section="BackToTop" class="sg__section">
+      <h2>BackToTop</h2>
+      <div class="sg__row">
+        <BackToTop sample />
+        <BackToTop sample data-demo-state="hover" />
+        <BackToTop sample data-demo-state="focus" />
+      </div>
+    </section>
+
+    <section data-section="Print contact line" class="sg__section">
+      <h2>Print contact line</h2>
+      <div data-sample>
+        <p class="sg__sample-label">Sample data</p>
+        <div class="sg__print-frame">
+          <PrintContactLine />
+        </div>
+      </div>
+    </section>
+  </div>
+  {/* Inside the layout: a script after it would follow the Web Analytics script, which has to
+       be the last element of the body (release-1 AC-01). */}
+  <script>
+    document.getElementById('sg-show-toast')?.addEventListener('click', () => {
+      document.dispatchEvent(
+        new CustomEvent('fjord:toast', {
+          detail: { message: 'Copied', meta: 'Sample' },
+        }),
+      );
+    });
+  </script>
+</BaseLayout>
+
+<style>
+  /* The line is hidden on screen; the frame shows it as it prints, on the print colours. */
+  .sg__print-frame {
+    padding: var(--fjord-space-6);
+    background: var(--fjord-print-bg);
+    color: var(--fjord-print-text);
+    border: 1px solid var(--fjord-color-border);
+  }
+  .sg__print-frame :global(.cv-print-line) {
+    display: block;
+    color: var(--fjord-print-text);
+  }
+  .sg {
+    max-width: var(--fjord-content-max);
+    padding: var(--fjord-space-section) var(--fjord-grid-margin);
+  }
+
+  h1 {
+    margin: 0 0 var(--fjord-space-8);
+    font-size: var(--fjord-text-h1);
+  }
+
+  .sg__section {
+    padding-block: var(--fjord-space-8);
+    border-top: var(--fjord-border-width) solid var(--fjord-color-border);
+  }
+
+  h2 {
+    margin: 0 0 var(--fjord-space-6);
+    font-size: var(--fjord-text-h3);
+  }
+
+  .sg__note {
+    margin: 0 0 var(--fjord-space-4);
+    max-width: var(--fjord-measure-narrow);
+    line-height: var(--fjord-leading-body);
+  }
+
+  /* Marks a block of sample data (AC-12); the placeholder check skips it (AC-28). */
+  .sg__sample-label {
+    margin: 0 0 var(--fjord-space-5);
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-mono-sm);
+    line-height: var(--fjord-leading-ui);
+    letter-spacing: var(--fjord-tracking-label);
+    color: var(--fjord-color-text-muted);
+  }
+  /* The section brings the page container of the home page; the Styleguide has its own. */
+  .sg__dormant :global(.projects) {
+    padding-top: 0;
+  }
+  .sg__dormant :global(.projects__wrap) {
+    max-width: none;
+    padding-inline: 0;
+  }
+
+  .sg__gap {
+    margin-top: var(--fjord-space-8);
+  }
+
+  .sg__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--fjord-space-4);
+    margin: 0 0 var(--fjord-space-4);
+    padding: 0;
+    list-style: none;
+  }
+
+  .sg__icons li {
+    display: flex;
+    align-items: center;
+    gap: var(--fjord-space-2);
+  }
+
+  .sg__frame {
+    position: relative;
+    overflow: hidden;
+    inline-size: 100%;
+    max-inline-size: var(--fjord-measure-narrow);
+    aspect-ratio: 16 / 10;
+    border: var(--fjord-border-width) solid var(--fjord-color-border);
+  }
+
+  .sg__stack {
+    display: grid;
+    gap: var(--fjord-space-6);
+  }
+
+  .sg__phone {
+    position: relative;
+    overflow: hidden;
+    inline-size: 100%;
+    /* The phone width of the page design (screens.md SCR-04). */
+    max-inline-size: 390px;
+    block-size: calc(var(--fjord-space-32) * 5);
+    border: var(--fjord-border-width) solid var(--fjord-color-border);
+  }
+
+  .sg__phone--bar {
+    block-size: var(--fjord-space-32);
+  }
+
+  .sg__map {
+    max-inline-size: var(--fjord-measure);
+  }
+
+  .sg__row--top {
+    align-items: flex-start;
+  }
+
+  /* The portrait is 200 wide, then 260 and 340 by viewport; the samples pin both sizes. */
+  [data-sample-size='200'] :global(.portrait) {
+    width: 200px;
+  }
+
+  [data-sample-size='340'] :global(.portrait) {
+    width: 340px;
+    max-width: 100%;
+  }
+
+  .sg__panel {
+    padding: var(--fjord-space-6) var(--fjord-space-panel) var(--fjord-space-7);
+    border: var(--fjord-border-width) solid var(--fjord-color-border);
+    border-radius: var(--fjord-radius-md);
+    background: var(--fjord-color-bg-raised);
+  }
+
+  .sg__panel :global(.stat) {
+    border-top-color: var(--fjord-color-border);
+  }
+
+  /* The same look as home/ContactBlock, rebuilt here (its own component loads the home scripts). */
+  .sg__contact {
+    margin: 0 0 var(--fjord-space-5);
+  }
+
+  .sg__contact-row {
+    display: grid;
+    grid-template-columns: calc(var(--fjord-space-14) + var(--fjord-space-1)) minmax(0, 1fr);
+    column-gap: var(--fjord-space-2);
+    align-items: center;
+    min-block-size: var(--fjord-space-14);
+    border-top: var(--fjord-border-width) solid var(--fjord-color-border);
+  }
+
+  .sg__contact-row:last-child {
+    border-bottom: var(--fjord-border-width) solid var(--fjord-color-border);
+  }
+
+  .sg__contact dt {
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-mono-sm);
+    font-weight: var(--fjord-weight-medium);
+    line-height: var(--fjord-leading-none);
+    letter-spacing: var(--fjord-tracking-label);
+    color: var(--fjord-color-text-muted);
+  }
+
+  .sg__contact dd {
+    display: flex;
+    align-items: center;
+    gap: var(--fjord-space-1);
+    margin: 0;
+    min-width: 0;
+  }
+
+  /* From 768: the widths of the design. */
+  @media (min-width: 768px) {
+    .sg__contact-row {
+      grid-template-columns: calc(var(--fjord-space-20) + var(--fjord-space-2)) minmax(0, 1fr);
+      column-gap: var(--fjord-space-3);
+    }
+    .sg__contact dd {
+      gap: var(--fjord-space-3);
+    }
+  }
+
+  .sg__contact-value {
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-ui);
+    font-weight: var(--fjord-weight-regular);
+    line-height: var(--fjord-leading-snug);
+    color: var(--fjord-color-text);
+    text-decoration: none;
+    overflow-wrap: anywhere;
+  }
+
+  a.sg__contact-value {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--fjord-tap-min);
+  }
+
+  a.sg__contact-value:hover {
+    color: var(--fjord-color-link);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  a.sg__contact-value:focus-visible {
+    outline: var(--fjord-focus-width) solid var(--fjord-color-focus-ring);
+    outline-offset: var(--fjord-focus-offset);
+    border-radius: var(--fjord-radius-xs);
+  }
+
+  .sg__contact-copy {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--fjord-space-3);
+    margin-inline-start: auto;
+  }
+
+  /* The width of a side column, for the parts the CV page draws there. */
+  .sg__aside {
+    max-inline-size: var(--fjord-measure-narrow);
+  }
+
+  .sg__pair {
+    display: grid;
+    gap: var(--fjord-space-6);
+  }
+
+  @media (min-width: 768px) {
+    .sg__pair {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  /* Forced states of the links inside Breadcrumbs and the Language switch (hook H-4). */
+  [data-demo-state='hover'] :global(.crumbs a) {
+    color: var(--fjord-color-link-hover);
+  }
+
+  [data-demo-state='hover'] :global(.lang-switch a:not([aria-current])) {
+    color: var(--fjord-color-text);
+  }
+
+  [data-demo-state='focus'] :global(.crumbs a),
+  [data-demo-state='focus'] :global(.lang-switch a:not([aria-current])) {
+    outline: var(--fjord-focus-width) solid var(--fjord-color-focus-ring);
+    outline-offset: var(--fjord-focus-offset);
+  }
+
+  /* The same look as the contents list of cv/CvAside, rebuilt here (the side column is not
+     displayed below 1024). */
+  .sg__toc {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .sg__toc a {
+    display: flex;
+    align-items: center;
+    gap: var(--fjord-space-3);
+    min-block-size: var(--fjord-tap-min);
+    border-top: var(--fjord-border-width) solid var(--fjord-color-border);
+    font-size: var(--fjord-text-ui);
+    color: var(--fjord-color-text);
+    text-decoration: none;
+  }
+
+  .sg__toc a span {
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-mono-sm);
+    font-weight: var(--fjord-weight-medium);
+    line-height: var(--fjord-leading-none);
+    color: var(--fjord-color-text-muted);
+  }
+
+  .sg__toc a:hover,
+  .sg__toc a[data-demo-state='hover'] {
+    color: var(--fjord-color-link);
+  }
+
+  .sg__toc a:focus-visible,
+  .sg__toc a[data-demo-state='focus'] {
+    outline: var(--fjord-focus-width) solid var(--fjord-color-focus-ring);
+    outline-offset: var(--fjord-focus-offset);
+    border-radius: var(--fjord-radius-xs);
+  }
+
+  .sg__sentence {
+    margin: 0 0 var(--fjord-space-3);
+    max-width: var(--fjord-measure-narrow);
+    line-height: var(--fjord-leading-body);
+  }
+
+  .sg__spruce {
+    padding: var(--fjord-space-4) var(--fjord-space-6);
+    background-color: var(--fjord-color-bg);
+  }
+</style>

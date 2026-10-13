@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en" data-theme="dag"><head><meta charset="utf-8"><title>alpon.dev · Open Graph images</title>
+<link rel="stylesheet" href="_ds/fjord-design-system-44c954ec-c46f-4ba1-8ea8-f72f1cb07b3d/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/fjord-design-system-44c954ec-c46f-4ba1-8ea8-f72f1cb07b3d/tokens/colors.css">
+<link rel="stylesheet" href="_ds/fjord-design-system-44c954ec-c46f-4ba1-8ea8-f72f1cb07b3d/tokens/typography.css">
+<link rel="stylesheet" href="_ds/fjord-design-system-44c954ec-c46f-4ba1-8ea8-f72f1cb07b3d/tokens/spacing.css">
+<link rel="stylesheet" href="_ds/fjord-design-system-44c954ec-c46f-4ba1-8ea8-f72f1cb07b3d/tokens/motion.css">
+<link rel="stylesheet" href="_ds/fjord-design-system-44c954ec-c46f-4ba1-8ea8-f72f1cb07b3d/tokens/base.css">
+<link rel="stylesheet" href="_ds/fjord-design-system-44c954ec-c46f-4ba1-8ea8-f72f1cb07b3d/components/brand/brand.css">
+<style>body{padding:40px;display:flex;flex-direction:column;gap:40px;width:1200px}.og-l{display:flex;justify-content:space-between;margin-bottom:12px;font:500 13px/1 var(--fjord-font-mono);color:var(--fjord-color-text-muted)}.fj-og{border-radius:8px}</style>
+</head><body><div id="root"></div>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="_ds/fjord-design-system-44c954ec-c46f-4ba1-8ea8-f72f1cb07b3d/_ds_bundle.js"></script>
+<script>
+const { OgImage } = window.FjordDesignSystem_44c954, h = React.createElement;
+const Item = (label, size, props) => h('section', null, h('div', { className: 'og-l' }, h('span', null, label), h('span', null, size)), h(OgImage, props));
+ReactDOM.createRoot(document.getElementById('root')).render(h(React.Fragment, null,
+  Item('Home · alpon.dev', '1200 × 630 · og:image', { theme: 'spruce', eyebrow: 'Hei. / Oslo, Norge · 59.91° N, 10.75° E', title: 'Alexander Ponomarenko', subtitle: 'Software Engineer · Full Stack Developer. Good products are built together.', meta: 'Open to work · Oslo area' }),
+  Item('Project · alpon.dev/projects/project-one', '1200 × 630 · terrain seeded by slug', { theme: 'stone', seed: 'project-one', eyebrow: 'Case study · Web app · 2026', title: 'Project One', subtitle: 'Booking app for small teams: shared calendars, reminders and a public booking page.', meta: 'alpon.dev/projects' })
+));
+</script>
+</body></html>

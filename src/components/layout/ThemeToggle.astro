@@ -1,0 +1,103 @@
+---
+// Theme switch: two buttons in a group (AC-10, AC-12). The selected segment is styled from
+// `data-theme` on <html>, so it is right before any script runs. `sample` renders a fixed
+// selection for the styleguide and never reacts (hook H-3). `demoState` forces the hover or
+// focus look on the segment that is not selected (sample only, AC-21).
+interface Props {
+  sample?: 'dag' | 'natt';
+  demoState?: 'hover' | 'focus';
+}
+
+const { sample, demoState } = Astro.props;
+const options = [
+  { value: 'dag', label: 'Light' },
+  { value: 'natt', label: 'Dark' },
+] as const;
+---
+
+<div
+  class="theme-toggle"
+  role="group"
+  aria-label="Theme"
+  data-needs-script={sample ? undefined : ''}
+  data-sample={sample ? '' : undefined}
+  data-selected={sample}
+>
+  {options.map((option) => (
+    <button
+      type="button"
+      class="theme-toggle__segment"
+      data-theme-button
+      data-theme-value={option.value}
+      aria-pressed={sample ? sample === option.value : undefined}
+      data-demo-state={sample && sample !== option.value ? demoState : undefined}
+    >
+      {option.label}
+    </button>
+  ))}
+</div>
+
+<style>
+  /* The design's segmented control (.fj-seg): a pill track with pill segments, mono labels, and
+     the selected segment inverted (text colour as fill, page ground as text). Segments are 28px
+     high, so the switch is 38px; the overlay keeps each touch target at 44px (spec D-08). */
+  .theme-toggle {
+    display: inline-flex;
+    padding: var(--fjord-space-1);
+    gap: var(--fjord-space-0-5);
+    background-color: var(--fjord-color-bg-raised);
+    border: var(--fjord-border-width) solid var(--fjord-color-border);
+    border-radius: var(--fjord-radius-pill);
+  }
+
+  .theme-toggle__segment {
+    position: relative;
+    block-size: var(--fjord-space-7);
+    min-inline-size: var(--fjord-tap-min);
+    padding: 0 var(--fjord-space-3);
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-mono-sm);
+    font-weight: var(--fjord-weight-medium);
+    line-height: var(--fjord-leading-none);
+    color: var(--fjord-color-text-muted);
+    background: transparent;
+    border: 0;
+    border-radius: var(--fjord-radius-pill);
+    cursor: pointer;
+  }
+
+  .theme-toggle__segment::before {
+    content: '';
+    position: absolute;
+    /* Grows past the control only where it is smaller than the 44px target, on each axis. */
+    inset: min(0px, calc((100% - var(--fjord-tap-min)) / 2));
+  }
+
+  .theme-toggle__segment:hover,
+  .theme-toggle__segment[data-demo-state='hover'] {
+    color: var(--fjord-color-text);
+  }
+
+  .theme-toggle__segment:focus-visible,
+  .theme-toggle__segment[data-demo-state='focus'] {
+    outline: var(--fjord-focus-width) solid var(--fjord-color-focus-ring);
+    outline-offset: 0;
+  }
+
+  /* Selected from the theme itself (live) or from data-selected (sample). */
+  :global(:root[data-theme='dag']) .theme-toggle:not([data-sample]) [data-theme-value='dag'],
+  :global(:root[data-theme='natt']) .theme-toggle:not([data-sample]) [data-theme-value='natt'],
+  .theme-toggle[data-selected='dag'] [data-theme-value='dag'],
+  .theme-toggle[data-selected='natt'] [data-theme-value='natt'] {
+    color: var(--fjord-color-bg);
+    background-color: var(--fjord-color-text);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .theme-toggle__segment {
+      transition:
+        background-color var(--fjord-duration-200) var(--fjord-ease-out),
+        color var(--fjord-duration-200) var(--fjord-ease-out);
+    }
+  }
+</style>

@@ -1,0 +1,51 @@
+/* Fjord · base element styles + helpers. Light: consumers may skip this file and use tokens only. */
+html { background: var(--fjord-color-bg); color: var(--fjord-color-text); -webkit-text-size-adjust: 100%; }
+body { margin: 0; font-family: var(--fjord-font-sans); font-size: var(--fjord-text-body); line-height: var(--fjord-leading-body); font-weight: var(--fjord-weight-regular); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+::selection { background: var(--fjord-color-selection); color: var(--fjord-color-text); }
+h1, h2, h3, h4 { font-weight: var(--fjord-weight-semibold); letter-spacing: var(--fjord-tracking-heading); line-height: var(--fjord-leading-heading); text-wrap: balance; margin: 0; }
+p { text-wrap: pretty; }
+a { color: var(--fjord-color-link); text-decoration-thickness: 1px; text-underline-offset: 0.2em; transition: color var(--fjord-duration-200) var(--fjord-ease-out); }
+a:hover { color: var(--fjord-color-link-hover); }
+:focus-visible { outline: var(--fjord-focus-width) solid var(--fjord-color-focus-ring); outline-offset: var(--fjord-focus-offset); border-radius: var(--fjord-radius-xs); }
+code, kbd, samp, pre { font-family: var(--fjord-font-mono); }
+
+.fjord-display { font-size: var(--fjord-text-display); font-weight: var(--fjord-weight-semibold); letter-spacing: var(--fjord-tracking-display); line-height: var(--fjord-leading-display); }
+.fjord-h1 { font-size: var(--fjord-text-h1); font-weight: var(--fjord-weight-semibold); letter-spacing: var(--fjord-tracking-heading); line-height: var(--fjord-leading-heading); }
+.fjord-h2 { font-size: var(--fjord-text-h2); font-weight: var(--fjord-weight-semibold); letter-spacing: var(--fjord-tracking-heading); line-height: var(--fjord-leading-heading); }
+.fjord-h3 { font-size: var(--fjord-text-h3); font-weight: var(--fjord-weight-semibold); letter-spacing: var(--fjord-tracking-heading); line-height: var(--fjord-leading-tight); }
+.fjord-h4 { font-size: var(--fjord-text-h4); font-weight: var(--fjord-weight-semibold); letter-spacing: var(--fjord-tracking-heading); line-height: var(--fjord-leading-snug); }
+.fjord-lead { font-size: var(--fjord-text-lead); line-height: var(--fjord-leading-normal); color: var(--fjord-color-text-muted); max-width: var(--fjord-measure); }
+.fjord-body { font-size: var(--fjord-text-body); line-height: var(--fjord-leading-body); max-width: var(--fjord-measure); }
+.fjord-small { font-size: var(--fjord-text-body-sm); line-height: var(--fjord-leading-normal); }
+.fjord-caption { font-size: var(--fjord-text-caption); line-height: var(--fjord-leading-normal); color: var(--fjord-color-text-muted); }
+.fjord-stat { font-size: var(--fjord-text-stat); font-weight: var(--fjord-weight-medium); letter-spacing: var(--fjord-tracking-display); line-height: var(--fjord-leading-none); font-variant-numeric: tabular-nums; }
+.fjord-mono-label { font-family: var(--fjord-font-mono); font-size: var(--fjord-text-mono-label); font-weight: var(--fjord-weight-medium); line-height: var(--fjord-leading-mono); letter-spacing: var(--fjord-tracking-label); font-variant-numeric: tabular-nums; }
+.fjord-mono-small { font-family: var(--fjord-font-mono); font-size: var(--fjord-text-mono-sm); line-height: var(--fjord-leading-mono); font-variant-numeric: tabular-nums; }
+
+.fjord-container { width: 100%; max-width: calc(var(--fjord-content-max) + 2 * var(--fjord-grid-margin)); margin-inline: auto; padding-inline: var(--fjord-grid-margin); box-sizing: border-box; }
+.fjord-grid { display: grid; grid-template-columns: repeat(var(--fjord-grid-columns), minmax(0, 1fr)); gap: var(--fjord-grid-gutter); }
+.fjord-visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* contour pattern fills (whole sections) */
+.fjord-contours-spruce { background: var(--fjord-spruce) url("../assets/patterns/contours-tile-spruce-transparent.svg") repeat 0 0 / 900px; }
+.fjord-contours-stone { background: var(--fjord-stone) url("../assets/patterns/contours-tile-stone-transparent.svg") repeat 0 0 / 900px; }
+.fjord-contours-layer { position: absolute; inset: 0; pointer-events: none; background: var(--fjord-color-contour-line); -webkit-mask: url("../assets/patterns/contours-tile-mask.svg") repeat 0 0 / 900px; mask: url("../assets/patterns/contours-tile-mask.svg") repeat 0 0 / 900px; }
+
+/* motion patterns */
+.fjord-reveal { opacity: 0; transform: translateY(var(--fjord-reveal-rise)); transition: opacity var(--fjord-duration-320) var(--fjord-ease-out), transform var(--fjord-duration-320) var(--fjord-ease-out); transition-delay: calc(var(--i, 0) * var(--fjord-reveal-stagger)); }
+.fjord-reveal.is-in { opacity: 1; transform: none; }
+.fjord-link-draw { color: inherit; text-decoration: none; background: linear-gradient(currentColor, currentColor) 0 100% / 0% 1px no-repeat; transition: background-size var(--fjord-duration-200) var(--fjord-ease-out), color var(--fjord-duration-200); }
+.fjord-link-draw:hover, .fjord-link-draw:focus-visible { background-size: 100% 1px; }
+@keyframes fjord-drift { 0%, 100% { transform: translate3d(0, 0, 0) scale(1); } 50% { transform: translate3d(-8px, 6px, 0) scale(1.015); } }
+@keyframes fjord-spin { to { transform: rotate(360deg); } }
+@keyframes fjord-shimmer { 0% { opacity: .55; } 50% { opacity: 1; } 100% { opacity: .55; } }
+@keyframes fjord-rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: var(--fjord-duration-320); animation-timing-function: var(--fjord-ease-in-out); }
+/* Reduced motion: no movement. Animations end at once; transitions are instant except opacity fades,
+   which stay where the readme says "fades only" (reveal, toasts, tooltip, card screenshot, back-to-top). */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+  .fjord-reveal, .fj-toast, .fj-tip__bubble, .x-shot, .x-top { transition-property: opacity !important; transition-duration: var(--fjord-duration-200) !important; }
+  .fjord-reveal { transform: none; }
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
+}

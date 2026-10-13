@@ -1,0 +1,86 @@
+/* Fjord · spacing, grid, shape, elevation. 4px base. */
+:root {
+  --fjord-space-0-5: 2px;   /* hairline gaps only: segmented control, kbd */
+  --fjord-space-1: 4px;
+  --fjord-space-1-5: 6px;   /* icon-to-label inside small controls */
+  --fjord-space-2: 8px;
+  --fjord-space-3: 12px;
+  --fjord-space-4: 16px;
+  --fjord-space-5: 20px;
+  --fjord-space-6: 24px;
+  --fjord-space-7: 28px;
+  --fjord-space-8: 32px;
+  --fjord-space-10: 40px;
+  --fjord-space-12: 48px;
+  --fjord-space-14: 56px;
+  --fjord-space-16: 64px;
+  --fjord-space-18: 72px;
+  --fjord-space-20: 80px;
+  --fjord-space-24: 96px;
+  --fjord-space-32: 128px;
+
+  /* fluid section rhythm */
+  --fjord-space-page-head: clamp(28px, 3vw + 12px, 64px);  /* top of inner pages */
+  --fjord-space-hero-top: clamp(28px, 4vw + 8px, 88px);
+  --fjord-space-hero-bottom: clamp(112px, 6vw + 56px, 168px); /* includes the facts-panel overlap */
+  --fjord-space-hero-sm-top: clamp(24px, 3vw, 48px);        /* case-study hero */
+  --fjord-space-hero-sm-bottom: clamp(40px, 4vw, 64px);
+  --fjord-space-panel: clamp(20px, 3vw, 40px);              /* inner padding of framed panels */
+  --fjord-space-404: clamp(40px, 6vw, 112px);
+  --fjord-scroll-offset: calc(var(--fjord-header-height) + var(--fjord-space-6)); /* scroll-margin under the sticky header */
+  --fjord-scroll-offset-trail: calc(var(--fjord-header-height) + var(--fjord-space-12)); /* + mobile trail bar */
+  --fjord-space-section: clamp(64px, 44px + 5.5556vw, 128px);
+  --fjord-space-block: clamp(32px, 25.3333px + 1.8519vw, 48px);
+
+  /* grid: 4 / 8 / 12 cols, breakpoints 360 / 768 / 1024 / 1440 */
+  --fjord-bp-sm: 360px;
+  --fjord-bp-md: 768px;
+  --fjord-bp-lg: 1024px;
+  --fjord-bp-xl: 1440px;
+  --fjord-grid-columns: 4; /* @kind other */
+  --fjord-grid-gutter: 16px;
+  --fjord-grid-margin: 16px;
+  --fjord-content-max: 1200px;
+
+  --fjord-radius-xs: 3px;  /* inline code, kbd, Esc hint, focus on text links */
+  --fjord-radius-sm: 4px;
+  --fjord-radius-md: 8px;
+  --fjord-radius-lg: 16px;
+  --fjord-radius-pill: 999px;
+  --fjord-radius-round: 50%; /* dots, avatars, portrait */
+  --fjord-radius-qr: 6%;   /* QR plate: ~6% of its width */
+
+  --fjord-border-width: 1px;
+  --fjord-focus-width: 2px;
+  --fjord-focus-offset: 2px;
+
+  /* the only elevation: floating UI (menus, palette, toasts, sticky bars) */
+  --fjord-shadow-float: 0 1px 2px rgba(27, 36, 33, .06), 0 12px 32px -8px rgba(27, 36, 33, .18);
+
+  --fjord-icon-sm: 16px;
+  --fjord-icon-md: 20px;
+  --fjord-icon-lg: 24px;
+  --fjord-icon-stroke: 1.5; /* @kind other */
+
+  --fjord-header-height: 64px;
+  --fjord-header-height-compact: 60px; /* compact header, menu sheet top bar */
+  --fjord-tap-min: 44px;
+
+  /* z-index scale (low → high). Native <dialog> (menu, palette) renders in the top layer above all of these. */
+  --fjord-z-base: 0;        /* decorative layers: contours, terrain */
+  --fjord-z-raised: 1;      /* content above its own decoration */
+  --fjord-z-overlap: 2;     /* facts panel over the hero edge */
+  --fjord-z-sticky: 20;     /* in-page sticky bars: case-study mobile trail */
+  --fjord-z-header: 30;     /* sticky site header */
+  --fjord-z-fab: 34;        /* back-to-top */
+  --fjord-z-progress: 36;   /* 2px scroll progress over the header */
+  --fjord-z-actionbar: 40;  /* mobile sticky action bar */
+  --fjord-z-tooltip: 45;
+  --fjord-z-sheet: 50;      /* mobile menu (inline variant) */
+  --fjord-z-toast: 60;
+  --fjord-z-palette: 70;    /* command palette (inline variant) */
+  --fjord-z-skip: 100;      /* skip link, always on top */
+}
+@media (min-width: 768px) { :root { --fjord-grid-columns: 8; /* @kind other */ --fjord-grid-gutter: 24px; --fjord-grid-margin: 32px; } }
+@media (min-width: 1024px) { :root { --fjord-grid-columns: 12; /* @kind other */ --fjord-grid-gutter: 24px; --fjord-grid-margin: 48px; --fjord-header-height: 72px; } }
+[data-theme="natt"] { --fjord-shadow-float: 0 1px 2px rgba(0,0,0,.3), 0 16px 40px -8px rgba(0,0,0,.55); }

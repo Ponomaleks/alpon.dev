@@ -1,0 +1,136 @@
+---
+// The CV head (screens SCR-05 / SCR-06 `head`): breadcrumbs, the name as the only h1, the role and
+// location lines, then the tools (language switch, buttons, meta line). "Print" is script-only.
+// The role and location lines are CV content; the page passes them in.
+import { contact } from '../../data/contact';
+import { cvPdf } from '../../data/cv/index';
+import type { CvLang } from '../../data/cv/types';
+import Breadcrumbs from '../ui/Breadcrumbs.astro';
+import Button from '../ui/Button.astro';
+import LangSwitch from '../ui/LangSwitch.astro';
+import Icon from '../ui/Icon.astro';
+import CvMeta from './CvMeta.astro';
+
+interface Props {
+  lang: CvLang;
+  role: string;
+  location: string;
+}
+
+const { lang, role, location } = Astro.props;
+
+const copy = {
+  en: {
+    crumbs: 'Breadcrumb',
+    group: 'CV language',
+    download: 'Download PDF',
+    touch: 'Get in touch',
+    print: 'Print',
+  },
+  no: {
+    crumbs: 'Brødsmulesti',
+    group: 'CV-språk',
+    download: 'Last ned PDF',
+    touch: 'Ta kontakt',
+    print: 'Skriv ut',
+  },
+} as const;
+const t = copy[lang];
+---
+
+<section class="cv-head">
+  <Breadcrumbs label={t.crumbs} items={[{ label: 'alpon.dev', href: '/' }, { label: 'CV' }]} />
+  <div class="bar">
+    <div class="name">
+      <h1>Alexander Ponomarenko</h1>
+      <p class="role">{role}</p>
+      <p class="place">{location}</p>
+    </div>
+    <div class="tools">
+      <LangSwitch
+        current={lang}
+        group={t.group}
+        size="large"
+        enHref={contact.links.cvPages.en}
+        noHref={contact.links.cvPages.no}
+      />
+      <div class="row">
+        <Button href={cvPdf[lang].href} download={cvPdf[lang].downloadName} icon="file-down">
+          {t.download}
+        </Button>
+        <Button variant="secondary" href={contact.links.contact}>
+          {t.touch}
+        </Button>
+        <span data-needs-script>
+          <button type="button" class="fj-btn fj-btn--ghost" data-print>
+            <Icon name="file-text" />
+            {t.print}
+          </button>
+        </span>
+      </div>
+      <CvMeta lang={lang} />
+    </div>
+  </div>
+</section>
+
+<style>
+  .cv-head {
+    display: flex;
+    flex-direction: column;
+    gap: var(--fjord-space-5);
+    padding-top: var(--fjord-space-page-head);
+  }
+  .bar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: var(--fjord-space-6) var(--fjord-space-10);
+  }
+  .name {
+    display: flex;
+    flex-direction: column;
+    gap: var(--fjord-space-3);
+    min-width: 0;
+  }
+  h1 {
+    margin: 0;
+    font-size: var(--fjord-text-h1);
+    font-weight: var(--fjord-weight-semibold);
+    letter-spacing: var(--fjord-tracking-heading);
+    line-height: var(--fjord-leading-heading);
+  }
+  .role {
+    margin: 0;
+    font-size: var(--fjord-text-h4);
+    font-weight: var(--fjord-weight-medium);
+    /* The page design sets no line height on the role line: it keeps the body's. */
+    line-height: var(--fjord-leading-body);
+    color: var(--fjord-color-link);
+  }
+  .place {
+    margin: 0;
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-mono-sm);
+    line-height: var(--fjord-leading-mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--fjord-color-text-muted);
+  }
+  .tools {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--fjord-space-3);
+  }
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--fjord-space-3);
+  }
+  @media (min-width: 1024px) {
+    .tools {
+      align-items: flex-end;
+    }
+  }
+</style>

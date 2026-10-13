@@ -1,0 +1,55 @@
+---
+// A single tag (default slot) or a wrapping list of tags (items).
+interface Props {
+  items?: string[];
+  /** List only: plain text separated by gaps, without the chip background. */
+  plain?: boolean;
+}
+
+const { items, plain = false } = Astro.props;
+---
+
+{items ? (
+  <ul class:list={['tags', { 'tags--plain': plain }]}>
+    {items.map((item) => (
+      <li class="tag">{item}</li>
+    ))}
+  </ul>
+) : (
+  <span class="tag">
+    <slot />
+  </span>
+)}
+
+<style>
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    height: calc(var(--fjord-space-1) * 6);
+    padding: 0 var(--fjord-space-2);
+    border-radius: var(--fjord-radius-sm);
+    background-color: var(--fjord-color-bg-sunken);
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-mono-sm);
+    font-weight: var(--fjord-weight-regular);
+    line-height: var(--fjord-leading-none);
+    color: var(--fjord-color-text-muted);
+    white-space: nowrap;
+  }
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--fjord-space-1-5);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .tags--plain {
+    gap: var(--fjord-space-1) var(--fjord-space-4);
+  }
+  .tags--plain .tag {
+    height: auto;
+    padding: 0;
+    background: none;
+  }
+</style>

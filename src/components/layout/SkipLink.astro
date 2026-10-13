@@ -1,0 +1,53 @@
+---
+// Skip link (AC-13): first focusable element, off-screen until focused, hidden again on blur.
+// Page design: .x-skip in site.css. The target is the <main id="main"> of the layout.
+// `sample` renders it in the flow, always visible, for the Styleguide.
+interface Props {
+  sample?: boolean;
+  /** `en` on a Norwegian page: the Shell stays English (AC-02). */
+  lang?: 'en';
+}
+
+const { sample = false, lang } = Astro.props;
+---
+
+<a class="skip-link" href="#main" lang={lang} data-sample={sample ? '' : undefined}>
+  Skip to content
+</a>
+
+<style>
+  .skip-link {
+    position: fixed;
+    left: var(--fjord-space-3);
+    top: calc(-1 * var(--fjord-space-16));
+    z-index: var(--fjord-z-skip);
+    padding: var(--fjord-space-3) var(--fjord-space-4);
+    border-radius: var(--fjord-radius-md);
+    background-color: var(--fjord-color-bg-raised);
+    color: var(--fjord-color-text);
+    border: var(--fjord-border-width) solid var(--fjord-color-border);
+    font-weight: var(--fjord-weight-medium);
+    text-decoration: none;
+  }
+
+  .skip-link[data-sample] {
+    position: static;
+    display: inline-block;
+    box-shadow: var(--fjord-shadow-float);
+  }
+
+  /* The shadow belongs to the shown link only: while hidden above the page its blur would show
+     at the top edge. */
+  .skip-link:focus-visible {
+    top: var(--fjord-space-3);
+    box-shadow: var(--fjord-shadow-float);
+    outline: var(--fjord-focus-width) solid var(--fjord-color-focus-ring);
+    outline-offset: var(--fjord-focus-offset);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .skip-link {
+      transition: top var(--fjord-duration-200) var(--fjord-ease-out);
+    }
+  }
+</style>

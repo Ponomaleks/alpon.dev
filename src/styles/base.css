@@ -1,0 +1,208 @@
+/* Fjord element base, ported from the handoff tokens/base.css with tokens only
+   (fjord-foundation ADR-0003). Helper classes, motion patterns and keyframes stay out:
+   components bring their own styles. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background-color: var(--fjord-color-bg);
+  color: var(--fjord-color-text);
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--fjord-font-sans);
+  font-size: var(--fjord-text-body);
+  line-height: var(--fjord-leading-body);
+  font-weight: var(--fjord-weight-regular);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background-color: var(--fjord-color-selection);
+  color: var(--fjord-color-text);
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 0;
+  font-weight: var(--fjord-weight-semibold);
+  letter-spacing: var(--fjord-tracking-heading);
+  line-height: var(--fjord-leading-heading);
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+a {
+  color: var(--fjord-color-link);
+  text-decoration-thickness: var(--fjord-border-width);
+  text-underline-offset: var(--fjord-space-1);
+}
+
+a:hover {
+  color: var(--fjord-color-link-hover);
+}
+
+/* Reduced motion = fades only (CLAUDE.md): color transitions only for visitors who did not ask
+   for reduced motion (AC-14). */
+@media (prefers-reduced-motion: no-preference) {
+  a {
+    transition-property: color;
+    transition-duration: var(--fjord-duration-200);
+    transition-timing-function: var(--fjord-ease-out);
+  }
+}
+
+/* Moves inside a page (the contact place, "On this page", BackToTop, the skip link) scroll
+   smoothly, as in the page design; the browser sets the pace. Arriving from another page is never
+   animated. Under reduced motion the rule below it wins and the page moves at once. */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* A guard for whatever a component declares later (handoff base.css): under reduced motion no
+   animation loops and nothing scrolls smoothly; single fades still run. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Cross-document page transitions (AC-32, AC-28): progressive enhancement, no client router. The
+   page cross-fades with motion tokens; the header has its own name and stays still (Header.astro).
+   The opt-in applies only when motion is allowed; reduced motion turns the transition off
+   entirely, so the new page simply opens. */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+}
+
+::view-transition-group(root) {
+  animation-duration: var(--fjord-duration-200);
+  animation-timing-function: var(--fjord-ease-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @view-transition {
+    navigation: none;
+  }
+}
+
+:focus-visible {
+  outline: var(--fjord-focus-width) solid var(--fjord-color-focus-ring);
+  outline-offset: var(--fjord-focus-offset);
+  border-radius: var(--fjord-radius-sm);
+}
+
+code,
+kbd,
+samp,
+pre {
+  font-family: var(--fjord-font-mono);
+}
+
+/* Scripts-off gate (AC-11, H-1): the theme bootstrap always sets data-theme, so it is missing
+   only when scripts are off. Controls that need a script are then hidden. */
+:root:not([data-theme]) [data-needs-script] {
+  display: none;
+}
+
+/* Sticky action bar clearance (AC-07, AC-39, hook H-2): below 768 a page that has the bar keeps its
+   last lines and any focused element clear of it, counted from the top of the tab (tap-min above
+   the bar) plus the gap kept above it. Open: tab + bar (one button and its padding; the tab sits
+   on the bar's top border, so the border is not counted twice). Collapsed: the tab + the strip of
+   the panel that stays under it. Both sit above the safe area. This block is the only reserve:
+   the footer adds none (home T6, B-08). From 768 the bar is hidden and the reserve is reset. */
+:root:has([data-shell-bar]) {
+  scroll-padding-bottom: calc(
+    var(--fjord-tap-min) + var(--fjord-tap-min) + 2 * var(--fjord-space-3) + var(--fjord-space-4) +
+      env(safe-area-inset-bottom)
+  );
+}
+
+:root:has([data-shell-bar]) body::after {
+  content: '';
+  display: block;
+  block-size: calc(
+    var(--fjord-tap-min) + var(--fjord-tap-min) + 2 * var(--fjord-space-3) + var(--fjord-space-4) +
+      env(safe-area-inset-bottom)
+  );
+}
+
+:root:has([data-shell-bar]:not([open])) {
+  scroll-padding-bottom: calc(
+    var(--fjord-tap-min) + var(--fjord-space-3) + var(--fjord-space-4) + env(safe-area-inset-bottom)
+  );
+}
+
+:root:has([data-shell-bar]:not([open])) body::after {
+  block-size: calc(
+    var(--fjord-tap-min) + var(--fjord-space-3) + var(--fjord-space-4) + env(safe-area-inset-bottom)
+  );
+}
+
+@media (min-width: 768px) {
+  :root:has([data-shell-bar]),
+  :root:has([data-shell-bar]:not([open])) {
+    scroll-padding-bottom: 0;
+  }
+
+  :root:has([data-shell-bar]) body::after,
+  :root:has([data-shell-bar]:not([open])) body::after {
+    block-size: 0;
+  }
+}
+
+/* BackToTop clearance (AC-22, hook H-5): from 768 the fixed link sits in the bottom end corner, so
+   the end of the page keeps its height (tap-min), the corner gap and a gap above it clear, and
+   focused elements stop above it. Below 768 the link is not displayed and the bar's reserve
+   above applies. Written after the bar's reset so that it wins on a page that has both. */
+:root:has([data-back-to-top]) body::after {
+  content: '';
+  display: block;
+}
+
+@media (min-width: 768px) {
+  :root:has([data-back-to-top]),
+  :root:has([data-shell-bar]:not([open])):has([data-back-to-top]) {
+    scroll-padding-bottom: calc(var(--fjord-tap-min) + var(--fjord-space-6) + var(--fjord-space-4));
+  }
+
+  /* Where the link is tied to scrolling it hides itself over the end of the page and sets the
+     reserve to nothing (BackToTop.astro), so the page ends with the footer, as in the page design. */
+  :root:has([data-back-to-top]) body::after,
+  :root:has([data-shell-bar]:not([open])):has([data-back-to-top]) body::after {
+    block-size: var(
+      --back-to-top-reserve,
+      calc(var(--fjord-tap-min) + var(--fjord-space-6) + var(--fjord-space-4))
+    );
+  }
+}
+
+/* The page design's main: tall enough to keep the footer low on a short page (B-18). Sizes are
+   outside the token rule (base-components ADR-0004). */
+main {
+  min-height: 60vh;
+}
+
+main:focus {
+  outline: none;
+}

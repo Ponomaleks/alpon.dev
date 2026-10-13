@@ -3,3 +3,19 @@ node_modules/
 .dev.vars
 .DS_Store
 Thumbs.db
+dist/
+.astro/
+test-results/
+playwright-report/
+.lighthouseci/
+
+# Visual baselines are Linux-only (fjord-foundation sad §11): never commit other platforms.
+tests/**/__screenshots__/win32/
+tests/**/__screenshots__/darwin/
+
+# Windows temp paths mangled by Git Bash (e.g. C:\Users\X\AppData\Local\Temp -> UsersXAppDataLocalTemp).
+/Users*AppDataLocal*/
+
+# SDD per-developer files and parallel worktrees
+.claude/*.local.md
+.worktrees/

@@ -1,0 +1,261 @@
+---
+// The CV side column (AC-02, AC-04; screens SCR-05 / SCR-06 "side column"): a numbered contents
+// list, the contact rows and the second download, secondary (D-01). In the HTML at every width,
+// displayed from 1024 and sticky under the header (C-1). The contents list is a plain numbered
+// list of links; the section is the shared id. Copy is the T13 module behind `data-needs-script`;
+// its language and texts come from the button's attributes. No contact card and no QR here.
+// The page passes only the sections it has, so the numbers leave no gap.
+import Link from '../ui/Link.astro';
+import Button from '../ui/Button.astro';
+import CopyButton from '../ui/CopyButton.astro';
+import { contact } from '../../data/contact';
+import { cvPdf } from '../../data/cv/index';
+import { cvNoLabels } from '../../data/cv/no';
+
+interface Props {
+  lang: 'en' | 'no';
+  sections: { id: string; heading: string }[];
+}
+
+const { lang, sections } = Astro.props;
+
+const ui = {
+  en: {
+    toc: 'On this page',
+    contact: 'Contact',
+    email: 'Email',
+    phone: 'Phone',
+    based: 'Based in',
+    download: 'Download PDF',
+    copy: 'Copy',
+    done: 'Copied',
+  },
+  no: {
+    toc: 'På denne siden',
+    contact: 'Kontakt',
+    email: 'E-post',
+    phone: 'Telefon',
+    based: 'Bosted',
+    download: 'Last ned PDF',
+    copy: 'Kopier',
+    done: 'Kopiert',
+  },
+}[lang];
+
+const newTabHint = lang === 'no' ? cvNoLabels.newTabHint : undefined;
+
+const copyHooks =
+  lang === 'no'
+    ? {
+        'data-copy-lang': 'no',
+        'data-copy-done-label': 'Kopiert',
+        'data-copy-refusal': 'Kunne ikke kopiere. Marker adressen for å kopiere den.',
+      }
+    : {};
+
+const short = (url: string) => url.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '');
+const tel = `tel:${contact.phone.replace(/[^\d+]/g, '')}`;
+const pdf = cvPdf[lang];
+---
+
+<aside class="cv-aside">
+  <nav aria-label={ui.toc}>
+    <p class="cv-aside__eyebrow">{ui.toc}</p>
+    <ol class="cv-aside__toc">
+      {sections.map((s, i) => (
+        <li>
+          <a href={`#${s.id}`}>
+            <span>{String(i + 1).padStart(2, '0')}</span>
+            {s.heading}
+          </a>
+        </li>
+      ))}
+    </ol>
+  </nav>
+  <div role="group" aria-label={ui.contact} class="cv-aside__contact">
+    <p class="cv-aside__eyebrow">{ui.contact}</p>
+    <dl class="cv-aside__list">
+      <div class="cv-aside__row">
+        <dt>{ui.email}</dt>
+        <dd>
+          <a class="cv-aside__value" href={`mailto:${contact.email}`}>
+            {contact.email}
+          </a>
+          <span class="cv-aside__copy" data-needs-script>
+            <CopyButton
+              label={ui.copy}
+              done={ui.done}
+              data-copy-email={contact.email}
+              {...copyHooks}
+            />
+          </span>
+        </dd>
+      </div>
+      <div class="cv-aside__row">
+        <dt>{ui.phone}</dt>
+        <dd>
+          <a class="cv-aside__value" href={tel}>
+            {contact.phone}
+          </a>
+        </dd>
+      </div>
+      <div class="cv-aside__row">
+        <dt>LinkedIn</dt>
+        <dd>
+          <span class="cv-aside__value">
+            <Link href={contact.linkedin} external quiet newTabHint={newTabHint}>
+              {short(contact.linkedin)}
+            </Link>
+          </span>
+        </dd>
+      </div>
+      <div class="cv-aside__row">
+        <dt>GitHub</dt>
+        <dd>
+          <span class="cv-aside__value">
+            <Link href={contact.github} external quiet newTabHint={newTabHint}>
+              {short(contact.github)}
+            </Link>
+          </span>
+        </dd>
+      </div>
+      <div class="cv-aside__row">
+        <dt>{ui.based}</dt>
+        <dd>
+          <span class="cv-aside__value" lang="no">
+            {contact.residence.name}
+          </span>
+        </dd>
+      </div>
+    </dl>
+  </div>
+  <Button href={pdf.href} variant="secondary" block icon="file-down" download={pdf.downloadName}>
+    {ui.download}
+  </Button>
+</aside>
+
+<style>
+  .cv-aside {
+    display: none;
+  }
+  @media (min-width: 1024px) {
+    .cv-aside {
+      display: flex;
+      flex-direction: column;
+      gap: var(--fjord-space-8);
+      position: sticky;
+      top: calc(var(--fjord-header-height) + var(--fjord-space-6));
+      align-self: start;
+    }
+  }
+  /* The design system's Eyebrow (`.fj-eyebrow`). */
+  .cv-aside__eyebrow {
+    display: flex;
+    margin: 0;
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-mono-label);
+    font-weight: var(--fjord-weight-medium);
+    line-height: var(--fjord-leading-none);
+    letter-spacing: var(--fjord-tracking-label);
+    font-variant-numeric: tabular-nums;
+    color: var(--fjord-color-text-muted);
+  }
+  .cv-aside__toc {
+    list-style: none;
+    margin: var(--fjord-space-3) 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .cv-aside__toc a {
+    display: flex;
+    gap: var(--fjord-space-3);
+    align-items: center;
+    /* The hairline is added to the 44 px row, as in the page design (`.x-toc a`). */
+    box-sizing: content-box;
+    min-block-size: var(--fjord-tap-min);
+    border-top: var(--fjord-border-width) solid var(--fjord-color-border);
+    font-size: var(--fjord-text-ui);
+    color: var(--fjord-color-text);
+    text-decoration: none;
+  }
+  .cv-aside__toc a span {
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-mono-sm);
+    font-weight: var(--fjord-weight-medium);
+    line-height: var(--fjord-leading-none);
+    color: var(--fjord-color-text-muted);
+  }
+  .cv-aside__toc a:hover {
+    color: var(--fjord-color-link);
+  }
+  .cv-aside__toc a:focus-visible,
+  a.cv-aside__value:focus-visible {
+    outline: var(--fjord-focus-width) solid var(--fjord-color-focus-ring);
+    outline-offset: var(--fjord-focus-offset);
+    border-radius: var(--fjord-radius-xs);
+  }
+  .cv-aside__contact {
+    display: flex;
+    flex-direction: column;
+    gap: var(--fjord-space-3);
+  }
+  .cv-aside__list {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+  }
+  .cv-aside__row {
+    display: grid;
+    /* The design system's `.fj-contacts li`: an 88 px label column, 56 px rows plus the hairlines. */
+    grid-template-columns: calc(var(--fjord-space-20) + var(--fjord-space-2)) minmax(0, 1fr);
+    align-items: center;
+    column-gap: var(--fjord-space-3);
+    box-sizing: content-box;
+    min-block-size: var(--fjord-space-14);
+    border-top: var(--fjord-border-width) solid var(--fjord-color-border);
+  }
+  .cv-aside__row:last-child {
+    border-bottom: var(--fjord-border-width) solid var(--fjord-color-border);
+  }
+  dt {
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-mono-sm);
+    font-weight: var(--fjord-weight-medium);
+    line-height: var(--fjord-leading-none);
+    letter-spacing: var(--fjord-tracking-label);
+    color: var(--fjord-color-text-muted);
+  }
+  dd {
+    display: flex;
+    align-items: center;
+    gap: var(--fjord-space-1);
+    margin: 0;
+    min-width: 0;
+  }
+  .cv-aside__value {
+    max-width: 100%;
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-ui);
+    font-weight: var(--fjord-weight-regular);
+    line-height: var(--fjord-leading-snug);
+    color: var(--fjord-color-text);
+    text-decoration: none;
+    overflow-wrap: anywhere;
+  }
+  a.cv-aside__value {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--fjord-tap-min);
+  }
+  a.cv-aside__value:hover {
+    color: var(--fjord-color-link);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+  .cv-aside__copy {
+    display: flex;
+    flex: none;
+    margin-inline-start: auto;
+  }
+</style>

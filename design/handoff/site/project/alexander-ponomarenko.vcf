@@ -1,0 +1,13 @@
+BEGIN:VCARD
+VERSION:3.0
+N:Ponomarenko;Alexander;;;
+FN:Alexander Ponomarenko
+TITLE:Software Engineer · Full Stack Developer
+EMAIL;TYPE=INTERNET,PREF:ponomaleks@gmail.com
+TEL;TYPE=CELL:+4740594584
+ADR;TYPE=HOME:;;;Nittedal;;1482;Norway
+URL:https://alpon.dev
+URL;TYPE=LinkedIn:https://www.linkedin.com/in/ponomalex
+URL;TYPE=GitHub:https://github.com/ponomaleks
+NOTE:Good products are built together.
+END:VCARD

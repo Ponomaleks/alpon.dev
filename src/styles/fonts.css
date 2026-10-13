@@ -1,0 +1,57 @@
+/* Fjord fonts (sad §8 Fonts). Only @font-face rules live here (ADR-0003 exclusion contract).
+   Brand faces: one self-hosted variable woff2 per family, weight axis 400 to 700 (home sad §1,
+   Decision override), subset by tools/fonts/subset.py.
+   Fallback faces: local Arial / Roboto with the overrides from tools/fonts/fallback-metrics.json,
+   so text keeps its size and position when the brand font swaps in. */
+
+@font-face {
+  font-family: 'Schibsted Grotesk';
+  src: url('/fonts/schibsted-grotesk-wght.woff2') format('woff2');
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/fonts/jetbrains-mono-wght.woff2') format('woff2');
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Schibsted Grotesk Fallback Arial';
+  src: local('Arial');
+  size-adjust: 104.49%;
+  ascent-override: 93.46%;
+  descent-override: 24.67%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: 'Schibsted Grotesk Fallback Roboto';
+  src: local('Roboto');
+  size-adjust: 104.72%;
+  ascent-override: 93.25%;
+  descent-override: 24.62%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono Fallback Arial';
+  src: local('Arial');
+  size-adjust: 134.59%;
+  ascent-override: 75.79%;
+  descent-override: 22.29%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono Fallback Roboto';
+  src: local('Roboto');
+  size-adjust: 134.88%;
+  ascent-override: 75.62%;
+  descent-override: 22.24%;
+  line-gap-override: 0%;
+}

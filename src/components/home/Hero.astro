@@ -1,0 +1,247 @@
+---
+// Hero (AC-01, AC-03, AC-04, AC-31): availability badge with the Motion control, eyebrow, name,
+// roles, lead, one primary action, the Now line, the portrait and the parallax contours layer.
+import Badge from '../ui/Badge.astro';
+import Button from '../ui/Button.astro';
+import Contours from '../brand/Contours.astro';
+import MotionControl from './MotionControl.astro';
+import Portrait from './Portrait.astro';
+import { contact } from '../../data/contact';
+import { features } from '../../data/site';
+import { nowLine, nowProject } from '../../data/home';
+
+interface Props {
+  /** Project in the Now line. '' means none; the default comes from home.ts. */
+  nowProject?: string;
+}
+
+const { nowProject: project = nowProject } = Astro.props;
+const { lat, lon } = contact.workRegionGeo;
+const coords = `${lat.toFixed(2)}° N, ${lon.toFixed(2)}° E`;
+const now = nowLine(project);
+---
+
+<section class="hero fjord-on-spruce" data-hero aria-label="Introduction">
+  <Contours variant="corner" anchor="bottom-right" tone="auto" parallax />
+  <div class="hero__in">
+    <div class="hero__text">
+      <div class="hero__badges">
+        <Badge status="open" label="Open to work" detail="Oslo area" pulse />
+        <MotionControl />
+      </div>
+      <p class="hero__eyebrow">
+        <span lang="no">Hei.</span>
+        <span aria-hidden="true">/</span>
+        <span lang="no">{contact.workRegion}</span>
+        <span aria-hidden="true">·</span>
+        <span>{coords}</span>
+      </p>
+      <h1 class="hero__name">{contact.name}</h1>
+      <p class="hero__role">
+        <span>Software Engineer</span>
+        <span>Full Stack Developer</span>
+      </p>
+      <p class="hero__lead">Good products are built together.</p>
+      <div class="hero__actions">
+        <Button size="lg" href={contact.links.cv} icon="file-text">
+          View CV
+        </Button>
+        {features.projects && (
+          <Button size="lg" variant="secondary" href="/projects" arrow>
+            See projects
+          </Button>
+        )}
+      </div>
+      <p class="hero__now">
+        <span class="hero__dot" aria-hidden="true"></span>
+        <span lang="no">Nå:</span>
+        <span class="hero__now-text">{now}</span>
+      </p>
+    </div>
+    <div class="hero__media">
+      <Portrait />
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    overflow: hidden;
+    padding: var(--fjord-space-hero-top) 0 var(--fjord-space-hero-bottom);
+  }
+  /* Natt: the hero moves to the night ground (page design: .x-hero--natt). Its colours come from
+     the Natt rule of tokens.css, which names [data-hero]; here the line under it. The second rule
+     is the same look with scripts off on a dark device (no data-theme, as the no-JS Natt block). */
+  :global(:root[data-theme='natt']) .hero {
+    border-bottom: var(--fjord-border-width) solid var(--fjord-color-border);
+  }
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme])) .hero {
+      border-bottom: var(--fjord-border-width) solid var(--fjord-color-border);
+    }
+  }
+  .hero__in {
+    position: relative;
+    z-index: var(--fjord-z-raised);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--fjord-space-10);
+    align-items: end;
+    width: 100%;
+    max-width: calc(var(--fjord-content-max) + 2 * var(--fjord-grid-margin));
+    margin-inline: auto;
+    padding-inline: var(--fjord-grid-margin);
+  }
+  @media (min-width: 1024px) {
+    .hero__in {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      gap: var(--fjord-space-12);
+    }
+  }
+  .hero__text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--fjord-space-5);
+    min-width: 0;
+  }
+  .hero__badges {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--fjord-space-3);
+    width: 100%;
+  }
+  /* T-5: the Motion control keeps its 44px target at the end of the row and adds no height to it.
+     Its margin box is 0 high and centred, so the row is as tall as the badge and the eyebrow
+     follows at the design gap (.x-hero__text gap). */
+  .hero__badges :global(.motion-control) {
+    flex: none;
+    margin-block: calc(var(--fjord-tap-min) / -2);
+  }
+  .hero__eyebrow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--fjord-space-2);
+    margin: 0;
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-mono-label);
+    font-weight: var(--fjord-weight-medium);
+    letter-spacing: var(--fjord-tracking-label);
+    color: var(--fjord-color-text-muted);
+  }
+  .hero__name {
+    max-width: 12ch;
+    margin: var(--fjord-space-1-5) 0 0;
+    font-size: var(--fjord-text-display);
+    font-weight: var(--fjord-weight-semibold);
+    letter-spacing: var(--fjord-tracking-display);
+    line-height: var(--fjord-leading-display);
+  }
+  .hero__role {
+    margin: 0;
+    font-size: var(--fjord-text-h4);
+    font-weight: var(--fjord-weight-medium);
+    line-height: var(--fjord-leading-snug);
+  }
+  .hero__role span {
+    display: block;
+  }
+  .hero__role span + span {
+    font-weight: var(--fjord-weight-regular);
+    color: var(--fjord-color-text-muted);
+  }
+  :global(:root[data-theme='natt']) .hero__role span:first-child {
+    color: var(--fjord-color-link);
+  }
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme])) .hero__role span:first-child {
+      color: var(--fjord-color-link);
+    }
+  }
+  .hero__lead {
+    margin: var(--fjord-space-1) 0 0;
+    font-size: var(--fjord-text-lead);
+    line-height: var(--fjord-leading-normal);
+  }
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--fjord-space-3);
+    width: 100%;
+    margin-top: var(--fjord-space-1-5);
+  }
+  .hero__actions > :global(*) {
+    flex: 1 1 auto;
+  }
+  @media (min-width: 768px) {
+    .hero__actions {
+      width: auto;
+    }
+    .hero__actions > :global(*) {
+      flex: none;
+    }
+  }
+  /* The type is the design's .fjord-mono-small. Three items of a wrapping row, as .x-hero__now: on a phone the text does not fit
+     beside "Nå:", so "Nå:" keeps the first line with the dot and the text takes the lines below
+     (Owner decision, design review). From 768 the three stand on one line. */
+  .hero__now {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--fjord-space-2);
+    margin: var(--fjord-space-1-5) 0 0;
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-mono-sm);
+    line-height: var(--fjord-leading-mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--fjord-color-text-muted);
+  }
+  /* 7px, as the design's .x-now-dot. */
+  .hero__dot {
+    flex: none;
+    width: calc(var(--fjord-space-2) - var(--fjord-border-width));
+    height: calc(var(--fjord-space-2) - var(--fjord-border-width));
+    border-radius: var(--fjord-radius-round);
+    background: var(--fjord-contour);
+  }
+  .hero__now-text {
+    min-width: 0;
+  }
+  :global(:root[data-theme='natt']) .hero__dot {
+    background: var(--fjord-color-link);
+  }
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme])) .hero__dot {
+      background: var(--fjord-color-link);
+    }
+  }
+  .hero__media {
+    display: flex;
+    justify-content: flex-start;
+    width: min(100%, 200px);
+  }
+  @media (min-width: 768px) {
+    .hero__media {
+      width: 260px;
+    }
+  }
+  @media (min-width: 1024px) {
+    .hero__media {
+      justify-self: end;
+      width: min(100%, 340px);
+    }
+  }
+  /* Pointer parallax (AC-31): the individual translate property composes with the drift transform. */
+  .hero :global([data-contours-parallax]) {
+    translate: var(--fj-px, 0px) var(--fj-py, 0px);
+    transition: translate var(--fjord-duration-parallax) var(--fjord-ease-out);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero :global([data-contours-parallax]) {
+      translate: none;
+      transition: none;
+    }
+  }
+</style>

@@ -1,0 +1,173 @@
+---
+import { contact } from '../../data/contact';
+
+interface Props {
+  /** `en` on a Norwegian page: the Shell stays English (AC-02). */
+  lang?: 'en';
+}
+
+const { lang } = Astro.props;
+
+// Footer (AC-14): slogan, three columns and a base line, all values from contact.ts. Markup and
+// styles follow the design system Footer (navigation.css). The year is taken at build time (D-10).
+const { email, phone, linkedin, github, residence, lastUpdated } = contact;
+const bare = (url: string) => url.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '');
+const coords = `${residence.lat.toFixed(2)}° N, ${residence.lon.toFixed(2)}° E`;
+const year = new Date().getFullYear();
+---
+
+<footer class="fj-footer" lang={lang}>
+  <div class="fj-footer__in">
+    <p class="fj-footer__slogan">
+      Good products <span>are built together.</span>
+    </p>
+    <div class="fj-footer__col">
+      <span class="fj-footer__label">Contact</span>
+      <a href={`mailto:${email}`}>{email}</a>
+      <a href={`tel:${phone.replace(/\s+/g, '')}`}>{phone}</a>
+    </div>
+    <div class="fj-footer__col">
+      <span class="fj-footer__label">Elsewhere</span>
+      <a href={linkedin} target="_blank" rel="noopener noreferrer">
+        {bare(linkedin)}
+        <span class="fj-footer__hint">(opens in a new tab)</span>
+      </a>
+      <a href={github} target="_blank" rel="noopener noreferrer">
+        {bare(github)}
+        <span class="fj-footer__hint">(opens in a new tab)</span>
+      </a>
+    </div>
+    <div class="fj-footer__col">
+      <span class="fj-footer__label">Based in</span>
+      <span lang="no">{residence.name}</span>
+      <span>{coords}</span>
+    </div>
+    <div class="fj-footer__base">
+      <span>© {year} Alexander Ponomarenko</span>
+      <span lang="no">
+        Sist oppdatert <time datetime={lastUpdated}>{lastUpdated}</time>
+      </span>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .fj-footer {
+    position: relative;
+    overflow: hidden;
+    /* No room for the Sticky action bar here: the page reserves it once, in base.css (home T6). */
+    padding: var(--fjord-space-12) 0 var(--fjord-space-8);
+    border-block-start: var(--fjord-border-width) solid var(--fjord-color-border);
+  }
+
+  .fj-footer__in {
+    position: relative;
+    z-index: var(--fjord-z-raised);
+    display: grid;
+    grid-template-columns: repeat(var(--fjord-grid-columns), minmax(0, 1fr));
+    gap: var(--fjord-space-8) var(--fjord-grid-gutter);
+    max-width: calc(var(--fjord-content-max) + 2 * var(--fjord-grid-margin));
+    margin: 0 auto;
+    padding: 0 var(--fjord-grid-margin);
+    box-sizing: border-box;
+  }
+
+  .fj-footer__slogan {
+    grid-column: 1 / -1;
+    /* ch of this semibold heading, as in the design; the em measure tokens are sized for body text. */
+    max-width: 18ch;
+    margin: 0;
+    font-size: var(--fjord-text-h3);
+    font-weight: var(--fjord-weight-semibold);
+    letter-spacing: var(--fjord-tracking-heading);
+    line-height: var(--fjord-leading-tight);
+  }
+
+  .fj-footer__slogan span {
+    display: block;
+    color: var(--fjord-color-link);
+  }
+
+  .fj-footer__col {
+    grid-column: span 4;
+    display: flex;
+    flex-direction: column;
+    gap: var(--fjord-space-1-5);
+    min-width: 0;
+    overflow-wrap: break-word;
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-ui-sm);
+    font-weight: var(--fjord-weight-regular);
+    line-height: var(--fjord-leading-normal);
+    color: var(--fjord-color-text-muted);
+  }
+
+  .fj-footer__col a {
+    align-self: flex-start;
+    max-width: 100%;
+    color: var(--fjord-color-text);
+    text-decoration: none;
+  }
+
+  /* Links to another site open a new tab (home D-09). The footer keeps the tight text links of
+     the page design, so there is no icon; the hint is read by assistive technology only and is
+     held by its link. */
+  .fj-footer__col a[target] {
+    position: relative;
+  }
+  .fj-footer__hint {
+    position: absolute;
+    width: var(--fjord-border-width);
+    height: var(--fjord-border-width);
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .fj-footer__col a:hover {
+    color: var(--fjord-color-link);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  .fj-footer__col a:focus-visible {
+    outline: var(--fjord-focus-width) solid var(--fjord-color-focus-ring);
+    outline-offset: var(--fjord-focus-offset);
+  }
+
+  .fj-footer__label {
+    margin-block-end: var(--fjord-space-1-5);
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-mono-sm);
+    font-weight: var(--fjord-weight-medium);
+    line-height: var(--fjord-leading-none);
+    letter-spacing: var(--fjord-tracking-label);
+    color: var(--fjord-color-text-muted);
+  }
+
+  .fj-footer__base {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--fjord-space-2) var(--fjord-space-6);
+    padding-block-start: var(--fjord-space-5);
+    border-block-start: var(--fjord-border-width) solid var(--fjord-color-border);
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-mono-sm);
+    font-weight: var(--fjord-weight-regular);
+    line-height: var(--fjord-leading-ui);
+    color: var(--fjord-color-text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* The grid has 4 / 8 / 12 tracks (--fjord-grid-columns): a column spans four of them, so one
+     per row below 768 and two per row from 768. Wide: slogan and the three columns share one
+     row, three of twelve tracks each. */
+  @media (min-width: 1024px) {
+    .fj-footer__slogan,
+    .fj-footer__col {
+      grid-column: span 3;
+    }
+  }
+</style>

@@ -1,0 +1,42 @@
+---
+// The printed form of the contact facts (AC-11, AC-27; screens SCR-04 section Print contact line,
+// spec D-04): one line with the email, phone, LinkedIn and GitHub from contact.ts. It is in the
+// document only: the screen styles hide it, the CV page's print styles show it. ContactList is the
+// labelled list for the screen. The profile links follow the link rule (home D-09) like every link.
+import { contact } from '../../data/contact';
+import Link from '../ui/Link.astro';
+
+const bare = (url: string) => url.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '');
+const tel = `tel:${contact.phone.replace(/[^\d+]/g, '')}`;
+---
+
+<p class="cv-print-line">
+  <a href={`mailto:${contact.email}`}>{contact.email}</a> ·<a href={tel}>{contact.phone}</a> ·
+  <Link href={contact.linkedin} external>
+    {bare(contact.linkedin)}
+  </Link>{' '}
+  ·
+  <Link href={contact.github} external>
+    {bare(contact.github)}
+  </Link>
+</p>
+
+<style>
+  .cv-print-line {
+    display: none;
+    margin: 0;
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-mono-sm);
+    line-height: var(--fjord-leading-ui);
+    color: var(--fjord-color-text);
+  }
+  .cv-print-line a,
+  .cv-print-line :global(.fj-link) {
+    color: inherit;
+    text-decoration: none;
+  }
+  /* The arrow of an outside link is for the screen; the new-tab hint stays hidden from sight. */
+  .cv-print-line :global(.fj-link__icon) {
+    display: none;
+  }
+</style>

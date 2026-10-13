@@ -1,0 +1,162 @@
+---
+// Static topographic contour rings from the Fjord brand pack (site copy of the design system,
+// components/brand/contourData.js, 85 x 55 viewBox). Two shapes: "ridge" (rings centred low left)
+// and "corner" (rings entering from the top right). The group is mirrored when the anchor is not
+// the shape's natural corner. The optional parallax layer (hero) drifts slowly, only under data-motion="running" on an ancestor. Colour comes from a tone class
+// (tokens), never from an attribute; the whole layer is hidden from assistive technology.
+import { corner, ridge } from './contour-paths.ts';
+
+interface Props {
+  variant?: 'ridge' | 'corner';
+  anchor?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+  tone?: 'auto' | 'spruce' | 'stone';
+  /** Wraps the rings in a decorative layer that drifts while the hero's motion is running. */
+  parallax?: boolean;
+  /**
+   * Shows the rings from the generated image file instead of inline paths (release-1 D-10): a
+   * lazy <img>, asked for only when it comes near the screen. For places below the first screen.
+   * The file holds the ridge in the spruce tone, whose colour is the same in Dag and in Natt.
+   */
+  image?: boolean;
+}
+
+const { variant = 'ridge', anchor, tone = 'auto', parallax = false, image = false } = Astro.props;
+if (image && (variant !== 'ridge' || tone !== 'spruce'))
+  throw new Error(
+    'Contours: the image file holds the ridge in the spruce tone only (variant "ridge", tone "spruce")',
+  );
+
+const natural = variant === 'corner' ? 'top-right' : 'bottom-left';
+const [av, ah] = (anchor ?? natural).split('-') as ['top' | 'bottom', 'left' | 'right'];
+const [nv, nh] = natural.split('-');
+const flipX = ah !== nh;
+const flipY = av !== nv;
+const align = `x${ah === 'left' ? 'Min' : 'Max'}Y${av === 'top' ? 'Min' : 'Max'} slice`;
+const transform = `translate(${flipX ? 85 : 0} ${flipY ? 55 : 0}) scale(${flipX ? -1 : 1} ${flipY ? -1 : 1})`;
+
+const paths = variant === 'corner' ? corner : ridge;
+---
+
+<div
+  class={`contours contours--${tone} contours--${av}-${ah}`}
+  data-variant={variant}
+  aria-hidden="true"
+>
+  <div
+    class="contours__layer"
+    data-contours-parallax={parallax ? '' : undefined}
+    aria-hidden="true"
+  >
+    {image ? (
+      <img
+        class:list={[
+          'contours__image',
+          { 'contours__image--flip-x': flipX, 'contours__image--flip-y': flipY },
+        ]}
+        src="/img/contours-ridge-spruce.svg"
+        alt=""
+        width="85"
+        height="55"
+        loading="lazy"
+        decoding="async"
+      />
+    ) : (
+      <svg viewBox="0 0 85 55" preserveAspectRatio={align} aria-hidden="true" focusable="false">
+        <g
+          {transform}
+          class="contours__group"
+          fill="none"
+          stroke-width="1"
+          vector-effect="non-scaling-stroke"
+        >
+          {paths.map((d) => (
+            <path {d} vector-effect="non-scaling-stroke" />
+          ))}
+        </g>
+      </svg>
+    )}
+  </div>
+</div>
+
+<style>
+  .contours {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: var(--fjord-z-base);
+  }
+  .contours__layer {
+    position: absolute;
+    inset: 0;
+  }
+  .contours svg {
+    position: absolute;
+    display: block;
+    overflow: visible;
+    width: 100%;
+    height: 100%;
+  }
+  .contours--top-left svg {
+    top: 0;
+    left: 0;
+  }
+  .contours--top-right svg {
+    top: 0;
+    right: 0;
+  }
+  .contours--bottom-left svg {
+    bottom: 0;
+    left: 0;
+  }
+  .contours--bottom-right svg {
+    bottom: 0;
+    right: 0;
+  }
+  /* The image covers the layer as the inline rings do (`slice`), held at the ridge's natural
+     corner, bottom left. Another anchor mirrors it, so one file serves every place (D-10). */
+  .contours__image {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: left bottom;
+  }
+  .contours__image--flip-x {
+    scale: -1 1;
+  }
+  .contours__image--flip-y {
+    scale: 1 -1;
+  }
+  .contours__image--flip-x.contours__image--flip-y {
+    scale: -1 -1;
+  }
+  .contours__group {
+    stroke: var(--fjord-color-contour-line);
+  }
+  .contours--spruce .contours__group {
+    stroke: var(--fjord-contour-line-spruce);
+  }
+  .contours--stone .contours__group {
+    stroke: var(--fjord-contour-line-stone);
+  }
+  /* Drift: paused by default, runs only under data-motion="running" (set by the hero script). */
+  [data-contours-parallax] {
+    animation: contours-drift var(--fjord-duration-drift) var(--fjord-ease-in-out) infinite
+      alternate;
+    animation-play-state: paused;
+  }
+  :global([data-motion='running']) [data-contours-parallax] {
+    animation-play-state: running;
+  }
+  @keyframes contours-drift {
+    from {
+      transform: translate3d(0, 0, 0);
+    }
+    to {
+      transform: translate3d(calc(var(--fjord-space-4) * -1), var(--fjord-space-3), 0);
+    }
+  }
+</style>

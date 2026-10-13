@@ -1,0 +1,238 @@
+---
+// The bottom sheet of "Add to contacts" (save-contact-hint AC-03, AC-06 to AC-08): tells a Visitor
+// on a touch device where the contact card goes and how to add it. A native modal <dialog>
+// (base-components ADR-0002): Escape, the focus trap and focus return are platform behaviour;
+// src/scripts/home/save-contact.ts opens and closes it. One set of copy for every device (D-02).
+// `sample` renders the same content as a static block for the Styleguide, with no <dialog>.
+import Button from '../ui/Button.astro';
+import Icon from '../ui/Icon.astro';
+
+interface Props {
+  sample?: boolean;
+}
+
+const { sample = false } = Astro.props;
+const Root = sample ? 'div' : 'dialog';
+const Title = sample ? 'h3' : 'h2';
+// The name the browser saves the contact card under (public/_headers, Content-Disposition):
+// what the Visitor looks for in Downloads. A unit test holds the two together.
+const file = 'Alexander Ponomarenko.vcf';
+const steps = [
+  'If your browser asks, tap Download.',
+  'Open Downloads in your Files app.',
+  'Tap the file and save it as a contact.',
+];
+---
+
+<Root
+  class:list={['save-sheet', { 'save-sheet--sample': sample }]}
+  id={sample ? undefined : 'save-contact-sheet'}
+  aria-labelledby={sample ? undefined : 'save-contact-sheet-title'}
+>
+  <div class="save-sheet__head">
+    <span class="save-sheet__icon">
+      <Icon name="user-plus" />
+    </span>
+    <div class="save-sheet__heading">
+      <Title class="save-sheet__title" id={sample ? undefined : 'save-contact-sheet-title'}>
+        Add the contact card
+      </Title>
+      <p class="save-sheet__file">{file}</p>
+    </div>
+  </div>
+  <p class="save-sheet__lead">It goes to your Downloads.</p>
+  <ol class="save-sheet__steps" role="list">
+    {steps.map((step, i) => (
+      <li>
+        <span class="save-sheet__num" aria-hidden="true">
+          {String(i + 1).padStart(2, '0')}
+        </span>
+        <span>{step}</span>
+      </li>
+    ))}
+  </ol>
+  <Button size="lg" block>
+    Got it
+  </Button>
+  <p class="save-sheet__alt">Or scan the QR code on this page.</p>
+</Root>
+
+<style is:global>
+  .save-sheet {
+    box-sizing: border-box;
+    flex-direction: column;
+    gap: var(--fjord-space-5);
+    padding: var(--fjord-space-6) var(--fjord-space-5);
+    border: 0;
+    border-top: var(--fjord-border-width) solid var(--fjord-color-border);
+    border-radius: var(--fjord-radius-lg) var(--fjord-radius-lg) 0 0;
+    color: var(--fjord-color-text);
+    background-color: var(--fjord-color-bg);
+    box-shadow: var(--fjord-shadow-float);
+    font-family: var(--fjord-font-sans);
+  }
+
+  /* Below 768: across the bottom of the screen, above the Sticky action bar (top layer). */
+  dialog.save-sheet {
+    position: fixed;
+    inset: auto 0 0;
+    inline-size: 100%;
+    max-inline-size: none;
+    max-block-size: 100%;
+    margin: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  /* Room for the home indicator: a last flex item as high as the inset, with its gap taken back. */
+  dialog.save-sheet::after {
+    content: '';
+    flex: none;
+    block-size: env(safe-area-inset-bottom);
+    margin-block-start: calc(-1 * var(--fjord-space-5));
+  }
+
+  dialog.save-sheet[open],
+  .save-sheet--sample {
+    display: flex;
+  }
+
+  dialog.save-sheet::backdrop {
+    background-color: var(--fjord-color-scrim);
+  }
+
+  /* From 768 and in the Styleguide: a card of at most 480px (six steps of the 80px space token). */
+  .save-sheet--sample {
+    max-inline-size: calc(var(--fjord-space-20) * 6);
+    border: var(--fjord-border-width) solid var(--fjord-color-border);
+    border-radius: var(--fjord-radius-lg);
+  }
+
+  @media (min-width: 768px) {
+    dialog.save-sheet {
+      inset-block-end: var(--fjord-space-4);
+      inline-size: calc(var(--fjord-space-20) * 6);
+      max-inline-size: calc(100% - 2 * var(--fjord-space-4));
+      max-block-size: calc(100% - 2 * var(--fjord-space-4));
+      margin-inline: auto;
+      border: var(--fjord-border-width) solid var(--fjord-color-border);
+      border-radius: var(--fjord-radius-lg);
+    }
+
+    dialog.save-sheet::after {
+      content: none;
+    }
+  }
+
+  .save-sheet__head {
+    display: flex;
+    align-items: center;
+    gap: var(--fjord-space-3);
+  }
+
+  .save-sheet__icon {
+    display: flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--fjord-space-10);
+    block-size: var(--fjord-space-10);
+    border-radius: var(--fjord-radius-round);
+    background-color: var(--fjord-color-accent-soft);
+    color: var(--fjord-color-link);
+  }
+
+  .save-sheet__icon svg {
+    width: var(--fjord-icon-md);
+    height: var(--fjord-icon-md);
+  }
+
+  .save-sheet .save-sheet__title {
+    margin: 0;
+    font-size: var(--fjord-text-h4);
+    font-weight: var(--fjord-weight-bold);
+    line-height: var(--fjord-leading-tight);
+  }
+
+  .save-sheet p {
+    margin: 0;
+  }
+
+  .save-sheet__heading {
+    display: flex;
+    flex-direction: column;
+    gap: var(--fjord-space-1);
+    min-inline-size: 0;
+  }
+
+  .save-sheet__file {
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-mono-sm);
+    line-height: var(--fjord-leading-snug);
+    color: var(--fjord-color-text-muted);
+    overflow-wrap: anywhere;
+  }
+
+  .save-sheet__lead {
+    font-size: var(--fjord-text-ui);
+    line-height: var(--fjord-leading-normal);
+  }
+
+  .save-sheet__steps {
+    display: flex;
+    flex-direction: column;
+    gap: var(--fjord-space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .save-sheet__steps li {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: var(--fjord-space-3);
+    align-items: baseline;
+    font-size: var(--fjord-text-ui);
+    line-height: var(--fjord-leading-ui);
+  }
+
+  /* The site's mono numbering ("01"), in the accent colour (D-06). */
+  .save-sheet__num {
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-mono-sm);
+    font-weight: var(--fjord-weight-medium);
+    letter-spacing: var(--fjord-tracking-label);
+    color: var(--fjord-color-link);
+  }
+
+  .save-sheet__alt {
+    font-size: var(--fjord-text-ui-xs);
+    line-height: var(--fjord-leading-snug);
+    color: var(--fjord-color-text-muted);
+    text-align: center;
+  }
+
+  /* The sheet slides up and the scrim fades in; with reduced motion both simply appear (AC-07). */
+  @media (prefers-reduced-motion: no-preference) {
+    dialog.save-sheet[open] {
+      animation: save-sheet-in var(--fjord-duration-200) var(--fjord-ease-out);
+    }
+
+    dialog.save-sheet[open]::backdrop {
+      animation: save-sheet-scrim var(--fjord-duration-200) var(--fjord-ease-out);
+    }
+
+    @keyframes save-sheet-in {
+      from {
+        /* Its own height plus the 16px it stands above the bottom from 768. */
+        transform: translateY(calc(100% + var(--fjord-space-4)));
+      }
+    }
+
+    @keyframes save-sheet-scrim {
+      from {
+        opacity: 0;
+      }
+    }
+  }
+</style>

@@ -1,0 +1,41 @@
+/* Fjord · brand components */
+.fj-icon{display:inline-block;flex:none;vertical-align:middle}
+.fj-contours{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:var(--fjord-z-base)}
+.fj-contours__layer{position:absolute;inset:-12px;transform:translate3d(var(--fj-px,0px),var(--fj-py,0px),0);transition:transform var(--fjord-duration-parallax) var(--fjord-ease-out)}
+.fj-contours svg{position:absolute;display:block;overflow:visible}
+.fj-contours--drift svg,.fj-terrain--drift svg{animation:fjord-drift var(--fjord-duration-drift) var(--fjord-ease-in-out) infinite;transform-origin:30% 70%}
+.fj-terrain{position:relative;overflow:hidden;border-radius:inherit}
+.fj-terrain svg{display:block;width:100%;height:100%}
+.fj-terrain--spruce{background:var(--fjord-spruce);color:var(--fjord-terrain-line-spruce)}
+.fj-terrain--stone{background:var(--fjord-stone);color:var(--fjord-terrain-line-stone)}
+.fj-terrain--auto{background:var(--fjord-color-bg-sunken);color:var(--fjord-color-contour-line)}
+.fj-terrain__label{position:absolute;left:var(--fjord-space-3);bottom:var(--fjord-space-2);font:var(--fjord-weight-medium) var(--fjord-text-mono-sm)/var(--fjord-leading-ui) var(--fjord-font-mono);color:var(--fjord-color-text-muted);font-variant-numeric:tabular-nums}
+.fj-terrain--spruce .fj-terrain__label{color:var(--fjord-lichen)}
+.fj-terrain--stone .fj-terrain__label{color:var(--fjord-muted)}
+@media (prefers-reduced-motion:reduce){.fj-contours--drift svg,.fj-terrain--drift svg{animation:none}.fj-contours__layer{transform:none}}
+
+.fj-qr{background:var(--fjord-stone);border-radius:var(--fjord-radius-qr);color:var(--fjord-ink);aspect-ratio:1;display:grid;place-items:center;box-sizing:border-box}
+.fj-qr svg{width:100%;height:100%;display:block}
+.fj-qr-figure{display:inline-flex;flex-direction:column;gap:var(--fjord-space-2);margin:0}
+.fj-qr-figure figcaption{font:var(--fjord-weight-medium) var(--fjord-text-mono-label)/var(--fjord-leading-ui) var(--fjord-font-mono);color:var(--fjord-color-text-muted)}
+
+.fj-wordmark{font-family:var(--fjord-font-mono);font-weight:var(--fjord-weight-medium);letter-spacing:var(--fjord-tracking-body);color:var(--fjord-color-text);text-decoration:none;white-space:nowrap;display:inline-flex;align-items:baseline;line-height:var(--fjord-leading-none)}
+.fj-wordmark span{color:var(--fjord-color-link)}
+a.fj-wordmark:hover{color:var(--fjord-color-text)}
+
+.fj-portrait{position:relative;display:inline-block;isolation:isolate}
+.fj-portrait__frame{position:relative;z-index:var(--fjord-z-raised);overflow:hidden;border-radius:var(--fjord-radius-md);border:1px solid var(--fjord-color-border);background:var(--fjord-color-bg-sunken)}
+.fj-portrait__frame img{display:block;width:100%;height:100%;object-fit:cover;filter:var(--fjord-photo-filter)}
+.fj-portrait__contours{position:absolute;z-index:var(--fjord-z-base);width:170%;height:150%;right:-55%;bottom:-38%}
+
+.fj-og{position:relative;width:1200px;height:630px;overflow:hidden;box-sizing:border-box;padding:var(--fjord-space-18) var(--fjord-space-20);display:flex;flex-direction:column;justify-content:space-between;font-family:var(--fjord-font-sans)}
+.fj-og__eyebrow{position:relative;z-index:var(--fjord-z-raised);font:var(--fjord-weight-medium) var(--fjord-og-text-eyebrow)/var(--fjord-leading-none) var(--fjord-font-mono);color:var(--fjord-color-text-muted);letter-spacing:var(--fjord-tracking-label)}
+.fj-og__title{position:relative;z-index:var(--fjord-z-raised);margin:0;font-size:var(--fjord-og-text-title);font-weight:var(--fjord-weight-semibold);letter-spacing:var(--fjord-tracking-display);line-height:var(--fjord-leading-display);max-width:820px;text-wrap:balance}
+.fj-og__sub{position:relative;z-index:var(--fjord-z-raised);margin:var(--fjord-space-5) 0 0;font-size:var(--fjord-og-text-sub);line-height:var(--fjord-leading-snug);color:var(--fjord-color-text-muted);max-width:760px}
+.fj-og__foot{position:relative;z-index:var(--fjord-z-raised);display:flex;justify-content:space-between;align-items:baseline;font:var(--fjord-weight-medium) var(--fjord-og-text-meta)/var(--fjord-leading-none) var(--fjord-font-mono)}
+.fj-og__foot small{font-size:var(--fjord-og-text-small);color:var(--fjord-color-text-muted);font-weight:var(--fjord-weight-regular)}
+.fj-qr--static{display:block;background:none;aspect-ratio:auto}
+.fj-qr__img{display:block;width:100%;height:auto}
+.fj-qr__img--natt{display:none}
+[data-theme="natt"] .fj-qr__img--dag{display:none}
+[data-theme="natt"] .fj-qr__img--natt{display:block}

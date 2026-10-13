@@ -1,0 +1,31 @@
+/* Fjord · forms: TextField, ContactForm, CopyButton.
+   .fj-form uses a 440px @container threshold: two inputs per row only when the form itself is wide enough. */
+.fj-copy{display:inline-flex;align-items:center;gap:var(--fjord-space-1-5);height:32px;padding:0 var(--fjord-space-3);border:1px solid var(--fjord-color-border);border-radius:var(--fjord-radius-sm);background:transparent;color:var(--fjord-color-text-muted);font:var(--fjord-weight-medium) var(--fjord-text-mono-sm)/var(--fjord-leading-none) var(--fjord-font-mono);cursor:pointer;transition:color var(--fjord-duration-200),border-color var(--fjord-duration-200)}
+.fj-copy:hover{color:var(--fjord-color-text);border-color:var(--fjord-color-border-strong)}
+.fj-copy:focus-visible{outline:var(--fjord-focus-width) solid var(--fjord-color-focus-ring);outline-offset:var(--fjord-focus-offset)}
+.fj-copy[data-done="true"]{color:var(--fjord-color-success);border-color:currentColor}
+.fj-field{display:flex;flex-direction:column;gap:var(--fjord-space-1-5)}
+.fj-field label{font-size:var(--fjord-text-ui-sm);font-weight:var(--fjord-weight-medium)}
+.fj-field label small{font-weight:var(--fjord-weight-regular);color:var(--fjord-color-text-muted);margin-left:var(--fjord-space-1-5)}
+.fj-input{width:100%;box-sizing:border-box;min-height:var(--fjord-tap-min);padding:var(--fjord-space-3) var(--fjord-space-3);border:1px solid var(--fjord-color-border-strong);border-radius:var(--fjord-radius-md);background:var(--fjord-color-bg-raised);color:var(--fjord-color-text);font:var(--fjord-weight-regular) var(--fjord-text-ui-lg)/var(--fjord-leading-ui) var(--fjord-font-sans);transition:border-color var(--fjord-duration-200),box-shadow var(--fjord-duration-200)}
+.fj-input::placeholder{color:var(--fjord-color-text-muted);opacity:1}
+.fj-input:hover{border-color:var(--fjord-color-text-muted)}
+.fj-input:focus{outline:none;border-color:var(--fjord-color-focus-ring);box-shadow:0 0 0 1px var(--fjord-color-focus-ring)}
+.fj-input[aria-invalid="true"]{border-color:var(--fjord-color-danger)}
+.fj-input[aria-invalid="true"]:focus{box-shadow:0 0 0 1px var(--fjord-color-danger)}
+.fj-input:disabled{background:var(--fjord-color-bg-sunken);color:var(--fjord-color-text-muted);border-style:dashed;cursor:not-allowed}
+textarea.fj-input{min-height:128px;resize:vertical;line-height:var(--fjord-leading-body)}
+.fj-field__msg{display:flex;align-items:center;gap:var(--fjord-space-1-5);font-size:var(--fjord-text-ui-xs);line-height:var(--fjord-leading-snug);color:var(--fjord-color-text-muted)}
+.fj-field__msg--error{color:var(--fjord-color-danger)}
+.fj-form{display:flex;flex-direction:column;gap:var(--fjord-space-5);max-width:560px}
+.fj-form__row{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--fjord-space-5)}
+.fj-form{container-type:inline-size}
+@container (min-width:440px){.fj-form__row{grid-template-columns:1fr 1fr}}
+.fj-form__foot{display:flex;flex-wrap:wrap;align-items:center;gap:var(--fjord-space-3) var(--fjord-space-5)}
+.fj-form__note{font:var(--fjord-weight-regular) var(--fjord-text-mono-sm)/var(--fjord-leading-ui) var(--fjord-font-mono);color:var(--fjord-color-text-muted)}
+.fj-form__status{display:flex;gap:var(--fjord-space-3);align-items:flex-start;padding:var(--fjord-space-4) var(--fjord-space-5);border-radius:var(--fjord-radius-md);font-size:var(--fjord-text-ui);line-height:var(--fjord-leading-normal)}
+.fj-form__status strong{display:block;font-weight:var(--fjord-weight-semibold)}
+.fj-form__status--success{background:var(--fjord-color-success-soft);color:var(--fjord-color-text)}
+.fj-form__status--success .fj-icon{color:var(--fjord-color-success)}
+.fj-form__status--error{background:var(--fjord-color-danger-soft);color:var(--fjord-color-text)}
+.fj-form__status--error .fj-icon{color:var(--fjord-color-danger)}

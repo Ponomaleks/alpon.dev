@@ -1,0 +1,40 @@
+---
+// A numbered CV page section: the shared id, the number and an h2 that names the section.
+// The profile paragraph and the community list are plain elements in the slot.
+import SectionHeader from '../ui/SectionHeader.astro';
+import type { CvSectionId } from '../../data/cv/sections';
+
+interface Props {
+  id: CvSectionId;
+  /** Section number, e.g. "02". */
+  index: string;
+  heading: string;
+}
+
+const { id, index, heading } = Astro.props;
+const headingId = `${id}-heading`;
+---
+
+<section id={id} class="cv-section" aria-labelledby={headingId}>
+  <SectionHeader id={headingId} index={index} title={heading} size="sm" />
+  <div class="cv-section__body">
+    <slot />
+  </div>
+</section>
+
+<style>
+  .cv-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--fjord-space-5);
+    scroll-margin-top: var(--fjord-scroll-offset);
+  }
+  .cv-section__body {
+    display: flex;
+    flex-direction: column;
+    /* The page design has no wrapper here: the parts of a section are as wide as the column and
+       sit one section gap apart (`.x-cvsec`). */
+    gap: var(--fjord-space-5);
+    min-width: 0;
+  }
+</style>

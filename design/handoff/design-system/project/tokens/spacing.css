@@ -1,0 +1,51 @@
+/* Fjord · spacing, grid, shape, elevation. 4px base. */
+:root {
+  --fjord-space-1: 4px;
+  --fjord-space-2: 8px;
+  --fjord-space-3: 12px;
+  --fjord-space-4: 16px;
+  --fjord-space-6: 24px;
+  --fjord-space-8: 32px;
+  --fjord-space-12: 48px;
+  --fjord-space-16: 64px;
+  --fjord-space-24: 96px;
+  --fjord-space-32: 128px;
+
+  /* fluid section rhythm */
+  --fjord-space-section: clamp(64px, 44px + 5.5556vw, 128px);
+  --fjord-space-block: clamp(32px, 25.3333px + 1.8519vw, 48px);
+
+  /* grid: 4 / 8 / 12 cols, breakpoints 360 / 768 / 1024 / 1440 */
+  --fjord-bp-sm: 360px;
+  --fjord-bp-md: 768px;
+  --fjord-bp-lg: 1024px;
+  --fjord-bp-xl: 1440px;
+  --fjord-grid-columns: 4; /* @kind other */
+  --fjord-grid-gutter: 16px;
+  --fjord-grid-margin: 16px;
+  --fjord-content-max: 1200px;
+
+  --fjord-radius-sm: 4px;
+  --fjord-radius-md: 8px;
+  --fjord-radius-lg: 16px;
+  --fjord-radius-pill: 999px;
+  --fjord-radius-qr: 6%;   /* QR plate: ~6% of its width */
+
+  --fjord-border-width: 1px;
+  --fjord-focus-width: 2px;
+  --fjord-focus-offset: 2px;
+
+  /* the only elevation: floating UI (menus, palette, toasts, sticky bars) */
+  --fjord-shadow-float: 0 1px 2px rgba(27, 36, 33, .06), 0 12px 32px -8px rgba(27, 36, 33, .18);
+
+  --fjord-icon-sm: 16px;
+  --fjord-icon-md: 20px;
+  --fjord-icon-lg: 24px;
+  --fjord-icon-stroke: 1.5; /* @kind other */
+
+  --fjord-header-height: 64px;
+  --fjord-tap-min: 44px;
+}
+@media (min-width: 768px) { :root { --fjord-grid-columns: 8; /* @kind other */ --fjord-grid-gutter: 24px; --fjord-grid-margin: 32px; } }
+@media (min-width: 1024px) { :root { --fjord-grid-columns: 12; /* @kind other */ --fjord-grid-gutter: 24px; --fjord-grid-margin: 48px; --fjord-header-height: 72px; } }
+[data-theme="natt"] { --fjord-shadow-float: 0 1px 2px rgba(0,0,0,.3), 0 16px 40px -8px rgba(0,0,0,.55); }

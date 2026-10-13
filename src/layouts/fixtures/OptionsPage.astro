@@ -1,0 +1,53 @@
+---
+// One page per page-option value (AC-24, sad §5), at /fixture-opt/<case>. Built only by
+// src/layouts/BaseLayout.test.ts into a throwaway directory; it is not a route of the site.
+import BaseLayout from '../BaseLayout.astro';
+
+export function getStaticPaths() {
+  const cases = {
+    'current-cv': { current: 'cv' },
+    'current-contact': { current: 'contact' },
+    'variant-default': { headerVariant: 'default' },
+    'variant-on-spruce': { headerVariant: 'on-spruce' },
+    'cta-auto': { headerCta: 'auto' },
+    'cta-secondary': { headerCta: 'secondary' },
+    'over-hero': { headerOverHero: true },
+    'over-hero-off': { headerOverHero: false },
+    'bar-off': { mobileBar: false },
+    'bar-on': { mobileBar: true },
+    'bar-custom': {
+      mobileBarActions: [
+        { label: 'Read the case study', href: '/projects/example', icon: 'file-text' },
+        { label: 'Get the brief', href: '/brief.pdf', icon: 'download', download: true },
+      ],
+    },
+    'back-to-top-off': { backToTop: false },
+    'back-to-top-on': { backToTop: true },
+    'band-off': { ctaBand: false },
+    'band-on': { ctaBand: true },
+    'band-custom': {
+      ctaBandActions: [
+        { label: 'Read the case study', href: '/projects/example', variant: 'primary' },
+        { label: 'Get the brief', href: '/brief.pdf', download: true },
+      ],
+    },
+    'cvlang-en': { cvLang: 'en' },
+    'cvlang-no': { cvLang: 'no' },
+    canonical: { canonical: '/cv/en' },
+    alternates: {
+      alternates: [
+        { hreflang: 'en', href: '/cv/en' },
+        { hreflang: 'no', href: '/cv/no' },
+        { hreflang: 'x-default', href: '/cv/en' },
+      ],
+    },
+  } as const;
+  return Object.entries(cases).map(([name, options]) => ({ params: { name }, props: { options } }));
+}
+
+const { options } = Astro.props;
+---
+
+<BaseLayout title="Options fixture" description="A page that sets one page option." {...options}>
+  <h1>Options</h1>
+</BaseLayout>

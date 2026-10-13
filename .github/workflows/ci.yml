@@ -1,0 +1,229 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main, v2]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+# Branch protection on v2 and main (applied by the Owner) requires the checks `check` and `visual`: the job ids below
+# (commands in docs/features/fjord-foundation/tasks/t16-ci-lighthouse-protection.md). Keep both
+# jobs free of path filters (`paths` / `paths-ignore` under `on:`) and of job-level `if:`
+# conditions that can skip them on PRs into v2/main: a required check that never reports blocks
+# the merge forever, and a skipped one counts as passed.
+# Renaming a job id or giving a job a `name:` changes its check name; update the protection with it.
+#
+# `check` is a small job that only gathers the results of `quality` and of the two `e2e` shards.
+# The Playwright suite runs on one worker of a two-core runner; in one job it took 15 to 25 minutes
+# and ran the job into its 30-minute limit (run 38018150957, 2018 tests, cancelled with no test
+# reported as failed). Two shards run side by side, each with its own limit of 30 minutes.
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      - name: Lint (tokens check, contrast, astro check, eslint, prettier, stylelint)
+        run: npm run lint
+
+      - name: Unit tests (Vitest)
+        run: npm run test:unit
+
+      - name: Build
+        run: npm run build
+
+      - name: Budgets (bootstrap, initial JS, font preloads, font files)
+        run: npm run check:budgets
+
+      - name: Built page checks (placeholder text, contact facts on the home and CV pages)
+        run: npm run check:placeholders && npm run check:contact:built
+
+      # Lighthouse runs with Playwright's Chromium (lighthouserc.cjs), so this job needs the browser
+      # too. The browsers are cached by Playwright version (backlog B-45); the system packages are
+      # not cached and are installed on every run.
+      - name: Playwright version
+        id: playwright
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Restore the Playwright browsers
+        id: browsers
+        uses: actions/cache/restore@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}-chromium-firefox-webkit
+
+      - name: Install Playwright Chromium, Firefox and WebKit
+        if: steps.browsers.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps chromium firefox webkit
+
+      - name: Install the system packages of Chromium
+        if: steps.browsers.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
+
+      # Mobile Lighthouse must exercise the metric-matched Roboto fallback, as on Android: install
+      # Roboto and make sure no Arial is present (fjord-foundation sad §11).
+      - name: Fonts for the fallback checks (Roboto only, no Arial)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends fonts-roboto
+          fc-list : file family | grep -i arial | cut -d: -f1 | xargs -r sudo rm -f
+          sudo fc-cache -f
+          echo "Roboto:"; fc-list : family | grep -i "^roboto" | sort -u | head -3
+          if fc-list : family | grep -qi "arial"; then echo "Arial is still installed" >&2; exit 1; fi
+          echo "Arial: none"
+
+      # Against wrangler dev on dist/, so the delivered headers apply while pages are scored.
+      - name: Lighthouse CI
+        id: lhci
+        env:
+          WRANGLER_SEND_METRICS: 'false'
+        run: npm run lhci
+
+      - name: Upload Lighthouse reports
+        # Skip when the Lighthouse step never ran (an earlier step failed); upload otherwise, even on failure.
+        if: ${{ !cancelled() && steps.lhci.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: lighthouse
+          path: .lighthouseci/
+          # .lighthouseci/ is a dot directory: upload-artifact skips hidden files by default, so
+          # without this the reports were silently dropped ("No files were found").
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7
+
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      # Both shards report, also when one fails: a failure in one must not hide the other's.
+      fail-fast: false
+      matrix:
+        shard: [1, 2]
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      # The browser download has taken from 1 to 16 minutes on the runners and ran the job into its
+      # time limit (backlog B-45). The browsers are cached by Playwright version; the cache is saved
+      # right after a download, so a later failure of the job does not lose it. The system
+      # packages are not cached and are installed on every run.
+      - name: Playwright version
+        id: playwright
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Restore the Playwright browsers
+        id: browsers
+        uses: actions/cache/restore@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}-chromium-firefox-webkit
+
+      - name: Install Playwright Chromium, Firefox and WebKit
+        if: steps.browsers.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps chromium firefox webkit
+
+      # Only the first shard saves, so the two do not write the same cache key at once.
+      - name: Save the Playwright browsers
+        if: steps.browsers.outputs.cache-hit != 'true' && matrix.shard == 1
+        uses: actions/cache/save@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ steps.browsers.outputs.cache-primary-key }}
+
+      - name: Install the system packages of the browsers
+        if: steps.browsers.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium firefox webkit
+
+      # The fallback-face e2e must exercise the metric-matched Roboto fallback, as on Android:
+      # install Roboto and make sure no Arial is present (fjord-foundation sad §11).
+      - name: Fonts for the fallback checks (Roboto only, no Arial)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends fonts-roboto
+          fc-list : file family | grep -i arial | cut -d: -f1 | xargs -r sudo rm -f
+          sudo fc-cache -f
+          echo "Roboto:"; fc-list : family | grep -i "^roboto" | sort -u | head -3
+          if fc-list : family | grep -qi "arial"; then echo "Arial is still installed" >&2; exit 1; fi
+          echo "Arial: none"
+
+      # Playwright builds the site itself before it starts the server (playwright.config.ts).
+      - name: Test (Playwright e2e + axe), shard ${{ matrix.shard }} of 2
+        run: npm run test -- --shard=${{ matrix.shard }}/2
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-report-${{ matrix.shard }}
+          path: playwright-report/
+          retention-days: 7
+
+  # The required check. It always runs and fails unless every job it gathers succeeded, so a failed
+  # or cancelled shard cannot leave it skipped, which branch protection would read as passed.
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [quality, e2e]
+    if: ${{ always() }}
+    steps:
+      - name: Every gathered job succeeded
+        env:
+          QUALITY: ${{ needs.quality.result }}
+          E2E: ${{ needs.e2e.result }}
+        run: |
+          echo "quality: $QUALITY"
+          echo "e2e (both shards): $E2E"
+          if [ "$QUALITY" != "success" ] || [ "$E2E" != "success" ]; then exit 1; fi
+
+  # Visual regression runs in the official Playwright image, the same environment the
+  # "Visual baselines" workflow (run by the `visual-baselines` PR label) writes the baselines in (fjord-foundation sad §11). A missing
+  # baseline fails this job.
+  visual:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
+      options: --user 1001
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      - name: Visual regression (home, Not-found, CV pages and Styleguide, 390 / 834 / 1440 × Dag / Natt)
+        env:
+          FJORD_VISUAL: compare
+        run: npx playwright test tests/visual --project desktop
+
+      - name: Upload visual diffs
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: visual-diffs
+          path: test-results/
+          retention-days: 7

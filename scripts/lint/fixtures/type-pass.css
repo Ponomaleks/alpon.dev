@@ -1,0 +1,9 @@
+.a {
+  font-size: var(--fjord-text-body);
+  line-height: var(--fjord-leading-body);
+}
+
+.b {
+  font-size: calc(var(--fjord-text-body) * 1.25);
+  line-height: inherit;
+}

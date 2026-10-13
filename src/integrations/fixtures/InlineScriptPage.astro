@@ -1,0 +1,11 @@
+---
+// AC-12 fixture: a page that adds an executable inline script. Built only by
+// src/integrations/csp.build.test.ts; the CSP integration must fail that build.
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Bad fixture" description="Adds an inline script the policy does not name.">
+  <script is:inline>
+    console.log('not allowed');
+  </script>
+</BaseLayout>

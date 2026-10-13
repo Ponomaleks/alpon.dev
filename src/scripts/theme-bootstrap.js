@@ -1,0 +1,1 @@
+{let t;try{t=localStorage.getItem('fjord-theme')}catch(e){}if(t!=='dag'&&t!=='natt')t=matchMedia('(prefers-color-scheme: dark)').matches?'natt':'dag';document.documentElement.dataset.theme=t}

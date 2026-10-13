@@ -1,0 +1,162 @@
+---
+// The shared layout and its head contract (fjord-foundation sad §8): charset → viewport →
+// theme bootstrap → two font preloads → stylesheets (tokens → fonts → base) → title,
+// description, robots, icons. A page passes only a title and a description (AC-13).
+import stylesheet from '../styles/global.css?url';
+import themeBootstrapSource from '../scripts/theme-bootstrap.js?raw';
+import { normaliseNewlines } from '../scripts/newlines.ts';
+import SkipLink from '../components/layout/SkipLink.astro';
+import Header from '../components/layout/Header.astro';
+import MobileMenu from '../components/layout/MobileMenu.astro';
+import CtaBand from '../components/layout/CtaBand.astro';
+import Footer from '../components/layout/Footer.astro';
+import BackToTop from '../components/layout/BackToTop.astro';
+import MobileBar from '../components/layout/MobileBar.astro';
+import { defaultBarActions, type BandAction, type BarSlot } from '../data/shell-actions';
+import Toast from '../components/ui/Toast.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  lang?: 'en' | 'no';
+  noindex?: boolean;
+  // Page options (base-components sad §5): every one is optional and has a default.
+  current?: 'cv' | 'contact';
+  headerVariant?: 'default' | 'on-spruce';
+  headerCta?: 'auto' | 'secondary';
+  // The header sits over the page's hero (AC-33); the page script keeps the attribute in step.
+  headerOverHero?: boolean;
+  mobileBar?: boolean;
+  // The bar's pair, all secondary (AC-34).
+  mobileBarActions?: readonly [BarSlot, BarSlot];
+  // The link to the top in the bottom end corner, from 768 (cv AC-21); the Styleguide leaves it out.
+  backToTop?: boolean;
+  ctaBand?: boolean;
+  ctaBandActions?: readonly [BandAction, BandAction];
+  cvLang?: 'en' | 'no';
+  // Site path of the canonical address and og:url; the default is the page's own path (AC-16).
+  canonical?: string;
+  // Alternate-language pages, one <link rel="alternate" hreflang> each; none by default (AC-17).
+  alternates?: readonly { hreflang: string; href: string }[];
+  // Schema.org data, rendered as one ld+json block (AC-26).
+  structuredData?: Record<string, unknown>;
+}
+
+const {
+  title,
+  description,
+  lang = 'en',
+  noindex = false,
+  current,
+  headerVariant = 'default',
+  headerCta = 'auto',
+  headerOverHero = false,
+  mobileBar = true,
+  mobileBarActions = defaultBarActions,
+  backToTop = true,
+  ctaBand = true,
+  ctaBandActions,
+  cvLang = 'en',
+  canonical: canonicalOption,
+  alternates = [],
+  structuredData,
+} = Astro.props;
+// The same LF text the CSP integration hashes (ADR-0002).
+const themeBootstrap = normaliseNewlines(themeBootstrapSource);
+// Canonical address: the site origin plus the page path (trailingSlash 'never', format 'file').
+// The dev server and the build both report file-format paths (/index.html, /cv/en.html).
+const canonicalPath = Astro.url.pathname
+  .replace(/(?:^|\/)index\.html$/, '/')
+  .replace(/\.html$/, '');
+const canonical = new URL(canonicalOption ?? canonicalPath, Astro.site).href;
+const alternateLinks = alternates.map(({ hreflang, href }) => ({
+  hreflang,
+  href: new URL(href, Astro.site).href,
+}));
+// A Norwegian page keeps the Shell English; the page's own content carries the Norwegian.
+const shellLang = lang === 'no' ? 'en' : undefined;
+const ogImage = new URL('/og.png', Astro.site).href;
+// "<" is escaped so a value with </script> cannot close the data block.
+const structuredDataJson = structuredData
+  ? JSON.stringify(structuredData).replace(/</g, '\\u003c')
+  : undefined;
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script is:inline set:html={themeBootstrap} />
+    <link
+      rel="preload"
+      href="/fonts/schibsted-grotesk-wght.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/fonts/jetbrains-mono-wght.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link rel="stylesheet" href={stylesheet} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex" />}
+    {!noindex && (
+      <>
+        <link rel="canonical" href={canonical} />
+        {alternateLinks.map((a) => (
+          <link rel="alternate" hreflang={a.hreflang} href={a.href} />
+        ))}
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:url" content={canonical} />
+        <meta property="og:image" content={ogImage} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta name="twitter:card" content="summary_large_image" />
+      </>
+    )}
+    {structuredDataJson && <script type="application/ld+json" set:html={structuredDataJson} />}
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  </head>
+  <body>
+    {/* The target of BackToTop: the next Tab starts here, at the skip link (AC-21). */}
+    {backToTop && <span id="top" />}
+    <SkipLink lang={shellLang} />
+    <Header
+      current={current}
+      variant={headerVariant === 'on-spruce' ? 'on-spruce' : undefined}
+      cta={headerCta}
+      overHero={headerOverHero}
+      cvLang={cvLang}
+      lang={shellLang}
+    />
+    <MobileMenu current={current} cvLang={cvLang} lang={shellLang} />
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    {ctaBand && <CtaBand cvLang={cvLang} actions={ctaBandActions} lang={shellLang} />}
+    <Footer lang={shellLang} />
+    {backToTop && <BackToTop lang={shellLang} />}
+    {mobileBar && <MobileBar actions={mobileBarActions} lang={shellLang} />}
+    <Toast lang={shellLang} />
+    {/* The Shell's one script file (release-1 D-06 a): header, menu, theme switch, action bar, Toast. */}
+    <script>
+      import '../scripts/shell/start';
+    </script>
+    {/* Cloudflare Web Analytics, as the dashboard issues it for alpon.dev, the last element of
+         the body (release-1 D-01). The token is public. public/_headers names the file (D-02). */}
+    <script
+      is:inline
+      type="module"
+      src="https://static.cloudflareinsights.com/beacon.min.js"
+      data-cf-beacon='{"token": "145a994b908a49539c57bf82ca84fb4f"}'
+    ></script>
+  </body>
+</html>

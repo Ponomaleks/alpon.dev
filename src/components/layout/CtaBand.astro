@@ -1,0 +1,114 @@
+---
+import Button from '../ui/Button.astro';
+import Contours from '../brand/Contours.astro';
+import { defaultBandActions, type BandAction } from '../../data/shell-actions';
+
+// Closing band on spruce (AC-20), copy and structure from the page design (App.jsx, CtaBand in
+// the design system). One primary button; "Download CV" follows the CV language. Static contours.
+interface Props {
+  cvLang?: 'en' | 'no';
+  /** The band's pair; defaults to "Get in touch" + "Download CV" (AC-40). */
+  actions?: readonly [BandAction, BandAction];
+  /** `en` on a Norwegian page: the Shell stays English (AC-02). */
+  lang?: 'en';
+}
+
+const { cvLang = 'en', actions = defaultBandActions(cvLang), lang } = Astro.props;
+---
+
+<section class="fj-band fjord-on-spruce" lang={lang}>
+  <Contours variant="ridge" anchor="bottom-right" tone="spruce" image />
+  <div class="fj-band__in">
+    <h2 class="fj-band__title">Let’s build something good together.</h2>
+    <p class="fj-band__body">If your team is hiring in the Oslo area, I’d like to hear about it.</p>
+    <div class="fj-band__actions">
+      {actions.map((action) => (
+        <Button
+          size="lg"
+          href={action.href}
+          variant={action.variant ?? 'secondary'}
+          download={action.download || false}
+          meta={action.meta}
+          metaName={action.metaName}
+          arrow={action.variant === 'primary'}
+        >
+          {action.label}
+        </Button>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .fj-band {
+    position: relative;
+    overflow: clip;
+    margin-top: var(--fjord-space-section);
+    padding: var(--fjord-space-section) 0;
+  }
+
+  /* The timeline belongs to the band itself: the contours' own box clips (overflow hidden), so a
+     view() on the layer would bind to that never-scrolling box. The contours drift as the band scrolls into view (AC-41). Scroll-tied, never time-based: no
+     duration, loop or transition; skipped without support and under reduced motion. */
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .fj-band {
+        view-timeline: --fj-band block;
+      }
+      .fj-band :global(.contours__layer) {
+        animation: fj-band-contours var(--fjord-ease-linear) both;
+        animation-timeline: --fj-band;
+        animation-range: entry 0% cover 100%;
+      }
+    }
+  }
+
+  @keyframes fj-band-contours {
+    from {
+      transform: translate3d(0, var(--fjord-space-6), 0);
+    }
+    to {
+      transform: translate3d(0, calc(var(--fjord-space-6) * -1), 0);
+    }
+  }
+
+  .fj-band__in {
+    position: relative;
+    z-index: var(--fjord-z-raised);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--fjord-space-7);
+    max-width: calc(var(--fjord-content-max) + 2 * var(--fjord-grid-margin));
+    margin: 0 auto;
+    padding: 0 var(--fjord-grid-margin);
+    box-sizing: border-box;
+  }
+
+  .fj-band__title {
+    margin: 0;
+    font-size: var(--fjord-text-h1);
+    font-weight: var(--fjord-weight-semibold);
+    letter-spacing: var(--fjord-tracking-heading);
+    line-height: var(--fjord-leading-heading);
+    /* ch of this semibold heading, as in the design; the em measure tokens are sized for body text,
+       whose narrower "0" made the title break into three lines. */
+    max-width: 16ch;
+    text-wrap: balance;
+  }
+
+  .fj-band__body {
+    margin: calc(-1 * var(--fjord-space-2)) 0 0;
+    /* The design's 52ch; the narrow measure (48ch) is the closest token. */
+    max-width: var(--fjord-measure-narrow);
+    font-size: var(--fjord-text-lead);
+    line-height: var(--fjord-leading-normal);
+    color: var(--fjord-color-text-muted);
+  }
+
+  .fj-band__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--fjord-space-3);
+  }
+</style>

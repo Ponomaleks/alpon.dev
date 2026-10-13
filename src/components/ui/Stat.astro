@@ -1,0 +1,156 @@
+---
+// Final number and label, printed in the HTML (AC-25). With countUp a second, aria-hidden copy
+// is printed for the page script to count (AC-06); this file has no script.
+interface StatItem {
+  value: string | number;
+  prefix?: string;
+  suffix?: string;
+  unit?: string;
+  label: string;
+  context?: string;
+}
+interface Props extends Partial<StatItem> {
+  /** A row of stats; when given, the single-stat props are ignored. */
+  items?: StatItem[];
+  compact?: boolean;
+  /** The accessible name of the row, set by the page (`label` is a single stat's own label). */
+  rowLabel?: string;
+  /** Adds a counting copy of each value for the page script (AC-06); the final number stays. */
+  countUp?: boolean;
+}
+
+const { items, compact = false, rowLabel, countUp = false, ...single } = Astro.props;
+const stats: StatItem[] = items ?? (single.value === undefined ? [] : [single as StatItem]);
+---
+
+<ul
+  class:list={['stats', { 'stats--compact': compact, 'stats--row': items !== undefined }]}
+  data-count={items?.length}
+  aria-label={rowLabel}
+>
+  {stats.map((s) => (
+    <li class="stat">
+      <span class="stat__value">
+        {countUp ? (
+          <span class="stat__num">
+            <span class="stat__final">{`${s.prefix ?? ''}${s.value}${s.suffix ?? ''}`}</span>
+            <span
+              class="stat__count"
+              aria-hidden="true"
+              data-count-to={s.value}
+              data-prefix={s.prefix}
+              data-suffix={s.suffix}
+            >
+              {`${s.prefix ?? ''}${s.value}${s.suffix ?? ''}`}
+            </span>
+          </span>
+        ) : (
+          `${s.prefix ?? ''}${s.value}${s.suffix ?? ''}`
+        )}
+        {s.unit && <small>{s.unit}</small>}
+      </span>
+      <span class="stat__label">{s.label}</span>
+      {s.context && <span class="stat__ctx">{s.context}</span>}
+    </li>
+  ))}
+</ul>
+
+<style>
+  .stats {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--fjord-space-8) var(--fjord-grid-gutter);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  /* A row is the design grid (.fj-stats): two columns, then one per item from 1024. The design
+     sets the count with a style attribute, which the CSP forbids; data-count carries it here. */
+  .stats--row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  @media (min-width: 1024px) {
+    .stats--row {
+      grid-template-columns: repeat(var(--fj-n, 4), minmax(0, 1fr));
+    }
+  }
+  .stats[data-count='1'] {
+    --fj-n: 1;
+  }
+  .stats[data-count='2'] {
+    --fj-n: 2;
+  }
+  .stats[data-count='3'] {
+    --fj-n: 3;
+  }
+  .stats[data-count='5'] {
+    --fj-n: 5;
+  }
+  .stats[data-count='6'] {
+    --fj-n: 6;
+  }
+  .stat {
+    display: flex;
+    flex-direction: column;
+    gap: var(--fjord-space-3);
+    min-width: 0;
+    padding-top: var(--fjord-space-4);
+    border-top: var(--fjord-border-width) solid var(--fjord-color-border-strong);
+  }
+  .stat__value {
+    font-size: var(--fjord-text-stat);
+    font-weight: var(--fjord-weight-medium);
+    letter-spacing: var(--fjord-tracking-display);
+    line-height: var(--fjord-leading-none);
+    font-variant-numeric: tabular-nums;
+    color: var(--fjord-color-text);
+    /* Short values stay on one line as in the design (they have no break points); a value too
+       long for its column wraps inside it instead of running into the next stat. */
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+  /* Both copies share one cell, so the width of the final value is reserved. Without the script
+     the final copy shows; the state attribute the script sets on the panel swaps them. */
+  .stat__num {
+    display: inline-grid;
+    font-variant-numeric: tabular-nums;
+  }
+  .stat__final,
+  .stat__count {
+    grid-area: 1 / 1;
+  }
+  .stat__count {
+    opacity: 0;
+  }
+  :global([data-count-state]) .stat__count {
+    opacity: 1;
+  }
+  :global([data-count-state]) .stat__final {
+    opacity: 0;
+  }
+  .stats--compact .stat__value {
+    font-size: var(--fjord-text-h2);
+  }
+  .stat__value small {
+    margin-left: var(--fjord-space-1);
+    font-size: var(--fjord-text-h3);
+    font-weight: var(--fjord-weight-medium);
+    letter-spacing: var(--fjord-tracking-body);
+    color: var(--fjord-color-text-muted);
+  }
+  .stat__label {
+    /* The design's 24ch: half of the 48ch narrow measure. */
+    max-width: calc(var(--fjord-measure-narrow) / 2);
+    font-size: var(--fjord-text-ui);
+    line-height: var(--fjord-leading-ui);
+    color: var(--fjord-color-text);
+  }
+  .stat__ctx {
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-mono-sm);
+    font-weight: var(--fjord-weight-regular);
+    line-height: var(--fjord-leading-ui);
+    font-variant-numeric: tabular-nums;
+    color: var(--fjord-color-text-muted);
+  }
+</style>

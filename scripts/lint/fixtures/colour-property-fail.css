@@ -1,0 +1,14 @@
+.a {
+  color: var(--text);
+  background-color: var(--fjord-color-bg, transparent);
+  background: var(--surface) no-repeat;
+  border-color: var(--fjord-color-border) var(--line);
+  border: var(--fjord-border-width) solid var(--line);
+  border-block-end: 1px solid var(--line);
+  outline: var(--fjord-focus-width) solid var(--ring);
+  outline-color: var(--ring);
+  fill: var(--icon);
+  stroke: var(--icon);
+  color: red;
+  background: #ffffff;
+}

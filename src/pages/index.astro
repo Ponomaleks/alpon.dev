@@ -1,0 +1,103 @@
+---
+// SCR-01 home (AC-01): Hero, Key facts, About, Experience, Recommendations and Contact, numbered
+// from the sections that are rendered. Recommendations is rendered only with an agreed quote
+// (AC-09, AC-10); Selected projects is a Dormant section, rendered only when the switch of step 7
+// is on and a Published project exists (AC-11).
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/home/Hero.astro';
+import KeyFacts from '../components/home/KeyFacts.astro';
+import About from '../components/home/About.astro';
+import SelectedProjects from '../components/home/SelectedProjects.astro';
+import ExperienceList from '../components/home/ExperienceList.astro';
+import Recommendations from '../components/home/Recommendations.astro';
+import ContactBlock from '../components/home/ContactBlock.astro';
+import SaveContactSheet from '../components/home/SaveContactSheet.astro';
+import { contact } from '../data/contact';
+import { visibleRecommendations } from '../data/home';
+import { buildPerson } from '../data/person';
+import { homeProjects } from '../data/projects';
+import { features } from '../data/site';
+import { homeBandActions } from '../data/shell-actions';
+import { numberSections } from '../scripts/home/sections';
+
+const hasRecommendations = visibleRecommendations().length > 0;
+const entries = features.projects ? await getCollection('projects') : [];
+const projects = homeProjects(
+  features.projects,
+  entries.map((entry) => ({ slug: entry.id, ...entry.data })),
+);
+const numbers = numberSections({
+  projects: projects.length > 0,
+  recommendations: hasRecommendations,
+});
+---
+
+<BaseLayout
+  title="Alexander Ponomarenko · Software Engineer"
+  description="Full stack developer in the Oslo area, open to work. React, Angular, TypeScript and Python. Key facts, background, experience and contact details."
+  headerOverHero
+  ctaBandActions={homeBandActions('en')}
+  structuredData={buildPerson(contact)}
+>
+  <Hero />
+  <KeyFacts />
+  <div data-reveal-section>
+    <About index={numbers.about} />
+  </div>
+  {projects.length > 0 && (
+    <div data-reveal-section>
+      <SelectedProjects items={projects} index={numbers.projects} />
+    </div>
+  )}
+  <div data-reveal-section>
+    <ExperienceList index={numbers.experience} />
+  </div>
+  {hasRecommendations && (
+    <div data-reveal-section>
+      <Recommendations index={numbers.recommendations} />
+    </div>
+  )}
+  <section
+    class="contact-place"
+    id="contact"
+    aria-labelledby="contact-title"
+    tabindex="-1"
+    data-reveal-section
+  >
+    <div class="contact-place__wrap">
+      <ContactBlock index={numbers.contact} />
+    </div>
+  </section>
+  <SaveContactSheet />
+  <script>
+    import '../scripts/home/index';
+  </script>
+</BaseLayout>
+
+<style is:global>
+  /* The page design's section: its spacing above and the page container around the block. */
+  .contact-place {
+    padding-top: var(--fjord-space-section);
+    scroll-margin-top: var(--fjord-scroll-offset);
+  }
+  .contact-place__wrap {
+    width: 100%;
+    max-width: calc(var(--fjord-content-max) + 2 * var(--fjord-grid-margin));
+    margin-inline: auto;
+    padding-inline: var(--fjord-grid-margin);
+  }
+  .contact-place:focus {
+    outline: none;
+  }
+
+  [data-reveal='pending'] {
+    opacity: 0;
+    transform: translateY(var(--fjord-space-4));
+  }
+  [data-reveal='in'] {
+    transition:
+      opacity var(--fjord-duration-560) var(--fjord-ease-out),
+      transform var(--fjord-duration-560) var(--fjord-ease-out);
+  }
+</style>

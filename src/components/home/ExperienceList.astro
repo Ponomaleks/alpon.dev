@@ -1,0 +1,280 @@
+---
+// Experience (AC-08): four native <details> entries on a timeline rail. The summary always shows
+// period, note, role and organisation; the text, points and tags sit in the body. No script: the
+// platform announces the state and the chevron turns through the [open] selector.
+// Layout follows the design's .fj-xp-item: one column (period, heading, body); on a tablet, where
+// the list is wide, the period takes a fixed left column.
+import Icon from '../ui/Icon.astro';
+import Link from '../ui/Link.astro';
+import SectionHeader from '../ui/SectionHeader.astro';
+import Tag from '../ui/Tag.astro';
+import { contact } from '../../data/contact';
+import { experience, type ExperienceEntry } from '../../data/home';
+
+type Entry = ExperienceEntry & { demo?: 'hover' | 'focus' };
+
+interface Props {
+  /** The entries; the home data by default. */
+  items?: Entry[];
+  /** Styleguide: the list alone, without the heading column; entries may force a heading state. */
+  sample?: boolean;
+  /** Section number in the eyebrow, e.g. "02". */
+  index?: string;
+}
+
+const { items = experience as Entry[], sample = false, index = '03' } = Astro.props;
+---
+
+<section
+  class="experience"
+  aria-labelledby={sample ? undefined : 'experience-title'}
+  aria-label={sample ? 'Experience' : undefined}
+>
+  <div class:list={['experience__wrap', { 'experience__wrap--sample': sample }]}>
+    {!sample && (
+      <div class="experience__head">
+        <SectionHeader
+          id="experience-title"
+          index={index}
+          eyebrow="Experience"
+          title="Where I’ve worked"
+        />
+        <Link href={contact.links.cv} standalone>
+          Full CV
+        </Link>
+      </div>
+    )}
+    <ol class="experience__list">
+      {items.map((x) => (
+        <li class:list={['xp', { 'xp--current': x.current }]}>
+          <details open={x.open}>
+            <summary class="xp__summary" data-demo-state={x.demo}>
+              <span class="xp__meta">
+                <span class="xp__period">{x.period}</span>
+                <span class="xp__note">{x.location}</span>
+              </span>
+              <span class="xp__title">
+                <span class="xp__role">{x.role}</span>
+                <span class="xp__org">{x.org}</span>
+              </span>
+              <span class="xp__chevron" data-icon="chevron-down">
+                <Icon name="chevron-down" />
+              </span>
+            </summary>
+            <div class="xp__body">
+              <p class="xp__text">{x.summary}</p>
+              {x.points.length > 0 && (
+                <ul class="xp__points">
+                  {x.points.map((p) => (
+                    <li>{p}</li>
+                  ))}
+                </ul>
+              )}
+              {x.stack.length > 0 && <Tag items={x.stack} />}
+            </div>
+          </details>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>
+
+<style>
+  .experience__wrap {
+    width: 100%;
+    max-width: calc(var(--fjord-content-max) + 2 * var(--fjord-grid-margin));
+    margin-inline: auto;
+    padding-inline: var(--fjord-grid-margin);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--fjord-space-10) var(--fjord-grid-gutter);
+  }
+  /* The page design's section spacing; a Styleguide sample is not a section. */
+  .experience__wrap:not(.experience__wrap--sample) {
+    padding-top: var(--fjord-space-section);
+  }
+  .experience__head {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--fjord-space-5);
+    min-width: 0;
+  }
+  /* A 44px target around the design's link: the hover line stays under the text, at the place
+     the design's 2px bottom padding gives it. */
+  .experience__head :global(.fj-link) {
+    min-block-size: var(--fjord-tap-min);
+    padding-bottom: 0;
+    line-height: var(--fjord-leading-body);
+    background-position: 0 calc(50% + 0.5em * var(--fjord-leading-body) + var(--fjord-space-0-5));
+  }
+  /* The page design's split (.x-split): the heading takes 7 parts, the list 5. */
+  @media (min-width: 1024px) {
+    .experience__wrap:not(.experience__wrap--sample) {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      gap: var(--fjord-space-16);
+    }
+  }
+  .experience__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    min-width: 0;
+  }
+  .xp {
+    position: relative;
+    padding: var(--fjord-space-5) 0 var(--fjord-space-5) var(--fjord-space-7);
+    border-top: var(--fjord-border-width) solid var(--fjord-color-border);
+  }
+  /* The rail. */
+  .xp::before {
+    content: '';
+    position: absolute;
+    left: var(--fjord-space-1);
+    top: 0;
+    bottom: 0;
+    width: var(--fjord-border-width);
+    background: var(--fjord-color-border);
+  }
+  /* The marker: the design's 9px ring, 27px down. */
+  .xp::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: calc(var(--fjord-space-7) - var(--fjord-border-width));
+    box-sizing: border-box;
+    width: calc(var(--fjord-space-2) + var(--fjord-border-width));
+    height: calc(var(--fjord-space-2) + var(--fjord-border-width));
+    border: var(--fjord-border-width) solid var(--fjord-color-border-strong);
+    border-radius: var(--fjord-radius-round);
+    background: var(--fjord-color-bg);
+  }
+  .xp--current::after {
+    border-color: var(--fjord-color-link);
+    background: var(--fjord-color-link);
+  }
+  /* One column: the period, then the heading with the chevron beside it. */
+  .xp__summary {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    gap: var(--fjord-space-1) var(--fjord-space-4);
+    min-height: var(--fjord-tap-min);
+    border-radius: var(--fjord-radius-sm);
+    cursor: pointer;
+    list-style: none;
+  }
+  .xp__summary::-webkit-details-marker {
+    display: none;
+  }
+  .xp__summary:hover .xp__role,
+  .xp__summary[data-demo-state='hover'] .xp__role {
+    color: var(--fjord-color-link);
+  }
+  .xp__summary:focus-visible,
+  .xp__summary[data-demo-state='focus'] {
+    outline: var(--fjord-focus-width) solid var(--fjord-color-focus-ring);
+    outline-offset: var(--fjord-space-1);
+  }
+  .xp__meta {
+    grid-column: 1 / -1;
+    padding-top: var(--fjord-space-1);
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-mono-sm);
+    font-weight: var(--fjord-weight-regular);
+    line-height: var(--fjord-leading-body);
+    font-variant-numeric: tabular-nums;
+    color: var(--fjord-color-text-muted);
+  }
+  .xp__period,
+  .xp__note,
+  .xp__role,
+  .xp__org {
+    display: block;
+  }
+  .xp__title {
+    min-width: 0;
+  }
+  .xp__role {
+    font-size: var(--fjord-text-h4);
+    font-weight: var(--fjord-weight-semibold);
+    letter-spacing: var(--fjord-tracking-heading);
+    line-height: var(--fjord-leading-snug);
+    color: var(--fjord-color-text);
+  }
+  .xp__org {
+    margin-top: var(--fjord-space-0-5);
+    font-size: var(--fjord-text-ui);
+    color: var(--fjord-color-text-muted);
+  }
+  .xp__chevron {
+    display: inline-flex;
+    margin-top: var(--fjord-space-1);
+    color: var(--fjord-color-text-muted);
+  }
+  details[open] .xp__chevron {
+    transform: rotate(180deg);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .xp__chevron {
+      transition: transform var(--fjord-duration-200) var(--fjord-ease-out);
+    }
+  }
+  .xp__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--fjord-space-3);
+    padding-top: var(--fjord-space-3);
+  }
+  /* The design's 62ch: the 66ch measure is the closest token. */
+  .xp__text,
+  .xp__points {
+    max-width: var(--fjord-measure);
+    margin: 0;
+    line-height: var(--fjord-leading-body);
+  }
+  .xp__points {
+    padding-left: var(--fjord-space-5);
+    display: flex;
+    flex-direction: column;
+    gap: var(--fjord-space-1-5);
+  }
+  .xp__points li::marker {
+    color: var(--fjord-color-text-muted);
+  }
+  /* Where the list is as wide as the page (a tablet, and the Styleguide sample from 768), the
+     period takes the design's fixed 160px column and the heading and the body share the other
+     one. The design does this with a container query (list at least 560px wide); container
+     queries are not used here, so the home list, which is the narrow column again from 1024,
+     goes back to one column there. */
+  @media (min-width: 768px) {
+    .xp__summary {
+      grid-template-columns: calc(var(--fjord-space-20) * 2) minmax(0, 1fr) auto;
+      column-gap: 0;
+    }
+    .xp__meta {
+      grid-column: 1;
+    }
+    .xp__title {
+      margin-inline: var(--fjord-space-6) var(--fjord-space-4);
+    }
+    .xp__body {
+      margin-left: calc(var(--fjord-space-20) * 2 + var(--fjord-space-6));
+    }
+  }
+  @media (min-width: 1024px) {
+    .experience__wrap:not(.experience__wrap--sample) .xp__summary {
+      grid-template-columns: minmax(0, 1fr) auto;
+      column-gap: var(--fjord-space-4);
+    }
+    .experience__wrap:not(.experience__wrap--sample) .xp__meta {
+      grid-column: 1 / -1;
+    }
+    .experience__wrap:not(.experience__wrap--sample) .xp__title {
+      margin-inline: 0;
+    }
+    .experience__wrap:not(.experience__wrap--sample) .xp__body {
+      margin-left: 0;
+    }
+  }
+</style>

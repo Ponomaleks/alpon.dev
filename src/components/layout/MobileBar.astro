@@ -1,0 +1,179 @@
+---
+import Button from '../ui/Button.astro';
+import Icon from '../ui/Icon.astro';
+import LangSwitch from '../ui/LangSwitch.astro';
+import type { BarSlot } from '../../data/shell-actions';
+
+// Sticky action bar below 768 (AC-07, AC-08, AC-09). The live bar carries the hook H-2; `sample`
+// leaves the hook off and positions the bar inside its frame for the Styleguide.
+// The tab (the <summary>) is drawn as part of the panel: one surface and one outline. The panel
+// keeps its height in every state and only its transform changes: none when open, down to a strip
+// under the tab when collapsed, off the screen when the scroll script sets `inert`.
+interface Props {
+  actions: readonly [BarSlot, BarSlot];
+  sample?: boolean;
+  /** Sample only: draws the bar collapsed, to its tab. */
+  collapsed?: boolean;
+  /** `en` on a Norwegian page: the Shell stays English (AC-02). */
+  lang?: 'en';
+}
+
+const { actions, sample = false, collapsed = false, lang } = Astro.props;
+---
+
+<details
+  class="mobile-bar"
+  lang={lang}
+  open={!(sample && collapsed)}
+  data-shell-bar={sample ? undefined : ''}
+  data-sample={sample ? '' : undefined}
+>
+  <summary class="mobile-bar__tab">
+    <span class="mobile-bar__label">Quick actions</span>
+    <span class="mobile-bar__chevron mobile-bar__chevron--down">
+      <Icon name="chevron-down" />
+    </span>
+    <span class="mobile-bar__chevron mobile-bar__chevron--up">
+      <Icon name="chevron-up" />
+    </span>
+  </summary>
+  {actions.map((action) =>
+    'kind' in action ? (
+      <div class="mobile-bar__switch">
+        <LangSwitch
+          current={action.current}
+          group={action.group}
+          lang={action.lang}
+          size="default"
+          enHref={action.enHref}
+          noHref={action.noHref}
+        />
+      </div>
+    ) : (
+      <Button
+        href={action.href}
+        variant="secondary"
+        icon={action.icon}
+        download={action.download}
+        metaName={action.metaName}
+        lang={action.lang}
+        block
+      >
+        {action.label}
+      </Button>
+    ),
+  )}
+</details>
+
+<style>
+  .mobile-bar {
+    position: fixed;
+    inset-inline: 0;
+    inset-block-end: env(safe-area-inset-bottom);
+    z-index: var(--fjord-z-actionbar);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--fjord-space-2);
+    box-sizing: border-box;
+    /* One button and the padding, also when the actions are not rendered (collapsed). */
+    min-block-size: calc(
+      var(--fjord-tap-min) + 2 * var(--fjord-space-3) + var(--fjord-border-width)
+    );
+    padding: var(--fjord-space-3) var(--fjord-space-4);
+    background-color: var(--fjord-color-bg-raised);
+    border-block-start: var(--fjord-border-width) solid var(--fjord-color-border);
+    box-shadow: var(--fjord-shadow-float);
+  }
+
+  .mobile-bar::details-content {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--fjord-space-2);
+  }
+
+  /* The switch keeps its own width at the start side; the neighbour button takes the rest. */
+  .mobile-bar__switch {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+  .mobile-bar:has(.mobile-bar__switch),
+  .mobile-bar:has(.mobile-bar__switch)::details-content {
+    grid-template-columns: auto 1fr;
+  }
+
+  .mobile-bar__tab {
+    position: absolute;
+    inset-block-end: 100%;
+    inset-inline-end: var(--fjord-space-4);
+    display: grid;
+    place-items: center;
+    inline-size: var(--fjord-tap-min);
+    block-size: var(--fjord-tap-min);
+    color: var(--fjord-color-text);
+    background-color: var(--fjord-color-bg-raised);
+    border: var(--fjord-border-width) solid var(--fjord-color-border);
+    /* Open into the panel: the tab ends on the panel's top line and its surface covers that line,
+       so the outline runs up and around the tab. */
+    border-block-end-color: transparent;
+    border-radius: var(--fjord-radius-md) var(--fjord-radius-md) 0 0;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .mobile-bar__tab::-webkit-details-marker {
+    display: none;
+  }
+
+  .mobile-bar__label {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .mobile-bar__chevron {
+    display: flex;
+  }
+
+  .mobile-bar[open] .mobile-bar__chevron--up,
+  .mobile-bar:not([open]) .mobile-bar__chevron--down {
+    display: none;
+  }
+
+  .mobile-bar[data-sample] {
+    position: absolute;
+  }
+
+  /* Collapsed: the panel slides down until a strip of it stays under the tab. */
+  .mobile-bar:not([open]) {
+    transform: translateY(calc(100% - var(--fjord-space-3) - var(--fjord-border-width)));
+  }
+
+  /* Away while scrolling down: the panel and the tab on top of it leave together. */
+  .mobile-bar[inert] {
+    transform: translateY(calc(100% + var(--fjord-tap-min) + var(--fjord-space-2)));
+  }
+
+  /* One slide for both changes. The actions stay drawn until the panel has gone down (browsers
+     without ::details-content drop them at once and still slide the panel). */
+  @media (prefers-reduced-motion: no-preference) {
+    .mobile-bar {
+      transition: transform var(--fjord-duration-320) var(--fjord-ease-out);
+    }
+
+    .mobile-bar::details-content {
+      transition: content-visibility var(--fjord-duration-320) var(--fjord-ease-out) allow-discrete;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .mobile-bar:not([data-sample]) {
+      display: none;
+    }
+  }
+</style>

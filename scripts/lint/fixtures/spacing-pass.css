@@ -1,0 +1,11 @@
+.a {
+  margin: 0 auto;
+  margin-block-start: auto;
+  margin-inline: calc(var(--fjord-space-2) * -1);
+  padding: var(--fjord-space-4) var(--fjord-space-6);
+  padding-block: calc(var(--fjord-space-2) * 2);
+  padding-inline: max(var(--fjord-grid-margin), var(--fjord-space-6));
+  gap: var(--fjord-space-8) var(--fjord-grid-gutter);
+  row-gap: 0;
+  column-gap: inherit;
+}

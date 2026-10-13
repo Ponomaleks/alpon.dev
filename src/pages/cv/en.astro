@@ -1,0 +1,48 @@
+---
+// The English CV page (AC-01, AC-02, AC-04, AC-17, AC-20; sad §4 item 2).
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CvPage from '../../components/cv/CvPage.astro';
+import { contact } from '../../data/contact';
+import { cvPdf } from '../../data/cv/index';
+import { cvEn } from '../../data/cv/en';
+import { cvNo } from '../../data/cv/no';
+import type { BarSlot } from '../../data/shell-actions';
+
+const lang = 'en' as 'en' | 'no';
+const cv = lang === 'no' ? cvNo : cvEn;
+const alternates = [
+  { hreflang: 'en', href: contact.links.cvPages.en },
+  { hreflang: 'no', href: contact.links.cvPages.no },
+  { hreflang: 'x-default', href: contact.links.cvPages.en },
+];
+const mobileBarActions: readonly [BarSlot, BarSlot] = [
+  {
+    kind: 'lang-switch',
+    current: lang,
+    group: lang === 'no' ? 'CV-språk' : 'CV language',
+    lang: lang === 'no' ? 'no' : undefined,
+    enHref: contact.links.cvPages.en,
+    noHref: contact.links.cvPages.no,
+  },
+  {
+    label: cv.labels.downloadCv,
+    href: cvPdf[lang].href,
+    icon: 'file-down',
+    download: cvPdf[lang].downloadName,
+    lang: lang === 'no' ? 'no' : undefined,
+  },
+];
+---
+
+<BaseLayout
+  title={cv.title}
+  description={cv.description}
+  lang={lang}
+  cvLang={lang}
+  current="cv"
+  canonical={contact.links.cvPages.en}
+  alternates={alternates}
+  mobileBarActions={mobileBarActions}
+>
+  <CvPage lang={lang} />
+</BaseLayout>

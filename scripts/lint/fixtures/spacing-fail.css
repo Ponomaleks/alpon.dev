@@ -1,0 +1,13 @@
+.a {
+  margin: 12px;
+  margin-top: -0.5rem;
+  margin-inline: 5%;
+  padding: var(--fjord-space-4) 1em;
+  padding-block: calc(4px + 1rem);
+  padding-inline: calc(var(--fjord-space-2) + 4px);
+  padding-top: calc(3 * 5);
+  padding-left: calc(100% - var(--fjord-space-4));
+  gap: 1rem;
+  row-gap: 2vh;
+  column-gap: min(var(--fjord-space-4), 2vw);
+}

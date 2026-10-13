@@ -1,0 +1,717 @@
+{
+  "slug": "cv",
+  "tasks": [
+    {
+      "id": "T1",
+      "title": "Compare the design's CV text with the two CV PDFs and list the differences for the Owner",
+      "layer": "docs",
+      "deps": [],
+      "acs": [
+        "AC-26"
+      ],
+      "dod": "docs/features/cv/owner-inputs.md holds the list of differences between data.js and each CV PDF with a row or \"no difference\" for every section of both files, the list of facts the home page and a CV page state differently, and the first Claims rows, and the Owner's decision is filled in on every difference row.",
+      "files_hint": [
+        "docs/features/cv/owner-inputs.md"
+      ]
+    },
+    {
+      "id": "T2",
+      "title": "Serve the three CV addresses as pages and rewrite P-01 to P-03",
+      "layer": "wiring",
+      "deps": [],
+      "acs": [
+        "AC-15",
+        "AC-28"
+      ],
+      "dod": "tests/e2e/parity.spec.ts P-01, P-02 and P-03 pass against wrangler dev: each of /cv, /cv/en and /cv/no answers 200 with HTML at the address that was asked for, the two CV PDF addresses still answer with the files, and no parity item was removed.",
+      "files_hint": [
+        "src/pages/cv.astro",
+        "src/pages/cv/en.astro",
+        "src/pages/cv/no.astro",
+        "public/_redirects",
+        "tests/e2e/parity.spec.ts",
+        "docs/stub-parity.md"
+      ]
+    },
+    {
+      "id": "T3",
+      "title": "Point every internal CV link at the canonical CV address through the contact data",
+      "layer": "domain",
+      "deps": [
+        "T2"
+      ],
+      "acs": [
+        "AC-16"
+      ],
+      "dod": "The unit tests assert that contact.links.cv is /cv/en and links.cvPages is { en: /cv/en, no: /cv/no } and that Hero and ExperienceList render the address from the data, and tests/e2e/home.spec.ts shows \"View CV\" and \"Full CV\" arriving at the English CV page.",
+      "files_hint": [
+        "src/data/contact.ts",
+        "src/components/home/Hero.astro",
+        "src/components/home/ExperienceList.astro",
+        "src/components/home/hero.test.ts",
+        "src/components/home/experience.test.ts",
+        "src/layouts/BaseLayout.test.ts",
+        "tests/e2e/action-bar.spec.ts",
+        "tests/e2e/home.spec.ts",
+        "tests/e2e/shell.spec.ts"
+      ]
+    },
+    {
+      "id": "T4",
+      "title": "Add the CV data skeleton and the CV PDF checksum check to the lint gate",
+      "layer": "domain",
+      "deps": [],
+      "acs": [
+        "AC-05",
+        "AC-25"
+      ],
+      "dod": "scripts/check-cv-pdf.test.ts passes: the check is green on the two recorded files and fails on each of two changed fixture files with a message that names the file and the CV page to check, and package.json runs check:cv inside npm run lint before astro check with no new dependency.",
+      "files_hint": [
+        "src/data/cv/types.ts",
+        "src/data/cv/sections.ts",
+        "src/data/cv/index.ts",
+        "src/data/cv/index.test.ts",
+        "scripts/check-cv-pdf.ts",
+        "scripts/check-cv-pdf.test.ts",
+        "package.json"
+      ]
+    },
+    {
+      "id": "T5",
+      "title": "Write the English CV data from the text the Owner confirmed",
+      "layer": "domain",
+      "deps": [
+        "T1",
+        "T4"
+      ],
+      "acs": [
+        "AC-01",
+        "AC-03",
+        "AC-26"
+      ],
+      "dod": "src/data/cv/en.test.ts passes: the sections are the eight of the English CV PDF in the order of sections.ts, the three language levels are the plain labels, no string holds a bracketed placeholder or a level code, and the page has a title and a description.",
+      "files_hint": [
+        "src/data/cv/en.ts",
+        "src/data/cv/en.test.ts"
+      ]
+    },
+    {
+      "id": "T6",
+      "title": "Write the Norwegian CV data from the current Norwegian CV PDF",
+      "layer": "domain",
+      "deps": [
+        "T1",
+        "T4"
+      ],
+      "acs": [
+        "AC-02",
+        "AC-03",
+        "AC-26"
+      ],
+      "dod": "src/data/cv/no.test.ts passes: the sections are the ones the Norwegian CV PDF has, as a subset of sections.ts in its order, the page labels are the Norwegian ones of AC-02, the three language levels are the plain Norwegian labels, and no string holds a bracketed placeholder or a level code.",
+      "files_hint": [
+        "src/data/cv/no.ts",
+        "src/data/cv/no.test.ts"
+      ]
+    },
+    {
+      "id": "T7",
+      "title": "Add the ghost Button variant and the icons the CV page needs",
+      "layer": "ui",
+      "deps": [],
+      "acs": [
+        "AC-06",
+        "AC-24"
+      ],
+      "dod": "src/components/ui/actions.test.ts asserts that Button renders the ghost variant in the default and small size without the primary class and that the icons file-down, eye and arrow-up render aria-hidden with the stroke width token, and npm run check:contrast passes with the ghost pairs.",
+      "files_hint": [
+        "src/components/ui/Button.astro",
+        "src/components/ui/Icon.astro",
+        "src/components/ui/actions.test.ts",
+        "scripts/contrast-pairs.ts"
+      ]
+    },
+    {
+      "id": "T8",
+      "title": "Build Breadcrumbs and the LangSwitch as two links",
+      "layer": "ui",
+      "deps": [],
+      "acs": [
+        "AC-01",
+        "AC-07"
+      ],
+      "dod": "src/components/ui/navigation.test.ts asserts that LangSwitch renders two links in a named group with aria-current=\"true\" on the current one and lang=\"no\" on \"NO\" in both sizes, and that Breadcrumbs renders a named nav whose last item is the current page and whose other items are links.",
+      "files_hint": [
+        "src/components/ui/Breadcrumbs.astro",
+        "src/components/ui/LangSwitch.astro",
+        "src/components/ui/navigation.test.ts",
+        "scripts/contrast-pairs.ts"
+      ]
+    },
+    {
+      "id": "T9",
+      "title": "Build CvSection, SkillGroup, LanguageList and DatedRows",
+      "layer": "ui",
+      "deps": [
+        "T4"
+      ],
+      "acs": [
+        "AC-01",
+        "AC-03"
+      ],
+      "dod": "src/components/cv/sections.test.ts asserts that CvSection renders its shared id, its number and an h2, that SkillGroup renders an h3 label with its skills as text, that LanguageList renders a language and its plain level per row, and that DatedRows renders the period, title, organisation and the optional note with a Norwegian name marked.",
+      "files_hint": [
+        "src/components/cv/CvSection.astro",
+        "src/components/cv/SkillGroup.astro",
+        "src/components/cv/LanguageList.astro",
+        "src/components/cv/DatedRows.astro",
+        "src/components/cv/sections.test.ts"
+      ]
+    },
+    {
+      "id": "T10",
+      "title": "Build CvJob and CvProjects",
+      "layer": "ui",
+      "deps": [
+        "T4"
+      ],
+      "acs": [
+        "AC-01",
+        "AC-03"
+      ],
+      "dod": "src/components/cv/job.test.ts asserts that CvJob renders role as h3, organisation, period and, as the data has them, client projects as h4 with their technologies as Tags, internal projects or paragraphs, and that CvProjects renders each project with its stack, text and an external code link that follows the site rule for links to other sites.",
+      "files_hint": [
+        "src/components/cv/CvJob.astro",
+        "src/components/cv/CvProjects.astro",
+        "src/components/cv/job.test.ts"
+      ]
+    },
+    {
+      "id": "T11",
+      "title": "Build the Original PDF preview and the meta line",
+      "layer": "ui",
+      "deps": [
+        "T4",
+        "T7"
+      ],
+      "acs": [
+        "AC-05",
+        "AC-09",
+        "AC-10"
+      ],
+      "dod": "src/components/cv/preview.test.ts asserts a closed native details whose summary has the ghost small look, two lazy page images with width and height inside links that open the CV PDF of that language in a new tab with the names of AC-09, and the meta line with the CV date in a time element.",
+      "files_hint": [
+        "src/components/cv/OriginalPdfPreview.astro",
+        "src/components/cv/CvMeta.astro",
+        "src/components/cv/preview.test.ts"
+      ]
+    },
+    {
+      "id": "T12",
+      "title": "Build the side column: contents list, contact list and the second download",
+      "layer": "ui",
+      "deps": [
+        "T4",
+        "T7"
+      ],
+      "acs": [
+        "AC-02",
+        "AC-04"
+      ],
+      "dod": "src/components/cv/aside.test.ts asserts a named nav with a numbered link per section, a contact list whose email, phone, LinkedIn, GitHub and Residence equal src/data/contact.ts with the copy action behind data-needs-script, a secondary \"Download PDF\" with the download name, and no contact card link.",
+      "files_hint": [
+        "src/components/cv/CvAside.astro",
+        "src/components/cv/aside.test.ts"
+      ]
+    },
+    {
+      "id": "T13",
+      "title": "Move copy-email to scripts/shared and let it follow the language of the page",
+      "layer": "app",
+      "deps": [],
+      "acs": [
+        "AC-02",
+        "AC-04",
+        "AC-23"
+      ],
+      "dod": "src/scripts/shared/copy-email.test.ts passes with the moved module: the English behaviour is unchanged, and a button with Norwegian labels shows \"Kopiert\" and sends a Toast message marked lang=\"no\"; src/scripts/shell/toast.test.ts asserts that the message carries the language inside the English region.",
+      "files_hint": [
+        "src/scripts/shared/copy-email.ts",
+        "src/scripts/shared/copy-email.test.ts",
+        "src/scripts/home/copy-email.ts",
+        "src/scripts/home/copy-email.test.ts",
+        "src/scripts/home/index.ts",
+        "src/components/ui/CopyButton.astro",
+        "src/components/ui/Toast.astro",
+        "src/scripts/shell/toast.ts",
+        "src/scripts/shell/toast.test.ts"
+      ]
+    },
+    {
+      "id": "T14",
+      "title": "Add canonical, alternates and cvLang to BaseLayout and mark the Shell English on a Norwegian page",
+      "layer": "wiring",
+      "deps": [
+        "T3"
+      ],
+      "acs": [
+        "AC-02",
+        "AC-16",
+        "AC-17",
+        "AC-20"
+      ],
+      "dod": "src/layouts/BaseLayout.test.ts builds fixture pages and asserts that canonical overrides the canonical link and og:url, that alternates render one hreflang link each, that with lang no every Shell part carries lang=\"en\", and that with current cv and cvLang no the \"CV\" link of the header and the mobile menu and the band's \"Download CV\" follow the Norwegian page.",
+      "files_hint": [
+        "src/layouts/BaseLayout.astro",
+        "src/layouts/BaseLayout.test.ts",
+        "src/layouts/fixtures/OptionsPage.astro",
+        "src/layouts/fixtures/NorwegianPage.astro",
+        "src/components/layout/Header.astro",
+        "src/components/layout/MobileMenu.astro",
+        "src/components/layout/CtaBand.astro",
+        "src/components/layout/header.test.ts",
+        "src/components/layout/menu.test.ts",
+        "src/components/layout/static-parts.test.ts"
+      ]
+    },
+    {
+      "id": "T15",
+      "title": "Let the Sticky action bar take a language switch and a link with a language",
+      "layer": "ui",
+      "deps": [
+        "T8",
+        "T14"
+      ],
+      "acs": [
+        "AC-19"
+      ],
+      "dod": "src/components/layout/bar.test.ts asserts that a language-switch slot renders the LangSwitch in its default size with the current language marked, that a link action with lang carries the attribute, that both are secondary, that the default pair is unchanged, and that the action type still accepts no style field.",
+      "files_hint": [
+        "src/data/shell-actions.ts",
+        "src/components/layout/MobileBar.astro",
+        "src/components/layout/bar.test.ts",
+        "src/layouts/BaseLayout.astro"
+      ]
+    },
+    {
+      "id": "T16",
+      "title": "Build the CV head",
+      "layer": "ui",
+      "deps": [
+        "T4",
+        "T7",
+        "T8",
+        "T11"
+      ],
+      "acs": [
+        "AC-01",
+        "AC-02",
+        "AC-05",
+        "AC-06"
+      ],
+      "dod": "src/components/cv/head.test.ts asserts breadcrumbs, the name as the only h1, the role line, the location line, the large language switch, \"Download PDF\" as the one primary button with its download name, the secondary contact button in the CV language, and the meta line, for both CV languages.",
+      "files_hint": [
+        "src/components/cv/CvHead.astro",
+        "src/components/cv/head.test.ts"
+      ]
+    },
+    {
+      "id": "T17",
+      "title": "Compose CvPage, give the three pages their head and list them in the sitemap",
+      "layer": "wiring",
+      "deps": [
+        "T2",
+        "T5",
+        "T6",
+        "T9",
+        "T10",
+        "T11",
+        "T12",
+        "T14",
+        "T15",
+        "T16"
+      ],
+      "acs": [
+        "AC-01",
+        "AC-02",
+        "AC-04",
+        "AC-17",
+        "AC-20"
+      ],
+      "dod": "src/pages/_cv.test.ts builds the site and asserts on dist/cv.html, dist/cv/en.html and dist/cv/no.html: one h1, numbered h2 sections with the shared ids and no gap, the side column in the HTML, the html language, title, description and preview data per CV language, canonical /cv/en on the short address, the three hreflang alternates, \"CV\" marked current, and the build passes the CSP integration; public/sitemap.xml lists both CV pages.",
+      "files_hint": [
+        "src/components/cv/CvPage.astro",
+        "src/pages/cv.astro",
+        "src/pages/cv/en.astro",
+        "src/pages/cv/no.astro",
+        "src/pages/_cv.test.ts",
+        "public/sitemap.xml"
+      ]
+    },
+    {
+      "id": "T18",
+      "title": "Write the pure modules of the CV page script",
+      "layer": "app",
+      "deps": [
+        "T4"
+      ],
+      "acs": [
+        "AC-08"
+      ],
+      "dod": "The three unit test files pass: section-in-view returns the id of the section in view or nothing above the first, lang-switch sets or clears the fragment on every link to the other language and stops the link of the current one, and arrive focuses only a section whose id is one of the shared ids.",
+      "files_hint": [
+        "src/scripts/cv/section-in-view.ts",
+        "src/scripts/cv/section-in-view.test.ts",
+        "src/scripts/cv/lang-switch.ts",
+        "src/scripts/cv/lang-switch.test.ts",
+        "src/scripts/cv/arrive.ts",
+        "src/scripts/cv/arrive.test.ts"
+      ]
+    },
+    {
+      "id": "T19",
+      "title": "Teach the budget check that the three CV addresses are one page",
+      "layer": "tests",
+      "deps": [],
+      "acs": [
+        "AC-23"
+      ],
+      "dod": "scripts/check-budgets.test.ts asserts that a script loaded only by /cv, /cv/en and /cv/no counts as that page's own within 10 KB gzip, that a file loaded by pages of two groups counts as Shell, and that the home page's limits are unchanged.",
+      "files_hint": [
+        "scripts/check-budgets.ts",
+        "scripts/check-budgets.test.ts"
+      ]
+    },
+    {
+      "id": "T20",
+      "title": "Wire the CV page script and check the language switch and the copy action on the page",
+      "layer": "app",
+      "deps": [
+        "T13",
+        "T17",
+        "T18",
+        "T19"
+      ],
+      "acs": [
+        "AC-04",
+        "AC-08",
+        "AC-19",
+        "AC-23"
+      ],
+      "dod": "tests/e2e/cv-lang-switch.spec.ts passes: for each section both pages have, the other CV page opens at that section with its heading 0 px under the header and keyboard focus there and one Back returns, from the CV head and from the bar at 390, with the top-of-page, missing-section, current-language and scripts-off cases; tests/e2e/cv-copy.spec.ts shows \"Copied\" and \"Kopiert\" with the Toast.",
+      "files_hint": [
+        "src/scripts/cv/index.ts",
+        "src/components/cv/CvPage.astro",
+        "tests/e2e/cv-lang-switch.spec.ts",
+        "tests/e2e/cv-copy.spec.ts"
+      ]
+    },
+    {
+      "id": "T21",
+      "title": "Hand the Legacy CV addresses over from the home page",
+      "layer": "app",
+      "deps": [
+        "T3"
+      ],
+      "acs": [
+        "AC-13",
+        "AC-14"
+      ],
+      "dod": "src/scripts/home/legacy-cv.test.ts asserts the exact map of #cv and #cv-no to the two CV pages and nothing for any other fragment, and tests/e2e/legacy-cv.spec.ts shows both arrivals with one Back returning to the page before the home page, the home page unchanged with scripts off, and the contact place still opening.",
+      "files_hint": [
+        "src/scripts/home/legacy-cv.ts",
+        "src/scripts/home/legacy-cv.test.ts",
+        "src/scripts/home/index.ts",
+        "tests/e2e/legacy-cv.spec.ts"
+      ]
+    },
+    {
+      "id": "T22",
+      "title": "Give the CV pages, the CV PDFs and the page images their response headers",
+      "layer": "wiring",
+      "deps": [
+        "T2"
+      ],
+      "acs": [
+        "AC-18"
+      ],
+      "dod": "tests/e2e/headers.spec.ts passes against wrangler dev: /cv, /cv/en and /cv/no carry the freshness rule of the home page, each CV PDF and page image carries the one-hour rule, only the CV PDFs carry Content-Disposition inline with their file names, every answer carries the security headers, and a file in public/cv/ without a rule fails the test.",
+      "files_hint": [
+        "public/_headers",
+        "tests/e2e/headers.spec.ts"
+      ]
+    },
+    {
+      "id": "T23",
+      "title": "Extend the contact check and the placeholder check to the built CV pages",
+      "layer": "tests",
+      "deps": [
+        "T17"
+      ],
+      "acs": [
+        "AC-03",
+        "AC-27"
+      ],
+      "dod": "scripts/check-contact.test.ts asserts that the built half reads dist/cv.html, dist/cv/en.html and dist/cv/no.html and fails naming the page when the email, phone, LinkedIn, GitHub or Residence there differs from contact.ts or the location line does not name the town of the Residence, and scripts/check-placeholders.test.ts asserts that a bracketed placeholder on a CV page fails.",
+      "files_hint": [
+        "scripts/check-contact.ts",
+        "scripts/check-contact.test.ts",
+        "scripts/check-placeholders.ts",
+        "scripts/check-placeholders.test.ts",
+        ".github/workflows/ci.yml"
+      ]
+    },
+    {
+      "id": "T24",
+      "title": "Show the components of phase 5a on the Styleguide with marked sample data",
+      "layer": "ui",
+      "deps": [
+        "T7",
+        "T8",
+        "T9",
+        "T10",
+        "T11",
+        "T12",
+        "T15"
+      ],
+      "acs": [
+        "AC-29"
+      ],
+      "dod": "src/pages/_styleguide.test.ts asserts that the built Styleguide has a section for Breadcrumbs, Language switch, Skill group, Language list, CV job, Dated rows, Contents list and Original PDF preview and the added rows of Button, Icon, Sticky action bar, Contact list and Toast, and that every section with CV content sits in a data-sample block under the \"Sample data\" label.",
+      "files_hint": [
+        "src/pages/styleguide.astro",
+        "src/pages/_styleguide.test.ts",
+        "src/data/samples.ts"
+      ]
+    },
+    {
+      "id": "T25",
+      "title": "Check the CV pages end to end: content, downloads, preview, primary count and targets",
+      "layer": "tests",
+      "deps": [
+        "T17",
+        "T20"
+      ],
+      "acs": [
+        "AC-01",
+        "AC-02",
+        "AC-03",
+        "AC-04",
+        "AC-05",
+        "AC-06",
+        "AC-09",
+        "AC-10",
+        "AC-16",
+        "AC-23",
+        "AC-24"
+      ],
+      "dod": "tests/e2e/cv.spec.ts, cv-preview.spec.ts and primary-count.spec.ts pass against wrangler dev: both CV pages show their content and downloads with scripts on and off, no page image is requested before the preview is opened and a failed image keeps its link and box, at 390, 834 and 1440 the visible screen never holds more than two primary buttons and the page content never more than one, and every interactive element of the page content is at least 44 by 44.",
+      "files_hint": [
+        "tests/e2e/cv.spec.ts",
+        "tests/e2e/cv-preview.spec.ts",
+        "tests/e2e/primary-count.spec.ts"
+      ]
+    },
+    {
+      "id": "T26",
+      "title": "Run axe and Lighthouse on both CV pages",
+      "layer": "tests",
+      "deps": [
+        "T20",
+        "T24"
+      ],
+      "acs": [
+        "AC-24"
+      ],
+      "dod": "tests/a11y/cv.spec.ts reports 0 axe violations on both CV pages in Dag and Natt, with scripts on and off, with the Original PDF preview closed and open, and npm run lhci passes the budget of the home page on /cv/en and /cv/no.",
+      "files_hint": [
+        "tests/a11y/cv.spec.ts",
+        "lighthouserc.cjs"
+      ]
+    },
+    {
+      "id": "T27",
+      "title": "Switch on the CV parity items with their reworded behaviour",
+      "layer": "tests",
+      "deps": [
+        "T20",
+        "T21",
+        "T22"
+      ],
+      "acs": [
+        "AC-28"
+      ],
+      "dod": "tests/e2e/parity.spec.ts has no test.fixme left: P-30 to P-34 and P-51 are active tests of the reworded behaviour, P-15 covers the CV pages and the page images, P-10 passes unchanged, and the set of parity ids equals the set before this feature.",
+      "files_hint": [
+        "tests/e2e/parity.spec.ts",
+        "docs/stub-parity.md"
+      ]
+    },
+    {
+      "id": "T28",
+      "title": "Record the CV update rule and bring the documents in step with phase 5a",
+      "layer": "docs",
+      "deps": [
+        "T23",
+        "T25",
+        "T26",
+        "T27"
+      ],
+      "acs": [
+        "AC-25",
+        "AC-26"
+      ],
+      "dod": "CLAUDE.md and README.md state the rule for replacing a CV PDF with the note that the CV exists twice, the README route table lists the CV pages, CONTEXT.md, the roadmap and the design-system inventory match what phase 5a built, and owner-inputs.md has a Claims row with its CV PDF page as source for every number and date on the CV pages.",
+      "files_hint": [
+        "CLAUDE.md",
+        "README.md",
+        "CONTEXT.md",
+        "docs/roadmap.md",
+        "docs/design-system.md",
+        "docs/backlog.md",
+        "docs/features/cv/owner-inputs.md"
+      ]
+    },
+    {
+      "id": "T29",
+      "title": "Emit the Print block that re-applies the Dag tokens",
+      "layer": "wiring",
+      "deps": [
+        "T28"
+      ],
+      "acs": [
+        "AC-12"
+      ],
+      "dod": "scripts/tokens/build.test.ts asserts that the generated stylesheet holds one print block that re-applies every Dag colour token for both theme values and for the No-JS Natt block, and npm run tokens:check is green on the regenerated src/styles/tokens.css.",
+      "files_hint": [
+        "scripts/tokens/generate.ts",
+        "scripts/tokens/build.test.ts",
+        "scripts/tokens/check.test.ts",
+        "src/styles/tokens.css"
+      ]
+    },
+    {
+      "id": "T30",
+      "title": "Build the printed CV: print styles, the contact line and the Print button",
+      "layer": "ui",
+      "deps": [
+        "T29"
+      ],
+      "acs": [
+        "AC-06",
+        "AC-11",
+        "AC-12",
+        "AC-27",
+        "AC-29"
+      ],
+      "dod": "tests/e2e/cv-print.spec.ts passes in print media started from Dag and from Natt on both CV pages: no Shell part and no control is rendered, the contact line is rendered once and not on screen, the sheet is white with dark text, the printed PDF splits no entry across A4 sheets, and \"Print\" is displayed only where scripts run.",
+      "files_hint": [
+        "src/components/cv/PrintContactLine.astro",
+        "src/components/cv/print.test.ts",
+        "src/components/cv/CvPage.astro",
+        "src/components/cv/CvHead.astro",
+        "src/components/cv/head.test.ts",
+        "src/scripts/cv/print.ts",
+        "src/scripts/cv/print.test.ts",
+        "src/scripts/cv/index.ts",
+        "scripts/check-contact.ts",
+        "scripts/check-contact.test.ts",
+        "tests/e2e/cv-print.spec.ts",
+        "src/pages/styleguide.astro",
+        "src/pages/_styleguide.test.ts"
+      ]
+    },
+    {
+      "id": "T31",
+      "title": "Add BackToTop to the Shell with its reserve",
+      "layer": "ui",
+      "deps": [
+        "T28"
+      ],
+      "acs": [
+        "AC-21",
+        "AC-22",
+        "AC-29"
+      ],
+      "dod": "tests/e2e/back-to-top.spec.ts passes on the home page, the Not-found page and both CV pages: BackToTop is absent below 768, at 768, 834, 1024 and 1440 it is a named link of at least 44 by 44 that puts the page at its top with focus at the start of the page with scripts on or off, and at the end of the page it overlaps neither the last line nor the focused last footer link by any pixel.",
+      "files_hint": [
+        "src/components/layout/BackToTop.astro",
+        "src/components/layout/static-parts.test.ts",
+        "src/layouts/BaseLayout.astro",
+        "src/layouts/BaseLayout.test.ts",
+        "src/styles/base.css",
+        "scripts/lint/",
+        "docs/features/base-components/adr/",
+        "scripts/contrast-pairs.ts",
+        "tests/e2e/back-to-top.spec.ts",
+        "src/pages/styleguide.astro",
+        "src/pages/_styleguide.test.ts"
+      ]
+    },
+    {
+      "id": "T32",
+      "title": "Mark the current link in the mobile menu and check the header's marker on the rendered page",
+      "layer": "ui",
+      "deps": [
+        "T28"
+      ],
+      "acs": [
+        "AC-20",
+        "AC-29"
+      ],
+      "dod": "tests/e2e/header-states.spec.ts asserts on the computed style that \"CV\" in the header shows the underline marker on both CV pages and no link is marked on the home page and the Not-found page, and tests/e2e/menu.spec.ts asserts that the current link of the mobile menu has aria-current=\"page\", an accent rule at the start of its row and the semibold weight.",
+      "files_hint": [
+        "src/components/layout/MobileMenu.astro",
+        "src/components/layout/menu.test.ts",
+        "tests/e2e/menu.spec.ts",
+        "tests/e2e/header-states.spec.ts",
+        "scripts/contrast-pairs.ts",
+        "src/pages/styleguide.astro",
+        "src/pages/_styleguide.test.ts",
+        "docs/backlog.md"
+      ]
+    },
+    {
+      "id": "T33",
+      "title": "Add the visual tests of the CV pages and re-take the baselines BackToTop changed",
+      "layer": "tests",
+      "deps": [
+        "T30",
+        "T31",
+        "T32"
+      ],
+      "acs": [
+        "AC-24",
+        "AC-29"
+      ],
+      "dod": "The visual job of the draft pull request passes with at most 0.1 % differing pixels on baselines written by the visual-baselines workflow and reviewed by the Owner: both CV pages at 390 / 834 / 1440 in Dag and Natt with the preview closed and open, every new and changed Styleguide section, and the home page and the Not-found page re-taken at 834 and 1440.",
+      "files_hint": [
+        "tests/visual/cv.spec.ts",
+        "tests/visual/styleguide-sections.ts",
+        "tests/visual/home.spec.ts",
+        "tests/visual/not-found.spec.ts",
+        "tests/visual/__screenshots__/linux/",
+        ".github/workflows/ci.yml"
+      ]
+    },
+    {
+      "id": "T34",
+      "title": "Write the pull request body with the Claims list and close the documents",
+      "layer": "docs",
+      "deps": [
+        "T33"
+      ],
+      "acs": [
+        "AC-11",
+        "AC-24",
+        "AC-26"
+      ],
+      "dod": "docs/features/cv/pr-body.md holds what changed, the screenshots at 390 / 834 / 1440 in both themes, the test results, the design differences D-01 to D-10, the two difference lists with the Owner's decision on each row, the complete Claims list, and the records of the manual print in two browsers and of the page-image check in Firefox and Safari, and every Claims row is ticked by the Owner.",
+      "files_hint": [
+        "docs/features/cv/pr-body.md",
+        "docs/features/cv/owner-inputs.md",
+        "docs/design-system.md"
+      ]
+    }
+  ]
+}

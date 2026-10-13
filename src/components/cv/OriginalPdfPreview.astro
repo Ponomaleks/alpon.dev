@@ -1,0 +1,135 @@
+---
+// Original PDF preview (AC-09, AC-10; screens SCR-05 / SCR-06, C-3, C-8). A native <details>, no script.
+// Page images are lazy and sit inside links that open the CV PDF of the language in a new tab.
+// A failed image leaves the link; its box keeps the reserved size and the alt text shows (C-8).
+import { cvPdf } from '../../data/cv/index';
+import type { CvLang } from '../../data/cv/types';
+import Icon from '../ui/Icon.astro';
+import CvMeta from './CvMeta.astro';
+
+interface Props {
+  lang: CvLang;
+  /** Draws the preview open: the Styleguide's static sample. */
+  open?: boolean;
+}
+
+const { lang, open = false } = Astro.props;
+const pdf = cvPdf[lang];
+
+const copy = {
+  en: {
+    summary: 'View original PDF',
+    page: (n: number) => `CV page ${n} of 2, English, PDF, opens in a new tab`,
+  },
+  no: {
+    summary: 'Se original-PDF',
+    page: (n: number) => `CV, side ${n} av 2, norsk, PDF, åpnes i ny fane`,
+  },
+} as const;
+const { summary, page } = copy[lang];
+---
+
+<details class="cv-preview" lang={lang === 'no' ? 'no' : undefined} open={open}>
+  <summary class="fj-btn fj-btn--ghost fj-btn--sm cv-preview__summary">
+    <span class="cv-preview__icon cv-preview__icon--closed">
+      <Icon name="eye" />
+    </span>
+    <span class="cv-preview__icon cv-preview__icon--open">
+      <Icon name="x" />
+    </span>
+    {summary}
+  </summary>
+  <div class="cv-preview__group" role="group" aria-label={summary}>
+    {pdf.images.map((image, i) => (
+      <a class="cv-preview__page" href={pdf.href} target="_blank" rel="noopener noreferrer">
+        <img
+          src={image.src}
+          width={image.width}
+          height={image.height}
+          alt={page(i + 1)}
+          loading="lazy"
+        />
+      </a>
+    ))}
+    <div class="cv-preview__meta">
+      <CvMeta lang={lang} />
+    </div>
+  </div>
+</details>
+
+<style>
+  .cv-preview__summary {
+    list-style: none;
+    cursor: pointer;
+  }
+  .cv-preview__summary::-webkit-details-marker {
+    display: none;
+  }
+  .cv-preview__icon--open,
+  .cv-preview[open] .cv-preview__icon--closed {
+    display: none;
+  }
+  .cv-preview[open] .cv-preview__icon--open {
+    display: inline-flex;
+  }
+  .cv-preview__group {
+    display: grid;
+    /* One page under the other, each as wide as the content, so the file can be read here
+       (Owner, 2026-10-10; spec D-11). The page design draws two thumbnails side by side. */
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--fjord-space-4);
+    margin-top: var(--fjord-space-4);
+    animation: cv-preview-rise var(--fjord-duration-320) var(--fjord-ease-out);
+  }
+  .cv-preview__page {
+    display: block;
+    aspect-ratio: 210 / 297;
+    overflow: hidden;
+    border: var(--fjord-border-width) solid var(--fjord-color-border);
+    border-radius: var(--fjord-radius-sm);
+    background: var(--fjord-print-bg);
+    color: var(--fjord-print-text);
+    font-size: var(--fjord-text-caption);
+  }
+  .cv-preview__page img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .cv-preview__page:focus-visible {
+    outline: var(--fjord-focus-width) solid var(--fjord-color-focus-ring);
+    outline-offset: var(--fjord-focus-offset);
+  }
+  .cv-preview__meta {
+    grid-column: 1 / -1;
+  }
+  @keyframes cv-preview-rise {
+    from {
+      opacity: 0;
+      transform: translateY(var(--fjord-space-2));
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cv-preview__group {
+      animation-name: cv-preview-fade;
+    }
+    @keyframes cv-preview-fade {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+  }
+  @media print {
+    .cv-preview {
+      display: none;
+    }
+  }
+</style>

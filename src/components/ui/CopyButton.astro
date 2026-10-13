@@ -1,0 +1,124 @@
+---
+// The design's CopyButton (.fj-copy): a small bordered mono control, 32px high. The button itself
+// is the 44px touch target; the visible control is drawn inside it. It only looks like the
+// control: the page script that copies finds it by the data attribute its caller passes.
+// Done state (design: .fj-copy[data-done="true"] for --fjord-duration-copied; here "Copied" in
+// English and without the check icon, so the control keeps the design's width; spec D-18): both
+// faces are in the markup and share one grid cell, so the control keeps its size; the script only
+// sets `data-done`. The done face is hidden from assistive technology and the first face is only
+// made transparent, so the name stays "Copy" and the Toast alone announces the copy.
+import Icon from './Icon.astro';
+
+interface Props {
+  label?: string;
+  /** The label of the done state. */
+  done?: string;
+  /** Forces a state for the Styleguide (hook H-4). */
+  'data-demo-state'?: 'hover' | 'focus';
+  /** Set by the page script after a copy; the Styleguide passes it for a static sample. */
+  'data-done'?: 'true';
+  /** Hooks for the page script, e.g. data-copy-email. */
+  [hook: `data-${string}`]: string | undefined;
+}
+
+const { label = 'Copy', done = 'Copied', ...hooks } = Astro.props;
+---
+
+<button type="button" class="fj-copy" {...hooks}>
+  <span class="fj-copy__chip">
+    <span class="fj-copy__face">
+      <Icon name="copy" />
+      {label}
+    </span>
+    <span class="fj-copy__face fj-copy__face--done" aria-hidden="true">
+      {done}
+    </span>
+  </span>
+</button>
+
+<style is:global>
+  .fj-copy {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--fjord-tap-min);
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--fjord-color-text-muted);
+    cursor: pointer;
+  }
+
+  /* One cell holds both faces: the chip is as wide as the wider one. */
+  .fj-copy__chip {
+    box-sizing: border-box;
+    display: inline-grid;
+    align-items: center;
+    justify-items: center;
+    height: var(--fjord-space-8);
+    padding: 0 var(--fjord-space-3);
+    border: var(--fjord-border-width) solid var(--fjord-color-border);
+    border-radius: var(--fjord-radius-sm);
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-mono-sm);
+    font-weight: var(--fjord-weight-medium);
+    line-height: var(--fjord-leading-none);
+    white-space: nowrap;
+  }
+
+  .fj-copy__face {
+    grid-area: 1 / 1;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--fjord-space-1-5);
+  }
+
+  .fj-copy__face--done {
+    visibility: hidden;
+  }
+
+  /* The design's 14px icon. */
+  .fj-copy__chip svg {
+    inline-size: calc(var(--fjord-space-3) + var(--fjord-space-0-5));
+    block-size: calc(var(--fjord-space-3) + var(--fjord-space-0-5));
+  }
+
+  .fj-copy:hover .fj-copy__chip,
+  .fj-copy[data-demo-state='hover'] .fj-copy__chip {
+    color: var(--fjord-color-text);
+    border-color: var(--fjord-color-border-strong);
+  }
+
+  /* Done (after hover, so it wins over it): the success colour, the border follows it. */
+  .fj-copy[data-done='true'] .fj-copy__chip {
+    color: var(--fjord-color-success);
+    border-color: currentcolor;
+  }
+
+  .fj-copy[data-done='true'] .fj-copy__face {
+    opacity: 0;
+  }
+
+  .fj-copy[data-done='true'] .fj-copy__face--done {
+    visibility: visible;
+    opacity: 1;
+  }
+
+  /* The ring is drawn around the visible control, not around the taller target. */
+  .fj-copy:focus-visible {
+    outline: none;
+  }
+
+  .fj-copy:focus-visible .fj-copy__chip,
+  .fj-copy[data-demo-state='focus'] .fj-copy__chip {
+    outline: var(--fjord-focus-width) solid var(--fjord-color-focus-ring);
+    outline-offset: var(--fjord-focus-offset);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .fj-copy__chip {
+      transition:
+        color var(--fjord-duration-200) var(--fjord-ease-out),
+        border-color var(--fjord-duration-200) var(--fjord-ease-out);
+    }
+  }
+</style>

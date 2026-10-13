@@ -1,0 +1,187 @@
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { getViteConfig } from 'astro/config';
+import { experimental_AstroContainer as AstroContainer } from 'astro/container';
+import { createServer, type ViteDevServer } from 'vite';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+
+// Brand components (AC-17, AC-19; screens.md SCR-04 rows Contours, Terrain map, Wordmark).
+// Each component is rendered on its own with the Astro container, through a Vite server that
+// carries the Astro plugin (the .astro files are not plain modules).
+
+const dir = fileURLToPath(new URL('./', import.meta.url));
+let server: ViteDevServer;
+let container: AstroContainer;
+
+beforeAll(async () => {
+  const config = await getViteConfig({})({ mode: 'test', command: 'serve' });
+  server = await createServer({
+    ...config,
+    // No file watcher (tests never change files; Astro's own sync server does the same), and a
+    // dependency cache of its own, so a unit run does not replace the one of `astro dev` (B-46, B-68).
+    cacheDir: 'node_modules/.vite-unit',
+    server: { middlewareMode: true, watch: null },
+    appType: 'custom',
+  });
+  container = await AstroContainer.create();
+}, 120_000);
+afterAll(() => server?.close());
+
+async function render(name: string, props: Record<string, unknown> = {}): Promise<string> {
+  const mod = await server.ssrLoadModule(`/src/components/brand/${name}.astro`);
+  return container.renderToString(mod.default, { props });
+}
+
+const text = (html: string) =>
+  html
+    .replace(/<style[\s\S]*?<\/style>/g, '')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+/** The markup with the component's own scoped <style> block removed (CSS lives outside the SVG). */
+const markup = (html: string) => html.replace(/<style[\s\S]*?<\/style>/g, '');
+
+function expectDecorativeSvg(html: string) {
+  const svgs = markup(html).match(/<svg\b[^>]*>/g) ?? [];
+  expect(svgs.length).toBeGreaterThan(0);
+  for (const tag of svgs) {
+    expect(tag).toContain('aria-hidden="true"');
+    expect(tag).toContain('focusable="false"');
+  }
+  expect(markup(html)).not.toMatch(/\sstyle=/);
+  const svgBlocks = html.match(/<svg[\s\S]*?<\/svg>/g) ?? [];
+  for (const block of svgBlocks) expect(block).not.toContain('<style');
+  // stroke colours come from classes, not from literal colours on the elements
+  expect(markup(html)).not.toMatch(/\s(stroke|fill)="(?!none|currentColor)[^"]*"/);
+  expect(markup(html)).toMatch(/class="[^"]*"/);
+}
+
+describe.each(['ridge', 'corner'])('Contours variant "%s"', (variant) => {
+  it('is an aria-hidden inline SVG with class-based colours and no style attribute', async () => {
+    const html = await render('Contours', { variant });
+    expect(markup(html)).toContain('<svg');
+    expectDecorativeSvg(html);
+  });
+});
+
+// release-1 AC-06, D-10: the ridge in the spruce tone can come from the generated image file.
+describe('Contours from the image file (release-1 D-10)', () => {
+  const props = { variant: 'ridge', tone: 'spruce', image: true };
+
+  it('renders a lazy, decorative <img> inside the layer and no inline SVG', async () => {
+    const html = markup(await render('Contours', props));
+    expect(html).toMatch(/<div\b[^>]*class="[^"]*\bcontours\b[^"]*"[^>]*aria-hidden="true"/);
+    const img = html.match(/class="[^"]*contours__layer[^"]*"[^>]*>\s*(<img\b[^>]*>)/)?.[1] ?? '';
+    expect(img).toMatch(/\ssrc="\/img\/contours-ridge-spruce\.svg"/);
+    expect(img).toMatch(/\sloading="lazy"/);
+    expect(img).toMatch(/\salt=""/);
+    expect(img).not.toMatch(/\sstyle=/);
+    expect(html).not.toContain('<svg');
+    expect(html).not.toContain('<path');
+  });
+
+  it.each([
+    ['bottom-left', []],
+    ['bottom-right', ['contours__image--flip-x']],
+    ['top-left', ['contours__image--flip-y']],
+    ['top-right', ['contours__image--flip-x', 'contours__image--flip-y']],
+  ])('mirrors the image for the anchor %s', async (anchor, flips) => {
+    const html = markup(await render('Contours', { ...props, anchor }));
+    const classes = (html.match(/<img\b[^>]*class="([^"]*)"/)?.[1] ?? '').split(/\s+/);
+    expect(classes.filter((c) => c.startsWith('contours__image--')).sort()).toEqual(flips);
+  });
+
+  it('is refused for another shape or tone: the file holds the ridge in the spruce tone only', async () => {
+    await expect(render('Contours', { ...props, variant: 'corner' })).rejects.toThrow(/image/);
+    await expect(render('Contours', { ...props, tone: 'auto' })).rejects.toThrow(/image/);
+  });
+
+  it('stays inline without the option', async () => {
+    const html = markup(await render('Contours', { variant: 'ridge', tone: 'spruce' }));
+    expect(html).toContain('<svg');
+    expect(html).not.toContain('<img');
+  });
+});
+
+describe('TerrainMap panel', () => {
+  it('is hidden from assistive technology as a whole, inline SVG, class-based colours', async () => {
+    const html = await render('TerrainMap');
+    expect(html.trimStart()).toMatch(/^<[a-z]+\b[^>]*aria-hidden="true"/);
+    expectDecorativeSvg(html);
+  });
+
+  it('has the 4 x 4 grid, a dashed route, the pin, its label and the coordinates', async () => {
+    const html = markup(await render('TerrainMap'));
+    // 4 x 4 cells, drawn as in the design: one empty span with two gradient layers at 25 % steps
+    expect(html).toMatch(/<span\b[^>]*data-part="grid"[^>]*data-grid="4x4"[^>]*><\/span>/);
+    expect(html).not.toMatch(/<line\b/);
+    const source = readFileSync(`${dir}TerrainMap.astro`, 'utf8');
+    const grid = source.match(/\.terrain__grid\s*\{([^}]*)\}/)?.[1] ?? '';
+    expect(grid.match(/linear-gradient\(/g)).toHaveLength(2);
+    expect(grid).toMatch(/linear-gradient\(\s*90deg,/);
+    expect(grid).toMatch(/background-size:\s*25% 25%/);
+    // the route starts at 30 % of the panel, as in the design, with no offset workaround
+    const trail = source.match(/\.terrain__trail\s*\{([^}]*)\}/)?.[1] ?? '';
+    expect(trail).toMatch(/left:\s*30%/);
+    expect(trail).not.toMatch(/translate|right:/);
+    // the frame holds a generated contour map (one long path), as in the design
+    expect(html).toMatch(/data-part="relief"[^>]*\sd="M[^"]{5000,}"/);
+    expect(html).toMatch(/data-part="route"[^>]*stroke-dasharray="4 5"/);
+    expect(html).toMatch(/data-part="route"/);
+    expect(html).toMatch(/data-part="pin"/);
+    expect(html).toContain('You are here');
+    expect(text(html)).toContain('59.91° N · 10.75° E');
+  });
+});
+
+describe('Wordmark', () => {
+  it.each([
+    ['default', {}],
+    ['on spruce', { onSpruce: true }],
+  ])('links to / with an accessible name in the %s variant', async (_n, props) => {
+    const html = markup(await render('Wordmark', props));
+    expect(html).toMatch(/<a\b[^>]*href="\/"/);
+    expect(html.replace(/<[^>]+>/g, '')).toContain('alpon.dev');
+  });
+
+  it('keeps "alpon.dev" as one word with ".dev" in its own accent element', async () => {
+    const html = markup(await render('Wordmark'));
+    // tags removed without inserting spaces: the text reads "alpon.dev"
+    expect(html.replace(/<[^>]+>/g, '').replace(/\s+/g, '')).toBe('alpon.dev');
+    expect(html).toMatch(/alpon<span\b[^>]*>\.dev<\/span>/);
+  });
+
+  it('on spruce differs from the default', async () => {
+    const a = await render('Wordmark');
+    const b = await render('Wordmark', { onSpruce: true });
+    expect(a).not.toBe(b);
+  });
+});
+
+// T9 (AC-30, ADR-0003): the hero corner shape and its parallax layer are decorative and carry
+// no style attribute (the script moves the layer through a CSS variable on a class, never inline).
+describe('Contours as the hero corner (T9)', () => {
+  it('hides the corner shape from assistive technology and has no style attribute', async () => {
+    const html = markup(await render('Contours', { variant: 'corner', parallax: true }));
+    expect(html).toMatch(/<div\b[^>]*class="[^"]*contours[^"]*"[^>]*aria-hidden="true"/);
+    expect(html).not.toMatch(/\sstyle=/);
+  });
+
+  it('has a separate parallax layer that is aria-hidden and has no style attribute', async () => {
+    const html = markup(await render('Contours', { variant: 'corner', parallax: true }));
+    const layer = html.match(/<[a-z]+\b[^>]*data-contours-parallax[^>]*>/)?.[0] ?? '';
+    expect(layer).not.toBe('');
+    expect(layer).toMatch(/aria-hidden="true"/);
+    expect(layer).not.toMatch(/\sstyle=/);
+  });
+
+  it('declares the drift animation paused by default and running only under data-motion="running"', () => {
+    const src = readFileSync(`${dir}Contours.astro`, 'utf8');
+    expect(src).toMatch(/animation:[^;]*var\(--fjord-duration-drift\)/);
+    expect(src).toMatch(/animation-play-state:\s*paused/);
+    expect(src).toMatch(
+      /\[data-motion=['"]running['"]\][^{]*\{[^}]*animation-play-state:\s*running/,
+    );
+  });
+});

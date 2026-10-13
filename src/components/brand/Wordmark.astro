@@ -1,0 +1,57 @@
+---
+// The "alpon.dev" wordmark as a link home: "alpon" plus an accent ".dev" (site copy of the
+// design system, Wordmark). `onSpruce` is for placement on the dark spruce surface (menu panel, on-spruce header),
+// where the whole wordmark, ".dev" included, takes the inverse colour, as in the page design.
+interface Props {
+  onSpruce?: boolean;
+}
+
+const { onSpruce = false } = Astro.props;
+---
+
+<a
+  class:list={['wordmark', { 'wordmark--on-spruce': onSpruce }]}
+  href="/"
+  aria-label="alpon.dev, home"
+>
+  alpon<span>.dev</span>
+</a>
+
+<style>
+  .wordmark {
+    position: relative;
+    display: inline-flex;
+    align-items: baseline;
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-ui-lg);
+    font-weight: var(--fjord-weight-medium);
+    letter-spacing: var(--fjord-tracking-body);
+    line-height: var(--fjord-leading-none);
+    color: var(--fjord-color-text);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  /* The link is as high as its text, as in the design; the overlay keeps a 44px touch target. */
+  .wordmark::before {
+    content: '';
+    position: absolute;
+    /* Grows past the control only where it is smaller than the 44px target, on each axis. */
+    inset: min(0px, calc((100% - var(--fjord-tap-min)) / 2));
+  }
+
+  .wordmark span {
+    color: var(--fjord-color-link);
+  }
+  .wordmark:hover {
+    color: var(--fjord-color-text);
+  }
+  .wordmark--on-spruce,
+  .wordmark--on-spruce:hover,
+  .wordmark--on-spruce span {
+    color: var(--fjord-color-text-inverse);
+  }
+  .wordmark:focus-visible {
+    outline: var(--fjord-focus-width) solid var(--fjord-color-focus-ring);
+    outline-offset: var(--fjord-focus-offset);
+  }
+</style>

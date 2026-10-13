@@ -1,0 +1,116 @@
+---
+// Availability (open / talking / employed) and status (live / progress / archived) as two
+// variants of one component. The label text is always printed; the dot is decoration only.
+// `pulse` (the home hero only, Owner decision; the design's ring is static) lets the ring of the
+// open dot pulse as Ambient motion: paused by default, running only under data-motion="running"
+// on an ancestor, so the hero's Motion control pauses it too (home ADR-0003).
+interface Props {
+  kind?: 'availability' | 'status';
+  status: 'open' | 'talking' | 'employed' | 'live' | 'progress' | 'archived';
+  /** Label text; when omitted the default slot is the label. */
+  label?: string;
+  /** Availability only: a short note after the label, e.g. "Oslo area". */
+  detail?: string;
+  /** The ring of the open dot pulses while an ancestor has data-motion="running". */
+  pulse?: boolean;
+}
+
+const { kind = 'availability', status, label, detail, pulse = false } = Astro.props;
+---
+
+<span class="badge" data-kind={kind} data-status={status} data-pulse={pulse ? '' : undefined}>
+  <span class="badge__dot" aria-hidden="true"></span>
+  {label !== undefined ? label : <slot />}
+  {detail && (
+    <>
+      <span class="badge__sep" aria-hidden="true">
+        ·
+      </span>
+      <span class="badge__detail">{detail}</span>
+    </>
+  )}
+</span>
+
+<style>
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--fjord-space-3);
+    height: var(--fjord-space-8);
+    padding: 0 var(--fjord-space-3);
+    border: var(--fjord-border-width) solid var(--fjord-color-border);
+    border-radius: var(--fjord-radius-pill);
+    background-color: var(--fjord-color-bg-raised);
+    font-family: var(--fjord-font-mono);
+    font-size: var(--fjord-text-mono-label);
+    font-weight: var(--fjord-weight-medium);
+    line-height: var(--fjord-leading-none);
+    color: var(--fjord-color-text);
+    white-space: nowrap;
+  }
+  .badge__dot {
+    position: relative;
+    width: var(--fjord-space-2);
+    height: var(--fjord-space-2);
+    flex: none;
+    border-radius: var(--fjord-radius-round);
+    background-color: currentColor;
+    color: var(--fjord-color-success);
+  }
+  .badge[data-status='open'] .badge__dot::after {
+    content: '';
+    position: absolute;
+    inset: calc(-1 * var(--fjord-space-1));
+    border: var(--fjord-border-width) solid currentColor;
+    border-radius: var(--fjord-radius-round);
+    opacity: var(--fjord-opacity-faint);
+  }
+  /* The first frame is the static ring, so paused, reduced motion and scripts off look as the design. */
+  .badge[data-pulse][data-status='open'] .badge__dot::after {
+    animation: badge-pulse var(--fjord-duration-loop) var(--fjord-ease-in-out) infinite;
+    animation-play-state: paused;
+  }
+  :global([data-motion='running']) .badge[data-pulse][data-status='open'] .badge__dot::after {
+    animation-play-state: running;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .badge[data-pulse][data-status='open'] .badge__dot::after {
+      animation: none;
+    }
+  }
+  /* Dag: the hero is on spruce, where a ring in the success colour is lost, so the pulsing ring is
+     drawn in lichen (Owner decision). Natt keeps the colour of the dot, also with scripts off on a
+     dark device. A Badge that does not pulse is not touched. */
+  :global(.fjord-on-spruce) .badge[data-pulse][data-status='open'] .badge__dot::after {
+    border-color: var(--fjord-lichen);
+  }
+  :global(:root[data-theme='natt']) .badge[data-pulse][data-status='open'] .badge__dot::after {
+    border-color: currentColor;
+  }
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme])) .badge[data-pulse][data-status='open'] .badge__dot::after {
+      border-color: currentColor;
+    }
+  }
+  @keyframes badge-pulse {
+    from {
+      transform: scale(1);
+      opacity: var(--fjord-opacity-faint);
+    }
+    to {
+      transform: scale(2);
+      opacity: 0;
+    }
+  }
+  .badge[data-status='talking'] .badge__dot,
+  .badge[data-status='progress'] .badge__dot {
+    color: var(--fjord-color-warning);
+  }
+  .badge[data-status='employed'] .badge__dot,
+  .badge[data-status='archived'] .badge__dot {
+    color: var(--fjord-color-text-muted);
+  }
+  .badge__sep {
+    color: var(--fjord-color-text-muted);
+  }
+</style>

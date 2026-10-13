@@ -1,0 +1,22 @@
+.a {
+  color: var(--fjord-color-text);
+  background-color: transparent;
+  background: none;
+  background: var(--fjord-color-bg-raised);
+  background: linear-gradient(to bottom, var(--fjord-color-bg), transparent) no-repeat center /
+    cover;
+  border-color: var(--fjord-color-border) transparent;
+  border-block-end-color: currentColor;
+  border: var(--fjord-border-width) solid var(--fjord-color-border);
+  border-top: 1px dashed currentColor;
+  border-bottom: 0;
+  outline: var(--fjord-focus-width) solid var(--fjord-color-focus-ring);
+  outline-color: inherit;
+  text-decoration-color: currentColor;
+  fill: none;
+  stroke: currentColor;
+}
+
+.b {
+  background-color: color-mix(in srgb, var(--fjord-color-bg) 94%, transparent);
+}

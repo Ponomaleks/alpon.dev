@@ -1,0 +1,175 @@
+---
+import Icon from './Icon.astro';
+
+interface Props {
+  href: string;
+  /**
+   * Leaves the site (home D-09): opens in a new tab with rel="noopener noreferrer", adds the arrow
+   * icon, and ends the name of the link with "(opens in a new tab)" for assistive technology.
+   */
+  external?: boolean;
+  /**
+   * External only: the link keeps the type and the colour of the text around it and gains a 44px
+   * target, for a value in a list (the profile rows of the Contact block).
+   */
+  quiet?: boolean;
+  /** External only: the hint in the language of the page, where that is not English. */
+  newTabHint?: string;
+  /** A link on its own line that leads on inside the site: adds the arrow that moves on hover. */
+  standalone?: boolean;
+  /** Forces a state for the Styleguide (hook H-4). */
+  'data-demo-state'?: 'hover' | 'focus' | 'active';
+}
+
+const {
+  href,
+  external = false,
+  quiet = false,
+  newTabHint = 'opens in a new tab',
+  standalone = false,
+  'data-demo-state': demoState,
+} = Astro.props;
+const lone = standalone && !external;
+---
+
+<a
+  class:list={[
+    'fj-link',
+    external && 'fj-link--external',
+    external && quiet && 'fj-link--quiet',
+    lone && 'fj-link--standalone',
+  ]}
+  href={href}
+  rel={external ? 'noopener noreferrer' : undefined}
+  target={external ? '_blank' : undefined}
+  data-demo-state={demoState}
+>
+  <slot />
+  {external && <span class="fj-link__hint">({newTabHint})</span>}
+  {external && (
+    <span class="fj-link__icon">
+      <Icon name="arrow-up-right" />
+    </span>
+  )}
+  {lone && (
+    <span class="fj-link__icon">
+      <Icon name="arrow-right" />
+    </span>
+  )}
+</a>
+
+<style is:global>
+  .fj-link {
+    color: var(--fjord-color-link);
+    text-decoration: underline;
+    text-decoration-thickness: var(--fjord-border-width);
+    text-underline-offset: 0.22em;
+    text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
+  }
+
+  /* No underline at rest: a line in the text colour grows from the left on hover and focus. */
+  .fj-link--standalone,
+  .fj-link--external {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--fjord-space-1-5);
+    padding-bottom: var(--fjord-space-0-5);
+    font-weight: var(--fjord-weight-medium);
+    text-decoration: none;
+    background-image: linear-gradient(currentColor, currentColor);
+    background-position: 0 100%;
+    background-size: 0 var(--fjord-border-width);
+    background-repeat: no-repeat;
+  }
+
+  .fj-link__icon {
+    display: inline-flex;
+  }
+
+  /* Read by assistive technology only; the arrow says it to the eye. The link holds it: left to
+     the page, a hint inside a card scrolled out of a row would widen the page. */
+  .fj-link--external {
+    position: relative;
+  }
+  .fj-link__hint {
+    position: absolute;
+    width: var(--fjord-border-width);
+    height: var(--fjord-border-width);
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* A value in a list: the type and the colour of the text around it, a 44px target, the 16px
+     arrow. The hover line stays under the text (as in ExperienceList). */
+  .fj-link--quiet {
+    min-block-size: var(--fjord-tap-min);
+    padding-bottom: 0;
+    font-weight: inherit;
+    color: inherit;
+    background-position: 0 calc(50% + 0.5em * var(--fjord-leading-snug) + var(--fjord-space-0-5));
+  }
+
+  /* The design's 16px arrow beside the standalone and the external link. */
+  .fj-link--external .fj-link__icon svg,
+  .fj-link--standalone .fj-link__icon svg {
+    inline-size: var(--fjord-space-4);
+    block-size: var(--fjord-space-4);
+  }
+
+  .fj-link:hover,
+  .fj-link:active,
+  .fj-link[data-demo-state='hover'],
+  .fj-link[data-demo-state='active'] {
+    color: var(--fjord-color-link-hover);
+    text-decoration-color: currentColor;
+  }
+
+  .fj-link--standalone:hover,
+  .fj-link--standalone:focus-visible,
+  .fj-link--standalone[data-demo-state='hover'],
+  .fj-link--standalone[data-demo-state='focus'],
+  .fj-link--external:hover,
+  .fj-link--external:focus-visible,
+  .fj-link--external[data-demo-state='hover'],
+  .fj-link--external[data-demo-state='focus'] {
+    background-size: 100% var(--fjord-border-width);
+  }
+
+  .fj-link:focus-visible,
+  .fj-link[data-demo-state='focus'] {
+    outline: var(--fjord-focus-width) solid var(--fjord-color-focus-ring);
+    outline-offset: var(--fjord-focus-offset);
+    border-radius: var(--fjord-radius-xs);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .fj-link {
+      transition:
+        color var(--fjord-duration-200) var(--fjord-ease-out),
+        text-decoration-color var(--fjord-duration-200) var(--fjord-ease-out);
+    }
+
+    .fj-link--standalone,
+    .fj-link--external {
+      transition:
+        background-size var(--fjord-duration-200) var(--fjord-ease-out),
+        color var(--fjord-duration-200) var(--fjord-ease-out);
+    }
+
+    .fj-link__icon {
+      transition: transform var(--fjord-duration-200) var(--fjord-ease-out);
+    }
+
+    .fj-link--external:hover .fj-link__icon,
+    .fj-link--external[data-demo-state='hover'] .fj-link__icon {
+      transform: translate(var(--fjord-space-0-5), calc(-1 * var(--fjord-space-0-5)));
+    }
+
+    /* The design's translateX(3px): 2px and the 1px hairline, so no distance is a literal. */
+    .fj-link--standalone:hover .fj-link__icon,
+    .fj-link--standalone[data-demo-state='hover'] .fj-link__icon {
+      transform: translateX(calc(var(--fjord-space-0-5) + var(--fjord-border-width)));
+    }
+  }
+</style>

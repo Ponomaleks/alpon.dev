@@ -1,0 +1,23 @@
+<!-- @dsCard group="Dark theme · Natt" viewport="700x940" name="Content · Natt" subtitle="Section header, stats, project cards, testimonial, CTA band" -->
+<!doctype html><html lang="en" data-theme="natt"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="../../styles.css">
+<style>body{margin:0;background:var(--fjord-color-bg)}.panes{display:grid;grid-template-columns:1fr 1fr;min-height:100vh}.pane{padding:20px;display:flex;flex-direction:column;gap:18px;background:var(--fjord-color-bg);color:var(--fjord-color-text);min-width:0;box-sizing:border-box}.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}.lbl{font:500 10.5px/1 var(--fjord-font-mono);color:var(--fjord-color-text-muted);letter-spacing:.04em;margin-bottom:-8px}</style>
+</head><body><div id="root"></div>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<script type="text/babel">
+const { SectionHeader, StatRow, ProjectCard, Testimonial, CtaBand } = window.FjordDesignSystem_44c954;
+function App(){return <div className="pane" data-theme="natt" style={{gap:28}}>
+<SectionHeader index="01" eyebrow="Projects" title="Live work, with numbers" lead="Three projects in production. Each has a public repo and a short write-up."/>
+<StatRow items={[{value:4,unit:'yrs',label:'Full-stack engineering',context:'EPAM Systems'},{value:3,label:'Live projects with public code',context:'alpon.dev/projects'},{value:100,label:'Lighthouse performance, this site',context:'Mobile · 2026-09'},{value:'EN · NO',label:'CV in two languages',countUp:false}]}/>
+<ProjectCard variant="featured" slug="turplan" title="Turplan" year="2026" summary="Trip planner for Nordmarka: routes, huts and last-bus times on one screen." result={{value:'1.1 s',label:'median LCP on 4G'}} stack={['TypeScript','Next.js','PostGIS']} liveHref="#" codeHref="#"/>
+<div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:24}}>
+<ProjectCard slug="kvittering" title="Kvittering" year="2025" status="progress" summary="Receipt scanner that files expenses by project." result={{value:'−70%',label:'time per expense report'}} stack={['React','Node.js']} codeHref="#"/>
+<Testimonial quote="Placeholder. Paste a verbatim quote from a real LinkedIn recommendation here, never a paraphrase." name="Name Surname" role="Engineering Manager, EPAM Systems" href="#"/>
+</div>
+<div style={{margin:'0 -20px -20px'}}><CtaBand compact title="Good products are built together." primary={{label:'Get in touch',href:'#'}} secondary={{label:'View CV',href:'#'}} ambient={false}/></div>
+</div>}
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script></body></html>

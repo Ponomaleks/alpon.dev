@@ -1,0 +1,22 @@
+.a {
+  transition: color var(--fjord-duration-200) var(--fjord-ease-out);
+  transition-property: color, translate;
+  transition-duration: var(--fjord-duration-200), var(--fjord-duration-320);
+  transition-timing-function: var(--fjord-ease-out);
+  animation: spin var(--fjord-duration-spin) var(--fjord-ease-linear) infinite;
+  animation-duration: var(--fjord-duration-320);
+  animation-timing-function: var(--fjord-ease-in-out);
+  animation-iteration-count: 1;
+}
+
+.b {
+  transition:
+    translate var(--fjord-duration-320) var(--fjord-ease-out),
+    opacity var(--fjord-duration-200) var(--fjord-ease-out) var(--fjord-reveal-stagger);
+  animation: menu-in var(--fjord-duration-320) var(--fjord-ease-out) 2 alternate both;
+}
+
+.c {
+  transition: none;
+  animation: none;
+}
