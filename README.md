@@ -8,14 +8,13 @@ The site is a portfolio piece itself, so code quality, accessibility and perform
 
 [**View the live website →**](https://alpon.dev/)
 
-[alpon.dev](https://alpon.dev/) still serves the temporary stub from `main`; the new site is the `v2` branch, which deploys as a preview until it is released (see [Two lines](#two-lines)).
+## Branches
 
-## Two lines
+- **`main`** is the site: Astro 6 (static output) with the Fjord design system. Every merge into it is deployed to alpon.dev. Work happens on feature branches that start from `main` and come back through pull requests; `main` takes no change without the checks `check` and `visual`. Every other branch deploys as a preview and does not touch production.
+- **`v2`** is the branch the site was built on, feature by feature, until Release 1 put it on `main` on 2026-10-13. It is kept, together with the feature branches, because the repository is part of the portfolio: the history shows how the site was built.
+- Before Release 1 `main` held a temporary static stub (see [The stub](#the-stub-history)).
 
-- **`main`** is a temporary static stub (contacts, CV EN / NO, vCard) served straight from `public/`, with no build. It stays in production until v2 reaches parity.
-- **`v2`** is the new site: Astro 6 (static output) with the Fjord design system. It deploys as a preview and does not touch production. Feature branches are merged into `v2` through pull requests.
-
-## What v2 has today
+## What the site has today
 
 | Route | What it is |
 |---|---|
@@ -27,7 +26,7 @@ The site is a portfolio piece itself, so code quality, accessibility and perform
 
 Both themes, `Dag` (light) and `Natt` (dark), work with no flash of the wrong theme. Pages ship no client JavaScript by default; interactive parts are small vanilla TypeScript scripts.
 
-Next on the [roadmap](docs/roadmap.md): the rest of the CV step (the printed CV with its Print button, the BackToTop link, the current-page marker in the mobile menu, the visual baselines of the CV pages), then Release 1 (v2 → `main`), then the project case studies.
+Next on the [roadmap](docs/roadmap.md): the Projects pages and the project case studies.
 
 ## Stack
 
@@ -68,7 +67,7 @@ npx playwright install chromium   # once, for the tests and Lighthouse CI
 
 ### CI
 
-`.github/workflows/ci.yml` runs on every pull request and on pushes to `main` and `v2`. Branch protection requires two checks, `check` and `visual`. `check` gathers the results of `quality` and of the two `e2e` shards, which run side by side:
+`.github/workflows/ci.yml` runs on every pull request and on pushes to `main`. Branch protection requires two checks, `check` and `visual`. `check` gathers the results of `quality` and of the two `e2e` shards, which run side by side:
 
 - `quality`: lint, unit tests, build, budgets, placeholder and contact checks, Lighthouse CI.
 - `e2e` (two shards): Playwright e2e and axe (Chromium desktop and phone; Firefox and WebKit on the contact place spec), half of the suite each.
@@ -126,21 +125,19 @@ The site is built spec first. Each feature has its own folder in `docs/features/
 
 ### Parity with the stub
 
-`docs/stub-parity.md` lists everything the stub does. `tests/e2e/parity.spec.ts` has one test per item: the built ones run now, the rest are `test.fixme` until a feature spec builds them. The last open items, those of the CV pages, run since the CV pages were built, so no `test.fixme` is left; the release itself (roadmap step 6) is still ahead. **v2 goes to `main` only when no `test.fixme` is left in `parity.spec.ts`.**
+`docs/stub-parity.md` lists everything the stub did. `tests/e2e/parity.spec.ts` has one test per item. The new site went to `main` only when no `test.fixme` was left in that file (Release 1, roadmap step 6). The tests stay: they keep the short links, the downloads and the old addresses working.
 
 ## Deployment
 
 Hosting is Cloudflare Workers with static assets; the Worker is `alpon-dev` (the name must match `name` in `wrangler.jsonc`) and `alpon.dev` is its Custom Domain. Workers Builds deploys from GitHub. It does not read a custom build from `wrangler.jsonc`, and the build settings are shared by all branches, so:
 
-- **Build command:** empty (`main` has no `package.json`; on `v2` Workers Builds installs the dependencies itself).
-- **Deploy command** (production, `main`): `npx wrangler deploy`, which serves the stub's `public/`.
-- **Non-production branch deploy command** (`v2` and other branches): `npm run build && npx wrangler preview`.
+- **Build command:** empty (Workers Builds installs the dependencies itself).
+- **Deploy command** (production, `main`): `npm run build && npx wrangler deploy` (since Release 1, 2026-10-13; the stub used `npx wrangler deploy`).
+- **Non-production branch deploy command** (every other branch): `npm run build && npx wrangler preview`.
 
 The preview URL of a branch is in the Worker `alpon-dev` → **Deployments**, and in the commit status on GitHub.
 
 Workers Builds reads the Node version from `.nvmrc`. If a build log ever shows another version, add the build variable `NODE_VERSION=24` for non-production branches.
-
-When `v2` is merged into `main`, change the production deploy command to `npm run build && npx wrangler deploy`.
 
 ### One-time Cloudflare setup (done)
 
@@ -155,29 +152,27 @@ Kept for reference, in case the Worker has to be created again.
 Checks after a production deploy:
 
 - `https://alpon.dev`: the page, the CV and the buttons.
-- `https://alpon.dev/cv`: the English CV page (while `main` serves the stub: the English PDF opens).
+- `https://alpon.dev/cv`: the English CV page.
 - `https://alpon.dev/nope`: the branded 404 page.
 - A phone: scan the QR code from the business card and try "Add to contacts": the file downloads and, on a phone, a sheet says where to find it.
 - Link preview: https://www.linkedin.com/post-inspector/ shows `og.png`.
 - Headers: https://securityheaders.com/?q=alpon.dev
 
-To publish by hand, without Workers Builds: `npx wrangler login`, then `npx wrangler deploy` (on `v2`, `npm run build` first).
+To publish by hand, without Workers Builds: `npx wrangler login`, then `npm run build` and `npx wrangler deploy`.
 
 ## Updating content
 
 | What | Where | Then |
 |---|---|---|
-| CV (`v2`) | The CV PDF in `public/cv/` and the CV page in `src/data/cv/` | Follow [Replacing a CV PDF](#replacing-a-cv-pdf) |
-| CV (`main`) | Replace `public/cv/alexander-ponomarenko-cv-en.pdf` / `-no.pdf` (same file names) | `python tools/cv-previews.py` (first time: `pip install pymupdf pillow`) |
-| Contacts (`v2`) | `src/data/contact.ts` and `public/alexander-ponomarenko.vcf` | `npm run check:contact` confirms the two match |
-| Contacts (`main`) | `public/index.html` (the Contact block and the JSON-LD in `<head>`) and `public/alexander-ponomarenko.vcf` | |
-| Home page copy (`v2`) | `src/data/home.ts` | |
+| CV | The CV PDF in `public/cv/` and the CV page in `src/data/cv/` | Follow [Replacing a CV PDF](#replacing-a-cv-pdf) |
+| Contacts | `src/data/contact.ts` and `public/alexander-ponomarenko.vcf` | `npm run check:contact` confirms the two match |
+| Home page copy | `src/data/home.ts` | |
 
 PDF files are cached for an hour, so a new version reaches everyone within the hour (or at once: **Caching → Configuration → Purge Everything**).
 
 ### Replacing a CV PDF
 
-On `v2` the CV exists twice: as a CV PDF (`public/cv/alexander-ponomarenko-cv-en.pdf` / `-no.pdf`, the source of truth for the CV content) and as a CV page (`/cv/en`, `/cv/no`). A CV update changes both. When a CV PDF is replaced (same file name), the same pull request does this, in this order:
+The CV exists twice: as a CV PDF (`public/cv/alexander-ponomarenko-cv-en.pdf` / `-no.pdf`, the source of truth for the CV content) and as a CV page (`/cv/en`, `/cv/no`). A CV update changes both. When a CV PDF is replaced (same file name), the same pull request does this, in this order:
 
 1. Update the CV page in that CV language from the new file: `src/data/cv/en.ts` or `src/data/cv/no.ts`.
 2. Make the page images of that file again: `public/cv/cv-{en,no}-{1,2}.webp`, with `python tools/cv-previews.py` (first time: `pip install pymupdf pillow`). `--out <directory>` writes them somewhere else, to compare with the committed ones first.
@@ -187,12 +182,12 @@ On `v2` the CV exists twice: as a CV PDF (`public/cv/alexander-ponomarenko-cv-en
 
 `npm run check:cv`, part of `npm run lint`, fails while a CV PDF differs from its recorded checksum (or is missing) and names the file and the CV page to check; the failure message prints the new checksum. The check compares checksums only and reads no text, so comparing the text of the page with the file stays the Owner's check.
 
-## The stub (`main`)
+## The stub (history)
 
-A static page in the Fjord style: contacts from the business card, the CV (EN / NO) viewed in the browser, the vCard and the OG image. No build and no dependencies. Its files (`public/index.html`, `styles.css`, `app.js`, `404.html`) exist only on `main`; on `v2` the Astro pages replace them. Local preview on `main`: `npx wrangler dev`, then open http://localhost:8787.
+Until Release 1 (2026-10-13) alpon.dev served a temporary stub from `main`: a static page in the Fjord style with the contacts from the business card, the CV (EN / NO) viewed in the browser, the vCard and the OG image. No build and no dependencies. Its files (`public/index.html`, `styles.css`, `app.js`, `404.html`) are no longer on `main`; the last commit that has them is `d9b378a`. To see it: check that commit out, run `npx wrangler dev` and open http://localhost:8787.
 
-How the stub shows the CV:
+How the stub showed the CV:
 
-- Desktop browsers with a PDF viewer show the PDF inside the page.
-- Phones and browsers without a PDF viewer show both pages as images; a tap opens the full PDF.
-- "Open PDF" and "Download" always work. `alpon.dev/#cv-no` opens the Norwegian version.
+- Desktop browsers with a PDF viewer showed the PDF inside the page.
+- Phones and browsers without a PDF viewer showed both pages as images; a tap opened the full PDF.
+- "Open PDF" and "Download" always worked. `alpon.dev/#cv-no` opened the Norwegian version; today that address hands over to `/cv/no`.

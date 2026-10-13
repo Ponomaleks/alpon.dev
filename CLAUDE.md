@@ -9,7 +9,7 @@ The site itself is a portfolio piece: code quality, accessibility and performanc
 - Astro 6, TypeScript (strict), static output (`output: 'static'`).
 - Plain CSS with custom properties. No Tailwind, no CSS-in-JS, no UI kits.
 - Interactive parts are small islands (vanilla TS or React only when it clearly pays off). Default is zero client JS.
-- Hosting: Cloudflare Workers with static assets (`wrangler.jsonc`, `assets.directory: ./dist`), deployed by Workers Builds from GitHub. Production branch: `main`. Other branches get preview URLs.
+- Hosting: Cloudflare Workers with static assets (`wrangler.jsonc`, `assets.directory: ./dist`), deployed by Workers Builds from GitHub. Production branch: `main` (it serves the site since Release 1, 2026-10-13). Other branches get preview URLs.
 - Package manager: npm. Node LTS.
 - Tests: Playwright (visual + e2e), @axe-core/playwright, Lighthouse CI. Run in GitHub Actions on every PR.
 - Running cost must stay at zero (only the domain is paid). Do not add paid services.
@@ -127,6 +127,7 @@ tools/             sources for the OG image, contours and CV previews (not deplo
 - Every screen in a feature's `screens.md` cites its page design (file and screen in `design/handoff/site/`) as the primary reference; component files are secondary. The "Design match" review compares the built page with the page-design screenshots in `design/screenshots/` and lists every difference.
 - Do not add dependencies without explaining why in the PR. Prefer platform features (CSS, View Transitions, native `<dialog>`, `popover`).
 - Commands: `npm run dev`, `npm run build`, `npm run preview` (`wrangler dev` on `dist/`, production routing), `npm run test` (Playwright e2e + axe against `wrangler dev`), `npm run lint` (`astro check` + ESLint + Prettier check), `npm run format`, `npm run lhci` (Lighthouse CI on `dist/`, run after a build).
-- Parity gate: `main` serves the stub until v2 reaches parity. `tests/e2e/parity.spec.ts` mirrors `docs/stub-parity.md`; the feature spec that builds an item flips its `test.fixme` to `test`. v2 goes to `main` only when no `test.fixme` is left.
+- Branches: work starts from `main` on a feature branch and comes back through a pull request into `main`. `main` is protected: the checks `check` and `visual` are required, for administrators too, so nothing is pushed to it directly. The `v2` branch, on which the site was built before Release 1, and the merged feature branches are kept as history (the repository is part of the portfolio); do not delete them and do not open pull requests into `v2`.
+- Parity: `tests/e2e/parity.spec.ts` mirrors `docs/stub-parity.md`, the list of what the stub did before Release 1. Every item is built and its test runs. The tests stay as they are: no `test.fixme` is added to that file.
 - Unit tests: Vitest (`npm run test:unit`, added by fjord-foundation) runs the pure logic in `scripts/`, `src/` and `tools/` from `*.test.ts` files next to the code. `tests/` stays Playwright only.
 - Astro 6 and Cloudflare Workers features change fast. Before using an API or config option, check the Astro Docs MCP and Cloudflare Docs MCP instead of relying on memory.
